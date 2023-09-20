@@ -87,10 +87,52 @@ func Summary(insertions []Insertion) {
 		total, float64(total) / float64(len(insertions)))
 }
 
-func main() {
-	insertions := LoadInsertions("insertions.txt", 3, 2)
-	Summary(insertions)
-
+func findInVirus(insertions []Insertion, minLength int) {
 	wh1 := genomes.LoadGenomes("../fasta/WH1.fasta",
 		"../fasta/WH1.orfs")
+	var search genomes.Search
+
+	var found, count int
+searching:
+	for i := 0; i < len(insertions); i++ {
+		if len(insertions[i].nts) < minLength {
+			continue
+		}
+		count++
+
+		for search.Init(wh1, 0, insertions[i].nts); ; {
+			search.Next()
+			if search.End() {
+				break
+			}
+			found++
+			continue searching
+		}
+
+		rc := genomes.ReverseComplement(insertions[i].nts)
+		for search.Init(wh1, 0, rc); ; {
+			search.Next()
+			if search.End() {
+				break
+			}
+			found++
+			continue searching
+		}
+		fmt.Printf("%s\n", insertions[i].nts)
+	}
+
+	fmt.Printf("Length %d: %d (/%d) were found in SC2 itself\n", minLength,
+		found, count)
+}
+
+func main() {
+	insertions := LoadInsertions("insertions.txt", 9, 2)
+	Summary(insertions)
+	findInVirus(insertions, 9)
+
+	/*
+	for i := 9; i < 50; i++ {
+		findInVirus(insertions, i)
+	}
+	*/
 }
