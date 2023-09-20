@@ -90,4 +90,7 @@ func Summary(insertions []Insertion) {
 func main() {
 	insertions := LoadInsertions("insertions.txt", 3, 2)
 	Summary(insertions)
+
+	wh1 := genomes.LoadGenomes("../fasta/WH1.fasta",
+		"../fasta/WH1.orfs")
 }
