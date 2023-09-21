@@ -209,7 +209,7 @@ func (env *Environment) Init(genome *Genomes,
 	env.start = pos
 	env.len = n
 
-	windowStart, codonOffset, err := genome.orfs.GetCodonOffset(pos)
+	windowStart, codonOffset, err := genome.Orfs.GetCodonOffset(pos)
 	if err != nil {
 		return err
 	}
@@ -218,7 +218,7 @@ func (env *Environment) Init(genome *Genomes,
 	windowEnd := windowStart + windowLen
 
 	env.offset = codonOffset
-	env.window = genome.nts[which][windowStart:windowEnd]
+	env.window = genome.Nts[which][windowStart:windowEnd]
 	env.protein = TranslateAligned(env.window)
 	return nil
 }
@@ -411,17 +411,17 @@ type CodonIter struct {
 func (it *CodonIter) Init(genome *Genomes, which int) {
 	it.genome = genome
 	it.which = which
-	it.pos = genome.orfs[0].start
+	it.pos = genome.Orfs[0].start
 }
 
 func (it *CodonIter) Next() (pos int,
 	codon string, aa byte, err error) {
 	genome := it.genome
-	for ; it.orfI < len(genome.orfs); it.orfI++ {
-		orf := genome.orfs[it.orfI]
+	for ; it.orfI < len(genome.Orfs); it.orfI++ {
+		orf := genome.Orfs[it.orfI]
 		pos = it.pos
 		if pos+3 <= orf.end {
-			codon = string(genome.nts[it.which][pos : pos+3])
+			codon = string(genome.Nts[it.which][pos : pos+3])
 			aa = CodonTable[codon]
 			err = nil
 			it.pos = pos + 3

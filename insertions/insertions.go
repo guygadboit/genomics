@@ -90,7 +90,7 @@ func Summary(insertions []Insertion) {
 
 func findInVirus(insertions []Insertion, minLength int) {
 	wh1 := genomes.LoadGenomes("../fasta/WH1.fasta",
-		"../fasta/WH1.orfs")
+		"../fasta/WH1.orfs", false)
 	var search genomes.Search
 
 	var found, count int

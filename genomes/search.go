@@ -25,7 +25,7 @@ func (s *Search) Start() {
 }
 
 func (s *Search) Get() (int, error) {
-	nts := s.haystack.nts[s.which]
+	nts := s.haystack.Nts[s.which]
 	if s.pos < len(nts) {
 		return s.pos, nil
 	}
@@ -33,7 +33,7 @@ func (s *Search) Get() (int, error) {
 }
 
 func (s *Search) Next() {
-	nts := s.haystack.nts[s.which]
+	nts := s.haystack.Nts[s.which]
 	n, m := len(nts), len(s.needle)
 	for ; s.pos < n-m; s.pos++ {
 		if reflect.DeepEqual(nts[s.pos:s.pos+m], s.needle) {
@@ -43,7 +43,7 @@ func (s *Search) Next() {
 }
 
 func (s *Search) End() bool {
-	nts := s.haystack.nts[s.which]
+	nts := s.haystack.Nts[s.which]
 	n, m := len(nts), len(s.needle)
 	return s.pos == n-m
 }

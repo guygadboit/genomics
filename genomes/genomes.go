@@ -15,9 +15,9 @@ import (
 	for a single genome.
 */
 type Genomes struct {
-	nts   [][]byte
-	names []string
-	orfs  Orfs
+	Nts   [][]byte
+	Names []string
+	Orfs  Orfs
 }
 
 func NewGenomes(orfs Orfs, numGenomes int) *Genomes {
@@ -28,10 +28,18 @@ func NewGenomes(orfs Orfs, numGenomes int) *Genomes {
 /*
 	Load genomes, which might be a fasta file containing a single genome, or
 	one containing a few of them in an alignment. Be a bit careful when working
-	with alignments since there may be '-' in there
+	with alignments since there may be '-' in there. If merge load everything
+	into one genome even if there are multiple > lines (mammal genomes tend to
+	be like that)
 */
-func LoadGenomes(fname string, orfsName string) *Genomes {
-	ret := NewGenomes(LoadOrfs(orfsName), 0)
+func LoadGenomes(fname string, orfsName string, merge bool) *Genomes {
+	var orfs Orfs
+
+	if orfsName != "" {
+		orfs = LoadOrfs(orfsName)
+	}
+
+	ret := NewGenomes(orfs, 0)
 
 	fd, err := os.Open(fname)
 	if err != nil {
@@ -59,17 +67,17 @@ loop:
 		if strings.HasPrefix(line, ">") {
 			fields := strings.Fields(line[1:])
 			name := fields[0]
-			ret.names = append(ret.names, name)
-			if len(currentRow) > 0 {
-				ret.nts = append(ret.nts, currentRow)
+			ret.Names = append(ret.Names, name)
+			if !merge && len(currentRow) > 0 {
+				ret.Nts = append(ret.Nts, currentRow)
 				currentRow = make([]byte, 0)
 			}
 			continue
 		}
-
+		line = strings.ToUpper(line)
 		currentRow = append(currentRow, []byte(line)...)
 	}
-	ret.nts = append(ret.nts, currentRow)
+	ret.Nts = append(ret.Nts, currentRow)
 	return ret
 }
 
@@ -83,7 +91,7 @@ func (g *Genomes) Save(name, fname string, which int) error {
 	fp := bufio.NewWriter(fd)
 	fmt.Fprintf(fp, ">%s\n", name)
 
-	nts := g.nts[which]
+	nts := g.Nts[which]
 	ll := 60
 	var i int
 	for i = 0; i < len(nts)-ll; i += ll {
@@ -96,10 +104,10 @@ func (g *Genomes) Save(name, fname string, which int) error {
 }
 
 func (g *Genomes) Clone() *Genomes {
-	ret := NewGenomes(g.orfs, g.NumGenomes())
-	for i := 0; i < len(g.nts); i++ {
-		ret.nts[i] = make([]byte, len(g.nts[i]))
-		copy(ret.nts[i], g.nts[i])
+	ret := NewGenomes(g.Orfs, g.NumGenomes())
+	for i := 0; i < len(g.Nts); i++ {
+		ret.Nts[i] = make([]byte, len(g.Nts[i]))
+		copy(ret.Nts[i], g.Nts[i])
 	}
 	return ret
 }
@@ -110,7 +118,7 @@ func (g *Genomes) Clone() *Genomes {
 */
 func (g *Genomes) Combine(other *Genomes) {
 	for i := 0; i < other.NumGenomes(); i++ {
-		g.nts = append(g.nts, other.nts[i])
+		g.Nts = append(g.Nts, other.Nts[i])
 	}
 }
 
@@ -119,9 +127,9 @@ func (g *Genomes) Combine(other *Genomes) {
 	which dimension is which.
 */
 func (g *Genomes) NumGenomes() int {
-	return len(g.nts)
+	return len(g.Nts)
 }
 
 func (g *Genomes) Length() int {
-	return len(g.nts[0])
+	return len(g.Nts[0])
 }
