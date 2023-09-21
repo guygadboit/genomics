@@ -2,6 +2,7 @@ package genomes
 
 import (
 	"reflect"
+	"errors"
 )
 
 type Search struct {
@@ -15,24 +16,34 @@ func (s *Search) Init(haystack *Genomes, which int, needle []byte) {
 	s.haystack = haystack
 	s.which = which
 	s.needle = needle
-	s.pos = 0
+	s.Start()
 }
 
-func (s *Search) Next() int {
+func (s *Search) Start() {
+	s.pos = 0
+	s.Next()
+}
+
+func (s *Search) Get() (int, error) {
+	nts := s.haystack.nts[s.which]
+	if s.pos < len(nts) {
+		return s.pos, nil
+	}
+	return 0, errors.New("Off end")
+}
+
+func (s *Search) Next() {
 	nts := s.haystack.nts[s.which]
 	n, m := len(nts), len(s.needle)
 	for ; s.pos < n - m; s.pos++ {
 		if reflect.DeepEqual(nts[s.pos:s.pos+m], s.needle) {
-			ret := s.pos
-			s.pos++
-			return ret
+			return
 		}
 	}
-	s.pos = n
-	return n
 }
 
 func (s *Search) End() bool {
 	nts := s.haystack.nts[s.which]
-	return s.pos >= len(nts)
+	n, m := len(nts), len(s.needle)
+	return s.pos == n - m
 }

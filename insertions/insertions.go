@@ -95,30 +95,25 @@ func findInVirus(insertions []Insertion, minLength int) {
 	var found, count int
 searching:
 	for i := 0; i < len(insertions); i++ {
-		if len(insertions[i].nts) < minLength {
+		nts := insertions[i].nts
+		if len(nts) < minLength {
 			continue
 		}
 		count++
 
-		for search.Init(wh1, 0, insertions[i].nts); ; {
-			search.Next()
-			if search.End() {
-				break
-			}
+		for search.Init(wh1, 0, nts); !search.End(); search.Next() {
 			found++
 			continue searching
 		}
 
 		rc := genomes.ReverseComplement(insertions[i].nts)
-		for search.Init(wh1, 0, rc); ; {
-			search.Next()
-			if search.End() {
-				break
-			}
+		for search.Init(wh1, 0, rc); !search.End(); search.Next() {
 			found++
 			continue searching
 		}
-		fmt.Printf("%s\n", insertions[i].nts)
+
+		ins := insertions[i]
+		fmt.Printf("ins_%d:%s (%d seqs)\n", ins.pos, ins.nts, ins.nSeqs)
 	}
 
 	fmt.Printf("Length %d: %d (/%d) were found in SC2 itself\n", minLength,
