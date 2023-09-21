@@ -1,15 +1,15 @@
 package genomes
 
 import (
-	"reflect"
 	"errors"
+	"reflect"
 )
 
 type Search struct {
-	needle		[]byte
-	haystack	*Genomes
-	which		int
-	pos			int
+	needle   []byte
+	haystack *Genomes
+	which    int
+	pos      int
 }
 
 func (s *Search) Init(haystack *Genomes, which int, needle []byte) {
@@ -35,7 +35,7 @@ func (s *Search) Get() (int, error) {
 func (s *Search) Next() {
 	nts := s.haystack.nts[s.which]
 	n, m := len(nts), len(s.needle)
-	for ; s.pos < n - m; s.pos++ {
+	for ; s.pos < n-m; s.pos++ {
 		if reflect.DeepEqual(nts[s.pos:s.pos+m], s.needle) {
 			return
 		}
@@ -45,5 +45,5 @@ func (s *Search) Next() {
 func (s *Search) End() bool {
 	nts := s.haystack.nts[s.which]
 	n, m := len(nts), len(s.needle)
-	return s.pos == n - m
+	return s.pos == n-m
 }

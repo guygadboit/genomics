@@ -5,10 +5,10 @@ package genomes
 	loops.
 */
 type Iter interface {
-	Start()							// Rewind (You probably have your own Init)
-	Get() (interface{}, error)		// Get the current value
-	Next()							// Advance
-	End() bool						// Are you at the end?
+	Start()                    // Rewind (You probably have your own Init)
+	Get() (interface{}, error) // Get the current value
+	Next()                     // Advance
+	End() bool                 // Are you at the end?
 }
 
 func ReverseComplement(nts []byte) []byte {

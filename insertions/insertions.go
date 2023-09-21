@@ -1,20 +1,21 @@
 package main
 
 import (
-	"os"
-	"log"
 	"bufio"
-	"strconv"
 	"fmt"
-	"io"
-	"strings"
-	"regexp"
 	"genomics/genomes"
+	"io"
+	"log"
+	"os"
+	"regexp"
+	"sort"
+	"strconv"
+	"strings"
 )
 
 type Insertion struct {
-	pos  int    // Where
-	nts  []byte // What
+	pos   int    // Where
+	nts   []byte // What
 	nSeqs int    // How many times
 }
 
@@ -84,7 +85,7 @@ func Summary(insertions []Insertion) {
 		total += len(insertions[i].nts)
 	}
 	fmt.Printf("%d nts altogether (average length %.2f)\n",
-		total, float64(total) / float64(len(insertions)))
+		total, float64(total)/float64(len(insertions)))
 }
 
 func findInVirus(insertions []Insertion, minLength int) {
@@ -120,14 +121,70 @@ searching:
 		found, count)
 }
 
+/*
+	Ponderous sort but less trouble than updating my whole system to the latest
+	Go version that has slices.SortFunc
+*/
+
+type posCount struct {
+	pos		int
+	count	int
+}
+
+type posCounts []posCount
+
+func (p posCounts) Len() int {
+	return len(p)
+}
+
+func (p posCounts) Less(i, j int) bool {
+	return p[i].pos < p[j].pos
+}
+
+func (p posCounts) Swap(i, j int) {
+	p[i], p[j] = p[j], p[i]
+}
+
+func byLocation(insertions []Insertion, minLength int) {
+	positions := make(map[int]int)
+
+	for i := 0; i < len(insertions); i++ {
+		count, _ := positions[insertions[i].pos]
+		positions[insertions[i].pos] = count+1
+	}
+
+	posCounts := make(posCounts, 0, len(positions))
+	for k, v := range positions {
+		posCounts = append(posCounts, posCount{k, v})
+	}
+
+	sort.Sort(posCounts)
+
+	fd, err := os.Create("locations.txt")
+	if err != nil {
+		log.Fatal("Can't create file")
+	}
+	defer fd.Close()
+
+	w := bufio.NewWriter(fd)
+
+	for i := 0; i < posCounts.Len(); i++ {
+		pc := posCounts[i]
+		fmt.Fprintf(w, "%d %d\n", pc.pos, pc.count)
+	}
+
+	fmt.Printf("Wrote locations.txt\n")
+}
+
 func main() {
 	insertions := LoadInsertions("insertions.txt", 9, 2)
 	Summary(insertions)
-	findInVirus(insertions, 9)
+	// findInVirus(insertions, 9)
+	byLocation(insertions, 9)
 
 	/*
-	for i := 9; i < 50; i++ {
-		findInVirus(insertions, i)
-	}
+		for i := 9; i < 50; i++ {
+			findInVirus(insertions, i)
+		}
 	*/
 }
