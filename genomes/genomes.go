@@ -41,13 +41,8 @@ func LoadGenomes(fname string, orfsName string, merge bool) *Genomes {
 
 	ret := NewGenomes(orfs, 0)
 
-	fd, err := os.Open(fname)
-	if err != nil {
-		log.Fatal("Can't open file")
-	}
-	defer fd.Close()
-
-	fp := bufio.NewReader(fd)
+	fp := NewFileReader(fname)
+	defer fp.Close()
 
 	currentRow := make([]byte, 0)
 loop:

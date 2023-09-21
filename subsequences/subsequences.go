@@ -1,12 +1,12 @@
 package main
 
 import (
-	"fmt"
 	"bufio"
-	"os"
-	"log"
-	"sort"
+	"fmt"
 	"genomics/genomes"
+	"log"
+	"os"
+	"sort"
 )
 
 type SubSequence struct {
@@ -63,8 +63,8 @@ searching:
 		subseqs[ss] = count + 1
 		total++
 
-		if i % 100000000 == 0 {
-			done := float64(i * 100) / float64(len(nts)-length)
+		if i%100000000 == 0 {
+			done := float64(i*100) / float64(len(nts)-length)
 			fmt.Printf("%.2f%% done\n", done)
 		}
 	}
@@ -80,8 +80,8 @@ searching:
 
 func main() {
 	fname := "/fs/f/genomes/bat/myotis_davidii/" +
-		"GCA_000327345.1_ASM32734v1_genomic.fna"
-	// fname := "/fs/f/genomes/human/GRCh38_latest_genomic.fna"
+		"GCA_000327345.1_ASM32734v1_genomic.fna.gz"
+	//fname := "/fs/f/genomes/human/GRCh38_latest_genomic.fna.gz"
 	fmt.Println("Loading genome...")
 	g := genomes.LoadGenomes(fname, "", true)
 
@@ -100,8 +100,8 @@ func main() {
 
 	for i := 0; i < len(ss); i++ {
 		count := ss[i].count
-		rate := float64(count * 1000) / float64(total)
-		fmt.Fprintf(w, "%s: %d (%.2f permille)\n",
+		rate := float64(count*1000) / float64(total)
+		fmt.Fprintf(w, "%s: %d (%.4f permille)\n",
 			string(ss[i].nts), count, rate)
 	}
 

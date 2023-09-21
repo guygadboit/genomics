@@ -1,5 +1,13 @@
 package genomes
 
+import (
+	"bufio"
+	"compress/gzip"
+	"log"
+	"os"
+	"strings"
+)
+
 /*
 	Anything iterable and if you do it like this you can easily use it in for
 	loops.
@@ -32,4 +40,44 @@ func ReverseComplement(nts []byte) []byte {
 		ret[j] = nt
 	}
 	return ret
+}
+
+/*
+	Reads files whether they are gzip ones or regular ones
+*/
+type FileReader struct {
+	*bufio.Reader
+	fd     *os.File
+	gzipFd *gzip.Reader
+}
+
+func NewFileReader(fname string) *FileReader {
+	var ret FileReader
+	ret.Open(fname)
+	return &ret
+}
+
+func (f *FileReader) Open(fname string) {
+	var err error
+	f.fd, err = os.Open(fname)
+	if err != nil {
+		log.Fatal("Can't open %s", fname)
+	}
+
+	if strings.HasSuffix(fname, ".gz") {
+		f.gzipFd, err = gzip.NewReader(f.fd)
+		if err != nil {
+			log.Fatal("Can't gunzip %s", fname)
+		}
+		f.Reader = bufio.NewReader(f.gzipFd)
+	} else {
+		f.Reader = bufio.NewReader(f.fd)
+	}
+}
+
+func (f *FileReader) Close() {
+	if f.gzipFd != nil {
+		f.gzipFd.Close()
+	}
+	f.fd.Close()
 }
