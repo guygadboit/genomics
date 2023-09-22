@@ -127,8 +127,8 @@ searching:
 */
 
 type posCount struct {
-	pos		int
-	count	int
+	pos   int
+	count int
 }
 
 type posCounts []posCount
@@ -150,7 +150,7 @@ func byLocation(insertions []Insertion, minLength int) {
 
 	for i := 0; i < len(insertions); i++ {
 		count, _ := positions[insertions[i].pos]
-		positions[insertions[i].pos] = count+1
+		positions[insertions[i].pos] = count + 1
 	}
 
 	posCounts := make(posCounts, 0, len(positions))

@@ -95,6 +95,14 @@ func getSources() []Source {
 		{"Pangolin", root + "pangolin/" +
 			"GCF_014570535.1_YNU_ManJav_2.0_genomic.fna.gz"},
 		{"Viruses", root + "viruses/mega/mega.fasta"},
+		{"Rabbit", root + "rabbit/" +
+			"GCF_009806435.1_UM_NZW_1.0_genomic.fna.gz"},
+		{"Streptomyces", root + "bacteria/Streptomyces/" +
+			"GCF_000009765.2_ASM976v2_genomic.fna.gz"},
+		{"Pig", root + "pig/" +
+			"GCF_000003025.6_Sscrofa11.1_genomic.fna.gz"},
+		{"Mouse", root + "mouse/" +
+			"GCF_000001635.27_GRCm39_genomic.fna.gz"},
 	}
 }
 
