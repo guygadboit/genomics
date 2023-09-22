@@ -6,6 +6,6 @@ set boxwidth 0.5
 # set xtics rotate by -45
 set yrange [0:10]
 
-set arrow from -0.5, 2.8 to 8.5, 2.8 nohead filled lc "red"
+set arrow from -0.5, 2.8 to 9.5, 2.8 nohead filled lc "red"
 set label "2.8%" at 1, 2.9 tc "red"
 plot "results.dat" using 2:xtic(1) with boxes notitle

@@ -176,8 +176,26 @@ func byLocation(insertions []Insertion, minLength int) {
 	fmt.Printf("Wrote locations.txt\n")
 }
 
+func outputFasta(fname string, insertions[] Insertion, minLength int) {
+	sep := []byte("NNN")
+	nts := make([]byte, 0)
+
+	for i := 0; i < len(insertions); i++ {
+		nts = append(nts, insertions[i].nts...)
+		nts = append(nts, sep...)
+	}
+
+	var orfs genomes.Orfs
+	genomes := genomes.NewGenomes(orfs, 1)
+	genomes.Nts[0] = nts
+	genomes.Names[0] = "SC2 Insertions"
+	genomes.Save("SC2 Insertions", fname, 0)
+}
+
 func main() {
-	insertions := LoadInsertions("insertions.txt", 9, 2)
+	insertions := LoadInsertions("insertions.txt", 6, 2)
+	outputFasta("Insertions.fasta", insertions, 6)
+
 	Summary(insertions)
 	// findInVirus(insertions, 9)
 	byLocation(insertions, 9)

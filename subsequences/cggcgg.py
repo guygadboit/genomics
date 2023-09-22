@@ -100,16 +100,16 @@ def main():
 		"Mouse-6.txt",
 		"Viruses-6.txt",
 		"Streptomyces-6.txt",
+		"Insertions-6.txt",
 		)]
 
 	with open("results.dat", "wt") as fp:
 		for fname in fnames:
-			rank(fname)
+			# rank(fname)
 			m = re.match(r'^output/(\w+)-.*', fname)
 			name = m.group(1)
 			print(name, count(fname), file=fp)
 	print("Now run plot.gpi")
-
 
 
 if __name__ == "__main__":

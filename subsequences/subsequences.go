@@ -87,6 +87,7 @@ type Source struct {
 func getSources() []Source {
 	root := "/fs/f/genomes/"
 	return []Source{
+		{"Insertions", "../insertions/Insertions.fasta"},
 		{"Bat", root + "bat/myotis_davidii/" +
 			"GCF_000327345.1_ASM32734v1_genomic.fna.gz"},
 		{"Human", root + "human/GRCh38_latest_genomic.fna.gz"},

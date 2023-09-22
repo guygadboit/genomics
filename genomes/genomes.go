@@ -30,7 +30,8 @@ func NewGenomes(orfs Orfs, numGenomes int) *Genomes {
 	one containing a few of them in an alignment. Be a bit careful when working
 	with alignments since there may be '-' in there. If merge load everything
 	into one genome even if there are multiple > lines (mammal genomes tend to
-	be like that)
+	be like that). orfsName can be empty string if you don't have any ORFs
+	which is fine if you don't plan on doing any translation.
 */
 func LoadGenomes(fname string, orfsName string, merge bool) *Genomes {
 	var orfs Orfs
