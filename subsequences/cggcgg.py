@@ -79,6 +79,7 @@ def count(fname):
 			no += count
 
 	total = yes + no
+# 	print(fname, yes, total, float(yes * 100) / total)
 	return float(yes * 100) / total
 
 

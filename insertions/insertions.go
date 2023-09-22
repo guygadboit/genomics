@@ -11,6 +11,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 )
 
 type Insertion struct {
@@ -88,11 +89,20 @@ func Summary(insertions []Insertion) {
 		total, float64(total)/float64(len(insertions)))
 }
 
-func findInVirus(insertions []Insertion, minLength int) {
-	wh1 := genomes.LoadGenomes("../fasta/WH1.fasta",
-		"../fasta/WH1.orfs", false)
-	var search genomes.Search
+func findInVirus(name string, insertions []Insertion, minLength int) {
+	virus := genomes.LoadGenomes(fmt.Sprintf("../fasta/%s.fasta", name),
+		"", false)
 
+	fname := fmt.Sprintf("%s-insertions.txt", name)
+	fd, err := os.Create(fname)
+	if err != nil {
+		log.Fatal("Can't create file")
+	}
+	defer fd.Close()
+
+	w := bufio.NewWriter(fd)
+
+	var search genomes.Search
 	var found, count int
 searching:
 	for i := 0; i < len(insertions); i++ {
@@ -102,23 +112,26 @@ searching:
 		}
 		count++
 
-		for search.Init(wh1, 0, nts); !search.End(); search.Next() {
+		for search.Init(virus, 0, nts); !search.End(); search.Next() {
 			found++
 			continue searching
 		}
 
 		rc := genomes.ReverseComplement(insertions[i].nts)
-		for search.Init(wh1, 0, rc); !search.End(); search.Next() {
+		for search.Init(virus, 0, rc); !search.End(); search.Next() {
 			found++
 			continue searching
 		}
 
 		ins := insertions[i]
-		fmt.Printf("ins_%d:%s (%d seqs)\n", ins.pos, ins.nts, ins.nSeqs)
+		fmt.Fprintf(w, "ins_%d:%s (%d seqs)\n", ins.pos, ins.nts, ins.nSeqs)
 	}
 
-	fmt.Printf("Length %d: %d (/%d) were found in SC2 itself\n", minLength,
-		found, count)
+	w.Flush()
+
+	fmt.Printf("Length %d: %d (/%d) were found in %s\n", minLength,
+		found, count, name)
+	fmt.Printf("Wrote %s\n", fname)
 }
 
 /*
@@ -176,7 +189,7 @@ func byLocation(insertions []Insertion, minLength int) {
 	fmt.Printf("Wrote locations.txt\n")
 }
 
-func outputFasta(fname string, insertions[] Insertion, minLength int) {
+func outputFasta(fname string, insertions []Insertion, minLength int) {
 	sep := []byte("NNN")
 	nts := make([]byte, 0)
 
@@ -193,16 +206,25 @@ func outputFasta(fname string, insertions[] Insertion, minLength int) {
 }
 
 func main() {
-	insertions := LoadInsertions("insertions.txt", 6, 2)
-	outputFasta("Insertions.fasta", insertions, 6)
+	insertions := LoadInsertions("insertions.txt", 9, 2)
+	var wg sync.WaitGroup
 
-	Summary(insertions)
-	// findInVirus(insertions, 9)
-	byLocation(insertions, 9)
+	covs := [...]string{"OC43", "NL63", "229E", "HKU1", "WH1"}
+	for i := 0; i < len(covs); i++ {
+		wg.Add(1)
+		go func(i int) {
+			findInVirus(covs[i], insertions, 9)
+			wg.Done()
+		}(i)
+	}
+	wg.Wait()
+
+	// byLocation(insertions, 9)
 
 	/*
 		for i := 9; i < 50; i++ {
 			findInVirus(insertions, i)
 		}
 	*/
+	// outputFasta("Insertions.fasta", insertions, 6)
 }
