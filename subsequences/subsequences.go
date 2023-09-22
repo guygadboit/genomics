@@ -117,18 +117,29 @@ func writeResults(source Source, ss SubSequences, length int) {
 func findAll(length int) {
 	sources := getSources()
 	var wg sync.WaitGroup
+	maxThreads := 2
+	pending := 0
 
-	for i := 0; i < len(sources); i++ {
-		source := sources[i]
-		wg.Add(1)
-		go func() {
-			g := genomes.LoadGenomes(source.fname, "", true)
-			ss, _ := FindSubSequences(g, 0, length)
-			writeResults(source, ss, length)
-			wg.Done()
-		}()
+processing:
+	for {
+		for i := 0; i < maxThreads; i++ {
+			if pending < len(sources) {
+				wg.Add(1)
+				source := sources[pending]
+				pending++
+				go func() {
+					g := genomes.LoadGenomes(source.fname, "", true)
+					ss, _ := FindSubSequences(g, 0, length)
+					writeResults(source, ss, length)
+					wg.Done()
+				}()
+			} else {
+				wg.Wait()
+				break processing
+			}
+		}
+		wg.Wait()
 	}
-	wg.Wait()
 }
 
 func main() {
