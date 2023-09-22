@@ -46,6 +46,8 @@ func LoadGenomes(fname string, orfsName string, merge bool) *Genomes {
 
 	currentRow := make([]byte, 0)
 loop:
+	// If working with huge genomes uncomment this for faster debugging!
+	// for i := 0; i < 1000; i++ {
 	for {
 		line, err := fp.ReadString('\n')
 		switch err {

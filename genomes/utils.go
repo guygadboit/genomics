@@ -61,13 +61,13 @@ func (f *FileReader) Open(fname string) {
 	var err error
 	f.fd, err = os.Open(fname)
 	if err != nil {
-		log.Fatal("Can't open %s", fname)
+		log.Fatalf("Can't open %s", fname)
 	}
 
 	if strings.HasSuffix(fname, ".gz") {
 		f.gzipFd, err = gzip.NewReader(f.fd)
 		if err != nil {
-			log.Fatal("Can't gunzip %s", fname)
+			log.Fatalf("Can't gunzip %s", fname)
 		}
 		f.Reader = bufio.NewReader(f.gzipFd)
 	} else {

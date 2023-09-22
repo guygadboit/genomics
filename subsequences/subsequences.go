@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"sort"
+	"sync"
 )
 
 type SubSequence struct {
@@ -78,32 +79,58 @@ searching:
 	return ret, total
 }
 
-func main() {
-	fname := "/fs/f/genomes/bat/myotis_davidii/" +
-		"GCA_000327345.1_ASM32734v1_genomic.fna.gz"
-	//fname := "/fs/f/genomes/human/GRCh38_latest_genomic.fna.gz"
-	fmt.Println("Loading genome...")
-	g := genomes.LoadGenomes(fname, "", true)
+type Source struct {
+	name  string
+	fname string
+}
 
-	fmt.Printf("%d nts. Finding subsequences...\n", len(g.Nts[0]))
-	ss, total := FindSubSequences(g, 0, 6)
+func getSources() []Source {
+	root := "/fs/f/genomes/"
+	return []Source{
+		{"Bat", root + "bat/myotis_davidii/" +
+			"GCF_000327345.1_ASM32734v1_genomic.fna.gz"},
+		{"Human", root + "human/GRCh38_latest_genomic.fna.gz"},
+		{"RaccoonDog", root + "raccoon_dog/" +
+			"GCF_905146905.1_NYPRO_anot_genome_genomic.fna.gz"},
+		{"Pangolin", root + "pangolin/" +
+			"GCF_014570535.1_YNU_ManJav_2.0_genomic.fna.gz"},
+	}
+}
 
-	fmt.Printf("Total: %d\n", total)
-
-	fd, err := os.Create("results.txt")
+func writeResults(source Source, ss SubSequences, length int) {
+	fname := fmt.Sprintf("%s-%d.txt", source.name, length)
+	fd, err := os.Create(fname)
 	if err != nil {
 		log.Fatal("Can't create results file")
 	}
 	defer fd.Close()
-
 	w := bufio.NewWriter(fd)
 
 	for i := 0; i < len(ss); i++ {
-		count := ss[i].count
-		rate := float64(count*1000) / float64(total)
-		fmt.Fprintf(w, "%s: %d (%.4f permille)\n",
-			string(ss[i].nts), count, rate)
+		fmt.Fprintf(w, "%s: %d\n", string(ss[i].nts), ss[i].count)
 	}
+	w.Flush()
 
-	fmt.Printf("Wrote results.txt\n")
+	fmt.Printf("Wrote %s\n", fname)
+}
+
+func findAll(length int) {
+	sources := getSources()
+	var wg sync.WaitGroup
+
+	for i := 0; i < len(sources); i++ {
+		source := sources[i]
+		wg.Add(1)
+		go func() {
+			g := genomes.LoadGenomes(source.fname, "", true)
+			ss, _ := FindSubSequences(g, 0, length)
+			writeResults(source, ss, length)
+			wg.Done()
+		}()
+	}
+	wg.Wait()
+}
+
+func main() {
+	findAll(6)
 }
