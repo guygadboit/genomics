@@ -2,7 +2,6 @@ package genomes
 
 import (
 	"errors"
-	"reflect"
 )
 
 type Search struct {
@@ -10,12 +9,19 @@ type Search struct {
 	haystack *Genomes
 	which    int
 	pos      int
+	// If 0.0 then matches must be exact. Otherwise it's how many errors you
+	// tolerate as proportion of needle length. So 0.1 would require a 90%
+	// match.
+	tolerance         float64
+	allowedMismatches int
 }
 
-func (s *Search) Init(haystack *Genomes, which int, needle []byte) {
+func (s *Search) Init(haystack *Genomes, which int, needle []byte,
+	tolerance float64) {
 	s.haystack = haystack
 	s.which = which
 	s.needle = needle
+	s.allowedMismatches = int(tolerance * float64(len(needle)))
 	s.Start()
 }
 
@@ -35,10 +41,19 @@ func (s *Search) Get() (int, error) {
 func (s *Search) Next() {
 	nts := s.haystack.Nts[s.which]
 	n, m := len(nts), len(s.needle)
+
+searching:
 	for ; s.pos < n-m; s.pos++ {
-		if reflect.DeepEqual(nts[s.pos:s.pos+m], s.needle) {
-			return
+		var mismatches int
+		for i := 0; i < m; i++ {
+			if nts[s.pos+i] != s.needle[i] {
+				mismatches++
+				if mismatches >= s.allowedMismatches {
+					continue searching
+				}
+			}
 		}
+		return
 	}
 }
 

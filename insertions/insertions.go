@@ -12,12 +12,14 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"flag"
 )
 
 type Insertion struct {
 	pos   int    // Where
 	nts   []byte // What
 	nSeqs int    // How many times
+	inWH1 bool   // Is it in WH1?
 }
 
 func (i *Insertion) ToString() string {
@@ -62,7 +64,8 @@ reading:
 
 		ins := Insertion{atoi(groups[0][1]),
 			[]byte(groups[0][2]),
-			atoi(groups[0][3])}
+			atoi(groups[0][3]),
+			false}
 
 		if len(ins.nts) < minLen {
 			continue
@@ -89,7 +92,8 @@ func Summary(insertions []Insertion) {
 		total, float64(total)/float64(len(insertions)))
 }
 
-func findInVirus(name string, insertions []Insertion, minLength int) {
+func findInVirus(name string,
+	insertions []Insertion, minLength int, mark bool, tol float64) {
 	virus := genomes.LoadGenomes(fmt.Sprintf("../fasta/%s.fasta", name),
 		"", false)
 
@@ -102,29 +106,39 @@ func findInVirus(name string, insertions []Insertion, minLength int) {
 
 	w := bufio.NewWriter(fd)
 
+	reportFound := func(ins *Insertion) {
+		fmt.Fprintf(w, "ins_%d:%s (%d seqs)\n", ins.pos, ins.nts, ins.nSeqs)
+		if mark {
+			ins.inWH1 = true
+		}
+	}
+
 	var search genomes.Search
 	var found, count int
 searching:
 	for i := 0; i < len(insertions); i++ {
-		nts := insertions[i].nts
+		ins := &insertions[i]
+		nts := ins.nts
 		if len(nts) < minLength {
 			continue
 		}
 		count++
 
-		for search.Init(virus, 0, nts); !search.End(); search.Next() {
+		for search.Init(virus, 0, nts, tol); !search.End(); search.Next() {
+			search.Get()
+			reportFound(ins)
 			found++
 			continue searching
 		}
 
 		rc := genomes.ReverseComplement(insertions[i].nts)
-		for search.Init(virus, 0, rc); !search.End(); search.Next() {
+		for search.Init(virus, 0, rc, tol); !search.End(); search.Next() {
+			search.Get()
+			reportFound(ins)
 			found++
 			continue searching
 		}
-
-		ins := insertions[i]
-		fmt.Fprintf(w, "ins_%d:%s (%d seqs)\n", ins.pos, ins.nts, ins.nSeqs)
+		fmt.Println(string(ins.nts))
 	}
 
 	w.Flush()
@@ -205,19 +219,38 @@ func outputFasta(fname string, insertions []Insertion, minLength int) {
 	genomes.Save("SC2 Insertions", fname, 0)
 }
 
-func main() {
-	insertions := LoadInsertions("insertions.txt", 9, 2)
-	var wg sync.WaitGroup
+func showLength(insertions []Insertion) {
+	for i := 0; i < len(insertions); i++ {
+		ins := &insertions[i]
+		if ins.inWH1 {
+			continue
+		}
+		fmt.Printf("%d ins_%d %s\n", len(ins.nts), ins.pos, ins.nts)
+	}
+}
 
-	covs := [...]string{"OC43", "NL63", "229E", "HKU1", "WH1"}
+func otherHCoVs(insertions []Insertion, tol float64) {
+	covs := [...]string{"229E", "NL63", "OC43", "HKU1", "WH1"}
+
+	var wg sync.WaitGroup
 	for i := 0; i < len(covs); i++ {
 		wg.Add(1)
 		go func(i int) {
-			findInVirus(covs[i], insertions, 9)
+			findInVirus(covs[i], insertions, 10, false, tol)
 			wg.Done()
 		}(i)
 	}
 	wg.Wait()
+}
+
+func main() {
+	var tolerance float64
+	flag.Float64Var(&tolerance, "tolerance", 0.0, "Tolerance")
+	flag.Parse()
+
+	insertions := LoadInsertions("insertions.txt", 10, 2)
+	findInVirus("WH1", insertions, 10, true, tolerance)
+	// showLength(insertions)
 
 	// byLocation(insertions, 9)
 

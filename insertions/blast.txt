@@ -1,0 +1,3651 @@
+RID: GVBEXV5G013	
+Job Title:ins				
+Program: BLASTN 
+Query: ins ID: lcl|Query_121451(nucleic acid) Length: 24
+Database: nt Nucleotide collection (nt)
+	
+Sequences producing significant alignments:
+                                                                  Scientific      Common                     Max    Total Query   E   Per.   Acc.                        
+Description                                                       Name            Name            Taxid      Score  Score cover Value Ident  Len        Accession        
+Delftia tsuruhatensis strain TR1180 chromosome, complete genome   Delftia tsur... NA              180282     48.1   176   100%  0.011 100.00 6711018    CP045291.1       
+Delftia tsuruhatensis strain CM13 chromosome, complete genome     Delftia tsur... NA              180282     48.1   273   100%  0.011 100.00 7195716    CP017420.1       
+Delftia tsuruhatensis strain GD03927 chromosome, complete genome  Delftia tsur... NA              180282     48.1   209   100%  0.011 100.00 6812477    CP104581.1       
+Delftia tsuruhatensis strain Ery-6A chromosome, complete genome   Delftia tsur... NA              180282     48.1   176   100%  0.011 100.00 6633560    CP120956.1       
+Delftia tsuruhatensis strain ULwDis3 chromosome, complete genome  Delftia tsur... NA              180282     48.1   144   100%  0.011 100.00 6944081    CP118775.1       
+Delftia lacustris HQS1 DNA, complete genome                       Delftia lacu... NA              558537     48.1   176   100%  0.011 100.00 6979964    AP025556.1       
+Delftia sp. WY8 chromosome, complete genome                       Delftia sp. WY8 NA              2708352    48.1   176   100%  0.011 100.00 6722355    CP049795.1       
+Delftia lacustris strain R54 chromosome, complete genome          Delftia lacu... NA              558537     48.1   176   100%  0.011 100.00 6901580    CP069318.1       
+Delftia lacustris strain FDAARGOS_890 chromosome, complete genome Delftia lacu... NA              558537     48.1   176   100%  0.011 100.00 6904082    CP065748.1       
+Massilia putida strain 6NM-7 chromosome, complete genome          Massilia putida NA              1141883    46.1   144   100%  0.045 100.00 6987670    CP019038.1       
+Delftia acidovorans strain RAY209 genome                          Delftia acid... NA              80866      44.1   269   100%  0.18  100.00 6528979    CP022656.1       
+Delftia acidovorans isolate ANG1, complete genome                 Delftia acid... NA              80866      44.1   205   91%   0.18  100.00 6556728    CP019171.1       
+Delftia sp. HK171, complete genome                                Delftia sp. ... NA              1920191    44.1   237   100%  0.18  100.00 6430384    CP018101.1       
+Delftia acidovorans strain BIM B-1761 chromosome, complete genome Delftia acid... NA              80866      44.1   140   91%   0.18  100.00 6670817    CP114201.1       
+Delftia tsuruhatensis isolate BB1455 genome assembly,...          Delftia tsur... NA              180282     44.1   110   91%   0.18  100.00 6126880    LR813084.1       
+Delftia acidovorans strain FDAARGOS_997 chromosome, complete...   Delftia acid... NA              80866      44.1   237   100%  0.18  100.00 6796677    CP066006.1       
+Delftia acidovorans strain FDAARGOS_891 chromosome, complete...   Delftia acid... NA              80866      44.1   205   91%   0.18  100.00 6740494    CP065695.1       
+Delftia acidovorans strain FDAARGOS_909 chromosome, complete...   Delftia acid... NA              80866      44.1   172   100%  0.18  100.00 6635077    CP065668.1       
+Delftia acidovorans strain FDAARGOS_939 chromosome, complete...   Delftia acid... NA              80866      44.1   237   100%  0.18  100.00 6351170    CP065627.1       
+Delftia acidovorans strain B804 chromosome, complete genome       Delftia acid... NA              80866      44.1   237   100%  0.18  100.00 6661314    CP058970.1       
+Delftia sp. Cs1-4, complete genome                                Delftia sp. ... NA              742013     44.1   205   100%  0.18  100.00 6685842    CP002735.1       
+Delftia acidovorans SPH-1, complete genome                        Delftia acid... NA              398578     44.1   205   91%   0.18  100.00 6767514    CP000884.1       
+Sphingomonas sp. FARSPH chromosome, complete genome               Sphingomonas... NA              2219696    42.1   138   95%   0.70  100.00 3345474    CP029985.1       
+PREDICTED: Frankliniella occidentalis uncharacterized...          Frankliniell... western flow... 133901     42.1   42.1  87%   0.70  100.00 798        XM_052267595.1   
+Mesorhizobium sp. NZP2234 chromosome, complete genome             Mesorhizobiu... NA              2483402    40.1   40.1  83%   2.8   100.00 6749717    CP033364.1       
+Mesorhizobium loti strain NZP2042 chromosome, complete genome     Mesorhizobiu... NA              381        40.1   40.1  83%   2.8   100.00 6870350    CP033334.1       
+Mesorhizobium sp. AA22 chromosome, complete genome                Mesorhizobiu... NA              1854057    40.1   72.4  83%   2.8   100.00 6611049    CP048406.1       
+Streptomyces sp. S4.7 chromosome, complete genome                 Streptomyces... NA              2705439    40.1   74.3  87%   2.8   100.00 7920066    CP048397.1       
+Mycobacterium shinjukuense JCM 14233 DNA, complete genome         Mycobacteriu... NA              398694     40.1   40.1  83%   2.8   100.00 4504020    AP022575.1       
+Streptomyces sp. SYP-A7193 plasmid unnamed1, complete sequence    Streptomyces... NA              2662065    40.1   40.1  83%   2.8   100.00 508575     CP045548.1       
+Roseivivax sp. THAF30 chromosome, complete genome                 Roseivivax s... NA              2587852    40.1   110   100%  2.8   100.00 3832321    CP045389.1       
+Azospirillum argentinense strain MTCC4036 chromosome              Azospirillum... NA              2970906    40.1   72.4  91%   2.8   100.00 3065527    CP032330.1       
+Azospirillum argentinense strain MTCC4035 chromosome, complete... Azospirillum... NA              2970906    40.1   72.4  91%   2.8   100.00 3007928    CP032321.1       
+Mesorhizobium sp. M6A.T.Cr.TU.016.01.1.1 chromosome               Mesorhizobiu... NA              2493677    40.1   104   87%   2.8   100.00 6784580    CP034452.1       
+Mesorhizobium sp. M9A.F.Ca.ET.002.03.1.2 chromosome, complete...  Mesorhizobiu... NA              2493668    40.1   72.4  83%   2.8   100.00 6415165    CP034443.1       
+Euzebya pacifica strain DY32-46 chromosome, complete genome       Euzebya paci... NA              1608957    40.1   40.1  83%   2.8   100.00 5799875    CP031165.1       
+Azospirillum baldaniorum strain Sp245 chromosome                  Azospirillum... NA              1064539    40.1   72.4  91%   2.8   100.00 3049901    CP022253.1       
+Azospirillum sp. TSH58 chromosome, complete genome                Azospirillum... NA              664962     40.1   72.4  91%   2.8   100.00 3020351    CP022364.1       
+Mycobacterium sp. Z3061 chromosome, complete genome               Mycobacteriu... NA              3073562    40.1   40.1  83%   2.8   100.00 6790973    CP134062.1       
+Mesorhizobium amorphae CCNWGS0123, complete genome                Mesorhizobiu... NA              1082933    40.1   72.4  83%   2.8   100.00 6268270    CP015318.1       
+Sinomonas atrocyanea strain KCTC 3377, complete genome            Sinomonas at... NA              37927      40.1   106   91%   2.8   100.00 4410241    CP014518.1       
+Mesorhizobium mediterraneum strain R31 chromosome, complete...    Mesorhizobiu... NA              43617      40.1   136   87%   2.8   100.00 6720795    CP088151.1       
+Pseudonocardia sp. AL041005-10, complete genome                   Pseudonocard... NA              445576     40.1   72.4  100%  2.8   95.83  6143341    CP011862.1       
+Deinococcus rubellus strain Ant6 chromosome, complete genome      Deinococcus ... NA              1889240    40.1   170   87%   2.8   100.00 3041811    CP104213.1       
+Mesorhizobium onobrychidis strain OM4 chromosome, complete genome Mesorhizobiu... NA              2775404    40.1   72.4  83%   2.8   100.00 7321237    CP062229.1       
+Mesorhizobium opportunistum strain WSM1558 chromosome, complet... Mesorhizobiu... NA              593909     40.1   40.1  83%   2.8   100.00 6876203    CP097252.1       
+Azospirillum brasilense strain 2020WEIHUA_K chromosome, comple... Azospirillum... NA              192        40.1   72.4  91%   2.8   100.00 2810413    CP059449.1       
+Amycolatopsis sp. FU40 plasmid unnamed2                           Amycolatopsi... NA              2914159    40.1   40.1  83%   2.8   100.00 150675     CP091380.1       
+Halobaculum sp. CBA1158 chromosome, complete genome               Halobaculum ... NA              2904243    40.1   40.1  100%  2.8   95.83  2886087    CP090371.1       
+Mycobacterium ostraviense strain FDAARGOS_1613 chromosome,...     Mycobacteriu... NA              2738409    40.1   76.3  83%   2.8   100.00 6127734    CP089224.1       
+Deinococcus radiophilus strain ATCC 27603 chromosome, complete... Deinococcus ... NA              32062      40.1   40.1  83%   2.8   100.00 2152572    CP086380.1       
+Azospirillum brasilense strain Az39 plasmid AbAZ39_p5, complet... Azospirillum... NA              2970906    40.1   74.3  95%   2.8   100.00 163159     CP007798.1       
+Mesorhizobium sp. B2-1-8 chromosome, complete genome              Mesorhizobiu... NA              2589967    40.1   40.1  83%   2.8   100.00 6376129    CP083952.1       
+Mesorhizobium sp. PAMC28654 chromosome, complete genome           Mesorhizobiu... NA              2880934    40.1   72.4  83%   2.8   100.00 6701426    CP085135.1       
+Mesorhizobium sp. B2-8-5 chromosome, complete genome              Mesorhizobiu... NA              2589903    40.1   104   95%   2.8   100.00 6463198    CP083951.1       
+Mesorhizobium australicum WSM2073, complete genome                Mesorhizobiu... NA              754035     40.1   40.1  83%   2.8   100.00 6200534    CP003358.1       
+Mesorhizobium sp. L-2-11 DNA, complete genome                     Mesorhizobiu... NA              2744521    40.1   72.4  83%   2.8   100.00 6652372    AP023257.1       
+Mesorhizobium sp. 113-3-9 DNA, complete genome                    Mesorhizobiu... NA              2744517    40.1   72.4  83%   2.8   100.00 7592533    AP023246.1       
+Mesorhizobium sp. INR15 chromosome, complete genome               Mesorhizobiu... NA              2654248    40.1   40.1  83%   2.8   100.00 6667022    CP045496.1       
+Azospirillum brasilense Sp245 main chromosome complete genome     Azospirillum... NA              1064539    40.1   72.4  91%   2.8   100.00 3023440    HE577327.1       
+Acidovorax sp. JMULE5 chromosome                                  Acidovorax s... NA              2518343    40.1   104   83%   2.8   100.00 5455909    CP035951.1       
+Mesorhizobium opportunistum WSM2075 chromosome, complete genome   Mesorhizobiu... NA              536019     40.1   40.1  83%   2.8   100.00 6884444    CP002279.1       
+Segniliparus rotundus DSM 44985, complete genome                  Segniliparus... NA              640132     40.1   72.4  83%   2.8   100.00 3157527    CP001958.1       
+Burkholderia plantarii strain KACC 18964 chromosome 2, complet... Burkholderia... NA              41899      38.2   166   79%   11    100.00 3731345    CP066799.1       
+Schaalia sp. HMT-172 strain F0311 chromosome, complete genome     Schaalia sp.... NA              3059028    38.2   72.4  83%   11    100.00 2533704    CP130058.1       
+Streptomyces sp. PCS3-D2 isolate P1 chromosome                    Streptomyces... NA              1460244    38.2   233   83%   11    100.00 7512055    CP097800.1       
+Burkholderia pseudomallei KM391 DNA, chromosome 2, complete...    Burkholderia... NA              28450      38.2   38.2  79%   11    100.00 3144827    AP028089.1       
+Burkholderia pseudomallei KM390 DNA, chromosome 2, complete...    Burkholderia... NA              28450      38.2   38.2  79%   11    100.00 3171481    AP028087.1       
+Burkholderia pseudomallei KM376 DNA, chromosome 2, complete...    Burkholderia... NA              28450      38.2   38.2  79%   11    100.00 3143756    AP028084.1       
+Burkholderia pseudomallei Tokushima DNA, chromosome 2, complet... Burkholderia... NA              28450      38.2   38.2  79%   11    100.00 3175930    AP028082.1       
+Burkholderia pseudomallei Kanagawa DNA, chromosome 2, complete... Burkholderia... NA              28450      38.2   38.2  79%   11    100.00 3099277    AP028080.1       
+Burkholderia pseudomallei GTC3P0254T DNA, chromosome 2, comple... Burkholderia... NA              28450      38.2   38.2  79%   11    100.00 3143428    AP028078.1       
+Burkholderia pseudomallei GTC3P0054 DNA, chromosome 2, complet... Burkholderia... NA              28450      38.2   38.2  79%   11    100.00 3198670    AP028076.1       
+Burkholderia pseudomallei GTC3P0050 DNA, chromosome 2, complet... Burkholderia... NA              28450      38.2   38.2  79%   11    100.00 3138372    AP028074.1       
+Burkholderia pseudomallei GTC3P0019 DNA, chromosome 2, complet... Burkholderia... NA              28450      38.2   38.2  79%   11    100.00 3144273    AP028072.1       
+Paracoccus versutus strain DSM 17099 plasmid pBEN, complete...    Paracoccus v... NA              34007      38.2   38.2  79%   11    100.00 2238439    CP038196.1       
+Mesoterricola silvestris W79 DNA, complete genome                 Mesoterricol... NA              2927979    38.2   72.4  83%   11    100.00 4994678    AP027080.1       
+Paracoccus versutus strain UW1 plasmid pTAV4, complete sequence   Paracoccus v... NA              34007      38.2   76.3  83%   11    100.00 1740310    CP035287.1       
+Amphiduros pacificus genome assembly, chromosome: 4               Amphiduros p... NA              1209993    38.2   38.2  79%   11    100.00 57778080   OX439003.1       
+Microbacterium esteraromaticum strain DEHP-1 chromosome,...       Microbacteri... NA              57043      38.2   70.4  95%   11    95.65  3197365    CP118100.1       
+Sphingobium sp. AntQ-1 chromosome 1, complete sequence            Sphingobium ... NA              2930091    38.2   38.2  79%   11    100.00 3758784    CP117158.1       
+Burkholderia pseudomallei strain MSHR5089 chromosome 2, comple... Burkholderia... NA              28450      38.2   38.2  79%   11    100.00 3118370    CP116600.1       
+Fontisphaera persica strain B-154 chromosome, complete genome     Fontisphaera... NA              2974023    38.2   70.4  79%   11    100.00 4726914    CP116615.1       
+Burkholderia pseudomallei strain MSHR5087 chromosome 2, comple... Burkholderia... NA              28450      38.2   38.2  79%   11    100.00 3117834    CP116404.1       
+Methylocystis bryophila DSM21852 DNA, complete genome             Methylocysti... NA              655015     38.2   70.4  79%   11    100.00 4540773    AP027149.1       
+Caulobacter sp. NIBR2454 chromosome, complete genome              Caulobacter ... NA              3015996    38.2   166   91%   11    100.00 3700225    CP114871.1       
+Trebouxiophyceae sp. M-hakoo 311 strain 311I chromosome 7         Trebouxiophy... NA              2885156    38.2   70.4  91%   11    100.00 1185433    CP089454.1       
+Burkholderia pseudomallei strain MSHR1464 chromosome 1, comple... Burkholderia... NA              28450      38.2   38.2  79%   11    100.00 3008419    CP111140.1       
+Burkholderia pseudomallei strain MSHR1713 chromosome 1, comple... Burkholderia... NA              28450      38.2   38.2  79%   11    100.00 3008591    CP111138.1       
+Burkholderia pseudomallei strain MSHR7744 chromosome 2, comple... Burkholderia... NA              28450      38.2   38.2  79%   11    100.00 2968889    CP111137.1       
+Streptomyces sp. SCSIO ZS0520 chromosome, complete genome         Streptomyces... NA              2892996    38.2   297   87%   11    100.00 7919716    CP092644.1       
+Streptomyces sp. HUAS 15-9 chromosome, complete genome            Streptomyces... NA              2981136    38.2   237   91%   11    100.00 9258818    CP106798.1       
+Leisingera caerulea strain S216 plasmid unnamed1, complete...     Leisingera c... NA              506591     38.2   38.2  79%   11    100.00 94599      CP081091.1       
+Leisingera caerulea strain S141 plasmid unnamed1, complete...     Leisingera c... NA              506591     38.2   38.2  79%   11    100.00 94622      CP081079.1       
+Sphingopyxis sp. DBS4 chromosome, complete genome                 Sphingopyxis... NA              2968500    38.2   38.2  79%   11    100.00 4357663    CP102384.1       
+Ustilaginoidea virens strain iJS62 chromosome 7                   Ustilaginoid... NA              1159556    38.2   38.2  79%   11    100.00 2240023    CP101608.1       
+Burkholderia mallei strain 34 genome assembly, chromosome:...     Burkholderia... NA              13373      38.2   102   87%   11    100.00 5647473    OW622535.1       
+Actinomadura madurae strain MRC005 chromosome, complete genome    Actinomadura... NA              1993       38.2   38.2  79%   11    100.00 10148230   CP094266.1       
+Actinomadura madurae strain MRC008 chromosome, complete genome    Actinomadura... NA              1993       38.2   38.2  79%   11    100.00 10230156   CP094265.1       
+Pseudomonas knackmussii strain B09-2 chromosome, complete genome  Pseudomonas ... NA              65741      38.2   72.4  91%   11    100.00 4570453    CP096208.1       
+
+Alignments:
+
+>Delftia tsuruhatensis strain TR1180 chromosome, complete genome
+Sequence ID: CP045291.1 Length: 6711018
+Range 1: 5589970 to 5589993
+
+Score:48.1 bits(24), Expect:0.011, 
+Identities:24/24(100%),  Gaps:0/24(0%), Strand: Plus/Plus
+
+Query  1        CACGCATCTGGGCGGCGGCCTCGC  24
+                ||||||||||||||||||||||||
+Sbjct  5589970  CACGCATCTGGGCGGCGGCCTCGC  5589993
+
+
+
+
+Range 2: 798280 to 798295
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  6       ATCTGGGCGGCGGCCT  21
+               ||||||||||||||||
+Sbjct  798280  ATCTGGGCGGCGGCCT  798295
+
+
+
+
+Range 3: 3236542 to 3236557
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  6        ATCTGGGCGGCGGCCT  21
+                ||||||||||||||||
+Sbjct  3236542  ATCTGGGCGGCGGCCT  3236557
+
+
+
+
+Range 4: 3848120 to 3848135
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  7        TCTGGGCGGCGGCCTC  22
+                ||||||||||||||||
+Sbjct  3848120  TCTGGGCGGCGGCCTC  3848135
+
+
+
+
+Range 5: 5257919 to 5257938
+
+Score:32.2 bits(16), Expect:677, 
+Identities:19/20(95%),  Gaps:0/20(0%), Strand: Plus/Plus
+
+Query  1        CACGCATCTGGGCGGCGGCC  20
+                |||||||| |||||||||||
+Sbjct  5257919  CACGCATCCGGGCGGCGGCC  5257938
+
+
+
+
+>Delftia tsuruhatensis strain CM13 chromosome, complete genome
+Sequence ID: CP017420.1 Length: 7195716
+Range 1: 3526009 to 3526032
+
+Score:48.1 bits(24), Expect:0.011, 
+Identities:24/24(100%),  Gaps:0/24(0%), Strand: Plus/Plus
+
+Query  1        CACGCATCTGGGCGGCGGCCTCGC  24
+                ||||||||||||||||||||||||
+Sbjct  3526009  CACGCATCTGGGCGGCGGCCTCGC  3526032
+
+
+
+
+Range 2: 448397 to 448412
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Minus
+
+Query  7       TCTGGGCGGCGGCCTC  22
+               ||||||||||||||||
+Sbjct  448412  TCTGGGCGGCGGCCTC  448397
+
+
+
+
+Range 3: 1068788 to 1068803
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  9        TGGGCGGCGGCCTCGC  24
+                ||||||||||||||||
+Sbjct  1068788  TGGGCGGCGGCCTCGC  1068803
+
+
+
+
+Range 4: 1098938 to 1098953
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Minus
+
+Query  6        ATCTGGGCGGCGGCCT  21
+                ||||||||||||||||
+Sbjct  1098953  ATCTGGGCGGCGGCCT  1098938
+
+
+
+
+Range 5: 2537007 to 2537022
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Minus
+
+Query  5        CATCTGGGCGGCGGCC  20
+                ||||||||||||||||
+Sbjct  2537022  CATCTGGGCGGCGGCC  2537007
+
+
+
+
+Range 6: 3231877 to 3231896
+
+Score:32.2 bits(16), Expect:677, 
+Identities:19/20(95%),  Gaps:0/20(0%), Strand: Plus/Plus
+
+Query  1        CACGCATCTGGGCGGCGGCC  20
+                |||||||| |||||||||||
+Sbjct  3231877  CACGCATCCGGGCGGCGGCC  3231896
+
+
+
+
+Range 7: 5443791 to 5443806
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Minus
+
+Query  6        ATCTGGGCGGCGGCCT  21
+                ||||||||||||||||
+Sbjct  5443806  ATCTGGGCGGCGGCCT  5443791
+
+
+
+
+Range 8: 5451731 to 5451746
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  6        ATCTGGGCGGCGGCCT  21
+                ||||||||||||||||
+Sbjct  5451731  ATCTGGGCGGCGGCCT  5451746
+
+
+
+
+>Delftia tsuruhatensis strain GD03927 chromosome, complete genome
+Sequence ID: CP104581.1 Length: 6812477
+Range 1: 5651324 to 5651347
+
+Score:48.1 bits(24), Expect:0.011, 
+Identities:24/24(100%),  Gaps:0/24(0%), Strand: Plus/Plus
+
+Query  1        CACGCATCTGGGCGGCGGCCTCGC  24
+                ||||||||||||||||||||||||
+Sbjct  5651324  CACGCATCTGGGCGGCGGCCTCGC  5651347
+
+
+
+
+Range 2: 728136 to 728151
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  6       ATCTGGGCGGCGGCCT  21
+               ||||||||||||||||
+Sbjct  728136  ATCTGGGCGGCGGCCT  728151
+
+
+
+
+Range 3: 3336269 to 3336284
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  6        ATCTGGGCGGCGGCCT  21
+                ||||||||||||||||
+Sbjct  3336269  ATCTGGGCGGCGGCCT  3336284
+
+
+
+
+Range 4: 3886520 to 3886535
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  7        TCTGGGCGGCGGCCTC  22
+                ||||||||||||||||
+Sbjct  3886520  TCTGGGCGGCGGCCTC  3886535
+
+
+
+
+Range 5: 4638630 to 4638645
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Minus
+
+Query  5        CATCTGGGCGGCGGCC  20
+                ||||||||||||||||
+Sbjct  4638645  CATCTGGGCGGCGGCC  4638630
+
+
+
+
+Range 6: 5278441 to 5278460
+
+Score:32.2 bits(16), Expect:677, 
+Identities:19/20(95%),  Gaps:0/20(0%), Strand: Plus/Plus
+
+Query  1        CACGCATCTGGGCGGCGGCC  20
+                |||||||| |||||||||||
+Sbjct  5278441  CACGCATCCGGGCGGCGGCC  5278460
+
+
+
+
+>Delftia tsuruhatensis strain Ery-6A chromosome, complete genome
+Sequence ID: CP120956.1 Length: 6633560
+Range 1: 1340696 to 1340719
+
+Score:48.1 bits(24), Expect:0.011, 
+Identities:24/24(100%),  Gaps:0/24(0%), Strand: Plus/Minus
+
+Query  1        CACGCATCTGGGCGGCGGCCTCGC  24
+                ||||||||||||||||||||||||
+Sbjct  1340719  CACGCATCTGGGCGGCGGCCTCGC  1340696
+
+
+
+
+Range 2: 2250262 to 2250277
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  5        CATCTGGGCGGCGGCC  20
+                ||||||||||||||||
+Sbjct  2250262  CATCTGGGCGGCGGCC  2250277
+
+
+
+
+Range 3: 3496250 to 3496265
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  6        ATCTGGGCGGCGGCCT  21
+                ||||||||||||||||
+Sbjct  3496250  ATCTGGGCGGCGGCCT  3496265
+
+
+
+
+Range 4: 4030376 to 4030391
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  7        TCTGGGCGGCGGCCTC  22
+                ||||||||||||||||
+Sbjct  4030376  TCTGGGCGGCGGCCTC  4030391
+
+
+
+
+Range 5: 6073419 to 6073434
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Minus
+
+Query  6        ATCTGGGCGGCGGCCT  21
+                ||||||||||||||||
+Sbjct  6073434  ATCTGGGCGGCGGCCT  6073419
+
+
+
+
+>Delftia tsuruhatensis strain ULwDis3 chromosome, complete genome
+Sequence ID: CP118775.1 Length: 6944081
+Range 1: 1077886 to 1077909
+
+Score:48.1 bits(24), Expect:0.011, 
+Identities:24/24(100%),  Gaps:0/24(0%), Strand: Plus/Minus
+
+Query  1        CACGCATCTGGGCGGCGGCCTCGC  24
+                ||||||||||||||||||||||||
+Sbjct  1077909  CACGCATCTGGGCGGCGGCCTCGC  1077886
+
+
+
+
+Range 2: 3784024 to 3784039
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Minus
+
+Query  6        ATCTGGGCGGCGGCCT  21
+                ||||||||||||||||
+Sbjct  3784039  ATCTGGGCGGCGGCCT  3784024
+
+
+
+
+Range 3: 4546852 to 4546867
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  7        TCTGGGCGGCGGCCTC  22
+                ||||||||||||||||
+Sbjct  4546852  TCTGGGCGGCGGCCTC  4546867
+
+
+
+
+Range 4: 6089771 to 6089786
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Minus
+
+Query  6        ATCTGGGCGGCGGCCT  21
+                ||||||||||||||||
+Sbjct  6089786  ATCTGGGCGGCGGCCT  6089771
+
+
+
+
+>Delftia lacustris HQS1 DNA, complete genome
+Sequence ID: AP025556.1 Length: 6979964
+Range 1: 5805420 to 5805443
+
+Score:48.1 bits(24), Expect:0.011, 
+Identities:24/24(100%),  Gaps:0/24(0%), Strand: Plus/Plus
+
+Query  1        CACGCATCTGGGCGGCGGCCTCGC  24
+                ||||||||||||||||||||||||
+Sbjct  5805420  CACGCATCTGGGCGGCGGCCTCGC  5805443
+
+
+
+
+Range 2: 748375 to 748390
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  6       ATCTGGGCGGCGGCCT  21
+               ||||||||||||||||
+Sbjct  748375  ATCTGGGCGGCGGCCT  748390
+
+
+
+
+Range 3: 3216392 to 3216407
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  6        ATCTGGGCGGCGGCCT  21
+                ||||||||||||||||
+Sbjct  3216392  ATCTGGGCGGCGGCCT  3216407
+
+
+
+
+Range 4: 3683625 to 3683640
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  7        TCTGGGCGGCGGCCTC  22
+                ||||||||||||||||
+Sbjct  3683625  TCTGGGCGGCGGCCTC  3683640
+
+
+
+
+Range 5: 5457151 to 5457170
+
+Score:32.2 bits(16), Expect:677, 
+Identities:19/20(95%),  Gaps:0/20(0%), Strand: Plus/Plus
+
+Query  1        CACGCATCTGGGCGGCGGCC  20
+                |||||||| |||||||||||
+Sbjct  5457151  CACGCATCCGGGCGGCGGCC  5457170
+
+
+
+
+>Delftia sp. WY8 chromosome, complete genome
+Sequence ID: CP049795.1 Length: 6722355
+Range 1: 2320262 to 2320285
+
+Score:48.1 bits(24), Expect:0.011, 
+Identities:24/24(100%),  Gaps:0/24(0%), Strand: Plus/Plus
+
+Query  1        CACGCATCTGGGCGGCGGCCTCGC  24
+                ||||||||||||||||||||||||
+Sbjct  2320262  CACGCATCTGGGCGGCGGCCTCGC  2320285
+
+
+
+
+Range 2: 558553 to 558568
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  7       TCTGGGCGGCGGCCTC  22
+               ||||||||||||||||
+Sbjct  558553  TCTGGGCGGCGGCCTC  558568
+
+
+
+
+Range 3: 1986891 to 1986910
+
+Score:32.2 bits(16), Expect:677, 
+Identities:19/20(95%),  Gaps:0/20(0%), Strand: Plus/Plus
+
+Query  1        CACGCATCTGGGCGGCGGCC  20
+                |||||||| |||||||||||
+Sbjct  1986891  CACGCATCCGGGCGGCGGCC  1986910
+
+
+
+
+Range 4: 4288310 to 4288325
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  6        ATCTGGGCGGCGGCCT  21
+                ||||||||||||||||
+Sbjct  4288310  ATCTGGGCGGCGGCCT  4288325
+
+
+
+
+Range 5: 6694501 to 6694516
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  6        ATCTGGGCGGCGGCCT  21
+                ||||||||||||||||
+Sbjct  6694501  ATCTGGGCGGCGGCCT  6694516
+
+
+
+
+>Delftia lacustris strain R54 chromosome, complete genome
+Sequence ID: CP069318.1 Length: 6901580
+Range 1: 5746228 to 5746251
+
+Score:48.1 bits(24), Expect:0.011, 
+Identities:24/24(100%),  Gaps:0/24(0%), Strand: Plus/Plus
+
+Query  1        CACGCATCTGGGCGGCGGCCTCGC  24
+                ||||||||||||||||||||||||
+Sbjct  5746228  CACGCATCTGGGCGGCGGCCTCGC  5746251
+
+
+
+
+Range 2: 745142 to 745157
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  6       ATCTGGGCGGCGGCCT  21
+               ||||||||||||||||
+Sbjct  745142  ATCTGGGCGGCGGCCT  745157
+
+
+
+
+Range 3: 3497437 to 3497452
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  6        ATCTGGGCGGCGGCCT  21
+                ||||||||||||||||
+Sbjct  3497437  ATCTGGGCGGCGGCCT  3497452
+
+
+
+
+Range 4: 4012375 to 4012390
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  7        TCTGGGCGGCGGCCTC  22
+                ||||||||||||||||
+Sbjct  4012375  TCTGGGCGGCGGCCTC  4012390
+
+
+
+
+Range 5: 5362470 to 5362489
+
+Score:32.2 bits(16), Expect:677, 
+Identities:19/20(95%),  Gaps:0/20(0%), Strand: Plus/Plus
+
+Query  1        CACGCATCTGGGCGGCGGCC  20
+                |||||||| |||||||||||
+Sbjct  5362470  CACGCATCCGGGCGGCGGCC  5362489
+
+
+
+
+>Delftia lacustris strain FDAARGOS_890 chromosome, complete genome
+Sequence ID: CP065748.1 Length: 6904082
+Range 1: 3565283 to 3565306
+
+Score:48.1 bits(24), Expect:0.011, 
+Identities:24/24(100%),  Gaps:0/24(0%), Strand: Plus/Plus
+
+Query  1        CACGCATCTGGGCGGCGGCCTCGC  24
+                ||||||||||||||||||||||||
+Sbjct  3565283  CACGCATCTGGGCGGCGGCCTCGC  3565306
+
+
+
+
+Range 2: 1126944 to 1126959
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  6        ATCTGGGCGGCGGCCT  21
+                ||||||||||||||||
+Sbjct  1126944  ATCTGGGCGGCGGCCT  1126959
+
+
+
+
+Range 3: 1579938 to 1579953
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  7        TCTGGGCGGCGGCCTC  22
+                ||||||||||||||||
+Sbjct  1579938  TCTGGGCGGCGGCCTC  1579953
+
+
+
+
+Range 4: 5523038 to 5523053
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Minus
+
+Query  6        ATCTGGGCGGCGGCCT  21
+                ||||||||||||||||
+Sbjct  5523053  ATCTGGGCGGCGGCCT  5523038
+
+
+
+
+Range 5: 5530979 to 5530994
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  6        ATCTGGGCGGCGGCCT  21
+                ||||||||||||||||
+Sbjct  5530979  ATCTGGGCGGCGGCCT  5530994
+
+
+
+
+>Massilia putida strain 6NM-7 chromosome, complete genome
+Sequence ID: CP019038.1 Length: 6987670
+Range 1: 1833668 to 1833690
+
+Score:46.1 bits(23), Expect:0.045, 
+Identities:23/23(100%),  Gaps:0/23(0%), Strand: Plus/Plus
+
+Query  1        CACGCATCTGGGCGGCGGCCTCG  23
+                |||||||||||||||||||||||
+Sbjct  1833668  CACGCATCTGGGCGGCGGCCTCG  1833690
+
+
+
+
+Range 2: 2477795 to 2477811
+
+Score:34.2 bits(17), Expect:171, 
+Identities:17/17(100%),  Gaps:0/17(0%), Strand: Plus/Minus
+
+Query  8        CTGGGCGGCGGCCTCGC  24
+                |||||||||||||||||
+Sbjct  2477811  CTGGGCGGCGGCCTCGC  2477795
+
+
+
+
+Range 3: 2607528 to 2607543
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Minus
+
+Query  8        CTGGGCGGCGGCCTCG  23
+                ||||||||||||||||
+Sbjct  2607543  CTGGGCGGCGGCCTCG  2607528
+
+
+
+
+Range 4: 6217610 to 6217625
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  8        CTGGGCGGCGGCCTCG  23
+                ||||||||||||||||
+Sbjct  6217610  CTGGGCGGCGGCCTCG  6217625
+
+
+
+
+>Delftia acidovorans strain RAY209 genome
+Sequence ID: CP022656.1 Length: 6528979
+Range 1: 3558398 to 3558419
+
+Score:44.1 bits(22), Expect:0.18, 
+Identities:22/22(100%),  Gaps:0/22(0%), Strand: Plus/Minus
+
+Query  3        CGCATCTGGGCGGCGGCCTCGC  24
+                ||||||||||||||||||||||
+Sbjct  3558419  CGCATCTGGGCGGCGGCCTCGC  3558398
+
+
+
+
+Range 2: 1686743 to 1686758
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Minus
+
+Query  6        ATCTGGGCGGCGGCCT  21
+                ||||||||||||||||
+Sbjct  1686758  ATCTGGGCGGCGGCCT  1686743
+
+
+
+
+Range 3: 1693849 to 1693864
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  6        ATCTGGGCGGCGGCCT  21
+                ||||||||||||||||
+Sbjct  1693849  ATCTGGGCGGCGGCCT  1693864
+
+
+
+
+Range 4: 3374330 to 3374345
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  9        TGGGCGGCGGCCTCGC  24
+                ||||||||||||||||
+Sbjct  3374330  TGGGCGGCGGCCTCGC  3374345
+
+
+
+
+Range 5: 3900198 to 3900217
+
+Score:32.2 bits(16), Expect:677, 
+Identities:19/20(95%),  Gaps:0/20(0%), Strand: Plus/Minus
+
+Query  1        CACGCATCTGGGCGGCGGCC  20
+                |||||||| |||||||||||
+Sbjct  3900217  CACGCATCCGGGCGGCGGCC  3900198
+
+
+
+
+Range 6: 4480110 to 4480125
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  5        CATCTGGGCGGCGGCC  20
+                ||||||||||||||||
+Sbjct  4480110  CATCTGGGCGGCGGCC  4480125
+
+
+
+
+Range 7: 5147746 to 5147761
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Minus
+
+Query  7        TCTGGGCGGCGGCCTC  22
+                ||||||||||||||||
+Sbjct  5147761  TCTGGGCGGCGGCCTC  5147746
+
+
+
+
+Range 8: 5761088 to 5761103
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Minus
+
+Query  6        ATCTGGGCGGCGGCCT  21
+                ||||||||||||||||
+Sbjct  5761103  ATCTGGGCGGCGGCCT  5761088
+
+
+
+
+>Delftia acidovorans isolate ANG1, complete genome
+Sequence ID: CP019171.1 Length: 6556728
+Range 1: 1804433 to 1804454
+
+Score:44.1 bits(22), Expect:0.18, 
+Identities:22/22(100%),  Gaps:0/22(0%), Strand: Plus/Minus
+
+Query  3        CGCATCTGGGCGGCGGCCTCGC  24
+                ||||||||||||||||||||||
+Sbjct  1804454  CGCATCTGGGCGGCGGCCTCGC  1804433
+
+
+
+
+Range 2: 2717761 to 2717776
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  5        CATCTGGGCGGCGGCC  20
+                ||||||||||||||||
+Sbjct  2717761  CATCTGGGCGGCGGCC  2717776
+
+
+
+
+Range 3: 3501692 to 3501707
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Minus
+
+Query  7        TCTGGGCGGCGGCCTC  22
+                ||||||||||||||||
+Sbjct  3501707  TCTGGGCGGCGGCCTC  3501692
+
+
+
+
+Range 4: 4018870 to 4018885
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Minus
+
+Query  6        ATCTGGGCGGCGGCCT  21
+                ||||||||||||||||
+Sbjct  4018885  ATCTGGGCGGCGGCCT  4018870
+
+
+
+
+Range 5: 6430988 to 6431003
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Minus
+
+Query  6        ATCTGGGCGGCGGCCT  21
+                ||||||||||||||||
+Sbjct  6431003  ATCTGGGCGGCGGCCT  6430988
+
+
+
+
+Range 6: 6438094 to 6438109
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  6        ATCTGGGCGGCGGCCT  21
+                ||||||||||||||||
+Sbjct  6438094  ATCTGGGCGGCGGCCT  6438109
+
+
+
+
+>Delftia sp. HK171, complete genome
+Sequence ID: CP018101.1 Length: 6430384
+Range 1: 1767893 to 1767914
+
+Score:44.1 bits(22), Expect:0.18, 
+Identities:22/22(100%),  Gaps:0/22(0%), Strand: Plus/Minus
+
+Query  3        CGCATCTGGGCGGCGGCCTCGC  24
+                ||||||||||||||||||||||
+Sbjct  1767914  CGCATCTGGGCGGCGGCCTCGC  1767893
+
+
+
+
+Range 2: 2035582 to 2035601
+
+Score:32.2 bits(16), Expect:677, 
+Identities:19/20(95%),  Gaps:0/20(0%), Strand: Plus/Minus
+
+Query  1        CACGCATCTGGGCGGCGGCC  20
+                |||||||| |||||||||||
+Sbjct  2035601  CACGCATCCGGGCGGCGGCC  2035582
+
+
+
+
+Range 3: 2602736 to 2602751
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  5        CATCTGGGCGGCGGCC  20
+                ||||||||||||||||
+Sbjct  2602736  CATCTGGGCGGCGGCC  2602751
+
+
+
+
+Range 4: 3373462 to 3373477
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Minus
+
+Query  7        TCTGGGCGGCGGCCTC  22
+                ||||||||||||||||
+Sbjct  3373477  TCTGGGCGGCGGCCTC  3373462
+
+
+
+
+Range 5: 3909918 to 3909933
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Minus
+
+Query  6        ATCTGGGCGGCGGCCT  21
+                ||||||||||||||||
+Sbjct  3909933  ATCTGGGCGGCGGCCT  3909918
+
+
+
+
+Range 6: 6364306 to 6364321
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Minus
+
+Query  6        ATCTGGGCGGCGGCCT  21
+                ||||||||||||||||
+Sbjct  6364321  ATCTGGGCGGCGGCCT  6364306
+
+
+
+
+Range 7: 6371403 to 6371418
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  6        ATCTGGGCGGCGGCCT  21
+                ||||||||||||||||
+Sbjct  6371403  ATCTGGGCGGCGGCCT  6371418
+
+
+
+
+>Delftia acidovorans strain BIM B-1761 chromosome, complete genome
+Sequence ID: CP114201.1 Length: 6670817
+Range 1: 5520770 to 5520791
+
+Score:44.1 bits(22), Expect:0.18, 
+Identities:22/22(100%),  Gaps:0/22(0%), Strand: Plus/Plus
+
+Query  3        CGCATCTGGGCGGCGGCCTCGC  24
+                ||||||||||||||||||||||
+Sbjct  5520770  CGCATCTGGGCGGCGGCCTCGC  5520791
+
+
+
+
+Range 2: 700845 to 700860
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Minus
+
+Query  6       ATCTGGGCGGCGGCCT  21
+               ||||||||||||||||
+Sbjct  700860  ATCTGGGCGGCGGCCT  700845
+
+
+
+
+Range 3: 3717961 to 3717976
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  7        TCTGGGCGGCGGCCTC  22
+                ||||||||||||||||
+Sbjct  3717961  TCTGGGCGGCGGCCTC  3717976
+
+
+
+
+Range 4: 4542650 to 4542665
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Minus
+
+Query  5        CATCTGGGCGGCGGCC  20
+                ||||||||||||||||
+Sbjct  4542665  CATCTGGGCGGCGGCC  4542650
+
+
+
+
+>Delftia tsuruhatensis isolate BB1455 genome assembly, chromosome: BB1455_hybrid
+Sequence ID: LR813084.1 Length: 6126880
+Range 1: 5052638 to 5052659
+
+Score:44.1 bits(22), Expect:0.18, 
+Identities:22/22(100%),  Gaps:0/22(0%), Strand: Plus/Plus
+
+Query  3        CGCATCTGGGCGGCGGCCTCGC  24
+                ||||||||||||||||||||||
+Sbjct  5052638  CGCATCTGGGCGGCGGCCTCGC  5052659
+
+
+
+
+Range 2: 4848679 to 4848695
+
+Score:34.2 bits(17), Expect:171, 
+Identities:17/17(100%),  Gaps:0/17(0%), Strand: Plus/Minus
+
+Query  8        CTGGGCGGCGGCCTCGC  24
+                |||||||||||||||||
+Sbjct  4848695  CTGGGCGGCGGCCTCGC  4848679
+
+
+
+
+Range 3: 705472 to 705487
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  6       ATCTGGGCGGCGGCCT  21
+               ||||||||||||||||
+Sbjct  705472  ATCTGGGCGGCGGCCT  705487
+
+
+
+
+>Delftia acidovorans strain FDAARGOS_997 chromosome, complete genome
+Sequence ID: CP066006.1 Length: 6796677
+Range 1: 637645 to 637666
+
+Score:44.1 bits(22), Expect:0.18, 
+Identities:22/22(100%),  Gaps:0/22(0%), Strand: Plus/Minus
+
+Query  3       CGCATCTGGGCGGCGGCCTCGC  24
+               ||||||||||||||||||||||
+Sbjct  637666  CGCATCTGGGCGGCGGCCTCGC  637645
+
+
+
+
+Range 2: 464683 to 464698
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  9       TGGGCGGCGGCCTCGC  24
+               ||||||||||||||||
+Sbjct  464683  TGGGCGGCGGCCTCGC  464698
+
+
+
+
+Range 3: 946740 to 946759
+
+Score:32.2 bits(16), Expect:677, 
+Identities:19/20(95%),  Gaps:0/20(0%), Strand: Plus/Minus
+
+Query  1       CACGCATCTGGGCGGCGGCC  20
+               |||||||| |||||||||||
+Sbjct  946759  CACGCATCCGGGCGGCGGCC  946740
+
+
+
+
+Range 4: 1509552 to 1509567
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  5        CATCTGGGCGGCGGCC  20
+                ||||||||||||||||
+Sbjct  1509552  CATCTGGGCGGCGGCC  1509567
+
+
+
+
+Range 5: 2300467 to 2300482
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Minus
+
+Query  7        TCTGGGCGGCGGCCTC  22
+                ||||||||||||||||
+Sbjct  2300482  TCTGGGCGGCGGCCTC  2300467
+
+
+
+
+Range 6: 3029241 to 3029256
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Minus
+
+Query  6        ATCTGGGCGGCGGCCT  21
+                ||||||||||||||||
+Sbjct  3029256  ATCTGGGCGGCGGCCT  3029241
+
+
+
+
+Range 7: 5606007 to 5606022
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Minus
+
+Query  6        ATCTGGGCGGCGGCCT  21
+                ||||||||||||||||
+Sbjct  5606022  ATCTGGGCGGCGGCCT  5606007
+
+
+
+
+>Delftia acidovorans strain FDAARGOS_891 chromosome, complete genome
+Sequence ID: CP065695.1 Length: 6740494
+Range 1: 1605107 to 1605128
+
+Score:44.1 bits(22), Expect:0.18, 
+Identities:22/22(100%),  Gaps:0/22(0%), Strand: Plus/Plus
+
+Query  3        CGCATCTGGGCGGCGGCCTCGC  24
+                ||||||||||||||||||||||
+Sbjct  1605107  CGCATCTGGGCGGCGGCCTCGC  1605128
+
+
+
+
+Range 2: 612139 to 612154
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Minus
+
+Query  5       CATCTGGGCGGCGGCC  20
+               ||||||||||||||||
+Sbjct  612154  CATCTGGGCGGCGGCC  612139
+
+
+
+
+Range 3: 3491157 to 3491172
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Minus
+
+Query  6        ATCTGGGCGGCGGCCT  21
+                ||||||||||||||||
+Sbjct  3491172  ATCTGGGCGGCGGCCT  3491157
+
+
+
+
+Range 4: 3498263 to 3498278
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  6        ATCTGGGCGGCGGCCT  21
+                ||||||||||||||||
+Sbjct  3498263  ATCTGGGCGGCGGCCT  3498278
+
+
+
+
+Range 5: 5949053 to 5949068
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  6        ATCTGGGCGGCGGCCT  21
+                ||||||||||||||||
+Sbjct  5949053  ATCTGGGCGGCGGCCT  5949068
+
+
+
+
+Range 6: 6529120 to 6529135
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  7        TCTGGGCGGCGGCCTC  22
+                ||||||||||||||||
+Sbjct  6529120  TCTGGGCGGCGGCCTC  6529135
+
+
+
+
+>Delftia acidovorans strain FDAARGOS_909 chromosome, complete genome
+Sequence ID: CP065668.1 Length: 6635077
+Range 1: 3115314 to 3115335
+
+Score:44.1 bits(22), Expect:0.18, 
+Identities:22/22(100%),  Gaps:0/22(0%), Strand: Plus/Plus
+
+Query  3        CGCATCTGGGCGGCGGCCTCGC  24
+                ||||||||||||||||||||||
+Sbjct  3115314  CGCATCTGGGCGGCGGCCTCGC  3115335
+
+
+
+
+Range 2: 1425182 to 1425197
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  7        TCTGGGCGGCGGCCTC  22
+                ||||||||||||||||
+Sbjct  1425182  TCTGGGCGGCGGCCTC  1425197
+
+
+
+
+Range 3: 2215240 to 2215255
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Minus
+
+Query  5        CATCTGGGCGGCGGCC  20
+                ||||||||||||||||
+Sbjct  2215255  CATCTGGGCGGCGGCC  2215240
+
+
+
+
+Range 4: 2783269 to 2783288
+
+Score:32.2 bits(16), Expect:677, 
+Identities:19/20(95%),  Gaps:0/20(0%), Strand: Plus/Plus
+
+Query  1        CACGCATCTGGGCGGCGGCC  20
+                |||||||| |||||||||||
+Sbjct  2783269  CACGCATCCGGGCGGCGGCC  2783288
+
+
+
+
+Range 5: 5012535 to 5012550
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Minus
+
+Query  6        ATCTGGGCGGCGGCCT  21
+                ||||||||||||||||
+Sbjct  5012550  ATCTGGGCGGCGGCCT  5012535
+
+
+
+
+>Delftia acidovorans strain FDAARGOS_939 chromosome, complete genome
+Sequence ID: CP065627.1 Length: 6351170
+Range 1: 2908658 to 2908679
+
+Score:44.1 bits(22), Expect:0.18, 
+Identities:22/22(100%),  Gaps:0/22(0%), Strand: Plus/Minus
+
+Query  3        CGCATCTGGGCGGCGGCCTCGC  24
+                ||||||||||||||||||||||
+Sbjct  2908679  CGCATCTGGGCGGCGGCCTCGC  2908658
+
+
+
+
+Range 2: 1075009 to 1075024
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Minus
+
+Query  6        ATCTGGGCGGCGGCCT  21
+                ||||||||||||||||
+Sbjct  1075024  ATCTGGGCGGCGGCCT  1075009
+
+
+
+
+Range 3: 1082130 to 1082145
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  6        ATCTGGGCGGCGGCCT  21
+                ||||||||||||||||
+Sbjct  1082130  ATCTGGGCGGCGGCCT  1082145
+
+
+
+
+Range 4: 3166431 to 3166450
+
+Score:32.2 bits(16), Expect:677, 
+Identities:19/20(95%),  Gaps:0/20(0%), Strand: Plus/Minus
+
+Query  1        CACGCATCTGGGCGGCGGCC  20
+                |||||||| |||||||||||
+Sbjct  3166450  CACGCATCCGGGCGGCGGCC  3166431
+
+
+
+
+Range 5: 3763922 to 3763937
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  5        CATCTGGGCGGCGGCC  20
+                ||||||||||||||||
+Sbjct  3763922  CATCTGGGCGGCGGCC  3763937
+
+
+
+
+Range 6: 4461835 to 4461850
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Minus
+
+Query  7        TCTGGGCGGCGGCCTC  22
+                ||||||||||||||||
+Sbjct  4461850  TCTGGGCGGCGGCCTC  4461835
+
+
+
+
+Range 7: 5011442 to 5011457
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Minus
+
+Query  6        ATCTGGGCGGCGGCCT  21
+                ||||||||||||||||
+Sbjct  5011457  ATCTGGGCGGCGGCCT  5011442
+
+
+
+
+>Delftia acidovorans strain B804 chromosome, complete genome
+Sequence ID: CP058970.1 Length: 6661314
+Range 1: 5507958 to 5507979
+
+Score:44.1 bits(22), Expect:0.18, 
+Identities:22/22(100%),  Gaps:0/22(0%), Strand: Plus/Plus
+
+Query  3        CGCATCTGGGCGGCGGCCTCGC  24
+                ||||||||||||||||||||||
+Sbjct  5507958  CGCATCTGGGCGGCGGCCTCGC  5507979
+
+
+
+
+Range 2: 708416 to 708431
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Minus
+
+Query  6       ATCTGGGCGGCGGCCT  21
+               ||||||||||||||||
+Sbjct  708431  ATCTGGGCGGCGGCCT  708416
+
+
+
+
+Range 3: 715521 to 715536
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  6       ATCTGGGCGGCGGCCT  21
+               ||||||||||||||||
+Sbjct  715521  ATCTGGGCGGCGGCCT  715536
+
+
+
+
+Range 4: 3250025 to 3250040
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  6        ATCTGGGCGGCGGCCT  21
+                ||||||||||||||||
+Sbjct  3250025  ATCTGGGCGGCGGCCT  3250040
+
+
+
+
+Range 5: 3808420 to 3808435
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  7        TCTGGGCGGCGGCCTC  22
+                ||||||||||||||||
+Sbjct  3808420  TCTGGGCGGCGGCCTC  3808435
+
+
+
+
+Range 6: 4554510 to 4554525
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Minus
+
+Query  5        CATCTGGGCGGCGGCC  20
+                ||||||||||||||||
+Sbjct  4554525  CATCTGGGCGGCGGCC  4554510
+
+
+
+
+Range 7: 5139784 to 5139803
+
+Score:32.2 bits(16), Expect:677, 
+Identities:19/20(95%),  Gaps:0/20(0%), Strand: Plus/Plus
+
+Query  1        CACGCATCTGGGCGGCGGCC  20
+                |||||||| |||||||||||
+Sbjct  5139784  CACGCATCCGGGCGGCGGCC  5139803
+
+
+
+
+>Delftia sp. Cs1-4, complete genome
+Sequence ID: CP002735.1 Length: 6685842
+Range 1: 5579032 to 5579053
+
+Score:44.1 bits(22), Expect:0.18, 
+Identities:22/22(100%),  Gaps:0/22(0%), Strand: Plus/Plus
+
+Query  3        CGCATCTGGGCGGCGGCCTCGC  24
+                ||||||||||||||||||||||
+Sbjct  5579032  CGCATCTGGGCGGCGGCCTCGC  5579053
+
+
+
+
+Range 2: 715658 to 715673
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  6       ATCTGGGCGGCGGCCT  21
+               ||||||||||||||||
+Sbjct  715658  ATCTGGGCGGCGGCCT  715673
+
+
+
+
+Range 3: 3405752 to 3405767
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  6        ATCTGGGCGGCGGCCT  21
+                ||||||||||||||||
+Sbjct  3405752  ATCTGGGCGGCGGCCT  3405767
+
+
+
+
+Range 4: 3934011 to 3934026
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  7        TCTGGGCGGCGGCCTC  22
+                ||||||||||||||||
+Sbjct  3934011  TCTGGGCGGCGGCCTC  3934026
+
+
+
+
+Range 5: 4705375 to 4705390
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Minus
+
+Query  5        CATCTGGGCGGCGGCC  20
+                ||||||||||||||||
+Sbjct  4705390  CATCTGGGCGGCGGCC  4705375
+
+
+
+
+Range 6: 5313314 to 5313333
+
+Score:32.2 bits(16), Expect:677, 
+Identities:19/20(95%),  Gaps:0/20(0%), Strand: Plus/Plus
+
+Query  1        CACGCATCTGGGCGGCGGCC  20
+                |||||||| |||||||||||
+Sbjct  5313314  CACGCATCCGGGCGGCGGCC  5313333
+
+
+
+
+>Delftia acidovorans SPH-1, complete genome
+Sequence ID: CP000884.1 Length: 6767514
+Range 1: 1767413 to 1767434
+
+Score:44.1 bits(22), Expect:0.18, 
+Identities:22/22(100%),  Gaps:0/22(0%), Strand: Plus/Minus
+
+Query  3        CGCATCTGGGCGGCGGCCTCGC  24
+                ||||||||||||||||||||||
+Sbjct  1767434  CGCATCTGGGCGGCGGCCTCGC  1767413
+
+
+
+
+Range 2: 2760402 to 2760417
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  5        CATCTGGGCGGCGGCC  20
+                ||||||||||||||||
+Sbjct  2760402  CATCTGGGCGGCGGCC  2760417
+
+
+
+
+Range 3: 3610926 to 3610941
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Minus
+
+Query  7        TCTGGGCGGCGGCCTC  22
+                ||||||||||||||||
+Sbjct  3610941  TCTGGGCGGCGGCCTC  3610926
+
+
+
+
+Range 4: 4190979 to 4190994
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Minus
+
+Query  6        ATCTGGGCGGCGGCCT  21
+                ||||||||||||||||
+Sbjct  4190994  ATCTGGGCGGCGGCCT  4190979
+
+
+
+
+Range 5: 6641771 to 6641786
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Minus
+
+Query  6        ATCTGGGCGGCGGCCT  21
+                ||||||||||||||||
+Sbjct  6641786  ATCTGGGCGGCGGCCT  6641771
+
+
+
+
+Range 6: 6648877 to 6648892
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  6        ATCTGGGCGGCGGCCT  21
+                ||||||||||||||||
+Sbjct  6648877  ATCTGGGCGGCGGCCT  6648892
+
+
+
+
+>Sphingomonas sp. FARSPH chromosome, complete genome
+Sequence ID: CP029985.1 Length: 3345474
+Range 1: 1121296 to 1121316
+
+Score:42.1 bits(21), Expect:0.70, 
+Identities:21/21(100%),  Gaps:0/21(0%), Strand: Plus/Plus
+
+Query  4        GCATCTGGGCGGCGGCCTCGC  24
+                |||||||||||||||||||||
+Sbjct  1121296  GCATCTGGGCGGCGGCCTCGC  1121316
+
+
+
+
+Range 2: 1117723 to 1117742
+
+Score:32.2 bits(16), Expect:677, 
+Identities:19/20(95%),  Gaps:0/20(0%), Strand: Plus/Plus
+
+Query  2        ACGCATCTGGGCGGCGGCCT  21
+                |||||||||| |||||||||
+Sbjct  1117723  ACGCATCTGGTCGGCGGCCT  1117742
+
+
+
+
+Range 3: 1818180 to 1818195
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Minus
+
+Query  6        ATCTGGGCGGCGGCCT  21
+                ||||||||||||||||
+Sbjct  1818195  ATCTGGGCGGCGGCCT  1818180
+
+
+
+
+Range 4: 2385492 to 2385507
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Minus
+
+Query  8        CTGGGCGGCGGCCTCG  23
+                ||||||||||||||||
+Sbjct  2385507  CTGGGCGGCGGCCTCG  2385492
+
+
+
+
+>PREDICTED: Frankliniella occidentalis uncharacterized LOC127749451 (LOC127749451), mRNA
+Sequence ID: XM_052267595.1 Length: 798
+Range 1: 594 to 614
+
+Score:42.1 bits(21), Expect:0.70, 
+Identities:21/21(100%),  Gaps:0/21(0%), Strand: Plus/Minus
+
+Query  3    CGCATCTGGGCGGCGGCCTCG  23
+            |||||||||||||||||||||
+Sbjct  614  CGCATCTGGGCGGCGGCCTCG  594
+
+
+
+
+>Mesorhizobium sp. NZP2234 chromosome, complete genome
+Sequence ID: CP033364.1 Length: 6749717
+Range 1: 1819559 to 1819578
+
+Score:40.1 bits(20), Expect:2.8, 
+Identities:20/20(100%),  Gaps:0/20(0%), Strand: Plus/Plus
+
+Query  4        GCATCTGGGCGGCGGCCTCG  23
+                ||||||||||||||||||||
+Sbjct  1819559  GCATCTGGGCGGCGGCCTCG  1819578
+
+
+
+
+>Mesorhizobium loti strain NZP2042 chromosome, complete genome
+Sequence ID: CP033334.1 Length: 6870350
+Range 1: 1829443 to 1829462
+
+Score:40.1 bits(20), Expect:2.8, 
+Identities:20/20(100%),  Gaps:0/20(0%), Strand: Plus/Plus
+
+Query  4        GCATCTGGGCGGCGGCCTCG  23
+                ||||||||||||||||||||
+Sbjct  1829443  GCATCTGGGCGGCGGCCTCG  1829462
+
+
+
+
+>Mesorhizobium sp. AA22 chromosome, complete genome
+Sequence ID: CP048406.1 Length: 6611049
+Range 1: 1577284 to 1577303
+
+Score:40.1 bits(20), Expect:2.8, 
+Identities:20/20(100%),  Gaps:0/20(0%), Strand: Plus/Plus
+
+Query  4        GCATCTGGGCGGCGGCCTCG  23
+                ||||||||||||||||||||
+Sbjct  1577284  GCATCTGGGCGGCGGCCTCG  1577303
+
+
+
+
+Range 2: 1327728 to 1327743
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Minus
+
+Query  8        CTGGGCGGCGGCCTCG  23
+                ||||||||||||||||
+Sbjct  1327743  CTGGGCGGCGGCCTCG  1327728
+
+
+
+
+>Streptomyces sp. S4.7 chromosome, complete genome
+Sequence ID: CP048397.1 Length: 7920066
+Range 1: 4995950 to 4995969
+
+Score:40.1 bits(20), Expect:2.8, 
+Identities:20/20(100%),  Gaps:0/20(0%), Strand: Plus/Plus
+
+Query  1        CACGCATCTGGGCGGCGGCC  20
+                ||||||||||||||||||||
+Sbjct  4995950  CACGCATCTGGGCGGCGGCC  4995969
+
+
+
+
+Range 2: 3535584 to 3535600
+
+Score:34.2 bits(17), Expect:171, 
+Identities:17/17(100%),  Gaps:0/17(0%), Strand: Plus/Minus
+
+Query  5        CATCTGGGCGGCGGCCT  21
+                |||||||||||||||||
+Sbjct  3535600  CATCTGGGCGGCGGCCT  3535584
+
+
+
+
+>Mycobacterium shinjukuense JCM 14233 DNA, complete genome
+Sequence ID: AP022575.1 Length: 4504020
+Range 1: 930539 to 930558
+
+Score:40.1 bits(20), Expect:2.8, 
+Identities:20/20(100%),  Gaps:0/20(0%), Strand: Plus/Minus
+
+Query  4       GCATCTGGGCGGCGGCCTCG  23
+               ||||||||||||||||||||
+Sbjct  930558  GCATCTGGGCGGCGGCCTCG  930539
+
+
+
+
+>Streptomyces sp. SYP-A7193 plasmid unnamed1, complete sequence
+Sequence ID: CP045548.1 Length: 508575
+Range 1: 178141 to 178160
+
+Score:40.1 bits(20), Expect:2.8, 
+Identities:20/20(100%),  Gaps:0/20(0%), Strand: Plus/Minus
+
+Query  1       CACGCATCTGGGCGGCGGCC  20
+               ||||||||||||||||||||
+Sbjct  178160  CACGCATCTGGGCGGCGGCC  178141
+
+
+
+
+>Roseivivax sp. THAF30 chromosome, complete genome
+Sequence ID: CP045389.1 Length: 3832321
+Range 1: 2144814 to 2144833
+
+Score:40.1 bits(20), Expect:2.8, 
+Identities:20/20(100%),  Gaps:0/20(0%), Strand: Plus/Plus
+
+Query  4        GCATCTGGGCGGCGGCCTCG  23
+                ||||||||||||||||||||
+Sbjct  2144814  GCATCTGGGCGGCGGCCTCG  2144833
+
+
+
+
+Range 2: 2188874 to 2188891
+
+Score:36.2 bits(18), Expect:43, 
+Identities:18/18(100%),  Gaps:0/18(0%), Strand: Plus/Plus
+
+Query  1        CACGCATCTGGGCGGCGG  18
+                ||||||||||||||||||
+Sbjct  2188874  CACGCATCTGGGCGGCGG  2188891
+
+
+
+
+Range 3: 3390829 to 3390845
+
+Score:34.2 bits(17), Expect:171, 
+Identities:17/17(100%),  Gaps:0/17(0%), Strand: Plus/Minus
+
+Query  8        CTGGGCGGCGGCCTCGC  24
+                |||||||||||||||||
+Sbjct  3390845  CTGGGCGGCGGCCTCGC  3390829
+
+
+
+
+>Azospirillum argentinense strain MTCC4036 chromosome
+Sequence ID: CP032330.1 Length: 3065527
+Range 1: 1769290 to 1769309
+
+Score:40.1 bits(20), Expect:2.8, 
+Identities:20/20(100%),  Gaps:0/20(0%), Strand: Plus/Minus
+
+Query  3        CGCATCTGGGCGGCGGCCTC  22
+                ||||||||||||||||||||
+Sbjct  1769309  CGCATCTGGGCGGCGGCCTC  1769290
+
+
+
+
+Range 2: 2515751 to 2515770
+
+Score:32.2 bits(16), Expect:677, 
+Identities:19/20(95%),  Gaps:0/20(0%), Strand: Plus/Minus
+
+Query  5        CATCTGGGCGGCGGCCTCGC  24
+                ||||||||||||||| ||||
+Sbjct  2515770  CATCTGGGCGGCGGCTTCGC  2515751
+
+
+
+
+>Azospirillum argentinense strain MTCC4035 chromosome, complete genome
+Sequence ID: CP032321.1 Length: 3007928
+Range 1: 1290103 to 1290122
+
+Score:40.1 bits(20), Expect:2.8, 
+Identities:20/20(100%),  Gaps:0/20(0%), Strand: Plus/Minus
+
+Query  3        CGCATCTGGGCGGCGGCCTC  22
+                ||||||||||||||||||||
+Sbjct  1290122  CGCATCTGGGCGGCGGCCTC  1290103
+
+
+
+
+Range 2: 2078033 to 2078052
+
+Score:32.2 bits(16), Expect:677, 
+Identities:19/20(95%),  Gaps:0/20(0%), Strand: Plus/Minus
+
+Query  5        CATCTGGGCGGCGGCCTCGC  24
+                ||||||||||||||| ||||
+Sbjct  2078052  CATCTGGGCGGCGGCTTCGC  2078033
+
+
+
+
+>Mesorhizobium sp. M6A.T.Cr.TU.016.01.1.1 chromosome
+Sequence ID: CP034452.1 Length: 6784580
+Range 1: 2978437 to 2978456
+
+Score:40.1 bits(20), Expect:2.8, 
+Identities:20/20(100%),  Gaps:0/20(0%), Strand: Plus/Plus
+
+Query  4        GCATCTGGGCGGCGGCCTCG  23
+                ||||||||||||||||||||
+Sbjct  2978437  GCATCTGGGCGGCGGCCTCG  2978456
+
+
+
+
+Range 2: 2686193 to 2686208
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Minus
+
+Query  8        CTGGGCGGCGGCCTCG  23
+                ||||||||||||||||
+Sbjct  2686208  CTGGGCGGCGGCCTCG  2686193
+
+
+
+
+Range 3: 2797774 to 2797789
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Minus
+
+Query  9        TGGGCGGCGGCCTCGC  24
+                ||||||||||||||||
+Sbjct  2797789  TGGGCGGCGGCCTCGC  2797774
+
+
+
+
+>Mesorhizobium sp. M9A.F.Ca.ET.002.03.1.2 chromosome, complete genome
+Sequence ID: CP034443.1 Length: 6415165
+Range 1: 677071 to 677090
+
+Score:40.1 bits(20), Expect:2.8, 
+Identities:20/20(100%),  Gaps:0/20(0%), Strand: Plus/Minus
+
+Query  4       GCATCTGGGCGGCGGCCTCG  23
+               ||||||||||||||||||||
+Sbjct  677090  GCATCTGGGCGGCGGCCTCG  677071
+
+
+
+
+Range 2: 928522 to 928537
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  8       CTGGGCGGCGGCCTCG  23
+               ||||||||||||||||
+Sbjct  928522  CTGGGCGGCGGCCTCG  928537
+
+
+
+
+>Euzebya pacifica strain DY32-46 chromosome, complete genome
+Sequence ID: CP031165.1 Length: 5799875
+Range 1: 4113491 to 4113510
+
+Score:40.1 bits(20), Expect:2.8, 
+Identities:20/20(100%),  Gaps:0/20(0%), Strand: Plus/Plus
+
+Query  3        CGCATCTGGGCGGCGGCCTC  22
+                ||||||||||||||||||||
+Sbjct  4113491  CGCATCTGGGCGGCGGCCTC  4113510
+
+
+
+
+>Azospirillum baldaniorum strain Sp245 chromosome
+Sequence ID: CP022253.1 Length: 3049901
+Range 1: 1102014 to 1102033
+
+Score:40.1 bits(20), Expect:2.8, 
+Identities:20/20(100%),  Gaps:0/20(0%), Strand: Plus/Plus
+
+Query  3        CGCATCTGGGCGGCGGCCTC  22
+                ||||||||||||||||||||
+Sbjct  1102014  CGCATCTGGGCGGCGGCCTC  1102033
+
+
+
+
+Range 2: 252069 to 252088
+
+Score:32.2 bits(16), Expect:677, 
+Identities:19/20(95%),  Gaps:0/20(0%), Strand: Plus/Plus
+
+Query  5       CATCTGGGCGGCGGCCTCGC  24
+               ||||||||||||||| ||||
+Sbjct  252069  CATCTGGGCGGCGGCTTCGC  252088
+
+
+
+
+>Azospirillum sp. TSH58 chromosome, complete genome
+Sequence ID: CP022364.1 Length: 3020351
+Range 1: 2366953 to 2366972
+
+Score:40.1 bits(20), Expect:2.8, 
+Identities:20/20(100%),  Gaps:0/20(0%), Strand: Plus/Plus
+
+Query  3        CGCATCTGGGCGGCGGCCTC  22
+                ||||||||||||||||||||
+Sbjct  2366953  CGCATCTGGGCGGCGGCCTC  2366972
+
+
+
+
+Range 2: 1617943 to 1617962
+
+Score:32.2 bits(16), Expect:677, 
+Identities:19/20(95%),  Gaps:0/20(0%), Strand: Plus/Plus
+
+Query  5        CATCTGGGCGGCGGCCTCGC  24
+                ||||||||||||||| ||||
+Sbjct  1617943  CATCTGGGCGGCGGCTTCGC  1617962
+
+
+
+
+>Mycobacterium sp. Z3061 chromosome, complete genome
+Sequence ID: CP134062.1 Length: 6790973
+Range 1: 4609530 to 4609549
+
+Score:40.1 bits(20), Expect:2.8, 
+Identities:20/20(100%),  Gaps:0/20(0%), Strand: Plus/Plus
+
+Query  4        GCATCTGGGCGGCGGCCTCG  23
+                ||||||||||||||||||||
+Sbjct  4609530  GCATCTGGGCGGCGGCCTCG  4609549
+
+
+
+
+>Mesorhizobium amorphae CCNWGS0123, complete genome
+Sequence ID: CP015318.1 Length: 6268270
+Range 1: 62604 to 62623
+
+Score:40.1 bits(20), Expect:2.8, 
+Identities:20/20(100%),  Gaps:0/20(0%), Strand: Plus/Minus
+
+Query  4      GCATCTGGGCGGCGGCCTCG  23
+              ||||||||||||||||||||
+Sbjct  62623  GCATCTGGGCGGCGGCCTCG  62604
+
+
+
+
+Range 2: 341287 to 341302
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  8       CTGGGCGGCGGCCTCG  23
+               ||||||||||||||||
+Sbjct  341287  CTGGGCGGCGGCCTCG  341302
+
+
+
+
+>Sinomonas atrocyanea strain KCTC 3377, complete genome
+Sequence ID: CP014518.1 Length: 4410241
+Range 1: 4030906 to 4030925
+
+Score:40.1 bits(20), Expect:2.8, 
+Identities:20/20(100%),  Gaps:0/20(0%), Strand: Plus/Plus
+
+Query  4        GCATCTGGGCGGCGGCCTCG  23
+                ||||||||||||||||||||
+Sbjct  4030906  GCATCTGGGCGGCGGCCTCG  4030925
+
+
+
+
+Range 2: 2803191 to 2803207
+
+Score:34.2 bits(17), Expect:171, 
+Identities:17/17(100%),  Gaps:0/17(0%), Strand: Plus/Plus
+
+Query  3        CGCATCTGGGCGGCGGC  19
+                |||||||||||||||||
+Sbjct  2803191  CGCATCTGGGCGGCGGC  2803207
+
+
+
+
+Range 3: 4222879 to 4222894
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  9        TGGGCGGCGGCCTCGC  24
+                ||||||||||||||||
+Sbjct  4222879  TGGGCGGCGGCCTCGC  4222894
+
+
+
+
+>Mesorhizobium mediterraneum strain R31 chromosome, complete genome
+Sequence ID: CP088151.1 Length: 6720795
+Range 1: 1653496 to 1653515
+
+Score:40.1 bits(20), Expect:2.8, 
+Identities:20/20(100%),  Gaps:0/20(0%), Strand: Plus/Plus
+
+Query  4        GCATCTGGGCGGCGGCCTCG  23
+                ||||||||||||||||||||
+Sbjct  1653496  GCATCTGGGCGGCGGCCTCG  1653515
+
+
+
+
+Range 2: 1347142 to 1347157
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Minus
+
+Query  8        CTGGGCGGCGGCCTCG  23
+                ||||||||||||||||
+Sbjct  1347157  CTGGGCGGCGGCCTCG  1347142
+
+
+
+
+Range 3: 1468639 to 1468654
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Minus
+
+Query  9        TGGGCGGCGGCCTCGC  24
+                ||||||||||||||||
+Sbjct  1468654  TGGGCGGCGGCCTCGC  1468639
+
+
+
+
+Range 4: 5749269 to 5749284
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Minus
+
+Query  9        TGGGCGGCGGCCTCGC  24
+                ||||||||||||||||
+Sbjct  5749284  TGGGCGGCGGCCTCGC  5749269
+
+
+
+
+>Pseudonocardia sp. AL041005-10, complete genome
+Sequence ID: CP011862.1 Length: 6143341
+Range 1: 2854653 to 2854676
+
+Score:40.1 bits(20), Expect:2.8, 
+Identities:23/24(96%),  Gaps:0/24(0%), Strand: Plus/Minus
+
+Query  1        CACGCATCTGGGCGGCGGCCTCGC  24
+                ||||||||| ||||||||||||||
+Sbjct  2854676  CACGCATCTTGGCGGCGGCCTCGC  2854653
+
+
+
+
+Range 2: 2075128 to 2075143
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  9        TGGGCGGCGGCCTCGC  24
+                ||||||||||||||||
+Sbjct  2075128  TGGGCGGCGGCCTCGC  2075143
+
+
+
+
+>Deinococcus rubellus strain Ant6 chromosome, complete genome
+Sequence ID: CP104213.1 Length: 3041811
+Range 1: 1447504 to 1447523
+
+Score:40.1 bits(20), Expect:2.8, 
+Identities:20/20(100%),  Gaps:0/20(0%), Strand: Plus/Minus
+
+Query  5        CATCTGGGCGGCGGCCTCGC  24
+                ||||||||||||||||||||
+Sbjct  1447523  CATCTGGGCGGCGGCCTCGC  1447504
+
+
+
+
+Range 2: 1054790 to 1054810
+
+Score:34.2 bits(17), Expect:171, 
+Identities:20/21(95%),  Gaps:0/21(0%), Strand: Plus/Minus
+
+Query  4        GCATCTGGGCGGCGGCCTCGC  24
+                |||||||||||||| ||||||
+Sbjct  1054810  GCATCTGGGCGGCGACCTCGC  1054790
+
+
+
+
+Range 3: 1378994 to 1379009
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Minus
+
+Query  9        TGGGCGGCGGCCTCGC  24
+                ||||||||||||||||
+Sbjct  1379009  TGGGCGGCGGCCTCGC  1378994
+
+
+
+
+Range 4: 2553482 to 2553497
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  8        CTGGGCGGCGGCCTCG  23
+                ||||||||||||||||
+Sbjct  2553482  CTGGGCGGCGGCCTCG  2553497
+
+
+
+
+Range 5: 2655018 to 2655033
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  9        TGGGCGGCGGCCTCGC  24
+                ||||||||||||||||
+Sbjct  2655018  TGGGCGGCGGCCTCGC  2655033
+
+
+
+
+>Mesorhizobium onobrychidis strain OM4 chromosome, complete genome
+Sequence ID: CP062229.1 Length: 7321237
+Range 1: 1600584 to 1600603
+
+Score:40.1 bits(20), Expect:2.8, 
+Identities:20/20(100%),  Gaps:0/20(0%), Strand: Plus/Plus
+
+Query  4        GCATCTGGGCGGCGGCCTCG  23
+                ||||||||||||||||||||
+Sbjct  1600584  GCATCTGGGCGGCGGCCTCG  1600603
+
+
+
+
+Range 2: 1333748 to 1333763
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Minus
+
+Query  8        CTGGGCGGCGGCCTCG  23
+                ||||||||||||||||
+Sbjct  1333763  CTGGGCGGCGGCCTCG  1333748
+
+
+
+
+>Mesorhizobium opportunistum strain WSM1558 chromosome, complete genome
+Sequence ID: CP097252.1 Length: 6876203
+Range 1: 1635814 to 1635833
+
+Score:40.1 bits(20), Expect:2.8, 
+Identities:20/20(100%),  Gaps:0/20(0%), Strand: Plus/Plus
+
+Query  4        GCATCTGGGCGGCGGCCTCG  23
+                ||||||||||||||||||||
+Sbjct  1635814  GCATCTGGGCGGCGGCCTCG  1635833
+
+
+
+
+>Azospirillum brasilense strain 2020WEIHUA_K chromosome, complete genome
+Sequence ID: CP059449.1 Length: 2810413
+Range 1: 1692727 to 1692746
+
+Score:40.1 bits(20), Expect:2.8, 
+Identities:20/20(100%),  Gaps:0/20(0%), Strand: Plus/Plus
+
+Query  3        CGCATCTGGGCGGCGGCCTC  22
+                ||||||||||||||||||||
+Sbjct  1692727  CGCATCTGGGCGGCGGCCTC  1692746
+
+
+
+
+Range 2: 965427 to 965446
+
+Score:32.2 bits(16), Expect:677, 
+Identities:19/20(95%),  Gaps:0/20(0%), Strand: Plus/Plus
+
+Query  5       CATCTGGGCGGCGGCCTCGC  24
+               ||||||||||||||| ||||
+Sbjct  965427  CATCTGGGCGGCGGCTTCGC  965446
+
+
+
+
+>Amycolatopsis sp. FU40 plasmid unnamed2
+Sequence ID: CP091380.1 Length: 150675
+Range 1: 31379 to 31398
+
+Score:40.1 bits(20), Expect:2.8, 
+Identities:20/20(100%),  Gaps:0/20(0%), Strand: Plus/Plus
+
+Query  5      CATCTGGGCGGCGGCCTCGC  24
+              ||||||||||||||||||||
+Sbjct  31379  CATCTGGGCGGCGGCCTCGC  31398
+
+
+
+
+>Halobaculum sp. CBA1158 chromosome, complete genome
+Sequence ID: CP090371.1 Length: 2886087
+Range 1: 1630452 to 1630475
+
+Score:40.1 bits(20), Expect:2.8, 
+Identities:23/24(96%),  Gaps:0/24(0%), Strand: Plus/Minus
+
+Query  1        CACGCATCTGGGCGGCGGCCTCGC  24
+                |||||| |||||||||||||||||
+Sbjct  1630475  CACGCACCTGGGCGGCGGCCTCGC  1630452
+
+
+
+
+>Mycobacterium ostraviense strain FDAARGOS_1613 chromosome, complete genome
+Sequence ID: CP089224.1 Length: 6127734
+Range 1: 470111 to 470130
+
+Score:40.1 bits(20), Expect:2.8, 
+Identities:20/20(100%),  Gaps:0/20(0%), Strand: Plus/Plus
+
+Query  1       CACGCATCTGGGCGGCGGCC  20
+               ||||||||||||||||||||
+Sbjct  470111  CACGCATCTGGGCGGCGGCC  470130
+
+
+
+
+Range 2: 3243520 to 3243537
+
+Score:36.2 bits(18), Expect:43, 
+Identities:18/18(100%),  Gaps:0/18(0%), Strand: Plus/Plus
+
+Query  1        CACGCATCTGGGCGGCGG  18
+                ||||||||||||||||||
+Sbjct  3243520  CACGCATCTGGGCGGCGG  3243537
+
+
+
+
+>Deinococcus radiophilus strain ATCC 27603 chromosome, complete genome
+Sequence ID: CP086380.1 Length: 2152572
+Range 1: 139625 to 139644
+
+Score:40.1 bits(20), Expect:2.8, 
+Identities:20/20(100%),  Gaps:0/20(0%), Strand: Plus/Minus
+
+Query  2       ACGCATCTGGGCGGCGGCCT  21
+               ||||||||||||||||||||
+Sbjct  139644  ACGCATCTGGGCGGCGGCCT  139625
+
+
+
+
+>Azospirillum brasilense strain Az39 plasmid AbAZ39_p5, complete sequence
+Sequence ID: CP007798.1 Length: 163159
+Range 1: 147467 to 147486
+
+Score:40.1 bits(20), Expect:2.8, 
+Identities:20/20(100%),  Gaps:0/20(0%), Strand: Plus/Plus
+
+Query  1       CACGCATCTGGGCGGCGGCC  20
+               ||||||||||||||||||||
+Sbjct  147467  CACGCATCTGGGCGGCGGCC  147486
+
+
+
+
+Range 2: 111246 to 111266
+
+Score:34.2 bits(17), Expect:171, 
+Identities:20/21(95%),  Gaps:0/21(0%), Strand: Plus/Plus
+
+Query  3       CGCATCTGGGCGGCGGCCTCG  23
+               |||| ||||||||||||||||
+Sbjct  111246  CGCACCTGGGCGGCGGCCTCG  111266
+
+
+
+
+>Mesorhizobium sp. B2-1-8 chromosome, complete genome
+Sequence ID: CP083952.1 Length: 6376129
+Range 1: 1661135 to 1661154
+
+Score:40.1 bits(20), Expect:2.8, 
+Identities:20/20(100%),  Gaps:0/20(0%), Strand: Plus/Plus
+
+Query  4        GCATCTGGGCGGCGGCCTCG  23
+                ||||||||||||||||||||
+Sbjct  1661135  GCATCTGGGCGGCGGCCTCG  1661154
+
+
+
+
+>Mesorhizobium sp. PAMC28654 chromosome, complete genome
+Sequence ID: CP085135.1 Length: 6701426
+Range 1: 4918711 to 4918730
+
+Score:40.1 bits(20), Expect:2.8, 
+Identities:20/20(100%),  Gaps:0/20(0%), Strand: Plus/Plus
+
+Query  4        GCATCTGGGCGGCGGCCTCG  23
+                ||||||||||||||||||||
+Sbjct  4918711  GCATCTGGGCGGCGGCCTCG  4918730
+
+
+
+
+Range 2: 4593301 to 4593316
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Minus
+
+Query  8        CTGGGCGGCGGCCTCG  23
+                ||||||||||||||||
+Sbjct  4593316  CTGGGCGGCGGCCTCG  4593301
+
+
+
+
+>Mesorhizobium sp. B2-8-5 chromosome, complete genome
+Sequence ID: CP083951.1 Length: 6463198
+Range 1: 1686767 to 1686786
+
+Score:40.1 bits(20), Expect:2.8, 
+Identities:20/20(100%),  Gaps:0/20(0%), Strand: Plus/Plus
+
+Query  4        GCATCTGGGCGGCGGCCTCG  23
+                ||||||||||||||||||||
+Sbjct  1686767  GCATCTGGGCGGCGGCCTCG  1686786
+
+
+
+
+Range 2: 626564 to 626579
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  1       CACGCATCTGGGCGGC  16
+               ||||||||||||||||
+Sbjct  626564  CACGCATCTGGGCGGC  626579
+
+
+
+
+Range 3: 1917330 to 1917345
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Minus
+
+Query  5        CATCTGGGCGGCGGCC  20
+                ||||||||||||||||
+Sbjct  1917345  CATCTGGGCGGCGGCC  1917330
+
+
+
+
+>Mesorhizobium australicum WSM2073, complete genome
+Sequence ID: CP003358.1 Length: 6200534
+Range 1: 1734601 to 1734620
+
+Score:40.1 bits(20), Expect:2.8, 
+Identities:20/20(100%),  Gaps:0/20(0%), Strand: Plus/Plus
+
+Query  4        GCATCTGGGCGGCGGCCTCG  23
+                ||||||||||||||||||||
+Sbjct  1734601  GCATCTGGGCGGCGGCCTCG  1734620
+
+
+
+
+>Mesorhizobium sp. L-2-11 DNA, complete genome
+Sequence ID: AP023257.1 Length: 6652372
+Range 1: 1447043 to 1447062
+
+Score:40.1 bits(20), Expect:2.8, 
+Identities:20/20(100%),  Gaps:0/20(0%), Strand: Plus/Plus
+
+Query  4        GCATCTGGGCGGCGGCCTCG  23
+                ||||||||||||||||||||
+Sbjct  1447043  GCATCTGGGCGGCGGCCTCG  1447062
+
+
+
+
+Range 2: 1204998 to 1205013
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Minus
+
+Query  8        CTGGGCGGCGGCCTCG  23
+                ||||||||||||||||
+Sbjct  1205013  CTGGGCGGCGGCCTCG  1204998
+
+
+
+
+>Mesorhizobium sp. 113-3-9 DNA, complete genome
+Sequence ID: AP023246.1 Length: 7592533
+Range 1: 1958165 to 1958184
+
+Score:40.1 bits(20), Expect:2.8, 
+Identities:20/20(100%),  Gaps:0/20(0%), Strand: Plus/Plus
+
+Query  4        GCATCTGGGCGGCGGCCTCG  23
+                ||||||||||||||||||||
+Sbjct  1958165  GCATCTGGGCGGCGGCCTCG  1958184
+
+
+
+
+Range 2: 4527588 to 4527603
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Minus
+
+Query  8        CTGGGCGGCGGCCTCG  23
+                ||||||||||||||||
+Sbjct  4527603  CTGGGCGGCGGCCTCG  4527588
+
+
+
+
+>Mesorhizobium sp. INR15 chromosome, complete genome
+Sequence ID: CP045496.1 Length: 6667022
+Range 1: 1854811 to 1854830
+
+Score:40.1 bits(20), Expect:2.8, 
+Identities:20/20(100%),  Gaps:0/20(0%), Strand: Plus/Plus
+
+Query  4        GCATCTGGGCGGCGGCCTCG  23
+                ||||||||||||||||||||
+Sbjct  1854811  GCATCTGGGCGGCGGCCTCG  1854830
+
+
+
+
+>Azospirillum brasilense Sp245 main chromosome complete genome
+Sequence ID: HE577327.1 Length: 3023440
+Range 1: 2537692 to 2537711
+
+Score:40.1 bits(20), Expect:2.8, 
+Identities:20/20(100%),  Gaps:0/20(0%), Strand: Plus/Minus
+
+Query  3        CGCATCTGGGCGGCGGCCTC  22
+                ||||||||||||||||||||
+Sbjct  2537711  CGCATCTGGGCGGCGGCCTC  2537692
+
+
+
+
+Range 2: 364633 to 364652
+
+Score:32.2 bits(16), Expect:677, 
+Identities:19/20(95%),  Gaps:0/20(0%), Strand: Plus/Minus
+
+Query  5       CATCTGGGCGGCGGCCTCGC  24
+               ||||||||||||||| ||||
+Sbjct  364652  CATCTGGGCGGCGGCTTCGC  364633
+
+
+
+
+>Acidovorax sp. JMULE5 chromosome
+Sequence ID: CP035951.1 Length: 5455909
+Range 1: 1874751 to 1874770
+
+Score:40.1 bits(20), Expect:2.8, 
+Identities:20/20(100%),  Gaps:0/20(0%), Strand: Plus/Minus
+
+Query  5        CATCTGGGCGGCGGCCTCGC  24
+                ||||||||||||||||||||
+Sbjct  1874770  CATCTGGGCGGCGGCCTCGC  1874751
+
+
+
+
+Range 2: 2679799 to 2679814
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Minus
+
+Query  5        CATCTGGGCGGCGGCC  20
+                ||||||||||||||||
+Sbjct  2679814  CATCTGGGCGGCGGCC  2679799
+
+
+
+
+Range 3: 4443109 to 4443124
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  9        TGGGCGGCGGCCTCGC  24
+                ||||||||||||||||
+Sbjct  4443109  TGGGCGGCGGCCTCGC  4443124
+
+
+
+
+>Mesorhizobium opportunistum WSM2075 chromosome, complete genome
+Sequence ID: CP002279.1 Length: 6884444
+Range 1: 1724287 to 1724306
+
+Score:40.1 bits(20), Expect:2.8, 
+Identities:20/20(100%),  Gaps:0/20(0%), Strand: Plus/Plus
+
+Query  4        GCATCTGGGCGGCGGCCTCG  23
+                ||||||||||||||||||||
+Sbjct  1724287  GCATCTGGGCGGCGGCCTCG  1724306
+
+
+
+
+>Segniliparus rotundus DSM 44985, complete genome
+Sequence ID: CP001958.1 Length: 3157527
+Range 1: 853919 to 853938
+
+Score:40.1 bits(20), Expect:2.8, 
+Identities:20/20(100%),  Gaps:0/20(0%), Strand: Plus/Plus
+
+Query  5       CATCTGGGCGGCGGCCTCGC  24
+               ||||||||||||||||||||
+Sbjct  853919  CATCTGGGCGGCGGCCTCGC  853938
+
+
+
+
+Range 2: 228864 to 228879
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Minus
+
+Query  8       CTGGGCGGCGGCCTCG  23
+               ||||||||||||||||
+Sbjct  228879  CTGGGCGGCGGCCTCG  228864
+
+
+
+
+>Burkholderia plantarii strain KACC 18964 chromosome 2, complete sequence
+Sequence ID: CP066799.1 Length: 3731345
+Range 1: 1671177 to 1671195
+
+Score:38.2 bits(19), Expect:11, 
+Identities:19/19(100%),  Gaps:0/19(0%), Strand: Plus/Minus
+
+Query  6        ATCTGGGCGGCGGCCTCGC  24
+                |||||||||||||||||||
+Sbjct  1671195  ATCTGGGCGGCGGCCTCGC  1671177
+
+
+
+
+Range 2: 319387 to 319402
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  8       CTGGGCGGCGGCCTCG  23
+               ||||||||||||||||
+Sbjct  319387  CTGGGCGGCGGCCTCG  319402
+
+
+
+
+Range 3: 678035 to 678050
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  6       ATCTGGGCGGCGGCCT  21
+               ||||||||||||||||
+Sbjct  678035  ATCTGGGCGGCGGCCT  678050
+
+
+
+
+Range 4: 3408708 to 3408723
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  9        TGGGCGGCGGCCTCGC  24
+                ||||||||||||||||
+Sbjct  3408708  TGGGCGGCGGCCTCGC  3408723
+
+
+
+
+Range 5: 3473925 to 3473940
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Minus
+
+Query  9        TGGGCGGCGGCCTCGC  24
+                ||||||||||||||||
+Sbjct  3473940  TGGGCGGCGGCCTCGC  3473925
+
+
+
+
+>Schaalia sp. HMT-172 strain F0311 chromosome, complete genome
+Sequence ID: CP130058.1 Length: 2533704
+Range 1: 1059217 to 1059235
+
+Score:38.2 bits(19), Expect:11, 
+Identities:19/19(100%),  Gaps:0/19(0%), Strand: Plus/Minus
+
+Query  5        CATCTGGGCGGCGGCCTCG  23
+                |||||||||||||||||||
+Sbjct  1059235  CATCTGGGCGGCGGCCTCG  1059217
+
+
+
+
+Range 2: 381172 to 381188
+
+Score:34.2 bits(17), Expect:171, 
+Identities:17/17(100%),  Gaps:0/17(0%), Strand: Plus/Minus
+
+Query  8       CTGGGCGGCGGCCTCGC  24
+               |||||||||||||||||
+Sbjct  381188  CTGGGCGGCGGCCTCGC  381172
+
+
+
+
+>Streptomyces sp. PCS3-D2 isolate P1 chromosome
+Sequence ID: CP097800.1 Length: 7512055
+Range 1: 1649720 to 1649738
+
+Score:38.2 bits(19), Expect:11, 
+Identities:19/19(100%),  Gaps:0/19(0%), Strand: Plus/Plus
+
+Query  5        CATCTGGGCGGCGGCCTCG  23
+                |||||||||||||||||||
+Sbjct  1649720  CATCTGGGCGGCGGCCTCG  1649738
+
+
+
+
+Range 2: 6222430 to 6222446
+
+Score:34.2 bits(17), Expect:171, 
+Identities:17/17(100%),  Gaps:0/17(0%), Strand: Plus/Minus
+
+Query  8        CTGGGCGGCGGCCTCGC  24
+                |||||||||||||||||
+Sbjct  6222446  CTGGGCGGCGGCCTCGC  6222430
+
+
+
+
+Range 3: 2155685 to 2155700
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  8        CTGGGCGGCGGCCTCG  23
+                ||||||||||||||||
+Sbjct  2155685  CTGGGCGGCGGCCTCG  2155700
+
+
+
+
+Range 4: 2161622 to 2161637
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Minus
+
+Query  8        CTGGGCGGCGGCCTCG  23
+                ||||||||||||||||
+Sbjct  2161637  CTGGGCGGCGGCCTCG  2161622
+
+
+
+
+Range 5: 2601136 to 2601151
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  9        TGGGCGGCGGCCTCGC  24
+                ||||||||||||||||
+Sbjct  2601136  TGGGCGGCGGCCTCGC  2601151
+
+
+
+
+Range 6: 3347497 to 3347512
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  8        CTGGGCGGCGGCCTCG  23
+                ||||||||||||||||
+Sbjct  3347497  CTGGGCGGCGGCCTCG  3347512
+
+
+
+
+Range 7: 6340307 to 6340322
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Minus
+
+Query  8        CTGGGCGGCGGCCTCG  23
+                ||||||||||||||||
+Sbjct  6340322  CTGGGCGGCGGCCTCG  6340307
+
+
+
+
+>Burkholderia pseudomallei KM391 DNA, chromosome 2, complete sequence
+Sequence ID: AP028089.1 Length: 3144827
+Range 1: 3079027 to 3079045
+
+Score:38.2 bits(19), Expect:11, 
+Identities:19/19(100%),  Gaps:0/19(0%), Strand: Plus/Minus
+
+Query  6        ATCTGGGCGGCGGCCTCGC  24
+                |||||||||||||||||||
+Sbjct  3079045  ATCTGGGCGGCGGCCTCGC  3079027
+
+
+
+
+>Burkholderia pseudomallei KM390 DNA, chromosome 2, complete sequence
+Sequence ID: AP028087.1 Length: 3171481
+Range 1: 3102685 to 3102703
+
+Score:38.2 bits(19), Expect:11, 
+Identities:19/19(100%),  Gaps:0/19(0%), Strand: Plus/Minus
+
+Query  6        ATCTGGGCGGCGGCCTCGC  24
+                |||||||||||||||||||
+Sbjct  3102703  ATCTGGGCGGCGGCCTCGC  3102685
+
+
+
+
+>Burkholderia pseudomallei KM376 DNA, chromosome 2, complete sequence
+Sequence ID: AP028084.1 Length: 3143756
+Range 1: 3078068 to 3078086
+
+Score:38.2 bits(19), Expect:11, 
+Identities:19/19(100%),  Gaps:0/19(0%), Strand: Plus/Minus
+
+Query  6        ATCTGGGCGGCGGCCTCGC  24
+                |||||||||||||||||||
+Sbjct  3078086  ATCTGGGCGGCGGCCTCGC  3078068
+
+
+
+
+>Burkholderia pseudomallei Tokushima DNA, chromosome 2, complete sequence
+Sequence ID: AP028082.1 Length: 3175930
+Range 1: 3107452 to 3107470
+
+Score:38.2 bits(19), Expect:11, 
+Identities:19/19(100%),  Gaps:0/19(0%), Strand: Plus/Minus
+
+Query  6        ATCTGGGCGGCGGCCTCGC  24
+                |||||||||||||||||||
+Sbjct  3107470  ATCTGGGCGGCGGCCTCGC  3107452
+
+
+
+
+>Burkholderia pseudomallei Kanagawa DNA, chromosome 2, complete sequence
+Sequence ID: AP028080.1 Length: 3099277
+Range 1: 3033555 to 3033573
+
+Score:38.2 bits(19), Expect:11, 
+Identities:19/19(100%),  Gaps:0/19(0%), Strand: Plus/Minus
+
+Query  6        ATCTGGGCGGCGGCCTCGC  24
+                |||||||||||||||||||
+Sbjct  3033573  ATCTGGGCGGCGGCCTCGC  3033555
+
+
+
+
+>Burkholderia pseudomallei GTC3P0254T DNA, chromosome 2, complete sequence
+Sequence ID: AP028078.1 Length: 3143428
+Range 1: 3077752 to 3077770
+
+Score:38.2 bits(19), Expect:11, 
+Identities:19/19(100%),  Gaps:0/19(0%), Strand: Plus/Minus
+
+Query  6        ATCTGGGCGGCGGCCTCGC  24
+                |||||||||||||||||||
+Sbjct  3077770  ATCTGGGCGGCGGCCTCGC  3077752
+
+
+
+
+>Burkholderia pseudomallei GTC3P0054 DNA, chromosome 2, complete sequence
+Sequence ID: AP028076.1 Length: 3198670
+Range 1: 3132350 to 3132368
+
+Score:38.2 bits(19), Expect:11, 
+Identities:19/19(100%),  Gaps:0/19(0%), Strand: Plus/Minus
+
+Query  6        ATCTGGGCGGCGGCCTCGC  24
+                |||||||||||||||||||
+Sbjct  3132368  ATCTGGGCGGCGGCCTCGC  3132350
+
+
+
+
+>Burkholderia pseudomallei GTC3P0050 DNA, chromosome 2, complete sequence
+Sequence ID: AP028074.1 Length: 3138372
+Range 1: 3072338 to 3072356
+
+Score:38.2 bits(19), Expect:11, 
+Identities:19/19(100%),  Gaps:0/19(0%), Strand: Plus/Minus
+
+Query  6        ATCTGGGCGGCGGCCTCGC  24
+                |||||||||||||||||||
+Sbjct  3072356  ATCTGGGCGGCGGCCTCGC  3072338
+
+
+
+
+>Burkholderia pseudomallei GTC3P0019 DNA, chromosome 2, complete sequence
+Sequence ID: AP028072.1 Length: 3144273
+Range 1: 3078473 to 3078491
+
+Score:38.2 bits(19), Expect:11, 
+Identities:19/19(100%),  Gaps:0/19(0%), Strand: Plus/Minus
+
+Query  6        ATCTGGGCGGCGGCCTCGC  24
+                |||||||||||||||||||
+Sbjct  3078491  ATCTGGGCGGCGGCCTCGC  3078473
+
+
+
+
+>Paracoccus versutus strain DSM 17099 plasmid pBEN, complete sequence
+Sequence ID: CP038196.1 Length: 2238439
+Range 1: 1781605 to 1781623
+
+Score:38.2 bits(19), Expect:11, 
+Identities:19/19(100%),  Gaps:0/19(0%), Strand: Plus/Plus
+
+Query  4        GCATCTGGGCGGCGGCCTC  22
+                |||||||||||||||||||
+Sbjct  1781605  GCATCTGGGCGGCGGCCTC  1781623
+
+
+
+
+>Mesoterricola silvestris W79 DNA, complete genome
+Sequence ID: AP027080.1 Length: 4994678
+Range 1: 2670424 to 2670442
+
+Score:38.2 bits(19), Expect:11, 
+Identities:19/19(100%),  Gaps:0/19(0%), Strand: Plus/Plus
+
+Query  4        GCATCTGGGCGGCGGCCTC  22
+                |||||||||||||||||||
+Sbjct  2670424  GCATCTGGGCGGCGGCCTC  2670442
+
+
+
+
+Range 2: 3036912 to 3036928
+
+Score:34.2 bits(17), Expect:171, 
+Identities:17/17(100%),  Gaps:0/17(0%), Strand: Plus/Plus
+
+Query  3        CGCATCTGGGCGGCGGC  19
+                |||||||||||||||||
+Sbjct  3036912  CGCATCTGGGCGGCGGC  3036928
+
+
+
+
+>Paracoccus versutus strain UW1 plasmid pTAV4, complete sequence
+Sequence ID: CP035287.1 Length: 1740310
+Range 1: 622848 to 622866
+
+Score:38.2 bits(19), Expect:11, 
+Identities:19/19(100%),  Gaps:0/19(0%), Strand: Plus/Minus
+
+Query  5       CATCTGGGCGGCGGCCTCG  23
+               |||||||||||||||||||
+Sbjct  622866  CATCTGGGCGGCGGCCTCG  622848
+
+
+
+
+Range 2: 1601348 to 1601366
+
+Score:38.2 bits(19), Expect:11, 
+Identities:19/19(100%),  Gaps:0/19(0%), Strand: Plus/Plus
+
+Query  4        GCATCTGGGCGGCGGCCTC  22
+                |||||||||||||||||||
+Sbjct  1601348  GCATCTGGGCGGCGGCCTC  1601366
+
+
+
+
+>Amphiduros pacificus genome assembly, chromosome: 4
+Sequence ID: OX439003.1 Length: 57778080
+Range 1: 17580695 to 17580713
+
+Score:38.2 bits(19), Expect:11, 
+Identities:19/19(100%),  Gaps:0/19(0%), Strand: Plus/Plus
+
+Query  3         CGCATCTGGGCGGCGGCCT  21
+                 |||||||||||||||||||
+Sbjct  17580695  CGCATCTGGGCGGCGGCCT  17580713
+
+
+
+
+>Microbacterium esteraromaticum strain DEHP-1 chromosome, complete genome
+Sequence ID: CP118100.1 Length: 3197365
+Range 1: 629124 to 629146
+
+Score:38.2 bits(19), Expect:11, 
+Identities:22/23(96%),  Gaps:0/23(0%), Strand: Plus/Minus
+
+Query  1       CACGCATCTGGGCGGCGGCCTCG  23
+               |||||| ||||||||||||||||
+Sbjct  629146  CACGCAGCTGGGCGGCGGCCTCG  629124
+
+
+
+
+Range 2: 2131941 to 2131956
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  2        ACGCATCTGGGCGGCG  17
+                ||||||||||||||||
+Sbjct  2131941  ACGCATCTGGGCGGCG  2131956
+
+
+
+
+>Sphingobium sp. AntQ-1 chromosome 1, complete sequence
+Sequence ID: CP117158.1 Length: 3758784
+Range 1: 511045 to 511063
+
+Score:38.2 bits(19), Expect:11, 
+Identities:19/19(100%),  Gaps:0/19(0%), Strand: Plus/Minus
+
+Query  1       CACGCATCTGGGCGGCGGC  19
+               |||||||||||||||||||
+Sbjct  511063  CACGCATCTGGGCGGCGGC  511045
+
+
+
+
+>Burkholderia pseudomallei strain MSHR5089 chromosome 2, complete sequence
+Sequence ID: CP116600.1 Length: 3118370
+Range 1: 933350 to 933368
+
+Score:38.2 bits(19), Expect:11, 
+Identities:19/19(100%),  Gaps:0/19(0%), Strand: Plus/Minus
+
+Query  6       ATCTGGGCGGCGGCCTCGC  24
+               |||||||||||||||||||
+Sbjct  933368  ATCTGGGCGGCGGCCTCGC  933350
+
+
+
+
+>Fontisphaera persica strain B-154 chromosome, complete genome
+Sequence ID: CP116615.1 Length: 4726914
+Range 1: 2635151 to 2635169
+
+Score:38.2 bits(19), Expect:11, 
+Identities:19/19(100%),  Gaps:0/19(0%), Strand: Plus/Plus
+
+Query  5        CATCTGGGCGGCGGCCTCG  23
+                |||||||||||||||||||
+Sbjct  2635151  CATCTGGGCGGCGGCCTCG  2635169
+
+
+
+
+Range 2: 3907471 to 3907486
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  8        CTGGGCGGCGGCCTCG  23
+                ||||||||||||||||
+Sbjct  3907471  CTGGGCGGCGGCCTCG  3907486
+
+
+
+
+>Burkholderia pseudomallei strain MSHR5087 chromosome 2, complete sequence
+Sequence ID: CP116404.1 Length: 3117834
+Range 1: 824969 to 824987
+
+Score:38.2 bits(19), Expect:11, 
+Identities:19/19(100%),  Gaps:0/19(0%), Strand: Plus/Plus
+
+Query  6       ATCTGGGCGGCGGCCTCGC  24
+               |||||||||||||||||||
+Sbjct  824969  ATCTGGGCGGCGGCCTCGC  824987
+
+
+
+
+>Methylocystis bryophila DSM21852 DNA, complete genome
+Sequence ID: AP027149.1 Length: 4540773
+Range 1: 711171 to 711189
+
+Score:38.2 bits(19), Expect:11, 
+Identities:19/19(100%),  Gaps:0/19(0%), Strand: Plus/Plus
+
+Query  1       CACGCATCTGGGCGGCGGC  19
+               |||||||||||||||||||
+Sbjct  711171  CACGCATCTGGGCGGCGGC  711189
+
+
+
+
+Range 2: 493737 to 493752
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Minus
+
+Query  4       GCATCTGGGCGGCGGC  19
+               ||||||||||||||||
+Sbjct  493752  GCATCTGGGCGGCGGC  493737
+
+
+
+
+>Caulobacter sp. NIBR2454 chromosome, complete genome
+Sequence ID: CP114871.1 Length: 3700225
+Range 1: 3116555 to 3116573
+
+Score:38.2 bits(19), Expect:11, 
+Identities:19/19(100%),  Gaps:0/19(0%), Strand: Plus/Plus
+
+Query  3        CGCATCTGGGCGGCGGCCT  21
+                |||||||||||||||||||
+Sbjct  3116555  CGCATCTGGGCGGCGGCCT  3116573
+
+
+
+
+Range 2: 199554 to 199569
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  8       CTGGGCGGCGGCCTCG  23
+               ||||||||||||||||
+Sbjct  199554  CTGGGCGGCGGCCTCG  199569
+
+
+
+
+Range 3: 1662176 to 1662195
+
+Score:32.2 bits(16), Expect:677, 
+Identities:19/20(95%),  Gaps:0/20(0%), Strand: Plus/Plus
+
+Query  5        CATCTGGGCGGCGGCCTCGC  24
+                ||||||| ||||||||||||
+Sbjct  1662176  CATCTGGCCGGCGGCCTCGC  1662195
+
+
+
+
+Range 4: 2641133 to 2641148
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  5        CATCTGGGCGGCGGCC  20
+                ||||||||||||||||
+Sbjct  2641133  CATCTGGGCGGCGGCC  2641148
+
+
+
+
+Range 5: 2852116 to 2852131
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Minus
+
+Query  8        CTGGGCGGCGGCCTCG  23
+                ||||||||||||||||
+Sbjct  2852131  CTGGGCGGCGGCCTCG  2852116
+
+
+
+
+>Trebouxiophyceae sp. M-hakoo 311 strain 311I chromosome 7
+Sequence ID: CP089454.1 Length: 1185433
+Range 1: 318909 to 318927
+
+Score:38.2 bits(19), Expect:11, 
+Identities:19/19(100%),  Gaps:0/19(0%), Strand: Plus/Minus
+
+Query  1       CACGCATCTGGGCGGCGGC  19
+               |||||||||||||||||||
+Sbjct  318927  CACGCATCTGGGCGGCGGC  318909
+
+
+
+
+Range 2: 524331 to 524346
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Minus
+
+Query  7       TCTGGGCGGCGGCCTC  22
+               ||||||||||||||||
+Sbjct  524346  TCTGGGCGGCGGCCTC  524331
+
+
+
+
+>Burkholderia pseudomallei strain MSHR1464 chromosome 1, complete sequence
+Sequence ID: CP111140.1 Length: 3008419
+Range 1: 533224 to 533242
+
+Score:38.2 bits(19), Expect:11, 
+Identities:19/19(100%),  Gaps:0/19(0%), Strand: Plus/Plus
+
+Query  6       ATCTGGGCGGCGGCCTCGC  24
+               |||||||||||||||||||
+Sbjct  533224  ATCTGGGCGGCGGCCTCGC  533242
+
+
+
+
+>Burkholderia pseudomallei strain MSHR1713 chromosome 1, complete sequence
+Sequence ID: CP111138.1 Length: 3008591
+Range 1: 533632 to 533650
+
+Score:38.2 bits(19), Expect:11, 
+Identities:19/19(100%),  Gaps:0/19(0%), Strand: Plus/Plus
+
+Query  6       ATCTGGGCGGCGGCCTCGC  24
+               |||||||||||||||||||
+Sbjct  533632  ATCTGGGCGGCGGCCTCGC  533650
+
+
+
+
+>Burkholderia pseudomallei strain MSHR7744 chromosome 2, complete sequence
+Sequence ID: CP111137.1 Length: 2968889
+Range 1: 2366077 to 2366095
+
+Score:38.2 bits(19), Expect:11, 
+Identities:19/19(100%),  Gaps:0/19(0%), Strand: Plus/Plus
+
+Query  6        ATCTGGGCGGCGGCCTCGC  24
+                |||||||||||||||||||
+Sbjct  2366077  ATCTGGGCGGCGGCCTCGC  2366095
+
+
+
+
+>Streptomyces sp. SCSIO ZS0520 chromosome, complete genome
+Sequence ID: CP092644.1 Length: 7919716
+Range 1: 1402938 to 1402956
+
+Score:38.2 bits(19), Expect:11, 
+Identities:19/19(100%),  Gaps:0/19(0%), Strand: Plus/Plus
+
+Query  6        ATCTGGGCGGCGGCCTCGC  24
+                |||||||||||||||||||
+Sbjct  1402938  ATCTGGGCGGCGGCCTCGC  1402956
+
+
+
+
+Range 2: 4336843 to 4336859
+
+Score:34.2 bits(17), Expect:171, 
+Identities:17/17(100%),  Gaps:0/17(0%), Strand: Plus/Minus
+
+Query  4        GCATCTGGGCGGCGGCC  20
+                |||||||||||||||||
+Sbjct  4336859  GCATCTGGGCGGCGGCC  4336843
+
+
+
+
+Range 3: 233411 to 233426
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Minus
+
+Query  8       CTGGGCGGCGGCCTCG  23
+               ||||||||||||||||
+Sbjct  233426  CTGGGCGGCGGCCTCG  233411
+
+
+
+
+Range 4: 260150 to 260169
+
+Score:32.2 bits(16), Expect:677, 
+Identities:19/20(95%),  Gaps:0/20(0%), Strand: Plus/Minus
+
+Query  4       GCATCTGGGCGGCGGCCTCG  23
+               ||||||| ||||||||||||
+Sbjct  260169  GCATCTGCGCGGCGGCCTCG  260150
+
+
+
+
+Range 5: 977924 to 977939
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Minus
+
+Query  7       TCTGGGCGGCGGCCTC  22
+               ||||||||||||||||
+Sbjct  977939  TCTGGGCGGCGGCCTC  977924
+
+
+
+
+Range 6: 1798554 to 1798569
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  7        TCTGGGCGGCGGCCTC  22
+                ||||||||||||||||
+Sbjct  1798554  TCTGGGCGGCGGCCTC  1798569
+
+
+
+
+Range 7: 2279178 to 2279193
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Minus
+
+Query  9        TGGGCGGCGGCCTCGC  24
+                ||||||||||||||||
+Sbjct  2279193  TGGGCGGCGGCCTCGC  2279178
+
+
+
+
+Range 8: 3877658 to 3877673
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  8        CTGGGCGGCGGCCTCG  23
+                ||||||||||||||||
+Sbjct  3877658  CTGGGCGGCGGCCTCG  3877673
+
+
+
+
+Range 9: 6867444 to 6867459
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  6        ATCTGGGCGGCGGCCT  21
+                ||||||||||||||||
+Sbjct  6867444  ATCTGGGCGGCGGCCT  6867459
+
+
+
+
+>Streptomyces sp. HUAS 15-9 chromosome, complete genome
+Sequence ID: CP106798.1 Length: 9258818
+Range 1: 3793460 to 3793478
+
+Score:38.2 bits(19), Expect:11, 
+Identities:19/19(100%),  Gaps:0/19(0%), Strand: Plus/Plus
+
+Query  3        CGCATCTGGGCGGCGGCCT  21
+                |||||||||||||||||||
+Sbjct  3793460  CGCATCTGGGCGGCGGCCT  3793478
+
+
+
+
+Range 2: 5640490 to 5640507
+
+Score:36.2 bits(18), Expect:43, 
+Identities:18/18(100%),  Gaps:0/18(0%), Strand: Plus/Plus
+
+Query  3        CGCATCTGGGCGGCGGCC  20
+                ||||||||||||||||||
+Sbjct  5640490  CGCATCTGGGCGGCGGCC  5640507
+
+
+
+
+Range 3: 4161887 to 4161903
+
+Score:34.2 bits(17), Expect:171, 
+Identities:17/17(100%),  Gaps:0/17(0%), Strand: Plus/Minus
+
+Query  4        GCATCTGGGCGGCGGCC  20
+                |||||||||||||||||
+Sbjct  4161903  GCATCTGGGCGGCGGCC  4161887
+
+
+
+
+Range 4: 3667673 to 3667688
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  9        TGGGCGGCGGCCTCGC  24
+                ||||||||||||||||
+Sbjct  3667673  TGGGCGGCGGCCTCGC  3667688
+
+
+
+
+Range 5: 5800367 to 5800382
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  9        TGGGCGGCGGCCTCGC  24
+                ||||||||||||||||
+Sbjct  5800367  TGGGCGGCGGCCTCGC  5800382
+
+
+
+
+Range 6: 6173814 to 6173829
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Minus
+
+Query  8        CTGGGCGGCGGCCTCG  23
+                ||||||||||||||||
+Sbjct  6173829  CTGGGCGGCGGCCTCG  6173814
+
+
+
+
+Range 7: 6855716 to 6855731
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Minus
+
+Query  8        CTGGGCGGCGGCCTCG  23
+                ||||||||||||||||
+Sbjct  6855731  CTGGGCGGCGGCCTCG  6855716
+
+
+
+
+>Leisingera caerulea strain S216 plasmid unnamed1, complete sequence
+Sequence ID: CP081091.1 Length: 94599
+Range 1: 75118 to 75136
+
+Score:38.2 bits(19), Expect:11, 
+Identities:19/19(100%),  Gaps:0/19(0%), Strand: Plus/Minus
+
+Query  6      ATCTGGGCGGCGGCCTCGC  24
+              |||||||||||||||||||
+Sbjct  75136  ATCTGGGCGGCGGCCTCGC  75118
+
+
+
+
+>Leisingera caerulea strain S141 plasmid unnamed1, complete sequence
+Sequence ID: CP081079.1 Length: 94622
+Range 1: 90179 to 90197
+
+Score:38.2 bits(19), Expect:11, 
+Identities:19/19(100%),  Gaps:0/19(0%), Strand: Plus/Minus
+
+Query  6      ATCTGGGCGGCGGCCTCGC  24
+              |||||||||||||||||||
+Sbjct  90197  ATCTGGGCGGCGGCCTCGC  90179
+
+
+
+
+>Sphingopyxis sp. DBS4 chromosome, complete genome
+Sequence ID: CP102384.1 Length: 4357663
+Range 1: 3585389 to 3585407
+
+Score:38.2 bits(19), Expect:11, 
+Identities:19/19(100%),  Gaps:0/19(0%), Strand: Plus/Plus
+
+Query  6        ATCTGGGCGGCGGCCTCGC  24
+                |||||||||||||||||||
+Sbjct  3585389  ATCTGGGCGGCGGCCTCGC  3585407
+
+
+
+
+>Ustilaginoidea virens strain iJS62 chromosome 7
+Sequence ID: CP101608.1 Length: 2240023
+Range 1: 599948 to 599966
+
+Score:38.2 bits(19), Expect:11, 
+Identities:19/19(100%),  Gaps:0/19(0%), Strand: Plus/Plus
+
+Query  6       ATCTGGGCGGCGGCCTCGC  24
+               |||||||||||||||||||
+Sbjct  599948  ATCTGGGCGGCGGCCTCGC  599966
+
+
+
+
+>Burkholderia mallei strain 34 genome assembly, chromosome: molecule
+Sequence ID: OW622535.1 Length: 5647473
+Range 1: 624432 to 624450
+
+Score:38.2 bits(19), Expect:11, 
+Identities:19/19(100%),  Gaps:0/19(0%), Strand: Plus/Plus
+
+Query  6       ATCTGGGCGGCGGCCTCGC  24
+               |||||||||||||||||||
+Sbjct  624432  ATCTGGGCGGCGGCCTCGC  624450
+
+
+
+
+Range 2: 3183086 to 3183101
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  8        CTGGGCGGCGGCCTCG  23
+                ||||||||||||||||
+Sbjct  3183086  CTGGGCGGCGGCCTCG  3183101
+
+
+
+
+Range 3: 4264007 to 4264022
+
+Score:32.2 bits(16), Expect:677, 
+Identities:16/16(100%),  Gaps:0/16(0%), Strand: Plus/Plus
+
+Query  4        GCATCTGGGCGGCGGC  19
+                ||||||||||||||||
+Sbjct  4264007  GCATCTGGGCGGCGGC  4264022
+
+
+
+
+>Actinomadura madurae strain MRC005 chromosome, complete genome
+Sequence ID: CP094266.1 Length: 10148230
+Range 1: 756065 to 756083
+
+Score:38.2 bits(19), Expect:11, 
+Identities:19/19(100%),  Gaps:0/19(0%), Strand: Plus/Plus
+
+Query  5       CATCTGGGCGGCGGCCTCG  23
+               |||||||||||||||||||
+Sbjct  756065  CATCTGGGCGGCGGCCTCG  756083
+
+
+
+
+>Actinomadura madurae strain MRC008 chromosome, complete genome
+Sequence ID: CP094265.1 Length: 10230156
+Range 1: 8879528 to 8879546
+
+Score:38.2 bits(19), Expect:11, 
+Identities:19/19(100%),  Gaps:0/19(0%), Strand: Plus/Plus
+
+Query  5        CATCTGGGCGGCGGCCTCG  23
+                |||||||||||||||||||
+Sbjct  8879528  CATCTGGGCGGCGGCCTCG  8879546
+
+
+
+
+>Pseudomonas knackmussii strain B09-2 chromosome, complete genome
+Sequence ID: CP096208.1 Length: 4570453
+Range 1: 772975 to 772993
+
+Score:38.2 bits(19), Expect:11, 
+Identities:19/19(100%),  Gaps:0/19(0%), Strand: Plus/Minus
+
+Query  3       CGCATCTGGGCGGCGGCCT  21
+               |||||||||||||||||||
+Sbjct  772993  CGCATCTGGGCGGCGGCCT  772975
+
+
+
+
+Range 2: 3383275 to 3383291
+
+Score:34.2 bits(17), Expect:171, 
+Identities:17/17(100%),  Gaps:0/17(0%), Strand: Plus/Minus
+
+Query  8        CTGGGCGGCGGCCTCGC  24
+                |||||||||||||||||
+Sbjct  3383291  CTGGGCGGCGGCCTCGC  3383275
+
+
+
+
+		
+
+
