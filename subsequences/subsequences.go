@@ -94,6 +94,7 @@ func getSources() []Source {
 			"GCF_905146905.1_NYPRO_anot_genome_genomic.fna.gz"},
 		{"Pangolin", root + "pangolin/" +
 			"GCF_014570535.1_YNU_ManJav_2.0_genomic.fna.gz"},
+		{"Viruses", root + "viruses/mega/mega.fasta"},
 	}
 }
 
