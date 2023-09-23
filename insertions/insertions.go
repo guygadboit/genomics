@@ -45,7 +45,9 @@ func LoadInsertions(fname string, minLen int, minSeqs int) []Insertion {
 	ret := make([]Insertion, 0)
 	fp := bufio.NewReader(fd)
 
-	pat := regexp.MustCompile(`ins_(\d+):([A-Z]+) \((\d+) seqs\)`)
+	// Match for [GATC]+, so ignore any with Ns or weird ambiguous nts like HDK
+	// etc.
+	pat := regexp.MustCompile(`ins_(\d+):([GATC]+) \((\d+) seqs\)`)
 
 reading:
 	for {
@@ -61,6 +63,9 @@ reading:
 
 		line = strings.TrimSpace(line)
 		groups := pat.FindAllStringSubmatch(line, -1)
+		if groups == nil {
+			continue
+		}
 
 		ins := Insertion{atoi(groups[0][1]),
 			[]byte(groups[0][2]),
@@ -231,8 +236,8 @@ func outputFasta(fname string, name string,
 		}
 
 		if verbose {
-			fmt.Printf("%s: ins_%d %s (%d seqs)\n", name,
-				ins.pos, string(ins.nts), ins.nSeqs)
+			fmt.Printf("%s: %d ins_%d %s (%d seqs)\n", name,
+				len(ins.nts), ins.pos, string(ins.nts), ins.nSeqs)
 		}
 
 		nts = append(nts, ins.nts...)
@@ -294,10 +299,10 @@ func main() {
 			findInVirus(insertions, i)
 		}
 	*/
-	outputFasta("Insertions.fasta", "SC2 Insertions",
+	outputFasta("Insertions.fasta", "SC2Insertions",
 		insertions, 6, ANYTHING, verbose)
-	outputFasta("InsertionsFromWH1.fasta", "From WH1",
+	outputFasta("InsertionsFromWH1.fasta", "FromWH1",
 		insertions, 6, WH1_ONLY, verbose)
-	outputFasta("InsertionsNotFromWH1.fasta", "Not From WH1",
+	outputFasta("InsertionsNotFromWH1.fasta", "NotFromWH1",
 		insertions, 6, NOT_WH1_ONLY, true)
 }
