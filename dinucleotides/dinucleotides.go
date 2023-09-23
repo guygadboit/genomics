@@ -10,6 +10,25 @@ import (
 
 type DinucMap map[string]int
 
+// Reject anything with funky ambiguous nts or Ns etc.
+func isValid(s string) bool {
+	for i := 0; i < len(s); i++ {
+		switch s[i] {
+		case 'G':
+			fallthrough
+		case 'A':
+			fallthrough
+		case 'T':
+			fallthrough
+		case 'C':
+			continue
+		default:
+			return false
+		}
+	}
+	return true
+}
+
 /*
 	Count the dinucleotides and return a map of their counts
 */
@@ -19,6 +38,9 @@ func FindDinucs(genome *genomes.Genomes, which int) DinucMap {
 
 	for i := 0; i < genome.Length()-1; i++ {
 		dn := string(nts[i : i+2])
+		if !isValid(dn) {
+			continue
+		}
 		count, _ := ret[dn]
 		ret[dn] = count + 1
 	}
