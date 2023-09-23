@@ -16,7 +16,7 @@ import (
 )
 
 type Insertion struct {
-	id    int	 // The order we found them in. Should be a line number
+	id    int    // The order we found them in. Should be a line number
 	pos   int    // Where
 	nts   []byte // What
 	nSeqs int    // How many times
@@ -345,10 +345,12 @@ func main() {
 			findInVirus(insertions, i)
 		}
 	*/
-	outputFasta("Insertions.fasta", "SC2Insertions",
-		insertions, 6, ANYTHING, verbose)
-	outputFasta("InsertionsFromWH1.fasta", "FromWH1",
-		insertions, 6, WH1_ONLY, verbose)
-	outputFasta("InsertionsNotFromWH1.fasta", "NotFromWH1",
+	/*
+		outputFasta("Insertions.fasta", "SC2Insertions",
+			insertions, 6, ANYTHING, verbose)
+		outputFasta("InsertionsFromWH1.fasta", "FromWH1",
+			insertions, 6, WH1_ONLY, verbose)
+	*/
+	outputCombinedFasta("InsertionsNotFromWH1.fasta", "NotFromWH1",
 		insertions, 6, NOT_WH1_ONLY, verbose)
 }
