@@ -166,8 +166,8 @@ func findFCS() {
 			count++
 		}
 		total := g.Length()
-		pct := float64(count * 10e6) / float64(total)
-		fmt.Printf("%s: %d/%d (%.4f per million)\n",
+		pct := float64(count * 1e7) / float64(total)
+		fmt.Printf("%s: %d/%d (%.4f per 10 million)\n",
 			source.name, count, total, pct)
 	}
 }
