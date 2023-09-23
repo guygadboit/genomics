@@ -107,7 +107,7 @@ func findInVirus(name string,
 	w := bufio.NewWriter(fd)
 
 	reportFound := func(ins *Insertion) {
-		fmt.Fprintf(w, "ins_%d:%s (%d seqs)\n", ins.pos, ins.nts, ins.nSeqs)
+		// fmt.Fprintf(w, "ins_%d:%s (%d seqs)\n", ins.pos, ins.nts, ins.nSeqs)
 		if mark {
 			ins.inWH1 = true
 		}
@@ -138,7 +138,6 @@ searching:
 			found++
 			continue searching
 		}
-		fmt.Println(string(ins.nts))
 	}
 
 	w.Flush()
@@ -203,20 +202,52 @@ func byLocation(insertions []Insertion, minLength int) {
 	fmt.Printf("Wrote locations.txt\n")
 }
 
-func outputFasta(fname string, insertions []Insertion, minLength int) {
+const (
+	ANYTHING = iota
+	WH1_ONLY
+	NOT_WH1_ONLY
+)
+
+func outputFasta(fname string, name string,
+	insertions []Insertion, minLength int, filter int, verbose bool) int {
 	sep := []byte("NNN")
 	nts := make([]byte, 0)
+	var count int
 
 	for i := 0; i < len(insertions); i++ {
-		nts = append(nts, insertions[i].nts...)
+		ins := &insertions[i]
+
+		switch filter {
+		case WH1_ONLY:
+			if !ins.inWH1 {
+				continue
+			}
+		case NOT_WH1_ONLY:
+			if ins.inWH1 {
+				continue
+			}
+		case ANYTHING:
+			break
+		}
+
+		if verbose {
+			fmt.Printf("%s: ins_%d %s (%d seqs)\n", name,
+				ins.pos, string(ins.nts), ins.nSeqs)
+		}
+
+		nts = append(nts, ins.nts...)
 		nts = append(nts, sep...)
+		count++
 	}
 
 	var orfs genomes.Orfs
 	genomes := genomes.NewGenomes(orfs, 1)
 	genomes.Nts[0] = nts
-	genomes.Names[0] = "SC2 Insertions"
+	genomes.Names[0] = name
 	genomes.Save("SC2 Insertions", fname, 0)
+
+	fmt.Printf("%s: %d insertions\n", name, count)
+	return count
 }
 
 func showLength(insertions []Insertion) {
@@ -244,12 +275,16 @@ func otherHCoVs(insertions []Insertion, tol float64) {
 }
 
 func main() {
-	var tolerance float64
-	flag.Float64Var(&tolerance, "tolerance", 0.0, "Tolerance")
+	var tol float64
+	var verbose bool
+
+	flag.Float64Var(&tol, "tol", 0.0, "Tolerance")
+	flag.BoolVar(&verbose, "v", false, "Verbose")
 	flag.Parse()
 
 	insertions := LoadInsertions("insertions.txt", 10, 2)
-	findInVirus("WH1", insertions, 10, true, tolerance)
+	findInVirus("WH1", insertions, 10, true, tol)
+
 	// showLength(insertions)
 
 	// byLocation(insertions, 9)
@@ -259,5 +294,10 @@ func main() {
 			findInVirus(insertions, i)
 		}
 	*/
-	outputFasta("Insertions.fasta", insertions, 6)
+	outputFasta("Insertions.fasta", "SC2 Insertions",
+		insertions, 6, ANYTHING, verbose)
+	outputFasta("InsertionsFromWH1.fasta", "From WH1",
+		insertions, 6, WH1_ONLY, verbose)
+	outputFasta("InsertionsNotFromWH1.fasta", "Not From WH1",
+		insertions, 6, NOT_WH1_ONLY, true)
 }
