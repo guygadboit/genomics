@@ -87,6 +87,7 @@ type Source struct {
 func getSources() []Source {
 	root := "/fs/f/genomes/"
 	return []Source{
+		{"Viruses", root + "viruses/mega/mega.fasta"},
 		{"Bat", root + "bat/myotis_davidii/" +
 			"GCF_000327345.1_ASM32734v1_genomic.fna.gz"},
 		{"Insertions", "../insertions/Insertions.fasta"},
@@ -95,7 +96,6 @@ func getSources() []Source {
 			"GCF_905146905.1_NYPRO_anot_genome_genomic.fna.gz"},
 		{"Pangolin", root + "pangolin/" +
 			"GCF_014570535.1_YNU_ManJav_2.0_genomic.fna.gz"},
-		{"Viruses", root + "viruses/mega/mega.fasta"},
 		{"Rabbit", root + "rabbit/" +
 			"GCF_009806435.1_UM_NZW_1.0_genomic.fna.gz"},
 		{"Streptomyces", root + "bacteria/Streptomyces/" +
@@ -173,6 +173,6 @@ func findFCS() {
 }
 
 func main() {
-	findFCS()
-	// findAll(6)
+	// findFCS()
+	findAll(6)
 }
