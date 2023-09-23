@@ -259,5 +259,5 @@ func main() {
 			findInVirus(insertions, i)
 		}
 	*/
-	// outputFasta("Insertions.fasta", insertions, 6)
+	outputFasta("Insertions.fasta", insertions, 6)
 }

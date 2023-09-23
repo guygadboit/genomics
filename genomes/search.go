@@ -53,6 +53,7 @@ searching:
 				}
 			}
 		}
+		s.pos++
 		return
 	}
 }

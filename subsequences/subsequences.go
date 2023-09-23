@@ -87,9 +87,9 @@ type Source struct {
 func getSources() []Source {
 	root := "/fs/f/genomes/"
 	return []Source{
-		{"Insertions", "../insertions/Insertions.fasta"},
 		{"Bat", root + "bat/myotis_davidii/" +
 			"GCF_000327345.1_ASM32734v1_genomic.fna.gz"},
+		{"Insertions", "../insertions/Insertions.fasta"},
 		{"Human", root + "human/GRCh38_latest_genomic.fna.gz"},
 		{"RaccoonDog", root + "raccoon_dog/" +
 			"GCF_905146905.1_NYPRO_anot_genome_genomic.fna.gz"},
@@ -152,6 +152,27 @@ processing:
 	}
 }
 
+func findFCS() {
+	sources := getSources()
+	var s genomes.Search
+	fcs := []byte("CTCCTCGGCGGG")
+
+	for i := 0; i < len(sources); i++ {
+		var count int
+		source := sources[i]
+		g := genomes.LoadGenomes(source.fname, "", true)
+		for s.Init(g, 0, fcs, 0.0); !s.End(); s.Next() {
+			// fmt.Printf("%s: %d %d\n", source.name, pos, g.Length())
+			count++
+		}
+		total := g.Length()
+		pct := float64(count * 10e6) / float64(total)
+		fmt.Printf("%s: %d/%d (%.4f per million)\n",
+			source.name, count, total, pct)
+	}
+}
+
 func main() {
-	findAll(6)
+	findFCS()
+	// findAll(6)
 }
