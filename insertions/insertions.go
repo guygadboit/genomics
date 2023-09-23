@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"flag"
 	"fmt"
 	"genomics/genomes"
 	"io"
@@ -12,10 +13,10 @@ import (
 	"strconv"
 	"strings"
 	"sync"
-	"flag"
 )
 
 type Insertion struct {
+	id    int	 // The order we found them in. Should be a line number
 	pos   int    // Where
 	nts   []byte // What
 	nSeqs int    // How many times
@@ -48,6 +49,7 @@ func LoadInsertions(fname string, minLen int, minSeqs int) []Insertion {
 	// Match for [GATC]+, so ignore any with Ns or weird ambiguous nts like HDK
 	// etc.
 	pat := regexp.MustCompile(`ins_(\d+):([GATC]+) \((\d+) seqs\)`)
+	id := 1
 
 reading:
 	for {
@@ -61,13 +63,15 @@ reading:
 			log.Fatal("Can't read file")
 		}
 
+		id++
 		line = strings.TrimSpace(line)
 		groups := pat.FindAllStringSubmatch(line, -1)
 		if groups == nil {
 			continue
 		}
 
-		ins := Insertion{atoi(groups[0][1]),
+		ins := Insertion{id,
+			atoi(groups[0][1]),
 			[]byte(groups[0][2]),
 			atoi(groups[0][3]),
 			false}
@@ -146,10 +150,8 @@ searching:
 	}
 
 	w.Flush()
-
 	fmt.Printf("Length %d: %d (/%d) were found in %s\n", minLength,
 		found, count, name)
-	fmt.Printf("Wrote %s\n", fname)
 }
 
 /*
@@ -213,25 +215,30 @@ const (
 	NOT_WH1_ONLY
 )
 
-func outputFasta(fname string, name string,
-	insertions []Insertion, minLength int, filter int, verbose bool) int {
-	sep := []byte("NNN")
-	nts := make([]byte, 0)
-	var count int
+/*
+	Call cb on all the insertions that match the filter. This requires that
+	you've already marked which ones are in WH1 with findInVirus.
+*/
+func filterInsertions(insertions []Insertion,
+	filter int, cb func(*Insertion), verbose bool) {
+	var name string
 
 	for i := 0; i < len(insertions); i++ {
 		ins := &insertions[i]
 
 		switch filter {
 		case WH1_ONLY:
+			name = "In WH1"
 			if !ins.inWH1 {
 				continue
 			}
 		case NOT_WH1_ONLY:
+			name = "Not in WH1"
 			if ins.inWH1 {
 				continue
 			}
 		case ANYTHING:
+			name = "Anything"
 			break
 		}
 
@@ -240,10 +247,28 @@ func outputFasta(fname string, name string,
 				len(ins.nts), ins.pos, string(ins.nts), ins.nSeqs)
 		}
 
+		cb(ins)
+	}
+}
+
+/*
+	Output them all in one fasta file with NNN between each of them. Useful if
+	you want to look at dinucleotide composition etc.
+*/
+func outputCombinedFasta(fname string, name string,
+	insertions []Insertion, minLength int, filter int, verbose bool) int {
+	sep := []byte("NNN")
+	nts := make([]byte, 0)
+	var count int
+
+	cb := func(ins *Insertion) {
+
 		nts = append(nts, ins.nts...)
 		nts = append(nts, sep...)
 		count++
 	}
+
+	filterInsertions(insertions, filter, cb, verbose)
 
 	var orfs genomes.Orfs
 	genomes := genomes.NewGenomes(orfs, 1)
@@ -253,6 +278,27 @@ func outputFasta(fname string, name string,
 
 	fmt.Printf("%s: %d insertions\n", name, count)
 	return count
+}
+
+/*
+	Put all the insertions matching the filters into a single fasta file with
+	headers between each one. I think you should then be able to BLAST the
+	whole lot.
+*/
+func outputFasta(fname string, name string,
+	insertions []Insertion, minLength int, filter int, verbose bool) {
+
+	var orfs genomes.Orfs
+	genomes := genomes.NewGenomes(orfs, 0)
+
+	cb := func(ins *Insertion) {
+		genomes.Nts = append(genomes.Nts, ins.nts)
+		name := fmt.Sprintf("ins_%d_%d", ins.pos, ins.id)
+		genomes.Names = append(genomes.Names, name)
+	}
+
+	filterInsertions(insertions, filter, cb, verbose)
+	genomes.SaveMulti(fname)
 }
 
 func showLength(insertions []Insertion) {
@@ -304,5 +350,5 @@ func main() {
 	outputFasta("InsertionsFromWH1.fasta", "FromWH1",
 		insertions, 6, WH1_ONLY, verbose)
 	outputFasta("InsertionsNotFromWH1.fasta", "NotFromWH1",
-		insertions, 6, NOT_WH1_ONLY, true)
+		insertions, 6, NOT_WH1_ONLY, verbose)
 }

@@ -79,6 +79,16 @@ loop:
 	return ret
 }
 
+func wrap(w io.Writer, nts []byte) {
+	ll := 60
+
+	var i int
+	for i = 0; i < len(nts)-ll; i += ll {
+		fmt.Fprintf(w, "%s\n", string(nts[i:i+ll]))
+	}
+	fmt.Fprintf(w, "%s\n", string(nts[i:]))
+}
+
 func (g *Genomes) Save(name, fname string, which int) error {
 	fd, err := os.Create(fname)
 	if err != nil {
@@ -90,13 +100,27 @@ func (g *Genomes) Save(name, fname string, which int) error {
 	fmt.Fprintf(fp, ">%s\n", name)
 
 	nts := g.Nts[which]
-	ll := 60
-	var i int
-	for i = 0; i < len(nts)-ll; i += ll {
-		fmt.Fprintf(fp, "%s\n", string(nts[i:i+ll]))
-	}
+	wrap(fp, nts)
+	fp.Flush()
+	return nil
+}
 
-	fmt.Fprintf(fp, "%s\n", string(nts[i:]))
+/*
+	Make one fasta file with all the nt sequences in it and their names.
+*/
+func (g *Genomes) SaveMulti(fname string) error {
+	fd, err := os.Create(fname)
+	if err != nil {
+		return err
+	}
+	defer fd.Close()
+
+	fp := bufio.NewWriter(fd)
+
+	for i := 0; i < g.NumGenomes(); i++ {
+		fmt.Fprintf(fp, ">%s\n", g.Names[i])
+		wrap(fp, g.Nts[i])
+	}
 	fp.Flush()
 	return nil
 }
