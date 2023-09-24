@@ -11,9 +11,9 @@ func count(nts []byte, pattern []byte) int {
 	var ret int
 
 searching:
-	for i := 0; i < len(nts); i++ {
+	for i := 0; i < len(nts) - m + 1; i++ {
 		for j := 0; j < m; j++ {
-			if nts[i+j] != pattern[i+j] {
+			if nts[i+j] != pattern[j] {
 				continue searching
 			}
 		}
@@ -37,8 +37,9 @@ func CalcProfile(nts []byte) DinucProfile {
 	// The total number of dinucleotides is 1 less than the total number of
 	// nts, which is where that -1 comes from. We're looking at the frequency
 	// of CpG over the "expected" frequency.
-	cpg := (float64(cpgCount) / (total - 1.0)) / (float64(c * g) / total)
-	tpa := (float64(tpaCount) / (total - 1.0)) / (float64(t * a) / total)
+	totalsq := total * total
+	cpg := (float64(cpgCount) / (total - 1.0)) / (float64(c * g) / totalsq)
+	tpa := (float64(tpaCount) / (total - 1.0)) / (float64(t * a) / totalsq)
 
 	return DinucProfile{gc, cpg, tpa}
 }

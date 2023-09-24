@@ -210,8 +210,10 @@ func byLocation(insertions []Insertion, minLength int) {
 	fmt.Printf("Wrote locations.txt\n")
 }
 
+type filter int
+
 const (
-	ANYTHING = iota
+	ANYTHING filter = iota
 	WH1_ONLY
 	NOT_WH1_ONLY
 )
@@ -221,7 +223,7 @@ const (
 	you've already marked which ones are in WH1 with findInVirus.
 */
 func filterInsertions(insertions []Insertion,
-	filter int, minLength int, cb func(*Insertion), verbose bool) {
+	minLength int, filter filter, cb func(*Insertion), verbose bool) {
 	var name string
 
 	for i := 0; i < len(insertions); i++ {
@@ -261,7 +263,7 @@ func filterInsertions(insertions []Insertion,
 	you want to look at dinucleotide composition etc.
 */
 func outputCombinedFasta(fname string, name string,
-	insertions []Insertion, minLength int, filter int, verbose bool) int {
+	insertions []Insertion, minLength int, filter filter, verbose bool) int {
 	sep := []byte("NNN")
 	nts := make([]byte, 0)
 	var count int
@@ -291,7 +293,7 @@ func outputCombinedFasta(fname string, name string,
 	whole lot.
 */
 func outputFasta(fname string, name string,
-	insertions []Insertion, minLength int, filter int, verbose bool) {
+	insertions []Insertion, minLength int, filter filter, verbose bool) {
 
 	var orfs genomes.Orfs
 	genomes := genomes.NewGenomes(orfs, 0)
@@ -307,7 +309,7 @@ func outputFasta(fname string, name string,
 }
 
 func outputDinucs(fname string,
-	insertions []Insertion, minLength int, filter int) {
+	insertions []Insertion, minLength int, filter filter, verbose bool) {
 
 	fd, err := os.Create(fname)
 	if err != nil {
@@ -323,7 +325,7 @@ func outputDinucs(fname string,
 		fmt.Fprintf(w, "%d %d %.3f %.3f %.3f %s\n",
 			ins.id, len(ins.nts), dp.GC, dp.CpG, dp.TpA, string(ins.nts))
 	}
-	filterInsertions(insertions, minLength, filter, cb, false)
+	filterInsertions(insertions, minLength, filter, cb, verbose)
 	w.Flush()
 }
 
@@ -359,8 +361,8 @@ func main() {
 	flag.BoolVar(&verbose, "v", false, "Verbose")
 	flag.Parse()
 
-	insertions := LoadInsertions("insertions.txt", 10, 2)
-	findInVirus("WH1", insertions, 10, true, tol)
+	insertions := LoadInsertions("insertions.txt", 6, 2)
+	findInVirus("WH1", insertions, 6, true, tol)
 
 	utils.Sort(len(insertions), true,
 		func(i, j int) {
@@ -374,12 +376,9 @@ func main() {
 	// showLength(insertions)
 	// byLocation(insertions, 9)
 
-	/*
-		outputFasta("Insertions.fasta", "SC2Insertions",
-			insertions, 6, ANYTHING, verbose)
-		outputFasta("InsertionsFromWH1.fasta", "FromWH1",
-			insertions, 6, WH1_ONLY, verbose)
-	*/
-	outputDinucs("InsertionsNotFromWH1.fasta", "NotFromWH1",
+	outputFasta("InsertionsNotFromWH1.fasta", "FromWH1",
+		insertions, 6, NOT_WH1_ONLY, verbose)
+
+	outputDinucs("InsertionsNotFromWH1.txt",
 		insertions, 6, NOT_WH1_ONLY, verbose)
 }

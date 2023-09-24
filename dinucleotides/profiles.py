@@ -7,8 +7,8 @@ from pdb import set_trace as brk
 
 GENOME_NAMES = (
 		"Insertions",
-		"HCoVs",
 		"Human",
+		"HCoVs",
 		"Streptomyces",
 		"Haemophilus",
 # 		"Bat",
