@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"genomics/genomes"
+	"genomics/utils"
 	"io"
 	"log"
 	"os"
@@ -140,7 +141,7 @@ searching:
 			continue searching
 		}
 
-		rc := genomes.ReverseComplement(insertions[i].nts)
+		rc := utils.ReverseComplement(insertions[i].nts)
 		for search.Init(virus, 0, rc, tol); !search.End(); search.Next() {
 			search.Get()
 			reportFound(ins)
@@ -220,11 +221,15 @@ const (
 	you've already marked which ones are in WH1 with findInVirus.
 */
 func filterInsertions(insertions []Insertion,
-	filter int, cb func(*Insertion), verbose bool) {
+	filter int, minLength int, cb func(*Insertion), verbose bool) {
 	var name string
 
 	for i := 0; i < len(insertions); i++ {
 		ins := &insertions[i]
+
+		if len(ins.nts) < minLength {
+			continue
+		}
 
 		switch filter {
 		case WH1_ONLY:
@@ -268,7 +273,7 @@ func outputCombinedFasta(fname string, name string,
 		count++
 	}
 
-	filterInsertions(insertions, filter, cb, verbose)
+	filterInsertions(insertions, minLength, filter, cb, verbose)
 
 	var orfs genomes.Orfs
 	genomes := genomes.NewGenomes(orfs, 1)
@@ -297,7 +302,7 @@ func outputFasta(fname string, name string,
 		genomes.Names = append(genomes.Names, name)
 	}
 
-	filterInsertions(insertions, filter, cb, verbose)
+	filterInsertions(insertions, minLength, filter, cb, verbose)
 	genomes.SaveMulti(fname)
 }
 
@@ -335,6 +340,15 @@ func main() {
 
 	insertions := LoadInsertions("insertions.txt", 10, 2)
 	findInVirus("WH1", insertions, 10, true, tol)
+
+	utils.Sort(len(insertions), true,
+		func(i, j int) {
+			insertions[i], insertions[j] = insertions[j], insertions[i]
+		},
+		nil,
+		func(i int) float64 {
+			return float64(len(insertions[i].nts))
+		})
 
 	// showLength(insertions)
 

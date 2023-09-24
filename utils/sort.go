@@ -5,16 +5,22 @@ import (
 )
 
 type sorter struct {
-	data []interface{}
-	lt   func(int, int) bool
-	key  func(int) float64
+	len		int
+	reverse bool
+	swap	func(int, int)
+
+	// Must supply one or the other of these
+	lt      func(int, int) bool
+	key     func(int) float64
 }
 
-func (s sorter) init(data []interface{},
-	lt func(int, int) bool,
-	key func(int) float64) {
+func (s *sorter) init(len int, reverse bool, swap func(int, int),
+	lt func(int, int) bool, key func(int) float64) {
 
-	s.data = data
+	s.len = len
+	s.reverse = reverse
+	s.swap = swap
+
 	if lt != nil {
 		s.lt = lt
 	} else {
@@ -22,28 +28,37 @@ func (s sorter) init(data []interface{},
 	}
 }
 
-func (s sorter) Len() int {
-	return len(s.data)
+func (s *sorter) Len() int {
+	return s.len
 }
 
-func (s sorter) Less(i, j int) bool {
+func (s *sorter) Less(i, j int) bool {
+	var result bool
+
 	if s.lt != nil {
-		return s.lt(i, j)
+		result = s.lt(i, j)
 	} else {
 		a, b := s.key(i), s.key(j)
-		return a < b
+		result = a < b
+	}
+
+	if s.reverse {
+		return !result
+	} else {
+		return result
 	}
 }
 
-func (s sorter) Swap(i, j int) {
-	s.data[i], s.data[j] = s.data[j], s.data[i]
+func (s *sorter) Swap(i, j int) {
+	s.swap(i, j)
 }
 
 /*
 	Sort a slice. Either of lt or key can be nil
 */
-func Sort(data []interface{}, lt func(int, int) bool, key func(int) float64) {
+func Sort(len int, reverse bool, swap func(int, int),
+	lt func(int, int) bool, key func(int) float64) {
 	var s sorter
-	s.init(data, lt, key)
-	sort.Sort(s)
+	s.init(len, reverse, swap, lt, key)
+	sort.Sort(&s)
 }
