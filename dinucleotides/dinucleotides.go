@@ -37,7 +37,7 @@ func FindDinucs(genome *genomes.Genomes, which int, len int) DinucMap {
 	ret := make(DinucMap)
 	nts := genome.Nts[which]
 
-	for i := 0; i < genome.Length()-len; i++ {
+	for i := 0; i < genome.Length()-len+1; i++ {
 		dn := string(nts[i : i+len])
 		if !isValid(dn) {
 			continue
@@ -74,7 +74,6 @@ func getSources() []Source {
 		{"Deinococcus", root + "bacteria/GCRich/DeinococcusRadiodurans.fasta"},
 		{"PA", root + "bacteria/GCRich/PseudomonasAeruginosaComplete.fasta"},
 		{"Haemophilus", root + "bacteria/ATRich/HaemophilusInfluenzae.fasta"},
-		/*
 		{"Viruses", root + "viruses/mega/mega.fasta"},
 		{"Bat", root + "bat/myotis_davidii/" +
 			"GCF_000327345.1_ASM32734v1_genomic.fna.gz"},
@@ -93,7 +92,6 @@ func getSources() []Source {
 			"GCF_000001635.27_GRCm39_genomic.fna.gz"},
 		{"Insertions", "../fasta/InsertionsNotFromWH1.fasta"},
 		{"HCoVs", "../fasta/HCoVs.fasta"},
-		*/
 	}
 }
 

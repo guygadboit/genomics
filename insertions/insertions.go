@@ -306,6 +306,27 @@ func outputFasta(fname string, name string,
 	genomes.SaveMulti(fname)
 }
 
+func outputDinucs(fname string,
+	insertions []Insertion, minLength int, filter int) {
+
+	fd, err := os.Create(fname)
+	if err != nil {
+		log.Fatalf("Can't create %s", fname)
+	}
+	defer fd.Close()
+
+	w := bufio.NewWriter(fd)
+	fmt.Fprintf(w, "id len G+C, CpG TpA insert\n")
+
+	cb := func(ins *Insertion) {
+		dp := genomes.CalcProfile(ins.nts)
+		fmt.Fprintf(w, "%d %d %.3f %.3f %.3f %s\n",
+			ins.id, len(ins.nts), dp.GC, dp.CpG, dp.TpA, string(ins.nts))
+	}
+	filterInsertions(insertions, minLength, filter, cb, false)
+	w.Flush()
+}
+
 func showLength(insertions []Insertion) {
 	for i := 0; i < len(insertions); i++ {
 		ins := &insertions[i]
@@ -359,6 +380,6 @@ func main() {
 		outputFasta("InsertionsFromWH1.fasta", "FromWH1",
 			insertions, 6, WH1_ONLY, verbose)
 	*/
-	outputCombinedFasta("InsertionsNotFromWH1.fasta", "NotFromWH1",
+	outputDinucs("InsertionsNotFromWH1.fasta", "NotFromWH1",
 		insertions, 6, NOT_WH1_ONLY, verbose)
 }
