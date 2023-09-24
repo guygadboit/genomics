@@ -87,6 +87,7 @@ func getSources() []Source {
 		{"Mouse", root + "mouse/" +
 			"GCF_000001635.27_GRCm39_genomic.fna.gz"},
 		{"Insertions", "../fasta/InsertionsNotFromWH1.fasta"},
+		{"HCoVs", "../fasta/HCoVs.fasta"},
 	}
 }
 
