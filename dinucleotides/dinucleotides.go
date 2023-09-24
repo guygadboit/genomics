@@ -72,8 +72,8 @@ func getSources() []Source {
 	return []Source{
 		{"Caulobacter", root + "bacteria/GCRich/CaulobacterCrescentus.fasta"},
 		{"Deinococcus", root + "bacteria/GCRich/DeinococcusRadiodurans.fasta"},
-		{"PA", root + "bacteria/ATRich/PseudomonasAeruginosaComplete.fasta"},
-		{"HI", root + "bacteria/ATRich/HaemophilusInfluenzae.fasta"},
+		{"PA", root + "bacteria/GCRich/PseudomonasAeruginosaComplete.fasta"},
+		{"Haemophilus", root + "bacteria/ATRich/HaemophilusInfluenzae.fasta"},
 		/*
 		{"Viruses", root + "viruses/mega/mega.fasta"},
 		{"Bat", root + "bat/myotis_davidii/" +
