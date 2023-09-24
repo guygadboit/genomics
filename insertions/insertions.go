@@ -71,6 +71,7 @@ reading:
 			continue
 		}
 
+
 		ins := Insertion{id,
 			atoi(groups[0][1]),
 			[]byte(groups[0][2]),
@@ -82,6 +83,18 @@ reading:
 		}
 
 		if ins.nSeqs < minSeqs {
+			continue
+		}
+
+		// Some of the insertions seem to be nearly all A. This looks bogus. So
+		// filter them out.
+		var aCount int
+		for i := 0; i < len(ins.nts); i++ {
+			if ins.nts[i] == 'A' {
+				aCount++
+			}
+		}
+		if (float64(aCount) / float64(len(ins.nts))) > 0.99 {
 			continue
 		}
 
