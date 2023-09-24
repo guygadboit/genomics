@@ -17,11 +17,12 @@ import (
 )
 
 type Insertion struct {
-	id    int    // The order we found them in. Should be a line number
-	pos   int    // Where
-	nts   []byte // What
-	nSeqs int    // How many times
-	inWH1 bool   // Is it in WH1?
+	id      int    // The order we found them in. Should be a line number
+	pos     int    // Where
+	nts     []byte // What
+	nSeqs   int    // How many times
+	inWH1   bool   // Is it in WH1?
+	inHuman bool   // Is it in human? Note that most short things will be
 }
 
 func (i *Insertion) ToString() string {
@@ -71,12 +72,11 @@ reading:
 			continue
 		}
 
-
 		ins := Insertion{id,
 			atoi(groups[0][1]),
 			[]byte(groups[0][2]),
 			atoi(groups[0][3]),
-			false}
+			false, false}
 
 		if len(ins.nts) < minLen {
 			continue
@@ -115,6 +115,27 @@ func Summary(insertions []Insertion) {
 		total, float64(total)/float64(len(insertions)))
 }
 
+/*
+	Call cb for every insertion found in nts forwards or backwards
+*/
+func search(insertion *Insertion, genome *genomes.Genomes, which int,
+	tol float64, cb func(*Insertion)) {
+
+	var search genomes.Search
+	nts := insertion.nts
+
+	for search.Init(genome, 0, nts, tol); !search.End(); search.Next() {
+		cb(insertion)
+		return
+	}
+
+	rc := utils.ReverseComplement(insertion.nts)
+	for search.Init(genome, 0, rc, tol); !search.End(); search.Next() {
+		cb(insertion)
+		return
+	}
+}
+
 func findInVirus(name string,
 	insertions []Insertion, minLength int, mark bool, tol float64) {
 	virus := genomes.LoadGenomes(fmt.Sprintf("../fasta/%s.fasta", name),
@@ -136,36 +157,58 @@ func findInVirus(name string,
 		}
 	}
 
-	var search genomes.Search
 	var found, count int
-searching:
+
 	for i := 0; i < len(insertions); i++ {
 		ins := &insertions[i]
+
 		nts := ins.nts
 		if len(nts) < minLength {
 			continue
 		}
 		count++
 
-		for search.Init(virus, 0, nts, tol); !search.End(); search.Next() {
-			search.Get()
+		search(ins, virus, 0, tol, func(ins *Insertion) {
 			reportFound(ins)
 			found++
-			continue searching
-		}
-
-		rc := utils.ReverseComplement(insertions[i].nts)
-		for search.Init(virus, 0, rc, tol); !search.End(); search.Next() {
-			search.Get()
-			reportFound(ins)
-			found++
-			continue searching
-		}
+		})
 	}
 
 	w.Flush()
 	fmt.Printf("Length %d: %d (/%d) were found in %s\n", minLength,
 		found, count, name)
+}
+
+/*
+	Mark the ones you find in human, only if they aren't already in WH1
+*/
+func findInHuman(insertions []Insertion, minLength int, tol float64) {
+	fmt.Printf("Loading...\n")
+	g := genomes.LoadGenomes("/fs/f/genomes/human/GRCh38_latest_genomic.fna.gz",
+		"", true)
+	fmt.Printf("Loaded human\n")
+
+	for i := 0; i < len(insertions); i++ {
+		ins := &insertions[i]
+		nts := ins.nts
+
+		if len(nts) < minLength {
+			continue
+		}
+
+		if ins.inWH1 {
+			continue
+		}
+
+		search(ins, g, 0, tol, func(ins *Insertion) {
+			fmt.Printf("%d (length %d) is in human\n", ins.id, len(ins.nts))
+			ins.inHuman = true
+		})
+
+		if i%10 == 0 {
+			fmt.Printf("Searched %d/%d\n", i, len(insertions))
+		}
+	}
 }
 
 /*
@@ -335,8 +378,9 @@ func outputDinucs(fname string,
 
 	cb := func(ins *Insertion) {
 		dp := genomes.CalcProfile(ins.nts)
-		fmt.Fprintf(w, "%d %d %.3f %.3f %.3f %s\n",
-			ins.id, len(ins.nts), dp.GC, dp.CpG, dp.TpA, string(ins.nts))
+		fmt.Fprintf(w, "%d %d %.3f %.3f %.3f %s %t\n",
+			ins.id, len(ins.nts), dp.GC, dp.CpG, dp.TpA, string(ins.nts),
+			ins.inHuman)
 	}
 	filterInsertions(insertions, minLength, filter, cb, verbose)
 	w.Flush()
@@ -376,6 +420,7 @@ func main() {
 
 	insertions := LoadInsertions("insertions.txt", 6, 2)
 	findInVirus("WH1", insertions, 6, true, tol)
+	findInHuman(insertions, 20, tol)
 
 	utils.Sort(len(insertions), true,
 		func(i, j int) {
