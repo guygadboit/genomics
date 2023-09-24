@@ -3,6 +3,7 @@ package genomes
 import (
 	"bufio"
 	"fmt"
+	"genomics/utils"
 	"io"
 	"log"
 	"os"
@@ -42,7 +43,7 @@ func LoadGenomes(fname string, orfsName string, merge bool) *Genomes {
 
 	ret := NewGenomes(orfs, 0)
 
-	fp := NewFileReader(fname)
+	fp := utils.NewFileReader(fname)
 	defer fp.Close()
 
 	currentRow := make([]byte, 0)

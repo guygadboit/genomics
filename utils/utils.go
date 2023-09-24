@@ -1,4 +1,4 @@
-package genomes
+package utils
 
 import (
 	"bufio"
