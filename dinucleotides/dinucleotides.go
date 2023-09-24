@@ -70,6 +70,11 @@ type Source struct {
 func getSources() []Source {
 	root := "/fs/f/genomes/"
 	return []Source{
+		{"Caulobacter", root + "bacteria/GCRich/CaulobacterCrescentus.fasta"},
+		{"Deinococcus", root + "bacteria/GCRich/DeinococcusRadiodurans.fasta"},
+		{"PA", root + "bacteria/ATRich/PseudomonasAeruginosaComplete.fasta"},
+		{"HI", root + "bacteria/ATRich/HaemophilusInfluenzae.fasta"},
+		/*
 		{"Viruses", root + "viruses/mega/mega.fasta"},
 		{"Bat", root + "bat/myotis_davidii/" +
 			"GCF_000327345.1_ASM32734v1_genomic.fna.gz"},
@@ -88,6 +93,7 @@ func getSources() []Source {
 			"GCF_000001635.27_GRCm39_genomic.fna.gz"},
 		{"Insertions", "../fasta/InsertionsNotFromWH1.fasta"},
 		{"HCoVs", "../fasta/HCoVs.fasta"},
+		*/
 	}
 }
 

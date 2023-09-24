@@ -351,14 +351,8 @@ func main() {
 		})
 
 	// showLength(insertions)
-
 	// byLocation(insertions, 9)
 
-	/*
-		for i := 9; i < 50; i++ {
-			findInVirus(insertions, i)
-		}
-	*/
 	/*
 		outputFasta("Insertions.fasta", "SC2Insertions",
 			insertions, 6, ANYTHING, verbose)
