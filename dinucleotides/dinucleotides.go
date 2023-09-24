@@ -30,14 +30,15 @@ func isValid(s string) bool {
 }
 
 /*
-	Count the dinucleotides and return a map of their counts
+	Count the (di)nucleotides and return a map of their counts. It's
+	dinucleotides if len is 2.
 */
-func FindDinucs(genome *genomes.Genomes, which int) DinucMap {
+func FindDinucs(genome *genomes.Genomes, which int, len int) DinucMap {
 	ret := make(DinucMap)
 	nts := genome.Nts[which]
 
-	for i := 0; i < genome.Length()-1; i++ {
-		dn := string(nts[i : i+2])
+	for i := 0; i < genome.Length()-len; i++ {
+		dn := string(nts[i : i+len])
 		if !isValid(dn) {
 			continue
 		}
@@ -94,11 +95,16 @@ func main() {
 
 	for i := 0; i < len(sources); i++ {
 		source := sources[i]
+		fmt.Printf("Loading %s...\n", source.name)
 		g := genomes.LoadGenomes(source.fname, "", true)
-		dm := FindDinucs(g, 0)
 
-		outName := fmt.Sprintf("%s-dinucs.txt", source.name)
-		dm.Save(outName)
-		fmt.Printf("Wrote %s\n", outName)
+		fmt.Printf("Counting %s...\n", source.name)
+		for len := 1; len <= 2; len++ {
+			dm := FindDinucs(g, 0, len)
+
+			outName := fmt.Sprintf("%s-%d-nts.txt", source.name, len)
+			dm.Save(outName)
+			fmt.Printf("Wrote %s\n", outName)
+		}
 	}
 }
