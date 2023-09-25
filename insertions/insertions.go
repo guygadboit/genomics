@@ -180,15 +180,19 @@ func findInVirus(name string,
 		found, count, name)
 }
 
-/*
-	Mark the ones you find in human, only if they aren't already in WH1
-*/
-func findInHuman(insertions []Insertion, minLength int, tol float64) {
+func loadHuman() *genomes.Genomes {
 	fmt.Printf("Loading...\n")
 	g := genomes.LoadGenomes("/fs/f/genomes/human/GRCh38_latest_genomic.fna.gz",
 		"", true)
 	fmt.Printf("Loaded human\n")
+	return g
+}
 
+/*
+	Mark the ones you find in human, only if they aren't already in WH1
+*/
+func findInHuman(insertions []Insertion, minLength int, tol float64) {
+	g := loadHuman()
 	for i := 0; i < len(insertions); i++ {
 		ins := &insertions[i]
 		nts := ins.nts
@@ -452,10 +456,7 @@ func otherHCoVs(insertions []Insertion, tol float64) {
 }
 
 func showHuman(insertions []Insertion) {
-	fmt.Printf("Loading...\n")
-	g := genomes.LoadGenomes("/fs/f/genomes/human/GRCh38_latest_genomic.fna.gz",
-		"", true)
-	fmt.Printf("Loaded human\n")
+	g := loadHuman()
 
 	for i := 0; i < len(insertions); i++ {
 		ins := &insertions[i]
