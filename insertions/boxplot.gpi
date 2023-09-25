@@ -1,0 +1,20 @@
+set title "CpG and whether insert is human"
+set term png
+set output "CpG.png"
+
+set style fill solid 0.5 border -1
+set style boxplot nooutliers
+
+set style data boxplot
+set boxwidth  0.5
+set pointsize 0.5
+
+unset key
+set border 2
+set xtics nomirror
+set ytics nomirror
+set yrange [0:5]
+
+set xtics ("Human" 0, "Non-human" 1) scale 0.0
+
+plot "human.dat" using (0):4, "not-human.dat" using (1):4
