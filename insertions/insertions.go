@@ -51,7 +51,7 @@ func LoadInsertions(fname string, minLen int, minSeqs int) []Insertion {
 	// Match for [GATC]+, so ignore any with Ns or weird ambiguous nts like HDK
 	// etc.
 	pat := regexp.MustCompile(`ins_(\d+):([GATC]+) \((\d+) seqs\)`)
-	id := 1
+	var id int
 
 reading:
 	for {
@@ -374,13 +374,23 @@ func outputDinucs(fname string,
 	defer fd.Close()
 
 	w := bufio.NewWriter(fd)
-	fmt.Fprintf(w, "id len G+C, CpG TpA insert\n")
+	fmt.Fprintf(w, "id len G+C, CpG TpA insert human\n")
 
 	cb := func(ins *Insertion) {
 		dp := genomes.CalcProfile(ins.nts)
-		fmt.Fprintf(w, "%d %d %.3f %.3f %.3f %s %t\n",
+
+		human := "unknown-if-human"
+		if len(ins.nts) >= 20 {
+			if ins.inHuman {
+				human = "human"
+			} else {
+				human = "not-human"
+			}
+		}
+
+		fmt.Fprintf(w, "%d %d %.3f %.3f %.3f %s %s\n",
 			ins.id, len(ins.nts), dp.GC, dp.CpG, dp.TpA, string(ins.nts),
-			ins.inHuman)
+			human)
 	}
 	filterInsertions(insertions, minLength, filter, cb, verbose)
 	w.Flush()
