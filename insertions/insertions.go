@@ -474,14 +474,20 @@ func showHuman(insertions []Insertion) {
 				ins.id, len(ins.nts), ins.nSeqs, pos, dir)
 
 			fmt.Println(string(ins.nts))
+
+			var comparison []byte
 			if backwards {
-				fmt.Println(string(utils.ReverseComplement(ins.nts)))
+				rc := utils.ReverseComplement(ins.nts)
+				fmt.Println(string(rc))
+				comparison = rc
+			} else {
+				comparison = ins.nts
 			}
 
 			humanBit := g.Nts[0][pos:pos+len(ins.nts)]
 
-			for i := 0; i < len(ins.nts); i++ {
-				if ins.nts[i] == humanBit[i] {
+			for i := 0; i < len(comparison); i++ {
+				if comparison[i] == humanBit[i] {
 					fmt.Printf("%c", '|')
 				} else {
 					fmt.Printf("%c", ' ')
