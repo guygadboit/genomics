@@ -381,15 +381,23 @@ func outputCombinedFasta(fname string, name string,
 /*
 	Put all the insertions matching the filters into a single fasta file with
 	headers between each one. I think you should then be able to BLAST the
-	whole lot.
+	whole lot. moreFilters should return true for *including* the insertion.
 */
 func outputFasta(fname string, name string,
-	insertions []Insertion, minLength int, filter filter, verbose bool) {
+	insertions []Insertion, minLength int, filter filter,
+	moreFilters func(*Insertion) bool,
+	verbose bool) {
 
 	var orfs genomes.Orfs
 	genomes := genomes.NewGenomes(orfs, 0)
 
 	cb := func(ins *Insertion) {
+
+		if moreFilters != nil {
+			if !moreFilters(ins) {
+				return
+			}
+		}
 		genomes.Nts = append(genomes.Nts, ins.nts)
 		name := fmt.Sprintf("ins_%d_%d", ins.pos, ins.id)
 		genomes.Names = append(genomes.Names, name)
@@ -506,6 +514,11 @@ func showHuman(insertions []Insertion) {
 	}
 }
 
+func getCpG(ins *Insertion) float64 {
+	dp := genomes.CalcProfile(ins.nts)
+	return dp.CpG
+}
+
 func main() {
 	var tol float64
 	var verbose bool
@@ -537,7 +550,7 @@ func main() {
 			insertions, 6, EXCLUDE_WH1, false)
 	*/
 
-	showHuman(insertions)
+	// showHuman(insertions)
 
 	/*
 	outputCombinedFasta("InsertionsNotFromWH1OrHuman.fasta", "NotWH1OrHuman",
@@ -546,4 +559,8 @@ func main() {
 	outputDinucs("InsertionsNotFromWH1.txt",
 		insertions, 6, EXCLUDE_WH1, verbose)
 	*/
+	outputFasta("MaybeBac.fasta", "MaybeBac", insertions, 9,
+		EXCLUDE_WH1|EXCLUDE_HUMAN, func(ins *Insertion) bool {
+			return getCpG(ins) >= 1.0
+		}, true)
 }
