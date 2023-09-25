@@ -117,19 +117,21 @@ func Summary(insertions []Insertion) {
 	Call cb for every insertion found in nts forwards or backwards
 */
 func search(insertion *Insertion, genome *genomes.Genomes, which int,
-	tol float64, cb func(*Insertion)) {
+	tol float64, cb func(*Insertion, int, bool)) {
 
 	var search genomes.Search
 	nts := insertion.nts
 
 	for search.Init(genome, 0, nts, tol); !search.End(); search.Next() {
-		cb(insertion)
+		pos, _ := search.Get()
+		cb(insertion, pos, false)
 		return
 	}
 
 	rc := utils.ReverseComplement(insertion.nts)
 	for search.Init(genome, 0, rc, tol); !search.End(); search.Next() {
-		cb(insertion)
+		pos, _ := search.Get()
+		cb(insertion, pos, true)
 		return
 	}
 }
@@ -166,7 +168,8 @@ func findInVirus(name string,
 		}
 		count++
 
-		search(ins, virus, 0, tol, func(ins *Insertion) {
+		search(ins, virus, 0, tol, func(ins *Insertion,
+			pos int, backwards bool) {
 			reportFound(ins)
 			found++
 		})
@@ -198,7 +201,7 @@ func findInHuman(insertions []Insertion, minLength int, tol float64) {
 			continue
 		}
 
-		search(ins, g, 0, tol, func(ins *Insertion) {
+		search(ins, g, 0, tol, func(ins *Insertion, pos int, backwards bool) {
 			fmt.Printf("%d (length %d) is in human\n", ins.id, len(ins.nts))
 			ins.inHuman = true
 		})
@@ -236,7 +239,7 @@ loop:
 		}
 
 		line = strings.TrimSpace(line)
-		fields := strings.Fields(line[1:])
+		fields := strings.Fields(line)
 
 		id := atoi(fields[0])
 		ins := insMap[id]
@@ -448,6 +451,54 @@ func otherHCoVs(insertions []Insertion, tol float64) {
 	wg.Wait()
 }
 
+func showHuman(insertions []Insertion) {
+	fmt.Printf("Loading...\n")
+	g := genomes.LoadGenomes("/fs/f/genomes/human/GRCh38_latest_genomic.fna.gz",
+		"", true)
+	fmt.Printf("Loaded human\n")
+
+	for i := 0; i < len(insertions); i++ {
+		ins := &insertions[i]
+		var found bool
+
+		if !ins.inHuman {
+			continue
+		}
+
+		search(ins, g, 0, 0.1, func(ins *Insertion, pos int, backwards bool) {
+			dir := "forwards"
+			if backwards {
+				dir = "backwards"
+			}
+			fmt.Printf("%d (%d nts %d sequences) found at %d %s\n",
+				ins.id, len(ins.nts), ins.nSeqs, pos, dir)
+
+			fmt.Println(string(ins.nts))
+			if backwards {
+				fmt.Println(string(utils.ReverseComplement(ins.nts)))
+			}
+
+			humanBit := g.Nts[0][pos:pos+len(ins.nts)]
+
+			for i := 0; i < len(ins.nts); i++ {
+				if ins.nts[i] == humanBit[i] {
+					fmt.Printf("%c", '|')
+				} else {
+					fmt.Printf("%c", ' ')
+				}
+			}
+			fmt.Printf("\n")
+			fmt.Println(string(humanBit))
+			found = true
+		})
+
+		if !found {
+			// This shouldn't happen-- we found them before!
+			fmt.Printf("ins %d not found!\n", ins.id)
+		}
+	}
+}
+
 func main() {
 	var tol float64
 	var verbose bool
@@ -479,9 +530,13 @@ func main() {
 			insertions, 6, EXCLUDE_WH1, false)
 	*/
 
+	showHuman(insertions)
+
+	/*
 	outputCombinedFasta("InsertionsNotFromWH1OrHuman.fasta", "NotWH1OrHuman",
 		insertions, 6, EXCLUDE_WH1|EXCLUDE_HUMAN, verbose)
 
 	outputDinucs("InsertionsNotFromWH1.txt",
 		insertions, 6, EXCLUDE_WH1, verbose)
+	*/
 }
