@@ -1,9 +1,17 @@
 package genomes
 
+import (
+	"fmt"
+)
+
 type DinucProfile struct {
 	GC  float64 // Proportion of GC
 	CpG float64	// OR of CpG
 	TpA float64	// OR of TpA
+}
+
+func (p *DinucProfile) Show() {
+	fmt.Printf("G+C: %.2f CpG: %.2f TpA: %.2f\n", p.GC, p.CpG, p.TpA)
 }
 
 func count(nts []byte, pattern []byte) int {
