@@ -50,8 +50,7 @@ func LoadInsertions(fname string, minLen int, minSeqs int) []Insertion {
 
 	// Match for [GATC]+, so ignore any with Ns or weird ambiguous nts like HDK
 	// etc.
-	pat := regexp.MustCompile(`ins_(\d+):([GATC]+) \((\d+) seqs\)`)
-	var id int
+	pat := regexp.MustCompile(`(\d+) ins_(\d+):([GATC]+) \((\d+) seqs\)`)
 
 reading:
 	for {
@@ -65,17 +64,16 @@ reading:
 			log.Fatal("Can't read file")
 		}
 
-		id++
 		line = strings.TrimSpace(line)
 		groups := pat.FindAllStringSubmatch(line, -1)
 		if groups == nil {
 			continue
 		}
 
-		ins := Insertion{id,
-			atoi(groups[0][1]),
-			[]byte(groups[0][2]),
-			atoi(groups[0][3]),
+		ins := Insertion{atoi(groups[0][1]),
+			atoi(groups[0][2]),
+			[]byte(groups[0][3]),
+			atoi(groups[0][4]),
 			false, false}
 
 		if len(ins.nts) < minLen {
@@ -212,6 +210,44 @@ func findInHuman(insertions []Insertion, minLength int, tol float64) {
 }
 
 /*
+	Marking those that are in human or not is very time-consuming, so reload
+	our saved results from a file
+*/
+func loadInHuman(insertions []Insertion) {
+	insMap := make(map[int]*Insertion, len(insertions))
+	for i := 0; i < len(insertions); i++ {
+		ins := &insertions[i]
+		insMap[ins.id] = ins
+	}
+
+	fp := utils.NewFileReader("human.txt")
+	defer fp.Close()
+
+loop:
+	for {
+		line, err := fp.ReadString('\n')
+		switch err {
+		case io.EOF:
+			break loop
+		case nil:
+			break
+		default:
+			log.Fatal("Can't read file")
+		}
+
+		line = strings.TrimSpace(line)
+		fields := strings.Fields(line[1:])
+
+		id := atoi(fields[0])
+		ins := insMap[id]
+
+		if ins != nil && fields[2] == "human" {
+			ins.inHuman = true
+		}
+	}
+}
+
+/*
 	Ponderous sort but less trouble than updating my whole system to the latest
 	Go version that has slices.SortFunc
 */
@@ -269,9 +305,9 @@ func byLocation(insertions []Insertion, minLength int) {
 type filter int
 
 const (
-	ANYTHING filter = iota
-	WH1_ONLY
-	NOT_WH1_ONLY
+	ANTHING       filter = 0
+	EXCLUDE_WH1          = 1
+	EXCLUDE_HUMAN        = 1 << 1
 )
 
 /*
@@ -289,20 +325,12 @@ func filterInsertions(insertions []Insertion,
 			continue
 		}
 
-		switch filter {
-		case WH1_ONLY:
-			name = "In WH1"
-			if !ins.inWH1 {
-				continue
-			}
-		case NOT_WH1_ONLY:
-			name = "Not in WH1"
-			if ins.inWH1 {
-				continue
-			}
-		case ANYTHING:
-			name = "Anything"
-			break
+		if ((filter & EXCLUDE_WH1) != 0) && ins.inWH1 {
+			continue
+		}
+
+		if ((filter & EXCLUDE_HUMAN) != 0) && ins.inHuman {
+			continue
 		}
 
 		if verbose {
@@ -430,7 +458,9 @@ func main() {
 
 	insertions := LoadInsertions("insertions.txt", 6, 2)
 	findInVirus("WH1", insertions, 6, true, tol)
-	findInHuman(insertions, 20, tol)
+
+	// findInHuman(insertions, 20, tol)
+	loadInHuman(insertions)
 
 	utils.Sort(len(insertions), true,
 		func(i, j int) {
@@ -444,9 +474,14 @@ func main() {
 	// showLength(insertions)
 	// byLocation(insertions, 9)
 
-	outputFasta("InsertionsNotFromWH1.fasta", "FromWH1",
-		insertions, 6, NOT_WH1_ONLY, verbose)
+	/*
+		outputCombinedFasta("InsertionsNotFromWH1.fasta", "NotWH1OrHuman",
+			insertions, 6, EXCLUDE_WH1, false)
+	*/
+
+	outputCombinedFasta("InsertionsNotFromWH1OrHuman.fasta", "NotWH1OrHuman",
+		insertions, 6, EXCLUDE_WH1|EXCLUDE_HUMAN, verbose)
 
 	outputDinucs("InsertionsNotFromWH1.txt",
-		insertions, 6, NOT_WH1_ONLY, verbose)
+		insertions, 6, EXCLUDE_WH1, verbose)
 }

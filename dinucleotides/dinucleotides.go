@@ -70,7 +70,7 @@ type Source struct {
 func getSources() []Source {
 	// root := "/fs/f/genomes/"
 	return []Source{
-		{"Insertions", "../fasta/InsertionsNotFromWH1.fasta"},
+		{"Insertions", "../fasta/InsertionsNotFromWH1OrHuman.fasta"},
 		/*
 		{"Caulobacter", root + "bacteria/GCRich/CaulobacterCrescentus.fasta"},
 		{"Deinococcus", root + "bacteria/GCRich/DeinococcusRadiodurans.fasta"},
