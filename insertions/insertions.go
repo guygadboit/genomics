@@ -479,8 +479,8 @@ func showHuman(insertions []Insertion) {
 			if backwards {
 				dir = "backwards"
 			}
-			fmt.Printf("%d (%d nts %d sequences) found at %d %s\n",
-				ins.id, len(ins.nts), ins.nSeqs, pos, dir)
+			fmt.Printf("%d ins_%d (%d nts %d sequences) found at %d %s\n",
+				ins.id, ins.pos, len(ins.nts), ins.nSeqs, pos, dir)
 
 			fmt.Println(string(ins.nts))
 
