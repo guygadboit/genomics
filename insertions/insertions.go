@@ -16,13 +16,23 @@ import (
 	"sync"
 )
 
+type direction int
+
+const (
+	UNKNOWN direction = iota
+	FORWARDS
+	BACKWARDS
+)
+
 type Insertion struct {
-	id      int    // The order we found them in. Should be a line number
-	pos     int    // Where
-	nts     []byte // What
-	nSeqs   int    // How many times
-	inWH1   bool   // Is it in WH1?
-	inHuman bool   // Is it in human? Note that most short things will be
+	id         int    // The order we found them in. Should be a line number
+	pos        int    // Where
+	nts        []byte // What
+	nSeqs      int    // How many times
+	inWH1      bool   // Is it in WH1?
+	inHuman    bool   // Is it in human? Note that most short things will be
+	posInHuman int
+	dirInHuman direction
 }
 
 func (i *Insertion) ToString() string {
@@ -74,7 +84,8 @@ reading:
 			atoi(groups[0][2]),
 			[]byte(groups[0][3]),
 			atoi(groups[0][4]),
-			false, false}
+			false, false,
+			0, UNKNOWN}
 
 		if len(ins.nts) < minLen {
 			continue
@@ -250,6 +261,14 @@ loop:
 
 		if ins != nil && fields[2] == "human" {
 			ins.inHuman = true
+			ins.posInHuman = atoi(fields[3])
+
+			switch fields[4] {
+			case "forwards":
+				ins.dirInHuman = FORWARDS
+			case "backwards":
+				ins.dirInHuman = BACKWARDS
+			}
 		}
 	}
 }
@@ -465,52 +484,48 @@ func otherHCoVs(insertions []Insertion, tol float64) {
 
 func showHuman(insertions []Insertion) {
 	g := loadHuman()
-
 	for i := 0; i < len(insertions); i++ {
 		ins := &insertions[i]
-		var found bool
 
 		if !ins.inHuman {
 			continue
 		}
 
-		search(ins, g, 0, 0.1, func(ins *Insertion, pos int, backwards bool) {
-			dir := "forwards"
-			if backwards {
-				dir = "backwards"
-			}
-			fmt.Printf("%d ins_%d (%d nts %d sequences) found at %d %s\n",
-				ins.id, ins.pos, len(ins.nts), ins.nSeqs, pos, dir)
+		pos := ins.posInHuman
 
-			fmt.Println(string(ins.nts))
-
-			var comparison []byte
-			if backwards {
-				rc := utils.ReverseComplement(ins.nts)
-				fmt.Println(string(rc))
-				comparison = rc
-			} else {
-				comparison = ins.nts
-			}
-
-			humanBit := g.Nts[0][pos:pos+len(ins.nts)]
-
-			for i := 0; i < len(comparison); i++ {
-				if comparison[i] == humanBit[i] {
-					fmt.Printf("%c", '|')
-				} else {
-					fmt.Printf("%c", ' ')
-				}
-			}
-			fmt.Printf("\n")
-			fmt.Println(string(humanBit))
-			found = true
-		})
-
-		if !found {
-			// This shouldn't happen-- we found them before!
-			fmt.Printf("ins %d not found!\n", ins.id)
+		var dir string
+		switch ins.dirInHuman {
+		case FORWARDS:
+			dir = "forwards"
+		case BACKWARDS:
+			dir = "backwards"
 		}
+
+		fmt.Printf("%d ins_%d (%d nts %d sequences) found at %d %s\n",
+			ins.id, ins.pos, len(ins.nts), ins.nSeqs, pos, dir)
+
+		fmt.Println(string(ins.nts))
+
+		var comparison []byte
+		if ins.dirInHuman == BACKWARDS {
+			rc := utils.ReverseComplement(ins.nts)
+			fmt.Println(string(rc))
+			comparison = rc
+		} else {
+			comparison = ins.nts
+		}
+
+		humanBit := g.Nts[0][pos : pos+len(ins.nts)]
+
+		for i := 0; i < len(comparison); i++ {
+			if comparison[i] == humanBit[i] {
+				fmt.Printf("%c", '|')
+			} else {
+				fmt.Printf("%c", ' ')
+			}
+		}
+		fmt.Printf("\n")
+		fmt.Println(string(humanBit))
 	}
 }
 
@@ -550,14 +565,14 @@ func main() {
 			insertions, 6, EXCLUDE_WH1, false)
 	*/
 
-	// showHuman(insertions)
+	showHuman(insertions)
 
 	/*
-	outputCombinedFasta("InsertionsNotFromWH1OrHuman.fasta", "NotWH1OrHuman",
-		insertions, 6, EXCLUDE_WH1|EXCLUDE_HUMAN, verbose)
+		outputCombinedFasta("InsertionsNotFromWH1OrHuman.fasta", "NotWH1OrHuman",
+			insertions, 6, EXCLUDE_WH1|EXCLUDE_HUMAN, verbose)
 
-	outputDinucs("InsertionsNotFromWH1.txt",
-		insertions, 6, EXCLUDE_WH1, verbose)
+		outputDinucs("InsertionsNotFromWH1.txt",
+			insertions, 6, EXCLUDE_WH1, verbose)
 	*/
 	outputFasta("MaybeBac.fasta", "MaybeBac", insertions, 9,
 		EXCLUDE_WH1|EXCLUDE_HUMAN, func(ins *Insertion) bool {
