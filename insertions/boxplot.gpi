@@ -1,4 +1,4 @@
-set title "CpG and whether insert is human"
+set title "CpGF and whether insert is human"
 set term png
 set output "CpG.png"
 
@@ -13,7 +13,7 @@ unset key
 set border 2
 set xtics nomirror
 set ytics nomirror
-set yrange [0:5]
+set yrange [0:6]
 
 set xtics ("Human" 0, "Non-human" 1) scale 0.0
 

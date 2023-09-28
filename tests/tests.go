@@ -10,6 +10,10 @@ func testProfile() {
 	prof.Show()
 }
 
+func testIndex() {
+	g := LoadGenomes("../fasta/WH1.fasta", "", false)
+}
+
 func main() {
 	testProfile()
 }

@@ -436,7 +436,7 @@ func outputDinucs(fname string,
 	defer fd.Close()
 
 	w := bufio.NewWriter(fd)
-	fmt.Fprintf(w, "id len G+C, CpG TpA insert human\n")
+	fmt.Fprintf(w, "id len G+C, CpG TpA CpGF insert human\n")
 
 	cb := func(ins *Insertion) {
 		dp := genomes.CalcProfile(ins.nts)
@@ -450,9 +450,9 @@ func outputDinucs(fname string,
 			}
 		}
 
-		fmt.Fprintf(w, "%d %d %.3f %.3f %.3f %s %s\n",
-			ins.id, len(ins.nts), dp.GC, dp.CpG, dp.TpA, string(ins.nts),
-			human)
+		fmt.Fprintf(w, "%d %d %.3f %.3f %.3f %.3f %s %s\n",
+			ins.id, len(ins.nts), dp.GC, dp.CpG, dp.TpA, dp.CpGF,
+			string(ins.nts), human)
 	}
 	filterInsertions(insertions, minLength, filter, cb, verbose)
 	w.Flush()
@@ -565,17 +565,21 @@ func main() {
 			insertions, 6, EXCLUDE_WH1, false)
 	*/
 
-	showHuman(insertions)
+	// showHuman(insertions)
 
 	/*
 		outputCombinedFasta("InsertionsNotFromWH1OrHuman.fasta", "NotWH1OrHuman",
 			insertions, 6, EXCLUDE_WH1|EXCLUDE_HUMAN, verbose)
 
+	*/
+
+	outputFasta("MaybeBac.fasta", "MaybeBac", insertions, 20,
+		EXCLUDE_WH1|EXCLUDE_HUMAN, func(ins *Insertion) bool {
+			return getCpG(ins) >= 1.0
+		}, false)
+
+	/*
 		outputDinucs("InsertionsNotFromWH1.txt",
 			insertions, 6, EXCLUDE_WH1, verbose)
 	*/
-	outputFasta("MaybeBac.fasta", "MaybeBac", insertions, 9,
-		EXCLUDE_WH1|EXCLUDE_HUMAN, func(ins *Insertion) bool {
-			return getCpG(ins) >= 1.0
-		}, true)
 }
