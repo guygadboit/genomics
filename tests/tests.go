@@ -17,14 +17,14 @@ func testBuildIndex() {
 	g := genomes.LoadGenomes("../fasta/WH1.fasta", "", false)
 	// g := genomes.LoadGenomes("/fs/f/genomes/human/human.fasta.gz", "", false)
 	fmt.Printf("Loaded\n")
-	index.Build(g, "./index", 3, true)
+	index.Build(g, "./index", 6, true)
 	index.Save()
 }
 
 func testUseIndex() {
 	g := genomes.LoadGenomes("../fasta/WH1.fasta", "", false)
 	var s genomes.IndexSearch
-	for s.Init("./index", 3, g, 0, []byte("CTCCGT")); !s.End(); s.Next() {
+	for s.Init("./index", 6, g, 0, []byte("CTCCTCGGCGGG")); !s.End(); s.Next() {
 		fmt.Println(s.Get())
 	}
 }

@@ -101,6 +101,10 @@ type IndexSearch struct {
 	lastMile   Search
 }
 
+/*
+	Read in one of our cache files. This contains all the positions of a
+	particular pattern, like CCGGGT or whatever. Return the positions.
+*/
 func readFile(root string, pattern string) []int {
 	ret := make([]int, 0)
 	f := utils.NewFileReader(fmt.Sprintf("%s/%s", root, pattern))
@@ -130,14 +134,17 @@ func (s *IndexSearch) Init(root string, wordLen int,
 	s.needle = needle
 	s.index = &Index{root: root, wordLen: wordLen}
 
-
 	m := s.index.wordLen
+
+	// Depth is how deep we can go with the cached positions-- if wordLen is 6
+	// say and we're searching for something 13 long, we will go into the cache
+	// for the first 6 nts, then again for the next 6, and then search the last
+	// 1 with our "last mile" search. So in that case depth will be 2.
 	depth := len(needle) / m
-	s.positions = make([][]int, 0, depth)
+	s.positions = make([][]int, depth)
 
 	for i := 0; i < depth; i++ {
-		s.positions = append(s.positions, readFile(s.index.root,
-			string(needle[i*m:i*m+m])))
+		s.positions[i] = readFile(s.index.root, string(needle[i*m:i*m+m]))
 	}
 
 	s.Start()
@@ -152,6 +159,7 @@ func (s *IndexSearch) incr() bool {
 	for i := 0; i < len(s.iterators); i++ {
 		s.iterators[i]++
 		if s.iterators[i] < len(s.positions[i]) {
+			fmt.Println(s.iterators)
 			return true
 		}
 		for j := 0; j <= i; j++ {
@@ -177,8 +185,7 @@ func (s *IndexSearch) haveMatch() int {
 		}
 	}
 
-	n := len(s.positions)
-	return s.positions[n-1][s.iterators[n-1]]
+	return s.positions[0][s.iterators[0]]
 }
 
 func (s *IndexSearch) Next() {
