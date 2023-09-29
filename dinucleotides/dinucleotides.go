@@ -68,9 +68,17 @@ type Source struct {
 }
 
 func getSources() []Source {
-	// root := "/fs/f/genomes/"
+	root := "/fs/f/genomes/"
 	return []Source{
 		{"Insertions", "../fasta/InsertionsNotFromWH1OrHuman.fasta"},
+		{"PA", root + "bacteria/PseudomonasAeruginosaComplete.fasta"},
+		{"CC", root + "bacteria/GCRich/CaulobacterCrescentus.fasta"},
+		{"DR", root + "bacteria/GCRich/DeinococcusRadiodurans.fasta"},
+		{"HI", root + "bacteria/ATRich/HaemophilusInfluenzae.fasta"},
+		{"Salmonella", root + "bacteria/Salmonella/Salmonella.fasta"},
+		{"Listeria", root + "bacteria/Listeria/ListeriaInnocua.fasta"},
+		{"Ricksettia", root + "bacteria/Ricksettia/Ricksettia.fasta"},
+		{"Legionella", root + "bacteria/Legionella/Legionella.fasta"},
 		/*
 		{"Caulobacter", root + "bacteria/GCRich/CaulobacterCrescentus.fasta"},
 		{"Deinococcus", root + "bacteria/GCRich/DeinococcusRadiodurans.fasta"},

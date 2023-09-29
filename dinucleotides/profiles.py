@@ -11,12 +11,16 @@ GENOME_NAMES = (
 		"HCoVs",
 		"Streptomyces",
 		"Haemophilus",
-# 		"Bat",
-# 		"RaccoonDog",
-# 		"Pangolin",
-# 		"Rabbit",
-# 		"Pig",
-# 		"Mouse",
+		"Listeria",
+		"Ricksettia",
+		"Salmonella",
+		"Legionella",
+		# 		"Bat",
+		# 		"RaccoonDog",
+		# 		"Pangolin",
+		# 		"Rabbit",
+		# 		"Pig",
+		# 		"Mouse",
 		)
 
 
