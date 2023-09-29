@@ -1,0 +1,1 @@
+plot "pca.txt" with labels point notitle

@@ -595,6 +595,8 @@ func main() {
 	}
 
 	outputFasta("MaybeBac.fasta", "MaybeBac", insertions, filters, false)
+	outputCombinedFasta("MaybeBacCombined.fasta",
+		"MaybeBac", insertions, filters, false)
 
 	/*
 		outputDinucs("InsertionsNotFromWH1.txt",

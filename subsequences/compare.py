@@ -91,6 +91,7 @@ def main():
 			"PA-6.txt",
 			"Streptomyces-6.txt",
 			"Insertions-6.txt",
+			"MaybeBac-6.txt",
 			"Listeria-6.txt",
 			"Ricksettia-6.txt",
 			"Salmonella-6.txt",

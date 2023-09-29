@@ -15,6 +15,7 @@ GENOME_NAMES = (
 		"Ricksettia",
 		"Salmonella",
 		"Legionella",
+		"MaybeBac",
 		# 		"Bat",
 		# 		"RaccoonDog",
 		# 		"Pangolin",

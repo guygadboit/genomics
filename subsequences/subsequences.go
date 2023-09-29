@@ -88,6 +88,7 @@ func getSources() []Source {
 	root := "/fs/f/genomes/"
 	return []Source{
 
+		/*
 		{"Viruses", root + "viruses/mega/mega.fasta"},
 		{"Bat", root + "bat/myotis_davidii/" +
 			"GCF_000327345.1_ASM32734v1_genomic.fna.gz"},
@@ -104,8 +105,10 @@ func getSources() []Source {
 			"GCF_000003025.6_Sscrofa11.1_genomic.fna.gz"},
 		{"Mouse", root + "mouse/" +
 			"GCF_000001635.27_GRCm39_genomic.fna.gz"},
+		*/
 
 		{"Insertions", "../insertions/InsertionsNotFromWH1OrHuman.fasta"},
+		{"MaybeBac", "../insertions/MaybeBacCombined.fasta"},
 		{"PA", root + "bacteria/PseudomonasAeruginosaComplete.fasta"},
 		{"CC", root + "bacteria/GCRich/CaulobacterCrescentus.fasta"},
 		{"DR", root + "bacteria/GCRich/DeinococcusRadiodurans.fasta"},

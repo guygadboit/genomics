@@ -71,6 +71,7 @@ func getSources() []Source {
 	root := "/fs/f/genomes/"
 	return []Source{
 		{"Insertions", "../fasta/InsertionsNotFromWH1OrHuman.fasta"},
+		{"MaybeBac", "../fasta/MaybeBacCombined.fasta"},
 		{"PA", root + "bacteria/PseudomonasAeruginosaComplete.fasta"},
 		{"CC", root + "bacteria/GCRich/CaulobacterCrescentus.fasta"},
 		{"DR", root + "bacteria/GCRich/DeinococcusRadiodurans.fasta"},
