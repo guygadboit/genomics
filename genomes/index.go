@@ -155,11 +155,15 @@ func (s *IndexSearch) Start() {
 	s.Next()
 }
 
+/*
+	FIXME: OK you can make this do binary searches to increment to the next
+	position that might work. The idea is that whenever you increase a counter
+	it needs to have a chance of being +6 from the previous one.
+*/
 func (s *IndexSearch) incr() bool {
 	for i := 0; i < len(s.iterators); i++ {
 		s.iterators[i]++
 		if s.iterators[i] < len(s.positions[i]) {
-			fmt.Println(s.iterators)
 			return true
 		}
 		for j := 0; j <= i; j++ {

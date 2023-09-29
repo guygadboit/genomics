@@ -538,6 +538,24 @@ func getCpG(ins *Insertion) float64 {
 	return dp.CpG
 }
 
+func countInGenome(insertions []Insertion,
+	filters []filterFunc, verbose bool) {
+
+	fmt.Printf("Loading...\n")
+	g := genomes.LoadGenomes("/fs/f/genomes/human/human.fasta.gz", "", true)
+	fmt.Printf("Loaded\n")
+
+	var search genomes.IndexSearch
+
+	filterInsertions(insertions, filters, func(ins *Insertion) {
+		var count int
+		for search.Init("/fs/f/genomes/human/index", 6, g, 0, ins.nts); !search.End(); search.Next() {
+			count++
+		}
+		fmt.Printf("%s: %d\n", string(ins.nts), count)
+	}, false)
+}
+
 func main() {
 	var tol float64
 	var verbose bool
@@ -585,9 +603,13 @@ func main() {
 		},
 	}
 
-	outputFasta("MaybeBac.fasta", "MaybeBac", insertions, filters, false)
-	outputCombinedFasta("MaybeBacCombined.fasta",
-		"MaybeBac", insertions, filters, false)
+	countInGenome(insertions, filters, false)
+
+	/*
+		outputFasta("MaybeBac.fasta", "MaybeBac", insertions, filters, false)
+		outputCombinedFasta("MaybeBacCombined.fasta",
+			"MaybeBac", insertions, filters, false)
+	*/
 
 	/*
 		outputDinucs("InsertionsNotFromWH1.txt",

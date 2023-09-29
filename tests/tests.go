@@ -37,6 +37,12 @@ func testUseIndex() {
 		fmt.Printf("%d: %s\n", pos, string(nts[pos:pos+len(pattern)]))
 	}
 
+	// Check you can run it twice
+	for s.Start(); !s.End(); s.Next() {
+		pos, _ := s.Get()
+		fmt.Printf("restarted %d: %s\n", pos, string(nts[pos:pos+len(pattern)]))
+	}
+
 	/*
 	var s2 genomes.Search
 	for s2.Init(g, 0, pattern, 0.0); !s2.End(); s2.Next() {
