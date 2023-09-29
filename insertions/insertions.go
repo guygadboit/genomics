@@ -328,35 +328,50 @@ func byLocation(insertions []Insertion, minLength int) {
 	fmt.Printf("Wrote locations.txt\n")
 }
 
-type filter int
+type filterFlag int
 
 const (
-	ANTHING       filter = 0
-	EXCLUDE_WH1          = 1
-	EXCLUDE_HUMAN        = 1 << 1
+	ANTHING       filterFlag = 0
+	EXCLUDE_WH1              = 1
+	EXCLUDE_HUMAN            = 1 << 1
 )
+
+// Return true if we are including this insertion, i.e. not filtering it out
+type filterFunc func(*Insertion) bool
+
+func makeLengthFilter(minLength int) filterFunc {
+	return func(ins *Insertion) bool {
+		return len(ins.nts) >= minLength
+	}
+}
+
+func makeFlagFilter(flags filterFlag) filterFunc {
+	return func(ins *Insertion) bool {
+		if flags&EXCLUDE_WH1 != 0 && ins.inWH1 {
+			return false
+		}
+		if flags&EXCLUDE_HUMAN != 0 && ins.inHuman {
+			return false
+		}
+		return true
+	}
+}
 
 /*
 	Call cb on all the insertions that match the filter. This requires that
 	you've already marked which ones are in WH1 with findInVirus.
 */
 func filterInsertions(insertions []Insertion,
-	minLength int, filter filter, cb func(*Insertion), verbose bool) {
+	filters []filterFunc, cb func(*Insertion), verbose bool) {
 	var name string
 
 	for i := 0; i < len(insertions); i++ {
 		ins := &insertions[i]
 
-		if len(ins.nts) < minLength {
-			continue
-		}
-
-		if ((filter & EXCLUDE_WH1) != 0) && ins.inWH1 {
-			continue
-		}
-
-		if ((filter & EXCLUDE_HUMAN) != 0) && ins.inHuman {
-			continue
+		for j := 0; j < len(filters); j++ {
+			if !filters[j](ins) {
+				continue
+			}
 		}
 
 		if verbose {
@@ -373,7 +388,9 @@ func filterInsertions(insertions []Insertion,
 	you want to look at dinucleotide composition etc.
 */
 func outputCombinedFasta(fname string, name string,
-	insertions []Insertion, minLength int, filter filter, verbose bool) int {
+	insertions []Insertion,
+	filters []filterFunc,
+	verbose bool) int {
 	sep := []byte("NNN")
 	nts := make([]byte, 0)
 	var count int
@@ -385,7 +402,7 @@ func outputCombinedFasta(fname string, name string,
 		count++
 	}
 
-	filterInsertions(insertions, minLength, filter, cb, verbose)
+	filterInsertions(insertions, filters, cb, verbose)
 
 	var orfs genomes.Orfs
 	genomes := genomes.NewGenomes(orfs, 1)
@@ -403,31 +420,27 @@ func outputCombinedFasta(fname string, name string,
 	whole lot. moreFilters should return true for *including* the insertion.
 */
 func outputFasta(fname string, name string,
-	insertions []Insertion, minLength int, filter filter,
-	moreFilters func(*Insertion) bool,
+	insertions []Insertion,
+	filters []filterFunc,
 	verbose bool) {
 
 	var orfs genomes.Orfs
 	genomes := genomes.NewGenomes(orfs, 0)
 
 	cb := func(ins *Insertion) {
-
-		if moreFilters != nil {
-			if !moreFilters(ins) {
-				return
-			}
-		}
 		genomes.Nts = append(genomes.Nts, ins.nts)
 		name := fmt.Sprintf("ins_%d_%d", ins.pos, ins.id)
 		genomes.Names = append(genomes.Names, name)
 	}
 
-	filterInsertions(insertions, minLength, filter, cb, verbose)
+	filterInsertions(insertions, filters, cb, verbose)
 	genomes.SaveMulti(fname)
 }
 
 func outputDinucs(fname string,
-	insertions []Insertion, minLength int, filter filter, verbose bool) {
+	insertions []Insertion,
+	filters []filterFunc,
+	verbose bool) {
 
 	fd, err := os.Create(fname)
 	if err != nil {
@@ -454,7 +467,7 @@ func outputDinucs(fname string,
 			ins.id, len(ins.nts), dp.GC, dp.CpG, dp.TpA, dp.CpGF,
 			string(ins.nts), human)
 	}
-	filterInsertions(insertions, minLength, filter, cb, verbose)
+	filterInsertions(insertions, filters, cb, verbose)
 	w.Flush()
 }
 
@@ -573,10 +586,15 @@ func main() {
 
 	*/
 
-	outputFasta("MaybeBac.fasta", "MaybeBac", insertions, 20,
-		EXCLUDE_WH1|EXCLUDE_HUMAN, func(ins *Insertion) bool {
+	filters := []filterFunc{
+		makeLengthFilter(20),
+		makeFlagFilter(EXCLUDE_WH1 | EXCLUDE_HUMAN),
+		func(ins *Insertion) bool {
 			return getCpG(ins) >= 1.0
-		}, false)
+		},
+	}
+
+	outputFasta("MaybeBac.fasta", "MaybeBac", insertions, filters, false)
 
 	/*
 		outputDinucs("InsertionsNotFromWH1.txt",
