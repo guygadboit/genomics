@@ -9,7 +9,7 @@ type Search struct {
 	haystack  *Genomes
 	which     int
 	pos       int
-	lastFound int	// The last place we found a match (usually == pos-1)
+	lastFound int // The last place we found a match (usually == pos-1)
 	// If 0.0 then matches must be exact. Otherwise it's how many errors you
 	// tolerate as proportion of needle length. So 0.1 would require a 90%
 	// match.
@@ -37,6 +37,12 @@ func (s *Search) Get() (int, error) {
 		return s.lastFound, nil
 	}
 	return 0, errors.New("Off end")
+}
+
+func (s *Search) FastForward(pos int) {
+	nts := s.haystack.Nts[s.which]
+	s.lastFound = len(nts)
+	s.pos = pos
 }
 
 func (s *Search) Next() {

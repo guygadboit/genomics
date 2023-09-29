@@ -5,6 +5,7 @@ import (
 	"compress/gzip"
 	"log"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -80,4 +81,12 @@ func (f *FileReader) Close() {
 		f.gzipFd.Close()
 	}
 	f.fd.Close()
+}
+
+func Atoi(s string) int {
+	ret, err := strconv.Atoi(s)
+	if err != nil {
+		log.Fatal("Bad integer")
+	}
+	return ret
 }

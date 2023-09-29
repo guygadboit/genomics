@@ -40,14 +40,6 @@ func (i *Insertion) ToString() string {
 		i.pos, i.nSeqs)
 }
 
-func atoi(s string) int {
-	ret, err := strconv.Atoi(s)
-	if err != nil {
-		log.Fatal("Bad integer")
-	}
-	return ret
-}
-
 func LoadInsertions(fname string, minLen int, minSeqs int) []Insertion {
 	fd, err := os.Open(fname)
 	if err != nil {
@@ -80,10 +72,10 @@ reading:
 			continue
 		}
 
-		ins := Insertion{atoi(groups[0][1]),
-			atoi(groups[0][2]),
+		ins := Insertion{utils.Atoi(groups[0][1]),
+			utils.Atoi(groups[0][2]),
 			[]byte(groups[0][3]),
-			atoi(groups[0][4]),
+			utils.Atoi(groups[0][4]),
 			false, false,
 			0, UNKNOWN}
 
@@ -256,12 +248,12 @@ loop:
 		line = strings.TrimSpace(line)
 		fields := strings.Fields(line)
 
-		id := atoi(fields[0])
+		id := utils.Atoi(fields[0])
 		ins := insMap[id]
 
 		if ins != nil && fields[2] == "human" {
 			ins.inHuman = true
-			ins.posInHuman = atoi(fields[3])
+			ins.posInHuman = utils.Atoi(fields[3])
 
 			switch fields[4] {
 			case "forwards":
