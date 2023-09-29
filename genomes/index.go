@@ -72,7 +72,7 @@ func (index *Index) Build(genome *Genomes,
 		pat := string(nts[i : i+length])
 		index.add(pat, i)
 
-		if verbose && i%5000 == 0 {
+		if verbose && i%10000 == 0 {
 			fmt.Printf("%.2f%%\n", float64(i*100)/float64(n))
 		}
 	}
@@ -175,6 +175,11 @@ func (s *IndexSearch) incr() bool {
 */
 func (s *IndexSearch) haveMatch() int {
 	m := s.index.wordLen
+
+	// This is the case where the needle is shorter than wordLen
+	if len(s.iterators) == 0 {
+		return 0
+	}
 
 	for i := 0; i < len(s.iterators); i++ {
 		if i > 1 {
