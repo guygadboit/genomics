@@ -330,9 +330,15 @@ const (
 // Return true if we are including this insertion, i.e. not filtering it out
 type filterFunc func(*Insertion) bool
 
-func makeLengthFilter(minLength int) filterFunc {
+func makeMinLengthFilter(minLength int) filterFunc {
 	return func(ins *Insertion) bool {
 		return len(ins.nts) >= minLength
+	}
+}
+
+func makeMaxLengthFilter(maxLength int) filterFunc {
+	return func(ins *Insertion) bool {
+		return len(ins.nts) <= maxLength
 	}
 }
 
@@ -356,12 +362,13 @@ func filterInsertions(insertions []Insertion,
 	filters []filterFunc, cb func(*Insertion), verbose bool) {
 	var name string
 
+insertions:
 	for i := 0; i < len(insertions); i++ {
 		ins := &insertions[i]
 
 		for j := 0; j < len(filters); j++ {
 			if !filters[j](ins) {
-				continue
+				continue insertions
 			}
 		}
 
@@ -538,24 +545,6 @@ func getCpG(ins *Insertion) float64 {
 	return dp.CpG
 }
 
-func countInGenome(insertions []Insertion,
-	filters []filterFunc, verbose bool) {
-
-	fmt.Printf("Loading...\n")
-	g := genomes.LoadGenomes("/fs/f/genomes/human/human.fasta.gz", "", true)
-	fmt.Printf("Loaded\n")
-
-	var search genomes.IndexSearch
-
-	filterInsertions(insertions, filters, func(ins *Insertion) {
-		var count int
-		for search.Init("/fs/f/genomes/human/index", 6, g, 0, ins.nts); !search.End(); search.Next() {
-			count++
-		}
-		fmt.Printf("%s: %d\n", string(ins.nts), count)
-	}, false)
-}
-
 func main() {
 	var tol float64
 	var verbose bool
@@ -596,14 +585,17 @@ func main() {
 	*/
 
 	filters := []filterFunc{
-		makeLengthFilter(20),
+		makeMinLengthFilter(6),
+		makeMaxLengthFilter(15),
+		/*
 		makeFlagFilter(EXCLUDE_WH1 | EXCLUDE_HUMAN),
 		func(ins *Insertion) bool {
 			return getCpG(ins) >= 1.0
 		},
+		*/
 	}
 
-	countInGenome(insertions, filters, false)
+	countInGenomes(insertions, filters, false)
 
 	/*
 		outputFasta("MaybeBac.fasta", "MaybeBac", insertions, filters, false)

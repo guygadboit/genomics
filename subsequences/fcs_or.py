@@ -11,7 +11,7 @@ DATA = (
 		("Human", 41, 3298430636),
 		("RaccoonDog", 82, 2387097583),
 		("Bat", 44, 2059799708),
-		("Pangolin", 44, 2059799708),
+		("Pangolin", 39, 2438977774),
 		)
 
 def expected_frequency(name):

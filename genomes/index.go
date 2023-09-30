@@ -2,28 +2,60 @@ package genomes
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"genomics/utils"
 	"io"
 	"log"
 	"os"
+	"sort"
 	"strings"
-	"errors"
 )
 
 type indexData map[string][]int
 
 type Index struct {
-	root    string    // Where we store the files
-	data    indexData // Maps patterns to their positions
-	wordLen int       // The word length we're using (usually 6)
-	count   int       // Number of positions so far recorded
+	root      string    // Where we store the files
+	data      indexData // Maps patterns to their positions
+	wordLen   int       // The word length we're using (usually 6)
+	count     int       // Number of positions so far recorded
+	genomeLen int
+}
+
+func (index *Index) saveMetadata() {
+	fname := fmt.Sprintf("%s/info", index.root)
+	fd, err := os.Create(fname)
+	if err != nil {
+		log.Fatal("Can't write index metadata")
+	}
+	defer fd.Close()
+
+	w := bufio.NewWriter(fd)
+	fmt.Fprintf(w, "genomeLen: %d wordLen: %d\n",
+		index.genomeLen, index.wordLen)
+	w.Flush()
+}
+
+func (index *Index) loadMetadata() {
+	fname := fmt.Sprintf("%s/info", index.root)
+	f := utils.NewFileReader(fname)
+	defer f.Close()
+
+	line, err := f.ReadString('\n')
+	if err != nil {
+		log.Fatal("Can't read index metadata")
+	}
+
+	line = strings.TrimSpace(line)
+	fields := strings.Fields(line)
+	index.genomeLen = utils.Atoi(fields[1])
+	index.wordLen = utils.Atoi(fields[3])
 }
 
 /*
 	Write the index out to files and clear it
 */
-func (index *Index) Save() {
+func (index *Index) save() {
 	for k, v := range index.data {
 		fname := fmt.Sprintf("%s/%s", index.root, k)
 		fd, err := os.OpenFile(fname,
@@ -56,7 +88,7 @@ func (index *Index) add(pat string, pos int) {
 	index.count++
 
 	if index.count == 1024*1024 {
-		index.Save()
+		index.save()
 	}
 }
 
@@ -65,6 +97,7 @@ func (index *Index) Build(genome *Genomes,
 	index.root = root
 	index.data = make(indexData)
 	index.wordLen = length
+	index.genomeLen = genome.Length()
 	n := genome.Length() - length
 
 	nts := genome.Nts[0]
@@ -78,27 +111,34 @@ func (index *Index) Build(genome *Genomes,
 	}
 }
 
+func (index *Index) Save() {
+	index.save()
+	index.saveMetadata()
+}
+
 func (index *Index) Init(root string, wordLen int) {
 	index.root = root
 	index.wordLen = wordLen
 }
 
 type IndexSearch struct {
-	haystack *Genomes
-	which    int
-	needle   []byte
-	index    *Index
+	needle []byte
+	index  *Index
 
 	// The places where the first wordLen nts are found, then the second
 	// wordLen nts, etc.
 	positions [][]int
 
-	// Where we are in our iteration through positions
-	iterators []int
+	// Where we are in our iteration through the first list of positions
+	iterator int
 
-	// Search the last few nts (that are less than a whole wordLen)
-	atLastMile bool
-	lastMile   Search
+	// The offset to use for the last set of positions (the others are all
+	// +wordLen successively from the start). This offset is relative to
+	// +wordLen so that the default value of 0 does nothing.
+	lastOffset int
+
+	// Where we last found something (usually == pos-1)
+	lastFound int
 }
 
 /*
@@ -107,7 +147,14 @@ type IndexSearch struct {
 */
 func readFile(root string, pattern string) []int {
 	ret := make([]int, 0)
-	f := utils.NewFileReader(fmt.Sprintf("%s/%s", root, pattern))
+
+	fname := fmt.Sprintf("%s/%s", root, pattern)
+	if _, err := os.Stat(fname); err != nil {
+		fname += ".gz"
+	}
+
+	f := utils.NewFileReader(fname)
+	defer f.Close()
 
 loop:
 	for {
@@ -127,110 +174,102 @@ loop:
 	return ret
 }
 
-func (s *IndexSearch) Init(root string, wordLen int,
-	haystack *Genomes, which int, needle []byte) {
-	s.haystack = haystack
-	s.which = which
+func (s *IndexSearch) Init(root string, needle []byte) {
 	s.needle = needle
-	s.index = &Index{root: root, wordLen: wordLen}
+	n := len(needle)
+
+	s.index = &Index{root: root}
+	s.index.loadMetadata()
 
 	m := s.index.wordLen
 
-	// Depth is how deep we can go with the cached positions-- if wordLen is 6
-	// say and we're searching for something 13 long, we will go into the cache
-	// for the first 6 nts, then again for the next 6, and then search the last
-	// 1 with our "last mile" search. So in that case depth will be 2.
-	depth := len(needle) / m
-	s.positions = make([][]int, depth)
+	depth := n / m
+
+	// Capacity of +1 because if there is an overhang we will add another list
+	// of positions below.
+	s.positions = make([][]int, depth, depth+1)
 
 	for i := 0; i < depth; i++ {
 		s.positions[i] = readFile(s.index.root, string(needle[i*m:i*m+m]))
+	}
+
+	/*
+		If the needle is not a multiple of the index wordLen we need an
+		additional fragment to match, which is the *last* wordLen nts of the
+		needle. This overlaps with the previous thing we looked for. But that's
+		fine. We just have to correct the target offset we will be looking for
+		for these bits. We save that correction in lastOffset.
+	*/
+	overhang := n - depth*m
+	if overhang > 0 {
+		s.lastOffset = -m + overhang
+		s.positions = append(s.positions,
+			readFile(s.index.root, string(needle[n-m:n])))
 	}
 
 	s.Start()
 }
 
 func (s *IndexSearch) Start() {
-	s.iterators = make([]int, len(s.positions))
+	s.lastFound = -1
+	s.iterator = 0
 	s.Next()
 }
 
-/*
-	FIXME: OK you can make this do binary searches to increment to the next
-	position that might work. The idea is that whenever you increase a counter
-	it needs to have a chance of being +6 from the previous one.
-*/
 func (s *IndexSearch) incr() bool {
-	for i := 0; i < len(s.iterators); i++ {
-		s.iterators[i]++
-		if s.iterators[i] < len(s.positions[i]) {
-			return true
+	nWords := len(s.positions)
+
+	for ; s.iterator < len(s.positions[0]); {
+		prev := s.positions[0][s.iterator]
+		found := true
+
+		for i := 1; i < nWords; i++ {
+			target := prev + s.index.wordLen
+			if i == nWords-1 {
+				target += s.lastOffset
+			}
+
+			n := len(s.positions[i])
+			pos := sort.Search(n, func(j int) bool {
+				return s.positions[i][j] >= target
+			})
+			if pos == n {
+				found = false
+				break
+			}
+			if s.positions[i][pos] != target {
+				found = false
+				break
+			}
+			prev = s.positions[i][pos]
 		}
-		for j := 0; j <= i; j++ {
-			s.iterators[j] = 0
+
+		if found {
+			s.lastFound = s.iterator
+			s.iterator++
+			return true
+		} else {
+			s.iterator++
 		}
 	}
 	return false
 }
 
-/*
-	Do the current iterators record a match? If so record the position. If not
-	then -1.
-*/
-func (s *IndexSearch) haveMatch() int {
-	m := s.index.wordLen
-
-	// This is the case where the needle is shorter than wordLen
-	if len(s.iterators) == 0 {
-		return 0
-	}
-
-	for i := 0; i < len(s.iterators); i++ {
-		if i > 1 {
-			if s.positions[i][s.iterators[i]] !=
-				s.positions[i-1][s.iterators[i-1]]+m {
-				return -1
-			}
-		}
-	}
-
-	return s.positions[0][s.iterators[0]]
-}
-
 func (s *IndexSearch) Next() {
-	for {
-		if s.atLastMile {
-			s.lastMile.Next()
-			if s.lastMile.End() {
-				s.atLastMile = false
-			}
-			return
-		}
-
-		pos := s.haveMatch()
-		if pos != -1 {
-			s.lastMile.Init(s.haystack, s.which, s.needle, 0.0)
-			s.lastMile.FastForward(pos)
-			s.atLastMile = true
-			s.Next()
-			return
-		}
-		if !s.incr() {
-			break
-		}
-	}
+	s.incr()
 }
 
 func (s *IndexSearch) Get() (int, error) {
-	if s.atLastMile {
-		return s.lastMile.Get()
+	if s.lastFound != -1 {
+		return s.positions[0][s.lastFound], nil
 	}
 	return 0, errors.New("Off end")
 }
 
 func (s *IndexSearch) End() bool {
-	if s.atLastMile {
-		return s.lastMile.End()
-	}
-	return true
+	return s.iterator == len(s.positions[0])
+}
+
+func (s *IndexSearch) GenomeLength() int {
+	return s.index.genomeLen
 }
