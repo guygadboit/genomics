@@ -8,6 +8,10 @@ DATA = (
 		("CC", 3, 4016947),
 		("DR", 4, 2648638),
 		("Streptomyces", 12, 9119895),
+		("Human", 41, 3298430636),
+		("RaccoonDog", 82, 2387097583),
+		("Bat", 44, 2059799708),
+		("Pangolin", 44, 2059799708),
 		)
 
 def expected_frequency(name):

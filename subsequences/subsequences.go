@@ -2,8 +2,11 @@ package main
 
 import (
 	"bufio"
+	"io"
+	"strings"
 	"fmt"
 	"genomics/genomes"
+	"genomics/utils"
 	"log"
 	"os"
 	"sort"
@@ -106,17 +109,27 @@ func getSources() []Source {
 		{"Mouse", root + "mouse/" +
 			"GCF_000001635.27_GRCm39_genomic.fna.gz"},
 		*/
+		{"Pangolin", root + "pangolin/" +
+			"GCF_014570535.1_YNU_ManJav_2.0_genomic.fna.gz"},
 
+		/*
 		{"Insertions", "../insertions/InsertionsNotFromWH1OrHuman.fasta"},
 		{"MaybeBac", "../insertions/MaybeBacCombined.fasta"},
+		*/
+		/*
 		{"PA", root + "bacteria/PseudomonasAeruginosaComplete.fasta"},
 		{"CC", root + "bacteria/GCRich/CaulobacterCrescentus.fasta"},
 		{"DR", root + "bacteria/GCRich/DeinococcusRadiodurans.fasta"},
+		{"Streptomyces", root + "bacteria/Streptomyces/" +
+			"GCF_000009765.2_ASM976v2_genomic.fna.gz"},
+		*/
+		/*
 		{"HI", root + "bacteria/ATRich/HaemophilusInfluenzae.fasta"},
 		{"Salmonella", root + "bacteria/Salmonella/Salmonella.fasta"},
 		{"Listeria", root + "bacteria/Listeria/ListeriaInnocua.fasta"},
 		{"Ricksettia", root + "bacteria/Ricksettia/Ricksettia.fasta"},
 		{"Legionella", root + "bacteria/Legionella/Legionella.fasta"},
+		*/
 	}
 }
 
@@ -185,7 +198,78 @@ func findFCS() {
 	}
 }
 
+func loadExpected(source Source) map[byte]float64 {
+	ret := make(map[byte]float64)
+
+	f := utils.NewFileReader(fmt.Sprintf("output/%s-1.txt", source.name))
+	defer f.Close()
+
+	var total float64
+loop:
+	for {
+		line, err := f.ReadString('\n')
+		switch err {
+		case io.EOF:
+			break loop
+		case nil:
+			break
+		default:
+			log.Fatal("Can't read file")
+		}
+
+		line = strings.TrimSpace(line)
+		fields := strings.Fields(line)
+
+		nt := []byte(strings.TrimRight(fields[0], ":"))[0]
+		ret[nt] = float64(utils.Atoi(fields[1]))
+		total += ret[nt]
+	}
+
+	for k, _ := range ret {
+		ret[k] /= total
+	}
+
+	return ret
+}
+
+func expectedFrequency(pat []byte, ntFreq map[byte]float64) float64 {
+	ret := 1.0
+	for i := 0; i < len(pat); i++ {
+		ret *= ntFreq[pat[i]]
+	}
+	return ret
+}
+
+func montecarlo(length int, nTrials int) {
+	sources := getSources()
+
+	testGenomes := make([]*genomes.Genomes, len(sources))
+	expected := make([]map[byte]float64, len(sources))
+
+	for i := 0; i < len(sources); i++ {
+		testGenomes[i] = genomes.LoadGenomes(sources[i].fname, "", true)
+		expected[i] = loadExpected(sources[i])
+	}
+
+	var s genomes.Search
+
+	for i := 0; i < nTrials; i++ {
+		pat := utils.RandomNts(12)
+		var count int
+		for j := 0; j < len(testGenomes); j++ {
+			g := testGenomes[j]
+			for s.Init(g, 0, pat, 0.0); !s.End(); s.Next() {
+				count++
+			}
+			freq := float64(count) / float64(g.Length())
+			or := freq / expectedFrequency(pat, expected[j])
+			fmt.Printf("%s: %.4f\n", sources[j].name, or)
+		}
+	}
+}
+
 func main() {
-	// findFCS()
-	findAll(6)
+	findFCS()
+	// findAll(1)
+	// montecarlo(12, 10000)
 }

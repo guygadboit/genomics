@@ -3,6 +3,7 @@ package utils
 import (
 	"bufio"
 	"compress/gzip"
+	"math/rand"
 	"log"
 	"os"
 	"strconv"
@@ -40,6 +41,17 @@ func ReverseComplement(nts []byte) []byte {
 		j := len(nts) - i - 1
 		ret[j] = nt
 	}
+	return ret
+}
+
+func RandomNts(length int) []byte {
+	nts := [...]byte{'G', 'A', 'T', 'C'}
+	ret := make([]byte, length)
+
+	for i := 0; i < length; i++ {
+		ret[i] = nts[rand.Intn(len(nts))]
+	}
+
 	return ret
 }
 
