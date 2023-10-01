@@ -72,7 +72,8 @@ func getSources() []Source {
 	return []Source{
 		{"Insertions", "../fasta/InsertionsNotFromWH1OrHuman.fasta"},
 		{"MaybeBac", "../fasta/MaybeBacCombined.fasta"},
-		{"PA", root + "bacteria/PseudomonasAeruginosaComplete.fasta"},
+		{"PA", root + "bacteria/PseudomonasAeruginosa/" +
+			"PseudomonasAeruginosaComplete.fasta"},
 		{"CC", root + "bacteria/GCRich/CaulobacterCrescentus.fasta"},
 		{"DR", root + "bacteria/GCRich/DeinococcusRadiodurans.fasta"},
 		{"HI", root + "bacteria/ATRich/HaemophilusInfluenzae.fasta"},
@@ -80,28 +81,29 @@ func getSources() []Source {
 		{"Listeria", root + "bacteria/Listeria/ListeriaInnocua.fasta"},
 		{"Ricksettia", root + "bacteria/Ricksettia/Ricksettia.fasta"},
 		{"Legionella", root + "bacteria/Legionella/Legionella.fasta"},
+		{"Cod", root + "cod/cod.fasta.gz"},
 		/*
-		{"Caulobacter", root + "bacteria/GCRich/CaulobacterCrescentus.fasta"},
-		{"Deinococcus", root + "bacteria/GCRich/DeinococcusRadiodurans.fasta"},
-		{"PA", root + "bacteria/GCRich/PseudomonasAeruginosaComplete.fasta"},
-		{"Haemophilus", root + "bacteria/ATRich/HaemophilusInfluenzae.fasta"},
-		{"Viruses", root + "viruses/mega/mega.fasta"},
-		{"Bat", root + "bat/myotis_davidii/" +
-			"GCF_000327345.1_ASM32734v1_genomic.fna.gz"},
-		{"Human", root + "human/GRCh38_latest_genomic.fna.gz"},
-		{"RaccoonDog", root + "raccoon_dog/" +
-			"GCF_905146905.1_NYPRO_anot_genome_genomic.fna.gz"},
-		{"Pangolin", root + "pangolin/" +
-			"GCF_014570535.1_YNU_ManJav_2.0_genomic.fna.gz"},
-		{"Rabbit", root + "rabbit/" +
-			"GCF_009806435.1_UM_NZW_1.0_genomic.fna.gz"},
-		{"Streptomyces", root + "bacteria/Streptomyces/" +
-			"GCF_000009765.2_ASM976v2_genomic.fna.gz"},
-		{"Pig", root + "pig/" +
-			"GCF_000003025.6_Sscrofa11.1_genomic.fna.gz"},
-		{"Mouse", root + "mouse/" +
-			"GCF_000001635.27_GRCm39_genomic.fna.gz"},
-		{"HCoVs", "../fasta/HCoVs.fasta"},
+			{"Caulobacter", root + "bacteria/GCRich/CaulobacterCrescentus.fasta"},
+			{"Deinococcus", root + "bacteria/GCRich/DeinococcusRadiodurans.fasta"},
+			{"PA", root + "bacteria/GCRich/PseudomonasAeruginosaComplete.fasta"},
+			{"Haemophilus", root + "bacteria/ATRich/HaemophilusInfluenzae.fasta"},
+			{"Viruses", root + "viruses/mega/mega.fasta"},
+			{"Bat", root + "bat/myotis_davidii/" +
+				"GCF_000327345.1_ASM32734v1_genomic.fna.gz"},
+			{"Human", root + "human/GRCh38_latest_genomic.fna.gz"},
+			{"RaccoonDog", root + "raccoon_dog/" +
+				"GCF_905146905.1_NYPRO_anot_genome_genomic.fna.gz"},
+			{"Pangolin", root + "pangolin/" +
+				"GCF_014570535.1_YNU_ManJav_2.0_genomic.fna.gz"},
+			{"Rabbit", root + "rabbit/" +
+				"GCF_009806435.1_UM_NZW_1.0_genomic.fna.gz"},
+			{"Streptomyces", root + "bacteria/Streptomyces/" +
+				"GCF_000009765.2_ASM976v2_genomic.fna.gz"},
+			{"Pig", root + "pig/" +
+				"GCF_000003025.6_Sscrofa11.1_genomic.fna.gz"},
+			{"Mouse", root + "mouse/" +
+				"GCF_000001635.27_GRCm39_genomic.fna.gz"},
+			{"HCoVs", "../fasta/HCoVs.fasta"},
 		*/
 	}
 }

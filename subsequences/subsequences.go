@@ -109,8 +109,8 @@ func getSources() []Source {
 		{"Mouse", root + "mouse/" +
 			"GCF_000001635.27_GRCm39_genomic.fna.gz"},
 		*/
-		{"Pangolin", root + "pangolin/" +
-			"GCF_014570535.1_YNU_ManJav_2.0_genomic.fna.gz"},
+
+		{"Cod", root + "cod/" + "GCF_902167405.1_gadMor3.0_genomic.fna.gz"},
 
 		/*
 		{"Insertions", "../insertions/InsertionsNotFromWH1OrHuman.fasta"},
@@ -269,7 +269,7 @@ func montecarlo(length int, nTrials int) {
 }
 
 func main() {
-	findFCS()
-	// findAll(1)
+	// findFCS()
+	findAll(1)
 	// montecarlo(12, 10000)
 }

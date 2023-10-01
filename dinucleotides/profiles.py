@@ -16,6 +16,7 @@ GENOME_NAMES = (
 		"Salmonella",
 		"Legionella",
 		"MaybeBac",
+		"Cod",
 		# 		"Bat",
 		# 		"RaccoonDog",
 		# 		"Pangolin",

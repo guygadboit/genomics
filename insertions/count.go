@@ -57,6 +57,7 @@ func getSources() []Source {
 
 	sources := []Source{
 		{"Human", root + "human/index", nil},
+		{"Cod", root + "cod/index", nil},
 		{"DR", root + "bacteria/GCRich/dr_index", nil},
 		{"Legionella", root + "bacteria/Legionella/index", nil},
 		{"Salmonella", root + "bacteria/Salmonella/index", nil},
