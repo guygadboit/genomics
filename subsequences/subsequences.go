@@ -109,6 +109,7 @@ func getSources() []Source {
 			"GCF_000001635.27_GRCm39_genomic.fna.gz"},
 		*/
 
+		/*
 		{"Human", root + "human/GRCh38_latest_genomic.fna.gz"},
 		{"Cod", root + "cod/" + "GCF_902167405.1_gadMor3.0_genomic.fna.gz"},
 		{"DR", root + "bacteria/GCRich/DeinococcusRadiodurans.fasta"},
@@ -119,6 +120,12 @@ func getSources() []Source {
 		{"PA", root + "bacteria/PseudomonasAeruginosa/"+
 			"PseudomonasAeruginosaComplete.fasta"},
 		{"Listeria", root + "bacteria/Listeria/ListeriaInnocua.fasta"},
+		*/
+		/*
+		{"Streptomyces", root + "bacteria/Streptomyces/" +
+			"GCF_000009765.2_ASM976v2_genomic.fna.gz"},
+		*/
+		{"Delftia", root + "bacteria/delftia/delftia.fasta.gz"},
 
 		/*
 		{"Insertions", "../insertions/InsertionsNotFromWH1OrHuman.fasta"},
@@ -269,6 +276,7 @@ func montecarlo(length int, nTrials int) {
 
 func main() {
 	// findFCS()
+	findAll(1)
 	findAll(2)
 	// montecarlo(12, 10000)
 }

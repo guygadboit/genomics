@@ -545,6 +545,17 @@ func getCpG(ins *Insertion) float64 {
 	return dp.CpG
 }
 
+func appendFCS(insertions []Insertion) []Insertion {
+	lastIns := &insertions[len(insertions)-1]
+	lastId := lastIns.id
+
+	insertions = append(insertions,
+		Insertion{lastId + 1, 0, []byte("CTCCTCGGCGGG"),
+			2, true, true, 0, UNKNOWN})
+
+	return insertions
+}
+
 func main() {
 	var tol float64
 	var verbose bool
@@ -558,6 +569,7 @@ func main() {
 
 	// findInHuman(insertions, 20, tol)
 	loadInHuman(insertions)
+	insertions = appendFCS(insertions)
 
 	utils.Sort(len(insertions), true,
 		func(i, j int) {
@@ -588,10 +600,10 @@ func main() {
 		makeMinLengthFilter(6),
 		makeMaxLengthFilter(15),
 		/*
-		makeFlagFilter(EXCLUDE_WH1 | EXCLUDE_HUMAN),
-		func(ins *Insertion) bool {
-			return getCpG(ins) >= 1.0
-		},
+			makeFlagFilter(EXCLUDE_WH1 | EXCLUDE_HUMAN),
+			func(ins *Insertion) bool {
+				return getCpG(ins) >= 1.0
+			},
 		*/
 	}
 

@@ -57,10 +57,8 @@ func getSources() []Source {
 	root := "/fs/f/genomes/"
 
 	sources := []Source{
-		/*
-			{"Human", root + "human/index", nil, nil},
-			{"Cod", root + "cod/index", nil, nil},
-		*/
+		{"Human", root + "human/index", nil, nil},
+		{"Cod", root + "cod/index", nil, nil},
 		{"DR", root + "bacteria/GCRich/dr_index", nil, nil},
 		{"Legionella", root + "bacteria/Legionella/index", nil, nil},
 		{"Salmonella", root + "bacteria/Salmonella/index", nil, nil},
@@ -68,6 +66,8 @@ func getSources() []Source {
 		{"HI", root + "bacteria/ATRich/hi_index", nil, nil},
 		{"PA", root + "bacteria/PseudomonasAeruginosa/index", nil, nil},
 		{"Listeria", root + "bacteria/Listeria/index", nil, nil},
+		{"Streptomyces", root + "bacteria/Streptomyces/index", nil, nil},
+		{"Delftia", root + "bacteria/delftia/index", nil, nil},
 	}
 
 	for i := 0; i < len(sources); i++ {
@@ -85,7 +85,7 @@ func getSources() []Source {
 func expectedFrequency(pat []byte,
 	freq map[string]float64, numNts int) float64 {
 	ret := 1.0
-	for i := 0; i < len(pat)-numNts; i += numNts {
+	for i := 0; i < len(pat)-numNts; i++ {
 		ret *= freq[string(pat[i:i+numNts])]
 	}
 	return ret
@@ -103,7 +103,7 @@ func count(ins *Insertion, source *Source) (int, float64, float64) {
 
 	freq := float64(count) / float64(search.GenomeLength())
 	or := freq / expectedFrequency(ins.nts, source.ntFreq, 1)
-	or2 := freq / expectedFrequency(ins.nts, source.dinFreq, 2)
+	or2 := (freq * freq) / expectedFrequency(ins.nts, source.dinFreq, 2)
 
 	return count, or, or2
 }
