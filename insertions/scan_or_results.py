@@ -13,7 +13,7 @@ SILLY = {
 		}
 
 def main():
-	with open("or-results.txt") as fp:
+	with open("./or-results.txt") as fp:
 		for i, line in enumerate(fp):
 			line = line.strip()
 			fields = line.split()
@@ -34,7 +34,7 @@ def main():
 			counts = fields[1:]
 			for i, c in enumerate(counts):
 				count, OR, OR2 = [float(x) for x in c.split(',')]
-				if OR >= 20.0 and count > 1:
+				if OR >= 10.0 and count > 1:
 					print("{}: {}".format(headings[i], line))
 
 
