@@ -83,9 +83,10 @@ func expectedFrequency(pat []byte, ntFreq map[byte]float64) float64 {
 }
 
 func count(ins *Insertion, source *Source) (int, float64) {
-	var search genomes.IndexSearch
-
-	var count int
+	var (
+		search genomes.BidiIndexSearch
+		count int
+	)
 
 	for search.Init(source.index, ins.nts); !search.End(); search.Next() {
 		count++

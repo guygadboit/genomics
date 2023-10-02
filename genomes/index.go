@@ -312,3 +312,7 @@ func (s *BidiIndexSearch) Get() (int, error) {
 func (s *BidiIndexSearch) End() bool {
 	return s.backwards.End()
 }
+
+func (s *BidiIndexSearch) GenomeLength() int {
+	return s.forwards.index.genomeLen
+}
