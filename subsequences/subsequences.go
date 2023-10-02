@@ -95,7 +95,6 @@ func getSources() []Source {
 		{"Viruses", root + "viruses/mega/mega.fasta"},
 		{"Bat", root + "bat/myotis_davidii/" +
 			"GCF_000327345.1_ASM32734v1_genomic.fna.gz"},
-		{"Human", root + "human/GRCh38_latest_genomic.fna.gz"},
 		{"RaccoonDog", root + "raccoon_dog/" +
 			"GCF_905146905.1_NYPRO_anot_genome_genomic.fna.gz"},
 		{"Pangolin", root + "pangolin/" +
@@ -110,25 +109,25 @@ func getSources() []Source {
 			"GCF_000001635.27_GRCm39_genomic.fna.gz"},
 		*/
 
+		{"Human", root + "human/GRCh38_latest_genomic.fna.gz"},
 		{"Cod", root + "cod/" + "GCF_902167405.1_gadMor3.0_genomic.fna.gz"},
+		{"DR", root + "bacteria/GCRich/DeinococcusRadiodurans.fasta"},
+		{"Legionella", root + "bacteria/Legionella/Legionella.fasta"},
+		{"Salmonella", root + "bacteria/Salmonella/Salmonella.fasta"},
+		{"Ricksettia", root + "bacteria/Ricksettia/Ricksettia.fasta"},
+		{"HI", root + "bacteria/ATRich/HaemophilusInfluenzae.fasta"},
+		{"PA", root + "bacteria/PseudomonasAeruginosa/"+
+			"PseudomonasAeruginosaComplete.fasta"},
+		{"Listeria", root + "bacteria/Listeria/ListeriaInnocua.fasta"},
 
 		/*
 		{"Insertions", "../insertions/InsertionsNotFromWH1OrHuman.fasta"},
 		{"MaybeBac", "../insertions/MaybeBacCombined.fasta"},
 		*/
 		/*
-		{"PA", root + "bacteria/PseudomonasAeruginosaComplete.fasta"},
 		{"CC", root + "bacteria/GCRich/CaulobacterCrescentus.fasta"},
-		{"DR", root + "bacteria/GCRich/DeinococcusRadiodurans.fasta"},
 		{"Streptomyces", root + "bacteria/Streptomyces/" +
 			"GCF_000009765.2_ASM976v2_genomic.fna.gz"},
-		*/
-		/*
-		{"HI", root + "bacteria/ATRich/HaemophilusInfluenzae.fasta"},
-		{"Salmonella", root + "bacteria/Salmonella/Salmonella.fasta"},
-		{"Listeria", root + "bacteria/Listeria/ListeriaInnocua.fasta"},
-		{"Ricksettia", root + "bacteria/Ricksettia/Ricksettia.fasta"},
-		{"Legionella", root + "bacteria/Legionella/Legionella.fasta"},
 		*/
 	}
 }
@@ -270,6 +269,6 @@ func montecarlo(length int, nTrials int) {
 
 func main() {
 	// findFCS()
-	findAll(1)
+	findAll(2)
 	// montecarlo(12, 10000)
 }
