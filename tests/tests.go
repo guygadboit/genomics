@@ -24,10 +24,10 @@ func testBuildIndex() {
 
 func testUseIndex() {
 	// pattern := []byte("TTTTTTTC")
-	pattern := []byte("ATCT")
+	pattern := []byte("ATCTAT")
 	// pattern := []byte("CTCCTCGGCGG")
 
-	var s genomes.IndexSearch
+	var s genomes.BidiIndexSearch
 	for s.Init("./index", pattern); !s.End(); s.Next() {
 	// for s.Init("/fs/f/genomes/human/index", pattern); !s.End(); s.Next() {
 		pos, _ := s.Get()

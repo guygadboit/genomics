@@ -219,7 +219,7 @@ func (s *IndexSearch) Start() {
 func (s *IndexSearch) incr() bool {
 	nWords := len(s.positions)
 
-	for ; s.iterator < len(s.positions[0]); {
+	for s.iterator < len(s.positions[0]) {
 		prev := s.positions[0][s.iterator]
 		found := true
 
@@ -272,4 +272,43 @@ func (s *IndexSearch) End() bool {
 
 func (s *IndexSearch) GenomeLength() int {
 	return s.index.genomeLen
+}
+
+/*
+	Bidirectional IndexSearch (looks for the pattern and then for its reverse
+	complement)
+*/
+type BidiIndexSearch struct {
+	forwards	IndexSearch
+	backwards	IndexSearch
+}
+
+func (s *BidiIndexSearch) Init(root string, needle []byte) {
+	s.forwards.Init(root, needle)
+	s.backwards.Init(root, utils.ReverseComplement(needle))
+}
+
+func (s *BidiIndexSearch) Start() {
+	s.forwards.Start()
+	s.backwards.Start()
+}
+
+func (s *BidiIndexSearch) Next() {
+	if !s.forwards.End() {
+		s.forwards.Next()
+	} else {
+		s.backwards.Next()
+	}
+}
+
+func (s *BidiIndexSearch) Get() (int, error) {
+	if !s.forwards.End() {
+		return s.forwards.Get()
+	} else {
+		return s.backwards.Get()
+	}
+}
+
+func (s *BidiIndexSearch) End() bool {
+	return s.backwards.End()
 }
