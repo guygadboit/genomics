@@ -33,8 +33,8 @@ def main():
 
 			counts = fields[1:]
 			for i, c in enumerate(counts):
-				count, OR = [float(x) for x in c.split(',')]
-				if OR >= 20.0:
+				count, OR, OR2 = [float(x) for x in c.split(',')]
+				if OR >= 20.0 and count > 1:
 					print("{}: {}".format(headings[i], line))
 
 

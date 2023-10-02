@@ -12,16 +12,17 @@ import (
 )
 
 type Source struct {
-	name   string
-	index  string
-	ntFreq map[byte]float64
+	name    string
+	index   string
+	ntFreq  map[string]float64
+	dinFreq map[string]float64
 }
 
-func loadFrequency(source Source) map[byte]float64 {
-	ret := make(map[byte]float64)
+func loadFrequency(source Source, numNts int) map[string]float64 {
+	ret := make(map[string]float64)
 
 	f := utils.NewFileReader(fmt.Sprintf(
-		"../subsequences/output/%s-1.txt", source.name))
+		"../subsequences/output/%s-%d.txt", source.name, numNts))
 	defer f.Close()
 
 	var total float64
@@ -40,7 +41,7 @@ loop:
 		line = strings.TrimSpace(line)
 		fields := strings.Fields(line)
 
-		nt := []byte(strings.TrimRight(fields[0], ":"))[0]
+		nt := strings.TrimRight(fields[0], ":")
 		ret[nt] = float64(utils.Atoi(fields[1]))
 		total += ret[nt]
 	}
@@ -56,36 +57,44 @@ func getSources() []Source {
 	root := "/fs/f/genomes/"
 
 	sources := []Source{
-		{"Human", root + "human/index", nil},
-		{"Cod", root + "cod/index", nil},
-		{"DR", root + "bacteria/GCRich/dr_index", nil},
-		{"Legionella", root + "bacteria/Legionella/index", nil},
-		{"Salmonella", root + "bacteria/Salmonella/index", nil},
-		{"Ricksettia", root + "bacteria/Ricksettia/index", nil},
-		{"HI", root + "bacteria/ATRich/hi_index", nil},
-		{"PA", root + "bacteria/PseudomonasAeruginosa/index", nil},
-		{"Listeria", root + "bacteria/Listeria/index", nil},
+		/*
+			{"Human", root + "human/index", nil, nil},
+			{"Cod", root + "cod/index", nil, nil},
+		*/
+		{"DR", root + "bacteria/GCRich/dr_index", nil, nil},
+		{"Legionella", root + "bacteria/Legionella/index", nil, nil},
+		{"Salmonella", root + "bacteria/Salmonella/index", nil, nil},
+		{"Ricksettia", root + "bacteria/Ricksettia/index", nil, nil},
+		{"HI", root + "bacteria/ATRich/hi_index", nil, nil},
+		{"PA", root + "bacteria/PseudomonasAeruginosa/index", nil, nil},
+		{"Listeria", root + "bacteria/Listeria/index", nil, nil},
 	}
 
 	for i := 0; i < len(sources); i++ {
-		sources[i].ntFreq = loadFrequency(sources[i])
+		sources[i].ntFreq = loadFrequency(sources[i], 1)
+		sources[i].dinFreq = loadFrequency(sources[i], 2)
 	}
 
 	return sources
 }
 
-func expectedFrequency(pat []byte, ntFreq map[byte]float64) float64 {
+/*
+	What is the expected frequency of pat based on the frequencies of either
+	the individual nts or the dinucleotides of which it is composed?
+*/
+func expectedFrequency(pat []byte,
+	freq map[string]float64, numNts int) float64 {
 	ret := 1.0
-	for i := 0; i < len(pat); i++ {
-		ret *= ntFreq[pat[i]]
+	for i := 0; i < len(pat)-numNts; i += numNts {
+		ret *= freq[string(pat[i:i+numNts])]
 	}
 	return ret
 }
 
-func count(ins *Insertion, source *Source) (int, float64) {
+func count(ins *Insertion, source *Source) (int, float64, float64) {
 	var (
 		search genomes.BidiIndexSearch
-		count int
+		count  int
 	)
 
 	for search.Init(source.index, ins.nts); !search.End(); search.Next() {
@@ -93,9 +102,10 @@ func count(ins *Insertion, source *Source) (int, float64) {
 	}
 
 	freq := float64(count) / float64(search.GenomeLength())
-	or := freq / expectedFrequency(ins.nts, source.ntFreq)
+	or := freq / expectedFrequency(ins.nts, source.ntFreq, 1)
+	or2 := freq / expectedFrequency(ins.nts, source.dinFreq, 2)
 
-	return count, or
+	return count, or, or2
 }
 
 func countInGenomes(insertions []Insertion,
@@ -129,8 +139,8 @@ func countInGenomes(insertions []Insertion,
 
 		fmt.Fprintf(w, "%s ", string(ins.nts))
 		for i := 0; i < len(sources); i++ {
-			num, or := count(ins, &sources[i])
-			fmt.Fprintf(w, "%d,%.2f ", num, or)
+			num, or, or2 := count(ins, &sources[i])
+			fmt.Fprintf(w, "%d,%.2f,%.2f ", num, or, or2)
 		}
 		fmt.Fprintf(w, "\n")
 
