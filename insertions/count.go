@@ -137,7 +137,7 @@ func countInGenomes(insertions []Insertion,
 		}
 		seen[nts] = true
 
-		fmt.Fprintf(w, "%s ", string(ins.nts))
+		fmt.Fprintf(w, "%d %s ", ins.id, string(ins.nts))
 		for i := 0; i < len(sources); i++ {
 			num, or, or2 := count(ins, &sources[i])
 			fmt.Fprintf(w, "%d,%.2f,%.2f ", num, or, or2)
