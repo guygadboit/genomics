@@ -1,12 +1,12 @@
 package main
 
 import (
-	"genomics/genomes"
-	"fmt"
 	"bufio"
-	"os"
+	"fmt"
+	"genomics/genomes"
 	"log"
 	"math/rand"
+	"os"
 )
 
 func randomInsertions(genome *genomes.Genomes,
@@ -19,10 +19,9 @@ func randomInsertions(genome *genomes.Genomes,
 
 	fp := bufio.NewWriter(f)
 
-
 	for i := 0; i < count; i++ {
 		start := rand.Intn(genome.Length() - length)
-		pattern := genome.Nts[0][start:start+length]
+		pattern := genome.Nts[0][start : start+length]
 		fmt.Fprintf(fp, "%d ins_0000:%s (2 seqs)\n", i, pattern)
 	}
 
@@ -31,5 +30,5 @@ func randomInsertions(genome *genomes.Genomes,
 
 func main() {
 	g := genomes.LoadGenomes(os.Args[1], "", true)
-	randomInsertions(g, 14, 100000, os.Args[2])
+	randomInsertions(g, 14, 10000, os.Args[2])
 }

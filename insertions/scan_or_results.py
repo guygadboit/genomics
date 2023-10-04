@@ -5,6 +5,7 @@ from pdb import set_trace as brk
 from collections import namedtuple, OrderedDict
 
 
+# These aren't really silly but some quite interesting tandem repeats :)
 SILLY = {
 		"GTGTGTGTGTGTGTG",
 		"GTGTGTGTG",
@@ -31,7 +32,7 @@ def parse_field(f):
 def parse():
 	ret = {}
 
-	with open("./or-results.txt") as fp:
+	with open("./or-results-fake-streptomyces.txt") as fp:
 		for i, line in enumerate(fp):
 			line = line.strip()
 			fields = line.split()
@@ -71,8 +72,10 @@ def graph(results):
 
 		if interesting:
 			for f in v._fields[2:]:
-				print("{} {} {} ({})".format(v.id, f,
-					getattr(v, f).OR2, len(v.pattern)))
+				count = getattr(v, f)
+				print("{} {} {} {} {} ({}) {}".format(v.id, f,
+					count.num, count.OR, count.OR2,
+					len(v.pattern), v.pattern))
 
 				x[v.id] = True
 				y[f] = True

@@ -564,11 +564,13 @@ func main() {
 	flag.BoolVar(&verbose, "v", false, "Verbose")
 	flag.Parse()
 
-	insertions := LoadInsertions("insertions.txt", 6, 2)
-	findInVirus("WH1", insertions, 6, true, tol)
+	// insertions := LoadInsertions("insertions.txt", 6, 2)
+	insertions := LoadInsertions(
+		"../simulated_insertions/fake_human.txt", 6, 2)
+	// findInVirus("WH1", insertions, 6, true, tol)
 
 	// findInHuman(insertions, 20, tol)
-	loadInHuman(insertions)
+	// loadInHuman(insertions)
 	insertions = appendFCS(insertions)
 
 	utils.Sort(len(insertions), true,
