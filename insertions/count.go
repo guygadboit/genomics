@@ -122,7 +122,7 @@ func countInGenomes(insertions []Insertion,
 
 	w := bufio.NewWriter(fd)
 
-	fmt.Fprintf(w, "pattern ")
+	fmt.Fprintf(w, "id pattern ")
 	for i := 0; i < len(sources); i++ {
 		fmt.Fprintf(w, "%s ", sources[i].name)
 	}
