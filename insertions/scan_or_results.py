@@ -71,7 +71,8 @@ def graph(results):
 
 		if interesting:
 			for f in v._fields[2:]:
-				print("{} {} {}".format(v.id, f, getattr(v, f).OR2))
+				print("{} {} {} ({})".format(v.id, f,
+					getattr(v, f).OR2, len(v.pattern)))
 
 				x[v.id] = True
 				y[f] = True
@@ -101,7 +102,7 @@ def graph(results):
 	ax.set_yticklabels(y_labels, rotation=90)
 
 	ax.set_title('Title')
-	plot.show()
+# 	plot.show()
 
 
 def main():
