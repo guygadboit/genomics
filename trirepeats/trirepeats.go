@@ -12,10 +12,15 @@ type TriRepeatMap map[string]int
 
 func (m TriRepeatMap) Init() {
 	nts := []byte{'G', 'A', 'T', 'C'}
+	pat := make([]byte, 3)
+
 	for i := 0; i < len(nts); i++ {
 		for j := 0; j < len(nts); j++ {
 			for k := 0; k < len(nts); k++ {
-				m[string(i+j+k)] = 0
+				pat[0] = nts[i]
+				pat[1] = nts[j]
+				pat[2] = nts[k]
+				m[string(pat)] = 0
 			}
 		}
 	}
@@ -41,10 +46,14 @@ func CountTriRepeats(genome *genomes.Genomes) TriRepeatMap {
 	ret := make(TriRepeatMap)
 	ret.Init()
 
-	for i := 0; i < genome.Length() - 3; i++ {
-		pat := string(genome.Nts[0][i:i+3])
-		count := ret[pat]
-		ret[pat] = count+1
+	for i := 0; i < genome.Length() - 6; i++ {
+		pat := string(genome.Nts[0][i:i+6])
+		if pat[:3] != pat[3:] {
+			continue
+		}
+		triNt := pat[:3]
+		count := ret[triNt]
+		ret[triNt] = count+1
 	}
 	return ret
 }
