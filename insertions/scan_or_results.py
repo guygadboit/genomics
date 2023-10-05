@@ -27,7 +27,7 @@ def is_mononucleotide_repeat(pattern):
 def parse():
 	ret = {}
 
-	with open("./or-results-bak.txt") as fp:
+	with open("./or-results-full.txt") as fp:
 		for i, line in enumerate(fp):
 			line = line.strip()
 			fields = line.split()
