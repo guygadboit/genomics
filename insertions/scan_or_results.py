@@ -5,22 +5,6 @@ from pdb import set_trace as brk
 from collections import namedtuple, OrderedDict
 
 
-# These aren't really silly but some quite interesting tandem repeats :)
-SILLY = {
-		"GTGTGTGTGTGTGTG",
-		"GTGTGTGTG",
-		"ACACACA",
-		"GTGTGTG",
-		"GTGTGTGTGTGTG",
-		"AACAAACAAACA",
-		"GAGGAGGAGGAG",
-		"AGGAGAGAGGAG",
-		"GTGTGTGTGTG",
-		"AGGAGGAGG",
-		"TTCTCTCTCTCT",
-		}
-
-
 Count = namedtuple("Count", "num OR OR2")
 
 
@@ -29,10 +13,21 @@ def parse_field(f):
 	return Count(int(numbers[0]), float(numbers[1]), float(numbers[2]))
 
 
+def is_dinucleotide_repeat(pattern):
+	for i in range(2, len(pattern) - 1, 2):
+		if pattern[i-2:i] != pattern[i:i+2]:
+			return False
+	return True
+
+
+def is_mononucleotide_repeat(pattern):
+	return len(set([c for c in pattern])) == 1
+
+
 def parse():
 	ret = {}
 
-	with open("./or-results-fake-streptomyces.txt") as fp:
+	with open("./or-results-bak.txt") as fp:
 		for i, line in enumerate(fp):
 			line = line.strip()
 			fields = line.split()
@@ -43,11 +38,8 @@ def parse():
 
 			pat = fields[1]
 
-			if pat in SILLY:
-				continue
-
-			# Patterns like TTTTTTTTTT are also considered silly
-			if len(set([c for c in pat])) == 1:
+			if (is_mononucleotide_repeat(pat) or
+					is_dinucleotide_repeat(pat)):
 				continue
 
 			rec = ret_type(int(fields[0]), pat,
@@ -70,12 +62,13 @@ def graph(results):
 				interesting = True
 				break
 
-		if interesting:
+		if interesting or True:
 			for f in v._fields[2:]:
 				count = getattr(v, f)
-				print("{} {} {} {} {} ({}) {}".format(v.id, f,
+				print("{} {} {} {} {} ({}) {} (Human: {},{})".format(v.id, f,
 					count.num, count.OR, count.OR2,
-					len(v.pattern), v.pattern))
+					len(v.pattern), v.pattern,
+					v.Human.OR, v.Human.OR2))
 
 				x[v.id] = True
 				y[f] = True
