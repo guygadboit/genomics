@@ -611,7 +611,8 @@ func main() {
 		*/
 	}
 
-	countInGenomes(insertions, filters, false)
+	// countInGenomes(insertions, filters, false)
+	countSatellites(insertions, filters, true)
 
 	/*
 		outputFasta("MaybeBac.fasta", "MaybeBac", insertions, filters, false)

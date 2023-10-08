@@ -14,6 +14,7 @@ import (
 type Source struct {
 	name    string
 	index   string
+	fasta   string
 	ntFreq  map[string]float64
 	dinFreq map[string]float64
 }
@@ -57,17 +58,28 @@ func getSources() []Source {
 	root := "/fs/f/genomes/"
 
 	sources := []Source{
-		{"Human", root + "human/index", nil, nil},
-		{"Cod", root + "cod/index", nil, nil},
-		{"DR", root + "bacteria/GCRich/dr_index", nil, nil},
-		{"Legionella", root + "bacteria/Legionella/index", nil, nil},
-		{"Salmonella", root + "bacteria/Salmonella/index", nil, nil},
-		{"Ricksettia", root + "bacteria/Ricksettia/index", nil, nil},
-		{"HI", root + "bacteria/ATRich/hi_index", nil, nil},
-		{"PA", root + "bacteria/PseudomonasAeruginosa/index", nil, nil},
-		{"Listeria", root + "bacteria/Listeria/index", nil, nil},
-		{"Streptomyces", root + "bacteria/Streptomyces/index", nil, nil},
-		{"Delftia", root + "bacteria/delftia/index", nil, nil},
+		{"Human", root + "human/index",
+			root + "human/human.fasta.gz", nil, nil},
+		{"Cod", root + "cod/index", root + "cod/cod.fasta.gz", nil, nil},
+		{"DR", root + "bacteria/GCRich/dr_index",
+			root + "bacteria/GCRich/DeinococcusRadiodurans.fasta", nil, nil},
+		{"Legionella", root + "bacteria/Legionella/index",
+			root + "bacteria/Legionella/Legionella.fasta", nil, nil},
+		{"Salmonella", root + "bacteria/Salmonella/index",
+			root + "bacteria/Salmonella/Salmonella.fasta", nil, nil},
+		{"Ricksettia", root + "bacteria/Ricksettia/index",
+			root + "bacteria/Ricksettia/Ricksettia.fasta", nil, nil},
+		{"HI", root + "bacteria/ATRich/hi_index",
+			root + "bacteria/ATRich/HaemophilusInfluenzae.fasta", nil, nil},
+		{"PA", root + "bacteria/PseudomonasAeruginosa/index",
+			root + "bacteria/PseudomonasAeruginosa/" +
+				"PseudomonasAeruginosaComplete.fasta", nil, nil},
+		{"Listeria", root + "bacteria/Listeria/index",
+			root + "bacteria/Listeria/ListeriaInnocua.fasta", nil, nil},
+		{"Streptomyces", root + "bacteria/Streptomyces/index",
+			root + "bacteria/Streptomyces/Streptomyces.fasta.gz", nil, nil},
+		{"Delftia", root + "bacteria/delftia/index",
+			root + "bacteria/delftia/delftia.fasta.gz", nil, nil},
 	}
 
 	for i := 0; i < len(sources); i++ {
@@ -151,4 +163,15 @@ func countInGenomes(insertions []Insertion,
 
 	}, false)
 	w.Flush()
+}
+
+func countSatellites(insertions []Insertion,
+	filters []filterFunc, verbose bool) {
+	sources := getSources()[2:]
+	filterInsertions(insertions, filters, func(ins *Insertion) {
+		for i := 0; i < len(sources); i++ {
+			g := genomes.LoadGenomes(sources[i].fasta, "", true)
+			findSatellites(g, sources[i].index, ins, sources[i].name, verbose)
+		}
+	}, false)
 }

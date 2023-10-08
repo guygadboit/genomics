@@ -20,6 +20,7 @@ searching:
 		if verbose {
 			fmt.Printf("%d (%d): %s\n", i, length, string(nts[i:i+length]))
 		}
+		i += length
 	}
 	return ret
 }
@@ -43,8 +44,8 @@ func main() {
 
 	for i := 0; i < len(fnames); i++ {
 		g := genomes.LoadGenomes(root + fnames[i], "", true)
+		fmt.Printf("%s\n", fnames[i])
 		for length := 12; length <= 60; length++ {
-			fmt.Printf("%s\n", fnames[i])
 			findTandemRepeats(g, length, true)
 		}
 	}
