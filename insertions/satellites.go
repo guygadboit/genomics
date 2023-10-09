@@ -1,56 +1,114 @@
 package main
 
 import (
-	"fmt"
+	//"fmt"
 	"genomics/genomes"
+	"sort"
 )
 
 /*
-	I wonder if any of the inserts appear in the genomes inside larger repeats?
-	Let's find out. For this we use an index and the actual genome (so we can
-	backtrack either side)
+	How many nts are the same? Return the highest number that are and what
+	value that corresponds to. But ignore anything with a negative value
+	because that doesn't count.
 */
-func findSatellites(genome *genomes.Genomes, index string,
-	ins *Insertion, name string, verbose bool) int {
-	var search genomes.BidiIndexSearch
-	nts := genome.Nts[0]
-	n := len(ins.nts)
-	var ret int
+func countSame(nts []int) (int, int) {
+	// Make a copy of nts with anything < 0 filtered out and then sort it.
+	sorted := make([]int, 0, len(nts))
+	for i := 0; i < len(nts); i++ {
+		if nts[i] >= 0 {
+			sorted = append(sorted, nts[i])
+		}
+	}
+	sort.Ints(sorted)
 
-	clamp := func(x int) int {
-		if x < 0 {
-			return 0
+	var count, best, bestVal int
+
+	/*
+	 Looping one past the end so that if we have a series of matches right
+	 at the end of the list we can handle what happens when that series
+	 ends in the same way (the else block in the loop). In other words, we
+	 go into the else when we find something different, or we've gone past
+	 the end.
+	*/
+	for i := 1; i < len(sorted)+1; i++ {
+		if i < len(sorted) && sorted[i] == sorted[i-1] {
+			count++
+		} else {
+			if count > best {
+				best = count
+				bestVal = sorted[i-1]
+			}
+			count = 0
 		}
-		if x > len(nts) {
-			return len(nts)
-		}
-		return x
 	}
 
-outer:
-	for search.Init(index, ins.nts); !search.End(); search.Next() {
-		pos, _ := search.Get()
+	// +1 because we're counting how many subsequent nts match the first one.
+	// So the total number of matches is that +1 (to include that first one).
+	return best + 1, bestVal
+}
 
-		for start := clamp(pos - 3); start < pos; start++ {
-			for end := pos + n + 1; end <= clamp(pos+n+3); end++ {
-				var search2 genomes.IndexSearch
-				for search2.Init(index,
-					nts[start:end]); !search2.End(); search2.Next() {
-					pos2, _ := search2.Get()
-					if pos2 == start {
-						continue
-					}
-					if verbose {
-						fmt.Printf("Found %d %s at %d (-%d +%d) "+
-							"inside repeat in %s\n",
-							ins.id, string(ins.nts), start,
-							pos-start, end-(pos+n), name)
-					}
-					ret += 1
-					continue outer
+/*
+	Do nts appear more than once in genome, and if they do, how long is the
+	total match? Return the length of the repeating section and how many times
+	it repeats. The length is the longest we find and the count how many
+	repeats of any length greater than the pattern length (don't set too much
+	store by the number of repeats, the length is more interesting).
+*/
+func findSatellites(genome *genomes.Genomes, index string,
+	pattern []byte, name string, verbose bool) (int, int) {
+	nts := genome.Nts[0]
+	var search genomes.IndexSearch
+	search.Init(index, pattern)
+	positions := genomes.SearchAll(&search)
+
+	// Extend the positions as far as we can in the given direction (1 or -1).
+	// Return how far and how many.
+	extend := func(direction int) (int, int) {
+		var distance, count int
+		// Using ints because they're much easier to sort in Go
+		extensions := make([]int, len(positions))
+		for i := 0; i < len(extensions); i++ {
+			extensions[i] = -1 // means invalid
+		}
+
+		for distance = 1; ; distance++ {
+			for i := 0; i < len(extensions); i++ {
+				if extensions[i] == -2 {
+					continue
+				}
+				var pos int
+				switch direction {
+				case 1:
+					pos = positions[i] + len(pattern) + distance
+				case -1:
+					pos = positions[i] - distance
+				}
+				if pos >= 0 && pos < genome.Length() {
+					extensions[i] = int(nts[pos])
+				}
+			}
+
+			same, val := countSame(extensions)
+			//fmt.Println(extensions, same, val)
+			if same == 1 {
+				break
+			}
+			if count == 0 {
+				count = same
+			}
+
+			// OK now any of these positions that don't contain the "consensus"
+			// are "bust", which we indicate with -2
+			for j := 0; j < len(extensions); j++ {
+				if extensions[j] != val {
+					extensions[j] = -2
 				}
 			}
 		}
+		return distance - 1, count
 	}
-	return ret
+
+	prefixLen, prefixCount := extend(-1)
+	suffixLen, suffixCount := extend(1)
+	return prefixLen + len(pattern) + suffixLen, prefixCount + suffixCount
 }

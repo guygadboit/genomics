@@ -171,8 +171,7 @@ func countSatellites(insertions []Insertion,
 	filterInsertions(insertions, filters, func(ins *Insertion) {
 		for i := 0; i < len(sources); i++ {
 			g := genomes.LoadGenomes(sources[i].fasta, "", true)
-			// findSatellites(g, sources[i].index, ins, sources[i].name, verbose)
-			len, count := findRepeats(g, sources[i].index,
+			len, count := findSatellites(g, sources[i].index,
 				ins.nts, sources[i].name, verbose)
 			if count > 0 {
 				fmt.Printf("%s: %d %s %d %d\n", sources[i].name,
