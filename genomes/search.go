@@ -4,6 +4,13 @@ import (
 	"errors"
 )
 
+type SearchIf interface {
+	Start()
+	Get() (int, error)
+	Next()
+	End() bool
+}
+
 type Search struct {
 	needle    []byte
 	haystack  *Genomes
@@ -71,4 +78,13 @@ func (s *Search) End() bool {
 	nts := s.haystack.Nts[s.which]
 	n, m := len(nts), len(s.needle)
 	return s.pos == n-m
+}
+
+func SearchAll(s SearchIf) []int {
+	ret := make([]int, 0)
+	for ; !s.End(); s.Next() {
+		pos, _ := s.Get()
+		ret = append(ret, pos)
+	}
+	return ret
 }
