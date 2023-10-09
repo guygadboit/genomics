@@ -80,15 +80,6 @@ loop:
 	return ret
 }
 
-func wrap(w io.Writer, nts []byte) {
-	ll := 60
-
-	var i int
-	for i = 0; i < len(nts)-ll; i += ll {
-		fmt.Fprintf(w, "%s\n", string(nts[i:i+ll]))
-	}
-	fmt.Fprintf(w, "%s\n", string(nts[i:]))
-}
 
 func (g *Genomes) Save(name, fname string, which int) error {
 	fd, err := os.Create(fname)
@@ -101,7 +92,7 @@ func (g *Genomes) Save(name, fname string, which int) error {
 	fmt.Fprintf(fp, ">%s\n", name)
 
 	nts := g.Nts[which]
-	wrap(fp, nts)
+	utils.Wrap(fp, nts)
 	fp.Flush()
 	return nil
 }
@@ -120,7 +111,7 @@ func (g *Genomes) SaveMulti(fname string) error {
 
 	for i := 0; i < g.NumGenomes(); i++ {
 		fmt.Fprintf(fp, ">%s\n", g.Names[i])
-		wrap(fp, g.Nts[i])
+		utils.Wrap(fp, g.Nts[i])
 	}
 	fp.Flush()
 	return nil

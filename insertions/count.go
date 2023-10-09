@@ -61,25 +61,20 @@ func getSources() []Source {
 		{"Human", root + "human/index",
 			root + "human/human.fasta.gz", nil, nil},
 		{"Cod", root + "cod/index", root + "cod/cod.fasta.gz", nil, nil},
-		{"Delftia", root + "bacteria/delftia/index",
-			root + "bacteria/delftia/delftia.fasta.gz", nil, nil},
-		{"DR", root + "bacteria/GCRich/dr_index",
-			root + "bacteria/GCRich/DeinococcusRadiodurans.fasta", nil, nil},
-		{"Legionella", root + "bacteria/Legionella/index",
-			root + "bacteria/Legionella/Legionella.fasta", nil, nil},
-		{"Salmonella", root + "bacteria/Salmonella/index",
-			root + "bacteria/Salmonella/Salmonella.fasta", nil, nil},
-		{"Ricksettia", root + "bacteria/Ricksettia/index",
-			root + "bacteria/Ricksettia/Ricksettia.fasta", nil, nil},
-		{"HI", root + "bacteria/ATRich/hi_index",
-			root + "bacteria/ATRich/HaemophilusInfluenzae.fasta", nil, nil},
-		{"PA", root + "bacteria/PseudomonasAeruginosa/index",
-			root + "bacteria/PseudomonasAeruginosa/" +
-				"PseudomonasAeruginosaComplete.fasta", nil, nil},
-		{"Listeria", root + "bacteria/Listeria/index",
-			root + "bacteria/Listeria/ListeriaInnocua.fasta", nil, nil},
-		{"Streptomyces", root + "bacteria/Streptomyces/index",
-			root + "bacteria/Streptomyces/Streptomyces.fasta.gz", nil, nil},
+	}
+
+	bacteria := []string{
+		"Delftia", "DR", "Legionella",
+		"Salmonella", "Ricksettia", "HI",
+		"PA", "Listeria", "Streptomyces",
+	}
+
+	for i := 0; i < len(bacteria); i++ {
+		name := bacteria[i]
+		sources = append(sources, Source{name,
+			fmt.Sprintf("../fasta/bacteria/%s/index", name),
+			fmt.Sprintf("../fasta/bacteria/%s/%s.fasta.gz", name, name),
+			nil, nil})
 	}
 
 	for i := 0; i < len(sources); i++ {

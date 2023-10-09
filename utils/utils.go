@@ -6,6 +6,8 @@ import (
 	"math/rand"
 	"log"
 	"os"
+	"io"
+	"fmt"
 	"strconv"
 	"strings"
 )
@@ -101,4 +103,14 @@ func Atoi(s string) int {
 		log.Fatal("Bad integer")
 	}
 	return ret
+}
+
+func Wrap(w io.Writer, nts []byte) {
+	ll := 60
+
+	var i int
+	for i = 0; i < len(nts)-ll; i += ll {
+		fmt.Fprintf(w, "%s\n", string(nts[i:i+ll]))
+	}
+	fmt.Fprintf(w, "%s\n", string(nts[i:]))
 }
