@@ -61,6 +61,8 @@ func getSources() []Source {
 		{"Human", root + "human/index",
 			root + "human/human.fasta.gz", nil, nil},
 		{"Cod", root + "cod/index", root + "cod/cod.fasta.gz", nil, nil},
+		{"Delftia", root + "bacteria/delftia/index",
+			root + "bacteria/delftia/delftia.fasta.gz", nil, nil},
 		{"DR", root + "bacteria/GCRich/dr_index",
 			root + "bacteria/GCRich/DeinococcusRadiodurans.fasta", nil, nil},
 		{"Legionella", root + "bacteria/Legionella/index",
@@ -78,8 +80,6 @@ func getSources() []Source {
 			root + "bacteria/Listeria/ListeriaInnocua.fasta", nil, nil},
 		{"Streptomyces", root + "bacteria/Streptomyces/index",
 			root + "bacteria/Streptomyces/Streptomyces.fasta.gz", nil, nil},
-		{"Delftia", root + "bacteria/delftia/index",
-			root + "bacteria/delftia/delftia.fasta.gz", nil, nil},
 	}
 
 	for i := 0; i < len(sources); i++ {
@@ -171,7 +171,13 @@ func countSatellites(insertions []Insertion,
 	filterInsertions(insertions, filters, func(ins *Insertion) {
 		for i := 0; i < len(sources); i++ {
 			g := genomes.LoadGenomes(sources[i].fasta, "", true)
-			findSatellites(g, sources[i].index, ins, sources[i].name, verbose)
+			// findSatellites(g, sources[i].index, ins, sources[i].name, verbose)
+			len, count := findRepeats(g, sources[i].index,
+				ins.nts, sources[i].name, verbose)
+			if count > 0 {
+				fmt.Printf("%s: %d %s %d %d\n", sources[i].name,
+					ins.id, string(ins.nts), len, count)
+			}
 		}
 	}, false)
 }
