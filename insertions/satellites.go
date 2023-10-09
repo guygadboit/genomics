@@ -1,7 +1,6 @@
 package main
 
 import (
-	//"fmt"
 	"genomics/genomes"
 	"sort"
 )
@@ -55,7 +54,7 @@ func countSame(nts []int) (int, int) {
 	store by the number of repeats, the length is more interesting).
 */
 func findSatellites(genome *genomes.Genomes, index string,
-	pattern []byte, name string, verbose bool) (int, int) {
+	pattern []byte, name string) (int, int) {
 	nts := genome.Nts[0]
 	var search genomes.IndexSearch
 	search.Init(index, pattern)
