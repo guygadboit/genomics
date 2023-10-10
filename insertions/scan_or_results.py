@@ -23,17 +23,20 @@ def is_dinucleotide_repeat(pattern):
 def is_mononucleotide_repeat(pattern):
 	return len(set([c for c in pattern])) == 1
 
+species = []
 
 def parse():
+	global species
 	ret = {}
 
-	with open("./or-results-full.txt") as fp:
+	with open("./or-results.txt") as fp:
 		for i, line in enumerate(fp):
 			line = line.strip()
 			fields = line.split()
 
 			if i == 0:
 				ret_type = namedtuple("Record", " ".join(fields))
+				species = fields[2:]
 				continue
 
 			pat = fields[1]
@@ -50,7 +53,7 @@ def parse():
 	return ret
 
 
-def graph(results):
+def summary(results):
 	x, y = OrderedDict(), OrderedDict()
 	z = []
 
@@ -100,10 +103,32 @@ def graph(results):
 	ax.set_title('Title')
 # 	plot.show()
 
+def longest_matches(results):
+	by_length = []
+	for k, v in results.items():
+		for count in v[2:]:
+			if count.num > 0:
+				by_length.append((len(k), v))
+
+	by_length.sort(reverse=True)
+
+	for k, v in by_length:
+		values = []
+		print("{} {}: ({} nts)".format(v.id, v.pattern,
+			len(v.pattern)), end=" ")
+		for s in species:
+			count = getattr(v, s)
+			num = count.num
+			if num:
+				values.append("{}: appears {} times (OR2: {:.2f})".format(s,
+					num, count.OR2))
+		print(", ".join(values))
+
 
 def main():
 	results = parse()
-	graph(results)
+	# summary(results)
+	longest_matches(results)
 
 if __name__ == "__main__":
 	main()

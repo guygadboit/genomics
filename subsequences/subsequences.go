@@ -88,10 +88,10 @@ type Source struct {
 }
 
 func getSources() []Source {
+	/*
 	root := "/fs/f/genomes/"
-	return []Source{
 
-		/*
+	sources := []Source{
 		{"Viruses", root + "viruses/mega/mega.fasta"},
 		{"Bat", root + "bat/myotis_davidii/" +
 			"GCF_000327345.1_ASM32734v1_genomic.fna.gz"},
@@ -107,36 +107,26 @@ func getSources() []Source {
 			"GCF_000003025.6_Sscrofa11.1_genomic.fna.gz"},
 		{"Mouse", root + "mouse/" +
 			"GCF_000001635.27_GRCm39_genomic.fna.gz"},
-		*/
-
-		/*
-		{"Human", root + "human/GRCh38_latest_genomic.fna.gz"},
 		{"Cod", root + "cod/" + "GCF_902167405.1_gadMor3.0_genomic.fna.gz"},
-		{"DR", root + "bacteria/GCRich/DeinococcusRadiodurans.fasta"},
-		{"Legionella", root + "bacteria/Legionella/Legionella.fasta"},
-		{"Salmonella", root + "bacteria/Salmonella/Salmonella.fasta"},
-		{"Ricksettia", root + "bacteria/Ricksettia/Ricksettia.fasta"},
-		{"HI", root + "bacteria/ATRich/HaemophilusInfluenzae.fasta"},
-		{"PA", root + "bacteria/PseudomonasAeruginosa/"+
-			"PseudomonasAeruginosaComplete.fasta"},
-		{"Listeria", root + "bacteria/Listeria/ListeriaInnocua.fasta"},
-		*/
-		/*
-		{"Streptomyces", root + "bacteria/Streptomyces/" +
-			"GCF_000009765.2_ASM976v2_genomic.fna.gz"},
-		*/
-		{"Delftia", root + "bacteria/delftia/delftia.fasta.gz"},
-
-		/*
-		{"Insertions", "../insertions/InsertionsNotFromWH1OrHuman.fasta"},
-		{"MaybeBac", "../insertions/MaybeBacCombined.fasta"},
-		*/
-		/*
-		{"CC", root + "bacteria/GCRich/CaulobacterCrescentus.fasta"},
-		{"Streptomyces", root + "bacteria/Streptomyces/" +
-			"GCF_000009765.2_ASM976v2_genomic.fna.gz"},
-		*/
 	}
+	*/
+	var sources []Source
+
+	bacteria := []string{
+		"Delftia", "DR", "Legionella",
+		"Salmonella", "Ricksettia", "HI",
+		"PA", "Listeria", "Streptomyces",
+		"StrepPyogenes", "StrepPneum", "Mycoplasma",
+		"Brucella", "OT",
+	}
+
+	for i := 0; i < len(bacteria); i++ {
+		name := bacteria[i]
+		sources = append(sources, Source{name,
+			fmt.Sprintf("../fasta/bacteria/%s/%s.fasta.gz", name, name)})
+	}
+
+	return sources
 }
 
 func writeResults(source Source, ss SubSequences, length int) {

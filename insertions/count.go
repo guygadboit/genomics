@@ -67,6 +67,8 @@ func getSources() []Source {
 		"Delftia", "DR", "Legionella",
 		"Salmonella", "Ricksettia", "HI",
 		"PA", "Listeria", "Streptomyces",
+		"StrepPyogenes", "StrepPneum", "Mycoplasma",
+		"Brucella", "OT",
 	}
 
 	for i := 0; i < len(bacteria); i++ {
@@ -118,7 +120,7 @@ func count(ins *Insertion, source *Source) (int, float64, float64) {
 func countInGenomes(insertions []Insertion,
 	filters []filterFunc, verbose bool) {
 	seen := make(map[string]bool)
-	sources := getSources()
+	sources := getSources()[2:]
 	var numProcessed int
 
 	fd, err := os.Create("or-results.txt")
@@ -163,6 +165,14 @@ func countInGenomes(insertions []Insertion,
 func countSatellites(insertions []Insertion,
 	filters []filterFunc, verbose bool) {
 	sources := getSources()[2:]
+
+	fd, err := os.Create("repeat-results.txt")
+	if err != nil {
+		log.Fatal("Can't create results file")
+	}
+	w := bufio.NewWriter(fd)
+
+	defer fd.Close()
 	filterInsertions(insertions, filters, func(ins *Insertion) {
 		for i := 0; i < len(sources); i++ {
 			g := genomes.LoadGenomes(sources[i].fasta, "", true)
@@ -170,7 +180,7 @@ func countSatellites(insertions []Insertion,
 			len, count := findSatellites(g, sources[i].index,
 				ins.nts, sources[i].name)
 			if count > 0 {
-				fmt.Printf("%s: %d %s %d %d\n", sources[i].name,
+				fmt.Fprintf(w, "%s: %d %s %d %d\n", sources[i].name,
 					ins.id, string(ins.nts), len, count)
 			}
 
@@ -178,9 +188,10 @@ func countSatellites(insertions []Insertion,
 			len, count = findSatellites(g, sources[i].index,
 				rc, sources[i].name)
 			if count > 0 {
-				fmt.Printf("%s: %d (reversed) %s %d %d\n", sources[i].name,
+				fmt.Fprintf(w, "%s: %d (reversed) %s %d %d\n", sources[i].name,
 					ins.id, string(rc), len, count)
 			}
 		}
 	}, false)
+	w.Flush()
 }

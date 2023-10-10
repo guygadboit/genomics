@@ -153,6 +153,12 @@ func readFile(root string, pattern string) []int {
 		fname += ".gz"
 	}
 
+	// If there's no file there at all it may be that the genome we're indexing
+	// doesn't happen to contain that particular sequence.
+	if _, err := os.Stat(fname); err != nil {
+		return ret
+	}
+
 	f := utils.NewFileReader(fname)
 	defer f.Close()
 

@@ -602,7 +602,7 @@ func main() {
 
 	filters := []filterFunc{
 		makeMinLengthFilter(6),
-		makeMaxLengthFilter(15),
+		// makeMaxLengthFilter(15),
 		/*
 			makeFlagFilter(EXCLUDE_WH1 | EXCLUDE_HUMAN),
 			func(ins *Insertion) bool {
@@ -611,8 +611,11 @@ func main() {
 		*/
 	}
 
-	// countInGenomes(insertions, filters, false)
-	countSatellites(insertions, filters, true)
+	fmt.Printf("Counting sequences and odds ratios\n")
+	countInGenomes(insertions, filters, true)
+
+	fmt.Printf("Counting in repeats\n")
+	countSatellites(insertions, filters, false)
 
 	/*
 		outputFasta("MaybeBac.fasta", "MaybeBac", insertions, filters, false)
