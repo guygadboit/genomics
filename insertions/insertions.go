@@ -614,8 +614,10 @@ func main() {
 	fmt.Printf("Counting sequences and odds ratios\n")
 	countInGenomes(insertions, filters, true)
 
+	/*
 	fmt.Printf("Counting in repeats\n")
 	countSatellites(insertions, filters, false)
+	*/
 
 	/*
 		outputFasta("MaybeBac.fasta", "MaybeBac", insertions, filters, false)

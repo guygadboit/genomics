@@ -117,7 +117,7 @@ func getSources() []Source {
 		"Salmonella", "Ricksettia", "HI",
 		"PA", "Listeria", "Streptomyces",
 		"StrepPyogenes", "StrepPneum", "Mycoplasma",
-		"Brucella", "OT",
+		"Brucella", "OT", "RP",
 	}
 
 	for i := 0; i < len(bacteria); i++ {
