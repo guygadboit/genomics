@@ -111,8 +111,12 @@ def longest_matches(results):
 				by_length.append((len(k), v))
 
 	by_length.sort(reverse=True)
+	seen = set()
 
 	for k, v in by_length:
+		if v.id in seen: continue
+		seen.add(v.id)
+
 		values = []
 		print("{} {}: ({} nts)".format(v.id, v.pattern,
 			len(v.pattern)), end=" ")
