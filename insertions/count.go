@@ -166,11 +166,20 @@ func countSatellites(insertions []Insertion,
 	filterInsertions(insertions, filters, func(ins *Insertion) {
 		for i := 0; i < len(sources); i++ {
 			g := genomes.LoadGenomes(sources[i].fasta, "", true)
+
 			len, count := findSatellites(g, sources[i].index,
 				ins.nts, sources[i].name)
 			if count > 0 {
 				fmt.Printf("%s: %d %s %d %d\n", sources[i].name,
 					ins.id, string(ins.nts), len, count)
+			}
+
+			rc := utils.ReverseComplement(ins.nts)
+			len, count = findSatellites(g, sources[i].index,
+				rc, sources[i].name)
+			if count > 0 {
+				fmt.Printf("%s: %d (reversed) %s %d %d\n", sources[i].name,
+					ins.id, string(rc), len, count)
 			}
 		}
 	}, false)
