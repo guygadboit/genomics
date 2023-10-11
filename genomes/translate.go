@@ -169,7 +169,6 @@ func (orfs Orfs) GetCodonOffset(pos int) (int, int, error) {
 		}
 	}
 	return 0, 0, errors.New("Not in ORF")
-
 }
 
 // The "Environment" of a subsequence is the codon-aligned section that

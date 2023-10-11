@@ -1,4 +1,5 @@
-Filtered to those that appear in >1 sequence, don't appear in Human or WH1, and are a multiple of 3 nts.
+Filtered to those that appear in >1 sequence, don't appear in Human (if longer
+than 20nts) or WH1, and are a multiple of 3 nts.
 
 15062 CACGCATCTGGGCGGCGGCCTCGC: (24 nts) Delftia: appears 1 times (OR2: 9523988534.84)
 18334 TTGTTACTTTATATT: (15 nts) StrepPneum: appears 1 times (OR2: 89.21)

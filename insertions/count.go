@@ -121,6 +121,7 @@ func countInGenomes(insertions []Insertion,
 	filters []filterFunc, verbose bool) {
 	seen := make(map[string]bool)
 	sources := getSources()[2:]
+	// sources := getSources()
 	var numProcessed int
 
 	fd, err := os.Create("or-results.txt")

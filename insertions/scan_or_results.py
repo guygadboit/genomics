@@ -118,14 +118,15 @@ def longest_matches(results):
 		seen.add(v.id)
 
 		values = []
-		print("{} {}: ({} nts)".format(v.id, v.pattern,
-			len(v.pattern)), end=" ")
+		print("{} {}: ({} nts) Human {} {:.2f} {:.2f}".format(v.id, v.pattern,
+			len(v.pattern), v.Human.num, v.Human.OR, v.Human.OR2), end=" ")
+
 		for s in species:
 			count = getattr(v, s)
 			num = count.num
-			if num:
-				values.append("{}: appears {} times (OR2: {:.2f})".format(s,
-					num, count.OR2))
+			if num and count.OR2 > 3:
+				values.append("{}: appears {} times (OR: {:.2f} OR2: {:.2f})".
+						format(s, num, count.OR, count.OR2))
 		print(", ".join(values))
 
 

@@ -32,6 +32,7 @@ type Insertion struct {
 	inHuman    bool   // Is it in human? Note that most short things will be
 	posInHuman int
 	dirInHuman direction
+	inOrf      bool	  // Is it in an ORF?
 }
 
 func (i *Insertion) ToString() string {
@@ -76,7 +77,7 @@ reading:
 			[]byte(groups[0][3]),
 			utils.Atoi(groups[0][4]),
 			false, false,
-			0, UNKNOWN}
+			0, UNKNOWN, true}
 
 		if len(ins.nts) < minLen {
 			continue
@@ -218,17 +219,23 @@ func findInHuman(insertions []Insertion, minLength int, tol float64) {
 	}
 }
 
-/*
-	Marking those that are in human or not is very time-consuming, so reload
-	our saved results from a file
-*/
-func loadInHuman(insertions []Insertion) {
+func makeIndex(insertions []Insertion) map[int]*Insertion {
 	insMap := make(map[int]*Insertion, len(insertions))
+
 	for i := 0; i < len(insertions); i++ {
 		ins := &insertions[i]
 		insMap[ins.id] = ins
 	}
 
+	return insMap
+}
+
+/*
+	Marking those that are in human or not is very time-consuming, so reload
+	our saved results from a file. And also load which ones are in orfs while
+	we're at it.
+*/
+func loadInHuman(insertions []Insertion, insMap map[int]*Insertion) {
 	fp := utils.NewFileReader("human.txt")
 	defer fp.Close()
 
@@ -316,6 +323,7 @@ func byLocation(insertions []Insertion, minLength int) {
 		fmt.Fprintf(w, "%d %d\n", pc.pos, pc.count)
 	}
 
+	w.Flush()
 	fmt.Printf("Wrote locations.txt\n")
 }
 
@@ -351,6 +359,23 @@ func makeFlagFilter(flags filterFlag) filterFunc {
 			return false
 		}
 		return true
+	}
+}
+
+func makeMinSeqsFilter(minSeqs int) filterFunc {
+	return func(ins *Insertion) bool {
+		return ins.nSeqs >= minSeqs
+	}
+}
+
+func makeCodonAlignFilter() filterFunc {
+	return func(ins *Insertion) bool {
+		if ins.inOrf {
+			return len(ins.nts)%3 == 0
+		} else {
+			// fmt.Printf("%d at %d not in orf\n", ins.id, ins.pos)
+			return true
+		}
 	}
 }
 
@@ -551,9 +576,56 @@ func appendFCS(insertions []Insertion) []Insertion {
 
 	insertions = append(insertions,
 		Insertion{lastId + 1, 0, []byte("CTCCTCGGCGGG"),
-			2, true, true, 0, UNKNOWN})
+			2, true, true, 0, UNKNOWN, true})
 
 	return insertions
+}
+
+/*
+	Write in-orf.txt which marks which insertions are in ORFs. We will load
+	that back in later. It's a bit slow to keep doing it every time.
+*/
+func findOrfs(insertions []Insertion) {
+	orfs := genomes.LoadOrfs("../fasta/WH1.orfs")
+	fd, _ := os.Create("in-orf.txt")
+	defer fd.Close()
+
+	w := bufio.NewWriter(fd)
+
+	for i := 0; i < len(insertions); i++ {
+		ins := &insertions[i]
+		_, _, err := orfs.GetCodonOffset(ins.pos)
+		in_orf := err == nil
+		fmt.Fprintf(w, "%d %t\n", ins.id, in_orf)
+	}
+
+	w.Flush()
+}
+
+func loadInOrfs(insertions []Insertion, insMap map[int]*Insertion) {
+	fp := utils.NewFileReader("in-orf.txt")
+loop:
+	for {
+		line, err := fp.ReadString('\n')
+		switch err {
+		case io.EOF:
+			break loop
+		case nil:
+			break
+		default:
+			log.Fatal("Can't read file")
+		}
+
+		line = strings.TrimSpace(line)
+		fields := strings.Fields(line)
+
+		id := utils.Atoi(fields[0])
+		ins := insMap[id]
+
+		if ins != nil {
+			insMap[id].inOrf = fields[1] == "true"
+		}
+	}
 }
 
 func main() {
@@ -564,15 +636,18 @@ func main() {
 	flag.BoolVar(&verbose, "v", false, "Verbose")
 	flag.Parse()
 
-	insertions := LoadInsertions("insertions.txt", 6, 0)
+	insertions := LoadInsertions("insertions.txt", 0, 0)
 	/*
-	insertions := LoadInsertions(
-		"../simulated_insertions/fake_human.txt", 6, 0)
+		insertions := LoadInsertions(
+			"../simulated_insertions/fake_human.txt", 6, 0)
 	*/
 	// findInVirus("WH1", insertions, 6, true, tol)
 
 	// findInHuman(insertions, 20, tol)
-	// loadInHuman(insertions)
+	// findOrfs(insertions)
+	insMap := makeIndex(insertions)
+	loadInHuman(insertions, insMap)
+	loadInOrfs(insertions, insMap)
 	insertions = appendFCS(insertions)
 
 	utils.Sort(len(insertions), true,
@@ -602,13 +677,10 @@ func main() {
 
 	filters := []filterFunc{
 		makeMinLengthFilter(6),
-		// makeMaxLengthFilter(15),
-		/*
-			makeFlagFilter(EXCLUDE_WH1 | EXCLUDE_HUMAN),
-			func(ins *Insertion) bool {
-				return getCpG(ins) >= 1.0
-			},
-		*/
+		// makeMaxLengthFilter(12),
+		// makeMinSeqsFilter(5),
+		makeCodonAlignFilter(),
+		makeFlagFilter(EXCLUDE_WH1),
 	}
 
 	fmt.Printf("Counting sequences and odds ratios\n")
