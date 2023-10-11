@@ -678,9 +678,9 @@ func main() {
 	filters := []filterFunc{
 		makeMinLengthFilter(6),
 		// makeMaxLengthFilter(12),
-		// makeMinSeqsFilter(5),
+		makeMinSeqsFilter(2),
 		makeCodonAlignFilter(),
-		makeFlagFilter(EXCLUDE_WH1),
+		makeFlagFilter(EXCLUDE_WH1 | EXCLUDE_HUMAN),
 	}
 
 	fmt.Printf("Counting sequences and odds ratios\n")
