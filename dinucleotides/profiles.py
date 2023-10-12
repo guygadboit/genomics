@@ -17,6 +17,7 @@ GENOME_NAMES = (
 		"Legionella",
 		"MaybeBac",
 		"Cod",
+		"mRNAVaccines",
 		# 		"Bat",
 		# 		"RaccoonDog",
 		# 		"Pangolin",

@@ -88,10 +88,12 @@ type Source struct {
 }
 
 func getSources() []Source {
-	/*
-	root := "/fs/f/genomes/"
+	// root := "/fs/f/genomes/"
 
 	sources := []Source{
+		{"mRNAVaccines", "../fasta/mRNAVaccines.fasta.gz"},
+	}
+	/*
 		{"Viruses", root + "viruses/mega/mega.fasta"},
 		{"Bat", root + "bat/myotis_davidii/" +
 			"GCF_000327345.1_ASM32734v1_genomic.fna.gz"},
@@ -110,7 +112,6 @@ func getSources() []Source {
 		{"Cod", root + "cod/" + "GCF_902167405.1_gadMor3.0_genomic.fna.gz"},
 	}
 	*/
-	var sources []Source
 
 	bacteria := []string{
 		"Delftia", "DR", "Legionella",
