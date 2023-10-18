@@ -677,14 +677,19 @@ func main() {
 
 	filters := []filterFunc{
 		makeMinLengthFilter(6),
-		// makeMaxLengthFilter(12),
-		makeMinSeqsFilter(2),
+		makeMaxLengthFilter(50),
+		// makeMinSeqsFilter(2),
 		makeCodonAlignFilter(),
 		makeFlagFilter(EXCLUDE_WH1 | EXCLUDE_HUMAN),
 	}
 
+	fmt.Printf("Writing context.fastq\n")
+	outputFastq(insertions, filters, GetSources()[2:], "context.fastq")
+
+	/*
 	fmt.Printf("Counting sequences and odds ratios\n")
 	countInGenomes(insertions, filters, true)
+	*/
 
 	/*
 	fmt.Printf("Counting in repeats\n")

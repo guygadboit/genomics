@@ -54,7 +54,7 @@ loop:
 	return ret
 }
 
-func getSources() []Source {
+func GetSources() []Source {
 	root := "/fs/f/genomes/"
 
 	sources := []Source{
@@ -120,8 +120,8 @@ func count(ins *Insertion, source *Source) (int, float64, float64) {
 func countInGenomes(insertions []Insertion,
 	filters []filterFunc, verbose bool) {
 	seen := make(map[string]bool)
-	sources := getSources()[2:]
-	// sources := getSources()
+	sources := GetSources()[2:]
+	// sources := GetSources()
 	var numProcessed int
 
 	fd, err := os.Create("or-results.txt")
@@ -165,7 +165,7 @@ func countInGenomes(insertions []Insertion,
 
 func countSatellites(insertions []Insertion,
 	filters []filterFunc, verbose bool) {
-	sources := getSources()[2:]
+	sources := GetSources()[2:]
 
 	fd, err := os.Create("repeat-results.txt")
 	if err != nil {

@@ -147,3 +147,15 @@ func (g *Genomes) NumGenomes() int {
 func (g *Genomes) Length() int {
 	return len(g.Nts[0])
 }
+
+func (g *Genomes) Slice(which, start, end int) []byte {
+	nts := g.Nts[which]
+
+	if start < 0 {
+		start = 0
+	}
+	if end > len(nts) {
+		end = len(nts)
+	}
+	return nts[start:end]
+}
