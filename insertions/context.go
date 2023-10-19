@@ -52,9 +52,9 @@ func outputFastq(insertions []Insertion, filters []filterFunc,
 					cache[source.fasta] = genome
 				}
 
-				pre := genome.Slice(0, pos-40, pos)
+				pre := genome.Slice(0, pos-20, pos)
 				after := pos + len(ins.nts)
-				post := genome.Slice(0, after, after+40)
+				post := genome.Slice(0, pos, after+20)
 				len := len(pre) + len(post)
 
 				fmt.Fprintf(w, "@%s-%d.%d length=%d\n",
