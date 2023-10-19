@@ -373,7 +373,6 @@ func makeCodonAlignFilter() filterFunc {
 		if ins.inOrf {
 			return len(ins.nts)%3 == 0
 		} else {
-			// fmt.Printf("%d at %d not in orf\n", ins.id, ins.pos)
 			return true
 		}
 	}
@@ -675,11 +674,17 @@ func main() {
 
 	*/
 
+	f := makeCodonAlignFilter()
+	notAligned := func(ins *Insertion) bool {
+		return !f(ins)
+	}
+
 	filters := []filterFunc{
 		makeMinLengthFilter(6),
 		makeMaxLengthFilter(50),
 		// makeMinSeqsFilter(2),
-		makeCodonAlignFilter(),
+		// makeCodonAlignFilter(),
+		notAligned,
 		makeFlagFilter(EXCLUDE_WH1 | EXCLUDE_HUMAN),
 	}
 
