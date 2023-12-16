@@ -64,8 +64,11 @@ loop:
 		line = strings.TrimSpace(line)
 
 		if strings.HasPrefix(line, ">") {
+			/*
 			fields := strings.Fields(line[1:])
 			name := fields[0]
+			*/
+			name := line[1:]
 			ret.Names = append(ret.Names, name)
 			if !merge && len(currentRow) > 0 {
 				ret.Nts = append(ret.Nts, currentRow)

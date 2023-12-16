@@ -19,19 +19,21 @@ func search(haystack *genomes.Genomes, needle []byte, length int) {
 			break
 		}
 
-		var s genomes.Search
-		for s.Init(haystack, 0,
-			needle[start:end], 0.0); !s.End(); s.Next() {
-			pos, _ := s.Get()
-			fmt.Printf("Found %s at %d (length %d)\n",
-				string(needle[start:end]), pos, length)
+		for i := 0; i < haystack.NumGenomes(); i++ {
+			var s genomes.Search
+			for s.Init(haystack, i,
+				needle[start:end], 0.0); !s.End(); s.Next() {
+				pos, _ := s.Get()
+				fmt.Printf("Found %s at %d in %s (length %d)\n",
+					string(needle[start:end]), pos, haystack.Names[i], length)
+			}
 		}
 	}
 }
 
 func main() {
 	gs := genomes.LoadGenomes(
-		"/fs/f/genomes/human/GRCh38_latest_protein.faa.gz", "", true)
+		"/fs/f/genomes/human/GRCh38_latest_protein.faa.gz", "", false)
 
 	for length := 7; length < 12; length++ {
 		f := utils.NewFileReader("peptides.txt")
