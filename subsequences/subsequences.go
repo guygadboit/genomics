@@ -181,6 +181,9 @@ processing:
 func findPattern(sources []Source, pattern []byte) {
 	var s genomes.Search
 	// fcs := []byte("CTCCTCGGCGGG")
+
+	// OR of the below occurring in Yeast based on individual nt frequencies is
+	// 2402.6004106240753 with a p of 1.0 (binomial test)
 	// fcs := []byte("TTCTCCTCGGCGGGCA")
 
 	for i := 0; i < len(sources); i++ {
@@ -188,7 +191,6 @@ func findPattern(sources []Source, pattern []byte) {
 		source := sources[i]
 		g := genomes.LoadGenomes(source.fname, "", true)
 		for s.Init(g, 0, pattern, 0.0); !s.End(); s.Next() {
-			// fmt.Printf("%s: %d %d\n", source.name, pos, g.Length())
 			count++
 		}
 		total := g.Length()
@@ -196,8 +198,12 @@ func findPattern(sources []Source, pattern []byte) {
 		fmt.Printf("%s: %d/%d (%g)\n", source.name, count, total, freq)
 
 		expected := loadExpected(source)
+
 		expFreq := expectedFrequency(pattern, expected)
-		fmt.Printf("Expected frequency: %g OR %f\n", expFreq, expFreq / freq)
+
+		fmt.Printf("Expected frequency: %g OR %f\n", expFreq, freq / expFreq)
+		fmt.Printf("Contingency table: %d %d 1 %d\n",
+			count, total, int(1/expFreq))
 	}
 }
 
