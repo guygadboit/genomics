@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"flag"
 	"fmt"
 	"genomics/genomes"
 	"genomics/utils"
@@ -11,7 +12,6 @@ import (
 	"sort"
 	"strings"
 	"sync"
-	"flag"
 )
 
 type SubSequence struct {
@@ -201,7 +201,7 @@ func findPattern(sources []Source, pattern []byte) {
 
 		expFreq := expectedFrequency(pattern, expected)
 
-		fmt.Printf("Expected frequency: %g OR %f\n", expFreq, freq / expFreq)
+		fmt.Printf("Expected frequency: %g OR %f\n", expFreq, freq/expFreq)
 		fmt.Printf("Contingency table: %d %d 1 %d\n",
 			count, total, int(1/expFreq))
 	}
@@ -249,36 +249,51 @@ func expectedFrequency(pat []byte, ntFreq map[byte]float64) float64 {
 	return ret
 }
 
-func montecarlo(length int, nTrials int) int {
+func montecarlo(length int, nTrials int, index string) int {
 	sources := getSources()
 	nFound := 0
 
 	testGenomes := make([]*genomes.Genomes, len(sources))
 	expected := make([]map[byte]float64, len(sources))
 
-	for i := 0; i < len(sources); i++ {
-		testGenomes[i] = genomes.LoadGenomes(sources[i].fname, "", true)
-		expected[i] = loadExpected(sources[i])
+	for i, source := range sources {
+		testGenomes[i] = genomes.LoadGenomes(source.fname, "", true)
+		expected[i] = loadExpected(source)
 	}
 
-	var s genomes.Search
+	initSearch := func(haystack *genomes.Genomes,
+		pat []byte) genomes.SearchIf {
+		if index != "" {
+			var is genomes.IndexSearch
+			is.Init(index, pat)
+			return &is
+		} else {
+			var rs genomes.Search
+			rs.Init(haystack, 0, pat, 0.0)
+			return &rs
+		}
+	}
 
 	for i := 0; i < nTrials; i++ {
 		pat := utils.RandomNts(length)
 		var count int
 		for j := 0; j < len(testGenomes); j++ {
 			g := testGenomes[j]
-			for s.Init(g, 0, pat, 0.0); !s.End(); s.Next() {
+			for s := initSearch(g, pat); !s.End(); s.Next() {
 				count++
 			}
 			freq := float64(count) / float64(g.Length())
 			or := freq / expectedFrequency(pat, expected[j])
 			if count > 0 {
 				nFound++
-				fmt.Printf("%s: %.4f %s\n", sources[j].name, or, string(pat))
+				fmt.Printf("%d/%d %s: %.4f %s\n", i, nTrials,
+					sources[j].name, or, string(pat))
 			}
 		}
 	}
+	fmt.Printf("Random sequences of length %d occurred %d/%d (%g%%)\n",
+		length, nFound, nTrials, float64(nFound*100)/float64(nTrials))
+
 	return nFound
 }
 
@@ -286,13 +301,17 @@ func main() {
 	var pat string
 	var length int
 	var source string
+	var monte int
+	var index string
 
 	// Note: in order to look for a pat first you need to run with length 1 and
 	// copy the output into the output directory (where you might want to add
 	// it to git)
 	flag.StringVar(&pat, "p", "", "Pattern of interest")
 	flag.StringVar(&source, "s", "", "Source fasta file")
+	flag.StringVar(&index, "index", "", "Directory of index (optional)")
 	flag.IntVar(&length, "l", 0, "Length of subsequences to find freq of")
+	flag.IntVar(&monte, "m", 0, "Montecarlo iterations")
 
 	flag.Parse()
 
@@ -305,12 +324,17 @@ func main() {
 		sources[0] = Source{name, source}
 	}
 
-	if length != 0 {
-		findAll(sources, length)
+	if pat != "" {
+		findPattern(sources, []byte(pat))
 		return
 	}
 
-	if pat != "" {
-		findPattern(sources, []byte(pat))
+	if monte != 0 {
+		montecarlo(length, monte, index)
+		return
+	}
+
+	if length != 0 {
+		findAll(sources, length)
 	}
 }
