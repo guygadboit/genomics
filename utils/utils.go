@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"path/filepath"
 )
 
 /*
@@ -113,4 +114,11 @@ func Wrap(w io.Writer, nts []byte) {
 		fmt.Fprintf(w, "%s\n", string(nts[i:i+ll]))
 	}
 	fmt.Fprintf(w, "%s\n", string(nts[i:]))
+}
+
+// Given a path get the basic filename without the extension out
+func BasicName(path string) string {
+	_, f := filepath.Split(path)
+	ext := filepath.Ext(f)
+	return strings.TrimSuffix(f, ext)
 }

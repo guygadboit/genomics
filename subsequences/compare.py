@@ -96,6 +96,7 @@ def main():
 			"Ricksettia-6.txt",
 			"Salmonella-6.txt",
 			"Legionella-6.txt",
+			"Yeast.txt",
 			)
 
 	ss = [Subsequences(f) for f in fnames]
@@ -116,9 +117,3 @@ def main():
 
 if __name__ == "__main__":
 	main()
-
-
-
-
-
-

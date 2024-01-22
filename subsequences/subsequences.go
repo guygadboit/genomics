@@ -2,15 +2,16 @@ package main
 
 import (
 	"bufio"
-	"io"
-	"strings"
 	"fmt"
 	"genomics/genomes"
 	"genomics/utils"
+	"io"
 	"log"
 	"os"
 	"sort"
+	"strings"
 	"sync"
+	"flag"
 )
 
 type SubSequence struct {
@@ -33,8 +34,8 @@ func (s SubSequences) Swap(i, j int) {
 }
 
 /*
-	Find all the subsequences and their lengths. Return a sorted list of each
-	one, how many times it occurs, and the total.
+Find all the subsequences and their lengths. Return a sorted list of each
+one, how many times it occurs, and the total.
 */
 func FindSubSequences(genome *genomes.Genomes,
 	which int, length int) (SubSequences, int) {
@@ -91,41 +92,44 @@ func getSources() []Source {
 	// root := "/fs/f/genomes/"
 
 	sources := []Source{
-		{"mRNAVaccines", "../fasta/mRNAVaccines.fasta.gz"},
+		{"Yeast", "../fasta/Yeast.fasta"},
 	}
 	/*
-		{"Viruses", root + "viruses/mega/mega.fasta"},
-		{"Bat", root + "bat/myotis_davidii/" +
-			"GCF_000327345.1_ASM32734v1_genomic.fna.gz"},
-		{"RaccoonDog", root + "raccoon_dog/" +
-			"GCF_905146905.1_NYPRO_anot_genome_genomic.fna.gz"},
-		{"Pangolin", root + "pangolin/" +
-			"GCF_014570535.1_YNU_ManJav_2.0_genomic.fna.gz"},
-		{"Rabbit", root + "rabbit/" +
-			"GCF_009806435.1_UM_NZW_1.0_genomic.fna.gz"},
-		{"Streptomyces", root + "bacteria/Streptomyces/" +
-			"GCF_000009765.2_ASM976v2_genomic.fna.gz"},
-		{"Pig", root + "pig/" +
-			"GCF_000003025.6_Sscrofa11.1_genomic.fna.gz"},
-		{"Mouse", root + "mouse/" +
-			"GCF_000001635.27_GRCm39_genomic.fna.gz"},
-		{"Cod", root + "cod/" + "GCF_902167405.1_gadMor3.0_genomic.fna.gz"},
-	}
+			{"mRNAVaccines", "../fasta/mRNAVaccines.fasta.gz"},
+			{"Viruses", root + "viruses/mega/mega.fasta"},
+			{"Bat", root + "bat/myotis_davidii/" +
+				"GCF_000327345.1_ASM32734v1_genomic.fna.gz"},
+			{"RaccoonDog", root + "raccoon_dog/" +
+				"GCF_905146905.1_NYPRO_anot_genome_genomic.fna.gz"},
+			{"Pangolin", root + "pangolin/" +
+				"GCF_014570535.1_YNU_ManJav_2.0_genomic.fna.gz"},
+			{"Rabbit", root + "rabbit/" +
+				"GCF_009806435.1_UM_NZW_1.0_genomic.fna.gz"},
+			{"Streptomyces", root + "bacteria/Streptomyces/" +
+				"GCF_000009765.2_ASM976v2_genomic.fna.gz"},
+			{"Pig", root + "pig/" +
+				"GCF_000003025.6_Sscrofa11.1_genomic.fna.gz"},
+			{"Mouse", root + "mouse/" +
+				"GCF_000001635.27_GRCm39_genomic.fna.gz"},
+			{"Cod", root + "cod/" + "GCF_902167405.1_gadMor3.0_genomic.fna.gz"},
+		}
 	*/
 
-	bacteria := []string{
-		"Delftia", "DR", "Legionella",
-		"Salmonella", "Ricksettia", "HI",
-		"PA", "Listeria", "Streptomyces",
-		"StrepPyogenes", "StrepPneum", "Mycoplasma",
-		"Brucella", "OT", "RP",
-	}
+	/*
+		bacteria := []string{
+			"Delftia", "DR", "Legionella",
+			"Salmonella", "Ricksettia", "HI",
+			"PA", "Listeria", "Streptomyces",
+			"StrepPyogenes", "StrepPneum", "Mycoplasma",
+			"Brucella", "OT", "RP",
+		}
 
-	for i := 0; i < len(bacteria); i++ {
-		name := bacteria[i]
-		sources = append(sources, Source{name,
-			fmt.Sprintf("../fasta/bacteria/%s/%s.fasta.gz", name, name)})
-	}
+		for i := 0; i < len(bacteria); i++ {
+			name := bacteria[i]
+			sources = append(sources, Source{name,
+				fmt.Sprintf("../fasta/bacteria/%s/%s.fasta.gz", name, name)})
+		}
+	*/
 
 	return sources
 }
@@ -147,8 +151,7 @@ func writeResults(source Source, ss SubSequences, length int) {
 	fmt.Printf("Wrote %s\n", fname)
 }
 
-func findAll(length int) {
-	sources := getSources()
+func findAll(sources []Source, length int) {
 	var wg sync.WaitGroup
 	maxThreads := 2
 	pending := 0
@@ -175,23 +178,26 @@ processing:
 	}
 }
 
-func findFCS() {
-	sources := getSources()
+func findPattern(sources []Source, pattern []byte) {
 	var s genomes.Search
-	fcs := []byte("CTCCTCGGCGGG")
+	// fcs := []byte("CTCCTCGGCGGG")
+	// fcs := []byte("TTCTCCTCGGCGGGCA")
 
 	for i := 0; i < len(sources); i++ {
 		var count int
 		source := sources[i]
 		g := genomes.LoadGenomes(source.fname, "", true)
-		for s.Init(g, 0, fcs, 0.0); !s.End(); s.Next() {
+		for s.Init(g, 0, pattern, 0.0); !s.End(); s.Next() {
 			// fmt.Printf("%s: %d %d\n", source.name, pos, g.Length())
 			count++
 		}
 		total := g.Length()
-		pct := float64(count*1e7) / float64(total)
-		fmt.Printf("%s: %d/%d (%.4f per 10 million)\n",
-			source.name, count, total, pct)
+		freq := float64(count) / float64(total)
+		fmt.Printf("%s: %d/%d (%g)\n", source.name, count, total, freq)
+
+		expected := loadExpected(source)
+		expFreq := expectedFrequency(pattern, expected)
+		fmt.Printf("Expected frequency: %g OR %f\n", expFreq, expFreq / freq)
 	}
 }
 
@@ -237,8 +243,9 @@ func expectedFrequency(pat []byte, ntFreq map[byte]float64) float64 {
 	return ret
 }
 
-func montecarlo(length int, nTrials int) {
+func montecarlo(length int, nTrials int) int {
 	sources := getSources()
+	nFound := 0
 
 	testGenomes := make([]*genomes.Genomes, len(sources))
 	expected := make([]map[byte]float64, len(sources))
@@ -251,7 +258,7 @@ func montecarlo(length int, nTrials int) {
 	var s genomes.Search
 
 	for i := 0; i < nTrials; i++ {
-		pat := utils.RandomNts(12)
+		pat := utils.RandomNts(length)
 		var count int
 		for j := 0; j < len(testGenomes); j++ {
 			g := testGenomes[j]
@@ -260,14 +267,44 @@ func montecarlo(length int, nTrials int) {
 			}
 			freq := float64(count) / float64(g.Length())
 			or := freq / expectedFrequency(pat, expected[j])
-			fmt.Printf("%s: %.4f\n", sources[j].name, or)
+			if count > 0 {
+				nFound++
+				fmt.Printf("%s: %.4f %s\n", sources[j].name, or, string(pat))
+			}
 		}
 	}
+	return nFound
 }
 
 func main() {
-	// findFCS()
-	findAll(1)
-	findAll(2)
-	// montecarlo(12, 10000)
+	var pat string
+	var length int
+	var source string
+
+	// Note: in order to look for a pat first you need to run with length 1 and
+	// copy the output into the output directory (where you might want to add
+	// it to git)
+	flag.StringVar(&pat, "p", "", "Pattern of interest")
+	flag.StringVar(&source, "s", "", "Source fasta file")
+	flag.IntVar(&length, "l", 0, "Length of subsequences to find freq of")
+
+	flag.Parse()
+
+	var sources []Source
+	if source == "" {
+		sources = getSources()
+	} else {
+		sources = make([]Source, 1)
+		name := utils.BasicName(source)
+		sources[0] = Source{name, source}
+	}
+
+	if length != 0 {
+		findAll(sources, length)
+		return
+	}
+
+	if pat != "" {
+		findPattern(sources, []byte(pat))
+	}
 }
