@@ -249,7 +249,7 @@ func expectedFrequency(pat []byte, ntFreq map[byte]float64) float64 {
 	return ret
 }
 
-func montecarlo(length int, nTrials int, index string) int {
+func montecarlo(length int, nTrials int, index string, verbose bool) int {
 	sources := getSources()
 	nFound := 0
 
@@ -286,8 +286,10 @@ func montecarlo(length int, nTrials int, index string) int {
 			or := freq / expectedFrequency(pat, expected[j])
 			if count > 0 {
 				nFound++
-				fmt.Printf("%d/%d %s: %.4f %s\n", i, nTrials,
+				if verbose {
+					fmt.Printf("%d/%d %s: %.4f %s\n", i, nTrials,
 					sources[j].name, or, string(pat))
+				}
 			}
 		}
 	}
@@ -303,6 +305,7 @@ func main() {
 	var source string
 	var monte int
 	var index string
+	var verbose bool
 
 	// Note: in order to look for a pat first you need to run with length 1 and
 	// copy the output into the output directory (where you might want to add
@@ -312,6 +315,7 @@ func main() {
 	flag.StringVar(&index, "index", "", "Directory of index (optional)")
 	flag.IntVar(&length, "l", 0, "Length of subsequences to find freq of")
 	flag.IntVar(&monte, "m", 0, "Montecarlo iterations")
+	flag.BoolVar(&verbose, "v", false, "Verbose")
 
 	flag.Parse()
 
@@ -330,7 +334,7 @@ func main() {
 	}
 
 	if monte != 0 {
-		montecarlo(length, monte, index)
+		montecarlo(length, monte, index, verbose)
 		return
 	}
 
