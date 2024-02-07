@@ -62,13 +62,13 @@ positions:
 
 func swap(g *genomes.Genomes, i, j int) {
 	g.Nts[i], g.Nts[j] = g.Nts[j], g.Nts[i]
+	g.Names[i], g.Names[j] = g.Names[j], g.Names[i]
 }
 
 func main() {
 	g := genomes.LoadGenomes(os.Args[1], "../fasta/WH1.orfs", false)
 	g.RemoveGaps()
 
-	fmt.Println(g.Names)
 	fmt.Printf("Original order\n")
 	findMarkers(g)
 
@@ -77,7 +77,7 @@ func main() {
 	for i := 1; i < g.NumGenomes(); i++ {
 		g.Nts = orgNts
 		swap(g, 0, i)
-		fmt.Printf("%d first\n", i)
+		fmt.Printf("%s first\n", g.Names[0])
 		findMarkers(g)
 	}
 }
