@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"genomics/genomes"
 	"os"
@@ -12,8 +13,18 @@ func findMarkers(g *genomes.Genomes) {
 positions:
 	for i := 0; i < g.Length(); i++ {
 		ref := nts[0][i]
-		if ref == '-' {
-			continue
+
+		switch ref {
+		case 'A':
+			fallthrough
+		case 'C':
+			fallthrough
+		case 'G':
+			fallthrough
+		case 'T':
+			break
+		default:
+			continue positions
 		}
 
 		for j := 1; j < g.NumGenomes(); j++ {
@@ -50,6 +61,7 @@ positions:
 		if err != nil {
 			continue
 		}
+
 		silent, _ := env.Replace(nts[1][i : i+1])
 		if !silent {
 			continue
@@ -66,18 +78,27 @@ func swap(g *genomes.Genomes, i, j int) {
 }
 
 func main() {
+	var reorder bool
+	flag.BoolVar(&reorder, "r", false, "Try reorderings")
+
+	flag.Parse()
+
 	g := genomes.LoadGenomes(os.Args[1], "../fasta/WH1.orfs", false)
 	g.RemoveGaps()
 
-	fmt.Printf("Original order\n")
+	for _, name := range g.Names {
+		fmt.Println(name)
+	}
+
 	findMarkers(g)
 
-	orgNts := g.Nts
-
-	for i := 1; i < g.NumGenomes(); i++ {
-		g.Nts = orgNts
-		swap(g, 0, i)
-		fmt.Printf("%s first\n", g.Names[0])
-		findMarkers(g)
+	if reorder {
+		orgNts := g.Nts
+		for i := 1; i < g.NumGenomes(); i++ {
+			g.Nts = orgNts
+			swap(g, 0, i)
+			fmt.Printf("%s first\n", g.Names[0])
+			findMarkers(g)
+		}
 	}
 }
