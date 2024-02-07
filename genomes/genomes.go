@@ -11,9 +11,9 @@ import (
 )
 
 /*
-	Represents a collection of aligned genomes (usually two) with one genome
-	per row. The orfs "belong" to the first one in the set. We also use this
-	for a single genome.
+Represents a collection of aligned genomes (usually two) with one genome
+per row. The orfs "belong" to the first one in the set. We also use this
+for a single genome.
 */
 type Genomes struct {
 	Nts   [][]byte
@@ -27,12 +27,13 @@ func NewGenomes(orfs Orfs, numGenomes int) *Genomes {
 }
 
 /*
-	Load genomes, which might be a fasta file containing a single genome, or
-	one containing a few of them in an alignment. Be a bit careful when working
-	with alignments since there may be '-' in there. If merge load everything
-	into one genome even if there are multiple > lines (mammal genomes tend to
-	be like that). orfsName can be empty string if you don't have any ORFs
-	which is fine if you don't plan on doing any translation.
+Load genomes, which might be a fasta file containing a single genome, or
+one containing a few of them in an alignment. Be a bit careful when working
+with alignments since there may be '-' in there. You might want to call
+RemoveGaps before going any futher. If merge load everything into one
+genome even if there are multiple > lines (mammal genomes tend to be like
+that). orfsName can be empty string if you don't have any ORFs which is
+fine if you don't plan on doing any translation.
 */
 func LoadGenomes(fname string, orfsName string, merge bool) *Genomes {
 	var orfs Orfs
@@ -65,8 +66,8 @@ loop:
 
 		if strings.HasPrefix(line, ">") {
 			/*
-			fields := strings.Fields(line[1:])
-			name := fields[0]
+				fields := strings.Fields(line[1:])
+				name := fields[0]
 			*/
 			name := line[1:]
 			ret.Names = append(ret.Names, name)
@@ -82,7 +83,6 @@ loop:
 	ret.Nts = append(ret.Nts, currentRow)
 	return ret
 }
-
 
 func (g *Genomes) Save(name, fname string, which int) error {
 	fd, err := os.Create(fname)
@@ -101,7 +101,7 @@ func (g *Genomes) Save(name, fname string, which int) error {
 }
 
 /*
-	Make one fasta file with all the nt sequences in it and their names.
+Make one fasta file with all the nt sequences in it and their names.
 */
 func (g *Genomes) SaveMulti(fname string) error {
 	fd, err := os.Create(fname)
@@ -130,8 +130,8 @@ func (g *Genomes) Clone() *Genomes {
 }
 
 /*
-	Assuming align is aligned with g, add it to g's own nts array, just doing a
-	shallow copy
+Assuming align is aligned with g, add it to g's own nts array, just doing a
+shallow copy
 */
 func (g *Genomes) Combine(other *Genomes) {
 	for i := 0; i < other.NumGenomes(); i++ {
@@ -140,8 +140,8 @@ func (g *Genomes) Combine(other *Genomes) {
 }
 
 /*
-	These little functions make it a bit easier not to get confused about
-	which dimension is which.
+These little functions make it a bit easier not to get confused about
+which dimension is which.
 */
 func (g *Genomes) NumGenomes() int {
 	return len(g.Nts)
@@ -162,3 +162,34 @@ func (g *Genomes) Slice(which, start, end int) []byte {
 	}
 	return nts[start:end]
 }
+
+/*
+Whereever there is a gap in the first genome of an alignment, just remove that
+column. You will need to do this for comparisons involving translations to work
+as the Orfs don't take into account gaps, and neither do Environment
+operations. Returns how many we dropped
+*/
+func (g *Genomes) RemoveGaps() int {
+	var ret int
+	nts := g.Nts
+	newNts := make([][]byte, g.NumGenomes())
+
+	for i := 0; i < g.NumGenomes(); i++ {
+		newNts[i] = make([]byte, 0, g.Length())
+	}
+
+	for i := 0; i < g.Length(); i++ {
+		if nts[0][i] == '-' {
+			ret++
+			continue
+		}
+
+		for j := 0; j < g.NumGenomes(); j++ {
+			newNts[j] = append(newNts[j], nts[j][i])
+		}
+	}
+
+	g.Nts = newNts
+	return ret
+}
+

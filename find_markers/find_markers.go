@@ -6,8 +6,7 @@ import (
 	"os"
 )
 
-func main() {
-	g := genomes.LoadGenomes(os.Args[1], "../fasta/WH1.orfs", false)
+func findMarkers(g *genomes.Genomes) {
 	nts := g.Nts
 
 positions:
@@ -58,5 +57,27 @@ positions:
 
 		fmt.Printf("Position %d: 1st genome has %c, "+
 			"the others have %c\n", i, ref, nts[1][i])
+	}
+}
+
+func swap(g *genomes.Genomes, i, j int) {
+	g.Nts[i], g.Nts[j] = g.Nts[j], g.Nts[i]
+}
+
+func main() {
+	g := genomes.LoadGenomes(os.Args[1], "../fasta/WH1.orfs", false)
+	g.RemoveGaps()
+
+	fmt.Println(g.Names)
+	fmt.Printf("Original order\n")
+	findMarkers(g)
+
+	orgNts := g.Nts
+
+	for i := 1; i < g.NumGenomes(); i++ {
+		g.Nts = orgNts
+		swap(g, 0, i)
+		fmt.Printf("%d first\n", i)
+		findMarkers(g)
 	}
 }
