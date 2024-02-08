@@ -55,16 +55,17 @@ positions:
 			}
 		}
 
-		// We expect the change to be silent
-		var env genomes.Environment
-		err := env.Init(g, i, 1, 0)
-		if err != nil {
-			continue
-		}
-
-		silent, _ := env.Replace(nts[1][i : i+1])
-		if !silent {
-			continue
+		// We expect the change to be silent.
+		if g.HaveOrfs() {
+			var env genomes.Environment
+			err := env.Init(g, i, 1, 0)
+			if err != nil {
+				continue
+			}
+			silent, _ := env.Replace(nts[1][i : i+1])
+			if !silent {
+				continue
+			}
 		}
 
 		fmt.Printf("Position %d: 1st genome has %c, "+
@@ -79,11 +80,14 @@ func swap(g *genomes.Genomes, i, j int) {
 
 func main() {
 	var reorder bool
-	flag.BoolVar(&reorder, "r", false, "Try reorderings")
+	var orfs string
 
+	flag.BoolVar(&reorder, "r", false, "Try reorderings")
+	flag.StringVar(&orfs, "orfs", "", "ORFS file")
 	flag.Parse()
 
-	g := genomes.LoadGenomes(os.Args[1], "../fasta/WH1.orfs", false)
+	argi := len(os.Args) - flag.NArg()
+	g := genomes.LoadGenomes(os.Args[argi], orfs, false)
 	g.RemoveGaps()
 
 	for _, name := range g.Names {

@@ -193,3 +193,6 @@ func (g *Genomes) RemoveGaps() int {
 	return ret
 }
 
+func (g *Genomes) HaveOrfs() bool {
+	return len(g.Orfs) > 0
+}
