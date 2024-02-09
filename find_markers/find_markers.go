@@ -72,8 +72,8 @@ positions:
 		}
 
 		if verbose {
-			fmt.Printf("Position %d: 1st genome has %c, "+
-				"the others have %c\n", i, ref, nts[1][i])
+			fmt.Printf("Position %d: %s has %c, "+
+				"the others have %c\n", i, g.Names[0], ref, nts[1][i])
 		}
 		ret++
 	}
@@ -95,20 +95,20 @@ func subSample(g *genomes.Genomes, n int) {
 }
 
 type Result struct {
-	name	string
-	count	int
+	name  string
+	count int
 }
 
 type Results map[string]Result
 
-func (r Results) record(name string) {
+func (r Results) record(name string, nts int) {
 	record, there := r[name]
 
 	if !there {
 		record.name = name
 	}
 
-	record.count++
+	record.count += nts
 	r[name] = record
 }
 
@@ -157,15 +157,17 @@ func main() {
 			subSample(g, sample)
 		}
 
-		if verbose {
-			for _, name := range g.Names {
-				fmt.Println(name)
+		/*
+			if verbose {
+				for _, name := range g.Names {
+					fmt.Println(name)
+				}
 			}
-		}
+		*/
 
 		n := findMarkers(g, window, verbose)
 		if n > 0 {
-			results.record(g.Names[0])
+			results.record(g.Names[0], n)
 		}
 
 		if reorder {
@@ -173,12 +175,9 @@ func main() {
 			for i := 1; i < g.NumGenomes(); i++ {
 				g.Nts, g.Names = nts, names
 				swap(g, 0, i)
-				if verbose {
-					fmt.Printf("%s first\n", g.Names[0])
-				}
 				n := findMarkers(g, window, verbose)
 				if n > 0 {
-					results.record(g.Names[0])
+					results.record(g.Names[0], n)
 				}
 			}
 		}
