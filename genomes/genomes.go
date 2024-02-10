@@ -196,3 +196,32 @@ func (g *Genomes) RemoveGaps() int {
 func (g *Genomes) HaveOrfs() bool {
 	return len(g.Orfs) > 0
 }
+
+/*
+What's the sequence similarity between the a'th and b'th genomes in an
+alignment? Returns a number between 0 and 1 (so multiply by 100 if you want a
+percentage)
+*/
+func (g *Genomes) SequenceSimilarity(a, b int) float64{
+	var same, total int
+	for i := 0; i < g.Length(); i++ {
+		// Only consider proper nts
+		switch g.Nts[a][i] {
+		case 'A':
+			fallthrough
+		case 'C':
+			fallthrough
+		case 'G':
+			fallthrough
+		case 'T':
+			break
+		default:
+			continue
+		}
+		total++
+		if g.Nts[a][i] == g.Nts[b][i] {
+			same++
+		}
+	}
+	return float64(same) / float64(total)
+}

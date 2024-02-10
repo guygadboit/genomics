@@ -71,6 +71,11 @@ positions:
 			}
 		}
 
+		// FIXME also look for whether the change is unexpected given the
+		// sequence similarity of the genomes. I guess precompute that. YOU ARE
+		// HERE. Maybe just adapt the window to the average sequence similarity
+		// between your set of genomes.
+
 		if verbose {
 			fmt.Printf("Position %d: %s has %c, "+
 				"the others have %c\n", i, g.Names[0], ref, nts[1][i])
@@ -143,6 +148,14 @@ func (s *Stack) pop() *genomes.Genomes {
 	return &ret
 }
 
+func averageSimilarity(g *genomes.Genomes) float64 {
+	var total float64
+	for i := 1; i < g.NumGenomes(); i++ {
+		total += g.SequenceSimilarity(0, i)
+	}
+	return total / float64(g.NumGenomes() - 1)
+}
+
 func main() {
 	var reorder bool
 	var orfs string
@@ -154,7 +167,7 @@ func main() {
 
 	flag.BoolVar(&reorder, "r", false, "Try reorderings")
 	flag.StringVar(&orfs, "orfs", "", "ORFS file")
-	flag.IntVar(&window, "w", 20, "Window for conservedness")
+	flag.IntVar(&window, "w", 0, "Window for conservedness (0 means auto)")
 	flag.IntVar(&sample, "s", 0, "Sample this many after the 1st (0 means all)")
 	flag.IntVar(&seed, "seed", 1, "Random number seed")
 	flag.IntVar(&iterations, "its", 1, "Iterations")
@@ -174,6 +187,12 @@ func main() {
 		stack.push(g)
 		if sample > 0 {
 			subSample(g, sample)
+		}
+
+		// Set the window based on the similarity
+		if window == 0 {
+			similarity := averageSimilarity(g)
+			window = int(50 / similarity)
 		}
 
 		/*
