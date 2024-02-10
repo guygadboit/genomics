@@ -124,6 +124,25 @@ func (r Results) display() {
 	}
 }
 
+/*
+We keep subsampling and shuffling genomes around. So maintain a stack so we can
+keep reverting those operations back.
+*/
+type Stack struct {
+	data []genomes.Genomes
+}
+
+func (s *Stack) push(g *genomes.Genomes) {
+	s.data = append(s.data, *g) // note we're taking a copy
+}
+
+func (s *Stack) pop() *genomes.Genomes {
+	n := len(s.data) - 1
+	ret := s.data[n]
+	s.data = s.data[:n]
+	return &ret
+}
+
 func main() {
 	var reorder bool
 	var orfs string
@@ -144,15 +163,15 @@ func main() {
 
 	rand.Seed(int64(seed))
 
+	var stack Stack
 	argi := len(os.Args) - flag.NArg()
 	g := genomes.LoadGenomes(os.Args[argi], orfs, false)
 	g.RemoveGaps()
 
 	results := make(Results)
-	orgNts, orgNames := g.Nts, g.Names
 
 	for i := 0; i < iterations; i++ {
-		g.Nts, g.Names = orgNts, orgNames
+		stack.push(g)
 		if sample > 0 {
 			subSample(g, sample)
 		}
@@ -171,16 +190,17 @@ func main() {
 		}
 
 		if reorder {
-			nts, names := g.Nts, g.Names
 			for i := 1; i < g.NumGenomes(); i++ {
-				g.Nts, g.Names = nts, names
+				stack.push(g)
 				swap(g, 0, i)
 				n := findMarkers(g, window, verbose)
 				if n > 0 {
 					results.record(g.Names[0], n)
 				}
+				g = stack.pop()
 			}
 		}
+		g = stack.pop()
 	}
 
 	results.display()
