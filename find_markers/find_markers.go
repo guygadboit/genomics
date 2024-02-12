@@ -9,6 +9,52 @@ import (
 	"slices"
 )
 
+// Look for SNPs in conserved areas
+func findIslands(g *genomes.Genomes, window int, verbose bool) {
+	nts := g.Nts
+	muts := make([]bool, g.Length())
+
+	for i := 0; i < g.Length(); i++ {
+		for j := 1; j < g.NumGenomes(); j++ {
+			if nts[j][i] != nts[j][0] {
+				muts[i] = true
+				break
+			}
+		}
+	}
+
+	var conserved int
+	for i, mut := range muts {
+		if !mut {
+			conserved = 0
+		} else {
+			conserved++
+		}
+
+		if mut && conserved >= window {
+			// Now check for window the other side
+			good := true
+			for j := i; j < i + window; j++ {
+				if j >= g.Length() {
+					good = false
+					break
+				}
+				if muts[j] {
+					good = false
+					break
+				}
+			}
+			if good {
+				fmt.Printf("Island at %d\n", i)
+			}
+		}
+	}
+}
+
+/*
+This is looking for something that is different in the first genome but the
+same in all the others
+*/
 func findMarkers(g *genomes.Genomes, window int, verbose bool) int {
 	var ret int
 	nts := g.Nts
@@ -39,8 +85,8 @@ positions:
 				continue positions
 			}
 
-			// We're looking for all these other g being the same as each
-			// other but different from the ref.
+			// We're looking for all these others being the same as each other
+			// but different from the ref.
 			if j > 1 && nts[j][i] != nts[j-1][i] {
 				continue positions
 			}
@@ -70,11 +116,6 @@ positions:
 				continue
 			}
 		}
-
-		// FIXME also look for whether the change is unexpected given the
-		// sequence similarity of the genomes. I guess precompute that. YOU ARE
-		// HERE. Maybe just adapt the window to the average sequence similarity
-		// between your set of genomes.
 
 		if verbose {
 			fmt.Printf("Position %d: %s has %c, "+
@@ -189,7 +230,8 @@ func main() {
 			subSample(g, sample)
 		}
 
-		// Set the window based on the similarity
+		// Set the window based on the similarity-- we're looking for isolated
+		// muts in big seas of conservedness
 		if window == 0 {
 			similarity := averageSimilarity(g)
 			window = int(50 / similarity)
