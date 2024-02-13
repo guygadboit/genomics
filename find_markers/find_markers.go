@@ -9,32 +9,59 @@ import (
 	"slices"
 )
 
+func analyzeIsland(g *genomes.Genomes, pos int) {
+	counter := make(map[byte]int)
+	for i := 0; i < g.NumGenomes(); i++ {
+		nt := g.Nts[i][pos]
+		count, _ := counter[nt]
+		counter[nt] = count + 1
+	}
+	for k, v := range counter {
+		fmt.Printf("%s: %d\n", string(k), v)
+	}
+}
+
+type findFunc func(g *genomes.Genomes, window int, verbose bool) int
+
+func isRegularNt(nt byte) bool {
+	switch nt {
+	case 'A':
+		fallthrough
+	case 'C':
+		fallthrough
+	case 'G':
+		fallthrough
+	case 'T':
+		return true
+	default:
+		return false
+	}
+}
+
 // Look for SNPs in conserved areas
-func findIslands(g *genomes.Genomes, window int, verbose bool) {
+func findIslands(g *genomes.Genomes, window int, verbose bool) int {
 	nts := g.Nts
+	var ret int
 	muts := make([]bool, g.Length())
 
 	for i := 0; i < g.Length(); i++ {
 		for j := 1; j < g.NumGenomes(); j++ {
-			if nts[j][i] != nts[j][0] {
-				muts[i] = true
-				break
+			a, b := nts[j][0], nts[j][i]
+			if isRegularNt(a) && isRegularNt(b) {
+				if a != b {
+					muts[i] = true
+					break
+				}
 			}
 		}
 	}
 
 	var conserved int
 	for i, mut := range muts {
-		if !mut {
-			conserved = 0
-		} else {
-			conserved++
-		}
-
 		if mut && conserved >= window {
 			// Now check for window the other side
 			good := true
-			for j := i; j < i + window; j++ {
+			for j := i + 1; j < i+window; j++ {
 				if j >= g.Length() {
 					good = false
 					break
@@ -45,10 +72,19 @@ func findIslands(g *genomes.Genomes, window int, verbose bool) {
 				}
 			}
 			if good {
+				ret++
 				fmt.Printf("Island at %d\n", i)
+				analyzeIsland(g, i)
 			}
 		}
+
+		if mut {
+			conserved = 0
+		} else {
+			conserved++
+		}
 	}
+	return ret
 }
 
 /*
@@ -194,7 +230,7 @@ func averageSimilarity(g *genomes.Genomes) float64 {
 	for i := 1; i < g.NumGenomes(); i++ {
 		total += g.SequenceSimilarity(0, i)
 	}
-	return total / float64(g.NumGenomes() - 1)
+	return total / float64(g.NumGenomes()-1)
 }
 
 func main() {
@@ -205,6 +241,7 @@ func main() {
 	var seed int
 	var iterations int
 	var verbose bool
+	var islands bool
 
 	flag.BoolVar(&reorder, "r", false, "Try reorderings")
 	flag.StringVar(&orfs, "orfs", "", "ORFS file")
@@ -213,6 +250,7 @@ func main() {
 	flag.IntVar(&seed, "seed", 1, "Random number seed")
 	flag.IntVar(&iterations, "its", 1, "Iterations")
 	flag.BoolVar(&verbose, "v", false, "verbose")
+	flag.BoolVar(&islands, "islands", false, "Look for islands")
 	flag.Parse()
 
 	rand.Seed(int64(seed))
@@ -223,6 +261,13 @@ func main() {
 	g.RemoveGaps()
 
 	results := make(Results)
+
+	var fn findFunc
+	if islands {
+		fn = findIslands
+	} else {
+		fn = findMarkers
+	}
 
 	for i := 0; i < iterations; i++ {
 		stack.push(g)
@@ -245,7 +290,7 @@ func main() {
 			}
 		*/
 
-		n := findMarkers(g, window, verbose)
+		n := fn(g, window, verbose)
 		if n > 0 {
 			results.record(g.Names[0], n)
 		}
@@ -254,7 +299,7 @@ func main() {
 			for i := 1; i < g.NumGenomes(); i++ {
 				stack.push(g)
 				swap(g, 0, i)
-				n := findMarkers(g, window, verbose)
+				n := fn(g, window, verbose)
 				if n > 0 {
 					results.record(g.Names[0], n)
 				}
