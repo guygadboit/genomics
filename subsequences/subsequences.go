@@ -186,6 +186,8 @@ func findPattern(sources []Source, pattern []byte) {
 	// 2402.6004106240753 with a p of 1.0 (binomial test)
 	// fcs := []byte("TTCTCCTCGGCGGGCA")
 
+	// minus the last G
+
 	for i := 0; i < len(sources); i++ {
 		var count int
 		source := sources[i]
@@ -198,7 +200,6 @@ func findPattern(sources []Source, pattern []byte) {
 		fmt.Printf("%s: %d/%d (%g)\n", source.name, count, total, freq)
 
 		expected := loadExpected(source)
-
 		expFreq := expectedFrequency(pattern, expected)
 
 		fmt.Printf("Expected frequency: %g OR %f\n", expFreq, freq/expFreq)
