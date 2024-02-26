@@ -31,9 +31,10 @@ func checkUnique(g *genomes.Genomes, start, length int) {
 	}
 
 	for k, v := range m {
-		if v == 1 && utils.IsRegularPattern([]byte(k)) {
-			fmt.Printf("%s at %d unique in %s\n", k, start, names[k])
+		if !utils.IsRegularPattern([]byte(k)) {
+			continue
 		}
+		fmt.Printf("%s at %d in <%s> found %d times\n", k, start, names[k], v)
 	}
 }
 
