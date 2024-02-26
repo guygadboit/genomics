@@ -11,6 +11,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"genomics/utils"
 )
 
 var CodonTable = map[string]byte{
@@ -218,6 +219,12 @@ func (env *Environment) Init(genome *Genomes,
 
 	env.offset = codonOffset
 	env.window = genome.Nts[which][windowStart:windowEnd]
+
+	if !utils.IsRegularPattern(env.window) {
+		// Usually because of a gap ('-') in an alignment
+		return errors.New("Non-nt in sequence")
+	}
+
 	env.protein = TranslateAligned(env.window)
 	return nil
 }
@@ -268,8 +275,8 @@ func (env *Environment) Replace(replacement []byte) (bool, int) {
 
 // Silent alternative to a sequence of nts and how many muts that would require
 type Alternative struct {
-	numMuts int
-	nts     []byte
+	NumMuts int
+	Nts     []byte
 }
 
 type Alternatives []Alternative
@@ -336,7 +343,7 @@ func (a Alternatives) Len() int {
 }
 
 func (a Alternatives) Less(i, j int) bool {
-	return a[i].numMuts < a[j].numMuts
+	return a[i].NumMuts < a[j].NumMuts
 }
 
 func (a Alternatives) Swap(i, j int) {

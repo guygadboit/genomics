@@ -11,8 +11,12 @@ import (
 	"log"
 )
 
-func countPattern(g *genomes.Genomes, start, end int) map[string][]string {
-	ret := make(map[string][]string)
+/* A map of patterns (like GAGACC or something) to lists of genomes out of an
+* alignment in which they appear */
+type PatternMap map[string][]string
+
+func countPattern(g *genomes.Genomes, start, end int) PatternMap {
+	ret := make(PatternMap)
 	var env genomes.Environment
 
 	err := env.Init(g, start, end-start, 0)

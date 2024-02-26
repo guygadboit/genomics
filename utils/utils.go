@@ -3,19 +3,19 @@ package utils
 import (
 	"bufio"
 	"compress/gzip"
-	"math/rand"
-	"log"
-	"os"
-	"io"
 	"fmt"
+	"io"
+	"log"
+	"math/rand"
+	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
-	"path/filepath"
 )
 
 /*
-	Anything iterable and if you do it like this you can easily use it in for
-	loops.
+Anything iterable and if you do it like this you can easily use it in for
+loops.
 */
 type Iter interface {
 	Start()                    // Rewind (You probably have your own Init)
@@ -59,7 +59,7 @@ func RandomNts(length int) []byte {
 }
 
 /*
-	Reads files whether they are gzip ones or regular ones
+Reads files whether they are gzip ones or regular ones
 */
 type FileReader struct {
 	*bufio.Reader
@@ -121,4 +121,22 @@ func BasicName(path string) string {
 	_, f := filepath.Split(path)
 	ext := filepath.Ext(f)
 	return strings.TrimSuffix(f, ext)
+}
+
+func IsRegularPattern(nts []byte) bool {
+	for _, nt := range nts {
+		switch nt {
+		case 'G':
+			fallthrough
+		case 'A':
+			fallthrough
+		case 'T':
+			fallthrough
+		case 'C':
+			break
+		default:
+			return false
+		}
+	}
+	return true
 }
