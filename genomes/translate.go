@@ -11,7 +11,6 @@ import (
 	"sort"
 	"strconv"
 	"strings"
-	"genomics/utils"
 )
 
 var CodonTable = map[string]byte{
@@ -157,9 +156,9 @@ loop:
 }
 
 /*
-	Return the start of the codon and where pos is in it. We just do a linear
-	search since there aren't usually that many ORFs and this is probably as
-	fast as anything else
+Return the start of the codon and where pos is in it. We just do a linear
+search since there aren't usually that many ORFs and this is probably as
+fast as anything else
 */
 func (orfs Orfs) GetCodonOffset(pos int) (int, int, error) {
 	for i := 0; i < len(orfs); i++ {
@@ -189,14 +188,17 @@ func ceil3(n int) int {
 }
 
 /*
-	Assume nts are codon aligned and return a translation, with one amino-acid
-	letter per nt, so something like LLLRRRIII
+Assume nts are codon aligned and return a translation, with one amino-acid
+letter per nt, so something like LLLRRRIII
 */
 func TranslateAligned(nts []byte) []byte {
 	ret := make([]byte, len(nts))
 
 	for i := 0; i < len(nts); i += 3 {
-		aa := CodonTable[string(nts[i:i+3])]
+		aa, there := CodonTable[string(nts[i:i+3])]
+		if !there {
+			aa = '-'
+		}
 		for j := 0; j < 3; j++ {
 			ret[i+j] = aa
 		}
@@ -220,11 +222,6 @@ func (env *Environment) Init(genome *Genomes,
 	env.offset = codonOffset
 	env.window = genome.Nts[which][windowStart:windowEnd]
 
-	if !utils.IsRegularPattern(env.window) {
-		// Usually because of a gap ('-') in an alignment
-		return errors.New("Non-nt in sequence")
-	}
-
 	env.protein = TranslateAligned(env.window)
 	return nil
 }
@@ -237,14 +234,24 @@ func (env *Environment) Protein() []byte {
 	return env.protein[env.offset : env.offset+env.len]
 }
 
+// The protein in more conventional format, showing each AA one at a time
+// instead of in triplets.
+func (env *Environment) ProteinShort() []byte {
+	ret := make([]byte, 0)
+	for i := env.offset; i < env.offset+env.len; i += 3 {
+		ret = append(ret, env.protein[i])
+	}
+	return ret
+}
+
 func (env *Environment) Print() {
 	fmt.Println(string(env.Subsequence()))
 	fmt.Println(string(env.Protein()))
 }
 
 /*
-	If we were to replace the subsequence this is the environment of, would
-	that be silent, and how many mutations would it contain?
+If we were to replace the subsequence this is the environment of, would
+that be silent, and how many mutations would it contain?
 */
 func (env *Environment) Replace(replacement []byte) (bool, int) {
 	altWindow := make([]byte, len(env.window))
@@ -293,8 +300,8 @@ func (it *altIter) Init(protein []byte) {
 }
 
 /*
-	Return the next alternative and whether there are any more to come after
-	it.
+Return the next alternative and whether there are any more to come after
+it.
 */
 func (it *altIter) Next() ([]byte, bool) {
 	prot := it.protein
@@ -335,8 +342,8 @@ func TestAlternatives() {
 }
 
 /*
-	Newer versions of Go have a more "ergonomic" slices.SortFunc which saves
-	you doing all this.
+Newer versions of Go have a more "ergonomic" slices.SortFunc which saves
+you doing all this.
 */
 func (a Alternatives) Len() int {
 	return len(a)
@@ -351,8 +358,8 @@ func (a Alternatives) Swap(i, j int) {
 }
 
 /*
-	Find the alternative nt sequences that would not change the protein here,
-	ordered by fewest muts first.
+Find the alternative nt sequences that would not change the protein here,
+ordered by fewest muts first.
 */
 func (env *Environment) FindAlternatives(maxMuts int) Alternatives {
 	var it altIter
@@ -404,8 +411,8 @@ func (env *Environment) FindAlternatives(maxMuts int) Alternatives {
 }
 
 /*
-	Just translate a whole genome, iterating over all the codons in it from the
-	start
+Just translate a whole genome, iterating over all the codons in it from the
+start
 */
 type CodonIter struct {
 	genome *Genomes // Alignment of genomes
@@ -420,8 +427,7 @@ func (it *CodonIter) Init(genome *Genomes, which int) {
 	it.pos = genome.Orfs[0].start
 }
 
-func (it *CodonIter) Next() (pos int,
-	codon string, aa byte, err error) {
+func (it *CodonIter) Next() (pos int, codon string, aa byte, err error) {
 	genome := it.genome
 	for ; it.orfI < len(genome.Orfs); it.orfI++ {
 		orf := genome.Orfs[it.orfI]
@@ -435,6 +441,46 @@ func (it *CodonIter) Next() (pos int,
 		}
 	}
 	return 0, "", 0, errors.New("No more ORFs")
+}
+
+type Codon struct {
+	Pos int
+	Nts string
+	Aa  byte
+}
+
+type Translation []Codon
+
+func Translate(genome *Genomes, which int) Translation {
+	ret := make(Translation, 0)
+	var ci CodonIter
+	ci.Init(genome, which)
+
+	for {
+		pos, nts, aa, err := ci.Next()
+		if err != nil {
+			break
+		}
+		ret = append(ret, Codon{pos, nts, aa})
+	}
+	return ret
+}
+
+// Returns -1 for not there
+func (t Translation) Find(protein []byte, start int) int {
+	for i := start; i < len(t); i++ {
+		found := true
+		for j := 0; j < len(protein); j++ {
+			if t[i+j].Aa != protein[j] {
+				found = false
+				break
+			}
+		}
+		if found {
+			return t[i].Pos
+		}
+	}
+	return -1
 }
 
 func init() {

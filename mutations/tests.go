@@ -75,7 +75,8 @@ func testTranslate(genome *Genomes) {
 }
 
 func Test() {
-	genome := LoadGenomes("BANAL-20-52.fasta", "BANAL-20-52.orfs")
+	// genome := LoadGenomes("BANAL-20-52.fasta", "BANAL-20-52.orfs")
+	genome := LoadGenomes("WH1.fasta", "WH1.orfs")
 	// testCachedSearch(genome)
 	// testMutations(genome)
 	// testAlternatives(genome)

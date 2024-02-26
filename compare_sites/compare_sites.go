@@ -16,34 +16,69 @@ func ToSet(st []string) StringSet {
 	return ret
 }
 
-func checkUnique(g *genomes.Genomes, start, length int) {
+type Pattern struct {
+	nts   string
+	pos   int
+	count int // how many relatives it is in
+}
+
+type PatternSet map[Pattern]bool
+
+// Maps each genome to its patterns
+type Results map[string]PatternSet
+
+func (r Results) Print() {
+	for k, v := range r {
+		fmt.Printf("%s\n", k)
+		/*
+		slices.SortFunc(v, func(a, b Pattern) int {
+			return a.count - b.count
+		})
+		*/
+		for k, _ := range v {
+			fmt.Printf("%s %d %d\n", k.nts, k.pos, k.count)
+		}
+	}
+}
+
+func checkUnique(g *genomes.Genomes, start, length int, results Results) {
+
 	// Maps pattern to how many genomes have that pattern
 	m := make(map[string]int)
 
-	// Maps pattern to the last seen name with that pattern. We don't bother
-	// with a list of names because we're only interested in the unique ones.
-	names := make(map[string]string)
+	// Maps pattern to the names of the genomes with that pattern at this
+	// location.
+	names := make(map[string][]string)
 
 	for i := 0; i < g.NumGenomes(); i++ {
-		pat := string(g.Nts[i][start:start+length])
+		pat := string(g.Nts[i][start : start+length])
 		m[pat]++
-		names[pat] = g.Names[i]
+		names[pat] = append(names[pat], g.Names[i])
 	}
 
 	for k, v := range m {
 		if !utils.IsRegularPattern([]byte(k)) {
 			continue
 		}
-		fmt.Printf("%s at %d in <%s> found %d times\n", k, start, names[k], v)
+		for _, name := range names[k] {
+			ps, there := results[name]
+			if !there {
+				ps = make(PatternSet)
+			}
+			ps[Pattern{k, start, v}] = true
+			results[name] = ps
+		}
 	}
 }
 
 /*
-	Look for anywhere any of the patterns appears in an alignment, or a
-	sequence that could be silently mutated into one, and see if any of those
-	are unique across the set
+Look for anywhere any of the patterns appears in an alignment, or a
+sequence that could be silently mutated into one, and see if any of those
+are unique across the set
 */
-func FindUnique(g *genomes.Genomes, patterns []string) {
+func FindUnique(g *genomes.Genomes, patterns []string) Results {
+	ret := make(Results)
+
 	patSet := ToSet(patterns)
 
 	for i := 0; i < g.NumGenomes(); i++ {
@@ -55,7 +90,7 @@ func FindUnique(g *genomes.Genomes, patterns []string) {
 			}
 
 			// Do we actually have the pattern here?
-			sp := string(g.Nts[i][j:j+6])
+			sp := string(g.Nts[i][j : j+6])
 			interested := patSet[sp]
 
 			// Or is one of the silent alternatives the pattern?
@@ -72,9 +107,10 @@ func FindUnique(g *genomes.Genomes, patterns []string) {
 				continue
 			}
 
-			checkUnique(g, j, 6)
+			checkUnique(g, j, 6, ret)
 		}
 	}
+	return ret
 }
 
 func main() {
@@ -88,5 +124,6 @@ func main() {
 		"GAGACG",
 	}
 
-	FindUnique(g, interesting)
+	results := FindUnique(g, interesting)
+	results.Print()
 }
