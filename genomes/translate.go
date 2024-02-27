@@ -11,6 +11,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"genomics/utils"
 )
 
 var CodonTable = map[string]byte{
@@ -221,6 +222,11 @@ func (env *Environment) Init(genome *Genomes,
 
 	env.offset = codonOffset
 	env.window = genome.Nts[which][windowStart:windowEnd]
+
+	if !utils.IsRegularPattern(env.window) {
+		// Usually because of a gap ('-') in an alignment
+		return errors.New("Non-nt in sequence")
+	}
 
 	env.protein = TranslateAligned(env.window)
 	return nil
