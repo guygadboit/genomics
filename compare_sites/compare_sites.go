@@ -248,12 +248,23 @@ func main() {
 	*/
 	g.RemoveGaps()
 
+	/*
 	interesting := []string{
 		"CGTCTC",
 		"GAGACC",
 		"GGTCTC",
 		"GAGACG",
 	}
+	*/
+
+	// Controls, that code for LR, but aren't BsaI or BsmBI sites or anything
+	interesting := []string{
+		"TTACGC",
+		"GCGTAA",
+		"CTACGA",
+		"GCGTAG",
+	}
+
 
 	//g.PrintSummary()
 	TestAllPairs(g, interesting)

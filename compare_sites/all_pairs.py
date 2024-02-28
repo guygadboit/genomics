@@ -1,6 +1,9 @@
+import sys
+
+
 def main():
 	lines = []
-	with open("all_pairs.txt") as fp:
+	with open(sys.argv[1]) as fp:
 		for line in fp:
 			line = line.strip()
 			line.split()
