@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
-	"slices"
 	"genomics/genomes"
 	"genomics/utils"
+	"slices"
 )
 
 type StringSet map[string]bool
@@ -157,6 +157,10 @@ type ContingencyTable struct {
 	A, B, C, D int
 }
 
+func (ct *ContingencyTable) ToString() string {
+	return fmt.Sprintf("CT[%d %d %d %d]", ct.A, ct.B, ct.C, ct.D)
+}
+
 func FindSites(g *genomes.Genomes, which int, patterns []string) []int {
 	ret := make([]int, 0)
 	var s genomes.Search
@@ -197,7 +201,7 @@ func SilentInPatterns(g *genomes.Genomes,
 		if aNts[i] != bNts[i] {
 			err := env.Init(g, i, 1, a)
 			if err == nil {
-				silent, _ = env.Replace(bNts[i:i+1])
+				silent, _ = env.Replace(bNts[i : i+1])
 			}
 		}
 
@@ -220,18 +224,28 @@ func SilentInPatterns(g *genomes.Genomes,
 	return ret
 }
 
+func TestAllPairs(g *genomes.Genomes, patterns []string) {
+	for i := 0; i < g.NumGenomes(); i++ {
+		for j := 0; j < i; j++ {
+			ss := g.SequenceSimilarity(i, j) * 100
+			ct := SilentInPatterns(g, i, j, patterns)
+			fmt.Printf("%s/%s: (%.2f%% ss) %s\n",
+				g.Names[i], g.Names[j], ss, ct.ToString())
+		}
+	}
+}
+
 func main() {
+	g := genomes.LoadGenomes("../fasta/more_relatives.fasta",
+		"../fasta/WH1.orfs", false)
 	/*
-		g := genomes.LoadGenomes("../fasta/more_relatives.fasta",
+		g := genomes.LoadGenomes("../fasta/relatives.fasta",
 			"../fasta/WH1.orfs", false)
 	*/
 	/*
-	g := genomes.LoadGenomes("../fasta/relatives2.fasta",
-		"../fasta/WH1.orfs", false)
+		g := genomes.LoadGenomes("../fasta/more_relatives2.fasta",
+			"../fasta/WH1.orfs", false)
 	*/
-	g := genomes.LoadGenomes("../fasta/more_relatives2.fasta",
-		"../fasta/WH1.orfs", false)
-
 	g.RemoveGaps()
 
 	interesting := []string{
@@ -241,12 +255,16 @@ func main() {
 		"GAGACG",
 	}
 
+	//g.PrintSummary()
+	TestAllPairs(g, interesting)
 	/*
-	g.PrintSummary()
-	ct := SilentInPatterns(g, 0, 461, interesting)
-	fmt.Printf("CT[%d %d %d %d]\n", ct.A, ct.B, ct.C, ct.D)
-	return
+		ct := SilentInPatterns(g, 0, 461, interesting)
+		fmt.Printf("CT[%d %d %d %d]\n", ct.A, ct.B, ct.C, ct.D)
+		ct = SilentInPatterns(g, 0, 462, interesting)
+		fmt.Printf("CT[%d %d %d %d]\n", ct.A, ct.B, ct.C, ct.D)
+		g.SaveSelected("WH1-B52.fasta", 0, 461)
 	*/
+	return
 
 	results := FindPatterns(g, interesting)
 

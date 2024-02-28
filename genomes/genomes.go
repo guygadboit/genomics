@@ -126,6 +126,25 @@ func (g *Genomes) SaveMulti(fname string) error {
 	return nil
 }
 
+func (g *Genomes) SaveSelected(fname string, which ...int) error {
+	fd, err := os.Create(fname)
+	if err != nil {
+		return err
+	}
+	defer fd.Close()
+
+	fp := bufio.NewWriter(fd)
+
+	for _, i := range which {
+		fmt.Fprintf(fp, ">%s\n", g.Names[i])
+		nts := g.Nts[i]
+		utils.Wrap(fp, nts)
+	}
+
+	fp.Flush()
+	return nil
+}
+
 func (g *Genomes) Clone() *Genomes {
 	ret := NewGenomes(g.Orfs, g.NumGenomes())
 	for i := 0; i < len(g.Nts); i++ {
