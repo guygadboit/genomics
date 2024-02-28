@@ -123,18 +123,24 @@ func BasicName(path string) string {
 	return strings.TrimSuffix(f, ext)
 }
 
+func IsRegularNt(nt byte) bool {
+	switch nt {
+	case 'G':
+		fallthrough
+	case 'A':
+		fallthrough
+	case 'T':
+		fallthrough
+	case 'C':
+		return true
+	default:
+		return false
+	}
+}
+
 func IsRegularPattern(nts []byte) bool {
 	for _, nt := range nts {
-		switch nt {
-		case 'G':
-			fallthrough
-		case 'A':
-			fallthrough
-		case 'T':
-			fallthrough
-		case 'C':
-			break
-		default:
+		if !IsRegularNt(nt) {
 			return false
 		}
 	}

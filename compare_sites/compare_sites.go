@@ -198,6 +198,14 @@ func SilentInPatterns(g *genomes.Genomes,
 	for i := 0; i < g.Length(); i++ {
 		silent := false
 
+		if !utils.IsRegularNt(aNts[i]) {
+			continue
+		}
+
+		if !utils.IsRegularNt(bNts[i]) {
+			continue
+		}
+
 		if aNts[i] != bNts[i] {
 			err := env.Init(g, i, 1, a)
 			if err == nil {
@@ -248,22 +256,22 @@ func main() {
 	*/
 	g.RemoveGaps()
 
-	/*
 	interesting := []string{
 		"CGTCTC",
 		"GAGACC",
 		"GGTCTC",
 		"GAGACG",
 	}
-	*/
 
 	// Controls, that code for LR, but aren't BsaI or BsmBI sites or anything
+	/*
 	interesting := []string{
 		"TTACGC",
 		"GCGTAA",
 		"CTACGA",
 		"GCGTAG",
 	}
+	*/
 
 
 	//g.PrintSummary()
