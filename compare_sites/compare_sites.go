@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"slices"
 	"genomics/genomes"
 	"genomics/utils"
 )
@@ -103,16 +104,16 @@ func FindPatterns(g *genomes.Genomes, patterns []string) Results {
 
 	patSet := ToSet(patterns)
 
-	for i := 0; i < g.NumGenomes(); i++ {
-		for j := 0; j < g.Length(); j++ {
+	for i := 0; i < g.Length(); i++ {
+		for j := 0; j < g.NumGenomes(); j++ {
 			var env genomes.Environment
-			err := env.Init(g, j, 6, i)
+			err := env.Init(g, i, 6, j)
 			if err != nil {
 				continue
 			}
 
 			// Do we actually have the pattern here?
-			sp := string(g.Nts[i][j : j+6])
+			sp := string(g.Nts[j][i : i+6])
 			interested := patSet[sp]
 
 			// Or is one of the silent alternatives the pattern?
@@ -129,7 +130,8 @@ func FindPatterns(g *genomes.Genomes, patterns []string) Results {
 				continue
 			}
 
-			mapPattern(g, j, 6, ret)
+			mapPattern(g, i, 6, ret)
+			break
 		}
 	}
 	return ret
@@ -151,6 +153,73 @@ func mostDifferent(patterns []Pattern) (*Pattern, *Pattern, int) {
 	return bestP, bestQ, mostMuts
 }
 
+type ContingencyTable struct {
+	A, B, C, D int
+}
+
+func FindSites(g *genomes.Genomes, which int, patterns []string) []int {
+	ret := make([]int, 0)
+	var s genomes.Search
+	for _, pat := range patterns {
+		for s.Init(g, which, []byte(pat), 0.0); !s.End(); s.Next() {
+			pos, _ := s.Get()
+			ret = append(ret, pos)
+		}
+	}
+	return ret
+}
+
+func InSites(sites []int, pos int) bool {
+	for _, site := range sites {
+		start, end := site, site+6
+		// You could do a binary search here but probably not necessary
+		if pos >= start && pos < end {
+			return true
+		}
+	}
+	return false
+}
+
+func SilentInPatterns(g *genomes.Genomes,
+	a, b int, patterns []string) ContingencyTable {
+	aNts := g.Nts[a]
+	bNts := g.Nts[b]
+	var ret ContingencyTable
+	var env genomes.Environment
+
+	sites := FindSites(g, a, patterns)
+	sites = append(sites, FindSites(g, b, patterns)...)
+	slices.Sort(sites)
+
+	for i := 0; i < g.Length(); i++ {
+		silent := false
+
+		if aNts[i] != bNts[i] {
+			err := env.Init(g, i, 1, a)
+			if err == nil {
+				silent, _ = env.Replace(bNts[i:i+1])
+			}
+		}
+
+		in := InSites(sites, i)
+
+		if in {
+			if silent {
+				ret.A++
+			} else {
+				ret.B++
+			}
+		} else {
+			if silent {
+				ret.C++
+			} else {
+				ret.D++
+			}
+		}
+	}
+	return ret
+}
+
 func main() {
 	/*
 		g := genomes.LoadGenomes("../fasta/more_relatives.fasta",
@@ -163,6 +232,8 @@ func main() {
 	g := genomes.LoadGenomes("../fasta/more_relatives2.fasta",
 		"../fasta/WH1.orfs", false)
 
+	g.RemoveGaps()
+
 	interesting := []string{
 		"CGTCTC",
 		"GAGACC",
@@ -170,8 +241,14 @@ func main() {
 		"GAGACG",
 	}
 
+	/*
+	g.PrintSummary()
+	ct := SilentInPatterns(g, 0, 461, interesting)
+	fmt.Printf("CT[%d %d %d %d]\n", ct.A, ct.B, ct.C, ct.D)
+	return
+	*/
+
 	results := FindPatterns(g, interesting)
-	//results.Print()
 
 	interestingSet := ToSet(interesting)
 	byLocation := ByLocation(results)
@@ -184,8 +261,10 @@ func main() {
 
 		if md >= 4 && (interestingSet[p.nts] || interestingSet[q.nts]) {
 			ss := g.SequenceSimilarity(p.which, q.which) * 100
-			fmt.Printf("%d %s vs %s: %s/%s %d muts %.2f%% ss\n", k,
+			ct := SilentInPatterns(g, p.which, q.which, interesting)
+			fmt.Printf("%d %s vs %s: %s/%s %d muts %.2f%% ss ", k,
 				p.name, q.name, p.nts, q.nts, md, ss)
+			fmt.Printf("CT[%d %d %d %d]\n", ct.A, ct.B, ct.C, ct.D)
 		}
 	}
 }

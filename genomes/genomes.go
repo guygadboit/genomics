@@ -84,6 +84,12 @@ loop:
 	return ret
 }
 
+func (g *Genomes) PrintSummary() {
+	for i, n := range g.Names {
+		fmt.Printf("%d: %s\n", i, n)
+	}
+}
+
 func (g *Genomes) Save(name, fname string, which int) error {
 	fd, err := os.Create(fname)
 	if err != nil {
