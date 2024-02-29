@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"genomics/genomes"
 	"genomics/utils"
+	"log"
+	"math"
+	"net"
 	"slices"
 )
 
@@ -155,6 +158,16 @@ func mostDifferent(patterns []Pattern) (*Pattern, *Pattern, int) {
 
 type ContingencyTable struct {
 	A, B, C, D int
+	OR         float64
+}
+
+func (c *ContingencyTable) CalcOR() float64 {
+	aF, bF, cF, dF := float64(c.A), float64(c.B), float64(c.C), float64(c.D)
+	c.OR = (aF / bF) / (cF / dF)
+	if math.IsNaN(c.OR) || math.IsInf(c.OR, 1) || math.IsInf(c.OR, -1) {
+		c.OR = 0
+	}
+	return c.OR
 }
 
 func (ct *ContingencyTable) ToString() string {
@@ -229,21 +242,92 @@ func SilentInPatterns(g *genomes.Genomes,
 			}
 		}
 	}
+	ret.CalcOR()
 	return ret
 }
 
-func TestAllPairs(g *genomes.Genomes, patterns []string) {
+// The result of testing a pair
+type Pair struct {
+	a, b int // Which two genomes these are
+	ss   float64
+	ct   ContingencyTable
+}
+
+func TestAllPairs(g *genomes.Genomes, patterns []string) []Pair {
+	ret := make([]Pair, 0)
 	for i := 0; i < g.NumGenomes(); i++ {
 		for j := 0; j < i; j++ {
 			ss := g.SequenceSimilarity(i, j) * 100
 			ct := SilentInPatterns(g, i, j, patterns)
-			fmt.Printf("%s/%s: (%.2f%% ss) %s\n",
-				g.Names[i], g.Names[j], ss, ct.ToString())
+			ret = append(ret, Pair{i, j, ss, ct})
+			/*
+				fmt.Printf("%s/%s: (%.2f%% ss) %s %f\n",
+					g.Names[i], g.Names[j], ss, ct.ToString(), ct.OR)
+			*/
 		}
+	}
+	return ret
+}
+
+// Return where WH1 and RaTG13 rank in all the pairs
+func RankPairs(pairs []Pair) (int, int) {
+	wh1, rat := -1, -1
+
+	/*
+		slices.SortFunc(pairs, func(a, b Pair) int {
+			return int(b.ct.OR - a.ct.OR)
+		})
+	*/
+
+	slices.SortFunc(pairs, func(a, b Pair) int {
+		return b.ct.A - a.ct.A
+	})
+
+	for i, pair := range pairs {
+		fmt.Printf("%d: %d vs %d OR is %f %s\n", i,
+			pair.a, pair.b, pair.ct.OR, pair.ct.ToString())
+		if wh1 == -1 {
+			if pair.a == 0 || pair.b == 0 {
+				wh1 = i
+			}
+		}
+		if rat == -1 {
+			if pair.a == 463 || pair.b == 463 {
+				rat = i
+			}
+		}
+	}
+
+	return wh1, rat
+}
+
+func GetPValue(input chan *ContingencyTable, output chan float64) {
+	conn, err := net.Dial("unix", "./fisher.sock")
+	if err != nil {
+		log.Fatalf("Did you start calc_or.py?")
+	}
+	defer conn.Close()
+
+	for {
+		fmt.Printf("Waiting...\n")
+		ct := <-input
+		fmt.Printf("Got input\n")
+		msg := fmt.Sprintf("%s\n", ct.ToString())
+		fmt.Printf("Writing <%s>\n", msg)
+		conn.Write([]byte(msg))
+		output <- 0.5
 	}
 }
 
 func main() {
+	cts := make(chan *ContingencyTable)
+	ps := make(chan float64)
+	go GetPValue(cts, ps)
+	cts <- &ContingencyTable{1, 2, 3, 4, 0.0}
+	p := <-ps
+	fmt.Printf("p is %f\n", p)
+	return
+
 	g := genomes.LoadGenomes("../fasta/more_relatives.fasta",
 		"../fasta/WH1.orfs", false)
 	/*
@@ -263,19 +347,22 @@ func main() {
 		"GAGACG",
 	}
 
+	pairs := TestAllPairs(g, interesting)
+	a, b := RankPairs(pairs)
+	fmt.Println(a, b)
+
 	// Controls, that code for LR, but aren't BsaI or BsmBI sites or anything
 	/*
-	interesting := []string{
-		"TTACGC",
-		"GCGTAA",
-		"CTACGA",
-		"GCGTAG",
-	}
+		interesting := []string{
+			"TTACGC",
+			"GCGTAA",
+			"CTACGA",
+			"GCGTAG",
+		}
 	*/
 
-
-	//g.PrintSummary()
-	TestAllPairs(g, interesting)
+	// g.PrintSummary()
+	// TestAllPairs(g, interesting)
 	/*
 		ct := SilentInPatterns(g, 0, 461, interesting)
 		fmt.Printf("CT[%d %d %d %d]\n", ct.A, ct.B, ct.C, ct.D)

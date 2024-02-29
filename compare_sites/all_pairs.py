@@ -1,4 +1,5 @@
 import sys
+from pdb import set_trace as brk
 
 
 def main():
@@ -10,10 +11,10 @@ def main():
 			p = float(line.split()[-1])
 			lines.append((p, line))
 	lines.sort()
+	brk()
 	for p, l in lines:
 		print(l)
 
 
 if __name__ == "__main__":
 	main()
-
