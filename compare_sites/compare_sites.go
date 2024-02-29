@@ -158,9 +158,40 @@ func mostDifferent(patterns []Pattern) (*Pattern, *Pattern, int) {
 
 type ContingencyTable struct {
 	A, B, C, D int
-	OR         float64
+	OR, p      float64
 }
 
+type FisherResult struct {
+	OR, p float64
+}
+
+var FisherInput chan *ContingencyTable
+var FisherOutput chan FisherResult
+
+func FisherClient() {
+	conn, err := net.Dial("unix", "./fisher.sock")
+	if err != nil {
+		log.Fatalf("Did you start calc_or.py?")
+	}
+	defer conn.Close()
+
+	buf := make([]byte, 256)
+	var result FisherResult
+
+	for {
+		ct := <-FisherInput
+		msg := fmt.Sprintf("%s\n", ct.ToString())
+		conn.Write([]byte(msg))
+		_, err := conn.Read(buf)
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Sscanf(string(buf), "%g %g", &result.OR, &result.p)
+		FisherOutput <- result
+	}
+}
+
+// We can work out the OR ourselves
 func (c *ContingencyTable) CalcOR() float64 {
 	aF, bF, cF, dF := float64(c.A), float64(c.B), float64(c.C), float64(c.D)
 	c.OR = (aF / bF) / (cF / dF)
@@ -168,6 +199,13 @@ func (c *ContingencyTable) CalcOR() float64 {
 		c.OR = 0
 	}
 	return c.OR
+}
+
+// But if we want to know the p-value we'll get that from our Python server.
+func (c *ContingencyTable) DoFisherExact() {
+	FisherInput <- c
+	result := <-FisherOutput
+	c.OR, c.p = result.OR, result.p
 }
 
 func (ct *ContingencyTable) ToString() string {
@@ -242,7 +280,8 @@ func SilentInPatterns(g *genomes.Genomes,
 			}
 		}
 	}
-	ret.CalcOR()
+	ret.DoFisherExact()
+	// ret.CalcOR()
 	return ret
 }
 
@@ -280,12 +319,16 @@ func RankPairs(pairs []Pair) (int, int) {
 	*/
 
 	slices.SortFunc(pairs, func(a, b Pair) int {
-		return b.ct.A - a.ct.A
+		if b.ct.p < a.ct.p {
+			return 1
+		} else {
+			return -1
+		}
 	})
 
 	for i, pair := range pairs {
-		fmt.Printf("%d: %d vs %d OR is %f %s\n", i,
-			pair.a, pair.b, pair.ct.OR, pair.ct.ToString())
+		fmt.Printf("%d: %d vs %d OR=%f p=%g %s\n", i,
+			pair.a, pair.b, pair.ct.OR, pair.ct.p, pair.ct.ToString())
 		if wh1 == -1 {
 			if pair.a == 0 || pair.b == 0 {
 				wh1 = i
@@ -301,55 +344,35 @@ func RankPairs(pairs []Pair) (int, int) {
 	return wh1, rat
 }
 
-func GetPValue(input chan *ContingencyTable, output chan float64) {
-	conn, err := net.Dial("unix", "./fisher.sock")
-	if err != nil {
-		log.Fatalf("Did you start calc_or.py?")
-	}
-	defer conn.Close()
-
-	for {
-		fmt.Printf("Waiting...\n")
-		ct := <-input
-		fmt.Printf("Got input\n")
-		msg := fmt.Sprintf("%s\n", ct.ToString())
-		fmt.Printf("Writing <%s>\n", msg)
-		conn.Write([]byte(msg))
-		output <- 0.5
-	}
+func init() {
+	FisherInput = make(chan *ContingencyTable)
+	FisherOutput = make(chan FisherResult)
+	go FisherClient()
 }
 
 func main() {
-	cts := make(chan *ContingencyTable)
-	ps := make(chan float64)
-	go GetPValue(cts, ps)
-	cts <- &ContingencyTable{1, 2, 3, 4, 0.0}
-	p := <-ps
-	fmt.Printf("p is %f\n", p)
-	return
-
 	g := genomes.LoadGenomes("../fasta/more_relatives.fasta",
 		"../fasta/WH1.orfs", false)
 	/*
 		g := genomes.LoadGenomes("../fasta/relatives.fasta",
 			"../fasta/WH1.orfs", false)
 	*/
-	/*
-		g := genomes.LoadGenomes("../fasta/more_relatives2.fasta",
-			"../fasta/WH1.orfs", false)
-	*/
 	g.RemoveGaps()
 
 	interesting := []string{
-		"CGTCTC",
-		"GAGACC",
-		"GGTCTC",
-		"GAGACG",
+		"GGTCTC",	// BsaI
+		"GAGACC",	// BsaI
+		"CGTCTC",	// BsmBI
+		"GAGACG",	// BsmBI
 	}
 
-	pairs := TestAllPairs(g, interesting)
-	a, b := RankPairs(pairs)
-	fmt.Println(a, b)
+	for i := 0; i < len(interesting); i += 2 {
+		fmt.Printf("Trying %s+%s\n", interesting[i], interesting[i+1])
+		pairs := TestAllPairs(g, interesting[i:i+2])
+		a, b := RankPairs(pairs)
+		fmt.Printf("Ranks are %d,%d for %s+%s\n", a, b,
+			interesting[i], interesting[i+1])
+	}
 
 	// Controls, that code for LR, but aren't BsaI or BsmBI sites or anything
 	/*
