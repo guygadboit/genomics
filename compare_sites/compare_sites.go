@@ -330,6 +330,40 @@ type Pair struct {
 	maxPerSite int
 }
 
+func CountHotspots(pairs []Pair) int {
+	var ret int
+	for _, pair := range pairs {
+		if pair.maxPerSite >= 4 {
+			ret++
+		}
+	}
+	return ret
+}
+
+// Return two random 6nt sites and their reverse complements
+func RandomSites() []string {
+	ret := make([]string, 4)
+
+	s1 := utils.RandomNts(6)
+	s2 := utils.RandomNts(6)
+
+	ret[0] = string(s1)
+	ret[1] = string(utils.ReverseComplement(s1))
+
+	ret[2] = string(s2)
+	ret[3] = string(utils.ReverseComplement(s2))
+
+	return ret
+}
+
+func MontecarloHotpots(g *genomes.Genomes, its int) {
+	for i := 0; i < its; i++ {
+		sites := RandomSites()
+		pairs := TestAllPairs(g, sites)
+		fmt.Printf("%d: %d\n", i, CountHotspots(pairs))
+	}
+}
+
 func TestAllPairs(g *genomes.Genomes, patterns []string) []Pair {
 	ret := make([]Pair, 0)
 	for i := 0; i < g.NumGenomes(); i++ {
@@ -405,12 +439,12 @@ func main() {
 	}
 
 	/*
-	for i := 0; i < len(interesting); i++ {
-		fmt.Printf("Trying %s\n", interesting[i])
-		pairs := TestAllPairs(g, interesting[i:i+1], true)
-		a, b := RankPairs(pairs)
-		fmt.Printf("Ranks are %d,%d for %s\n", a, b, interesting[i])
-	}
+		for i := 0; i < len(interesting); i++ {
+			fmt.Printf("Trying %s\n", interesting[i])
+			pairs := TestAllPairs(g, interesting[i:i+1], true)
+			a, b := RankPairs(pairs)
+			fmt.Printf("Ranks are %d,%d for %s\n", a, b, interesting[i])
+		}
 	*/
 
 	// Controls, that code for LR, but aren't BsaI or BsmBI sites or anything
@@ -423,8 +457,17 @@ func main() {
 		}
 	*/
 
-	// g.PrintSummary()
-	TestAllPairs(g, interesting)
+	/*
+		MontecarloHotpots(g, 100)
+		return
+
+		randomSites := RandomSites()
+		fmt.Println(randomSites)
+		return
+	*/
+
+	pairs := TestAllPairs(g, interesting)
+	fmt.Printf("%d / %d\n", CountHotspots(pairs), len(pairs))
 	return
 
 	results := FindPatterns(g, interesting)

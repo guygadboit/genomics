@@ -7,7 +7,6 @@ def main():
 	with open(sys.argv[1]) as fp:
 		for line in fp:
 			line = line.strip()
-			line.split()
 			p = float(line.split()[-1])
 			lines.append((p, line))
 	lines.sort()
