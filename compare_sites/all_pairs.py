@@ -11,7 +11,6 @@ def main():
 			p = float(line.split()[-1])
 			lines.append((p, line))
 	lines.sort()
-	brk()
 	for p, l in lines:
 		print(l)
 
