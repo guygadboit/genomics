@@ -7,6 +7,7 @@ import (
 	"log"
 	"math"
 	"net"
+	"reflect"
 	"slices"
 )
 
@@ -236,14 +237,37 @@ func InSites(sites []int, pos int) int {
 	return -1
 }
 
+// Is there a silent mut between genomes a and b at pos?
+func IsSilent(g *genomes.Genomes, a, b int, pos int) bool {
+	aNts := g.Nts[a]
+	bNts := g.Nts[b]
+
+	if aNts[pos] == bNts[pos] {
+		return false // not a mut at all
+	}
+
+	var envA, envB genomes.Environment
+	err := envA.Init(g, pos, 1, a)
+	if err != nil {
+		return false
+	}
+
+	err = envB.Init(g, pos, 1, a)
+	if err != nil {
+		return false
+	}
+
+	return reflect.DeepEqual(envA.Protein(), envB.Protein())
+}
+
 // Make the contingency table they used in their preprint. Also return the
-// maximum number of silent muts we found in one site between the two.
+// maximum number of silent muts we found in one site between the two. If calcP
+// find the p value, not just the OR (the p-value is much slower)
 func SilentInPatterns(g *genomes.Genomes,
-	a, b int, patterns []string) (ContingencyTable, int) {
+	a, b int, patterns []string, calcP bool) (ContingencyTable, int) {
 	aNts := g.Nts[a]
 	bNts := g.Nts[b]
 	var ret ContingencyTable
-	var env genomes.Environment
 
 	// tracks how many silent muts per site
 	perSite := make(map[int]int)
@@ -253,8 +277,6 @@ func SilentInPatterns(g *genomes.Genomes,
 	slices.Sort(sites)
 
 	for i := 0; i < g.Length(); i++ {
-		silent := false
-
 		if !utils.IsRegularNt(aNts[i]) {
 			continue
 		}
@@ -263,18 +285,7 @@ func SilentInPatterns(g *genomes.Genomes,
 			continue
 		}
 
-		// OK the problem here is you're not replacing the whole site, but just
-		// considering the effect of replacing each nt on its own, leaving the
-		// others the same. That makes some mutations apparently non-silent
-		// that actually aren't. You need to look at the whole site. FIXME YOU
-		// ARE HERE.
-		if aNts[i] != bNts[i] {
-			err := env.Init(g, i, 1, a)
-			if err == nil {
-				silent, _ = env.Replace(bNts[i : i+1])
-			}
-		}
-
+		silent := IsSilent(g, a, b, i)
 		site := InSites(sites, i)
 		in := site != -1
 
@@ -293,8 +304,12 @@ func SilentInPatterns(g *genomes.Genomes,
 			}
 		}
 	}
-	ret.DoFisherExact()
-	// ret.CalcOR()
+
+	if calcP {
+		ret.DoFisherExact()
+	} else {
+		ret.CalcOR()
+	}
 
 	// Find the max per site
 	maxPerSite := 0
@@ -320,12 +335,10 @@ func TestAllPairs(g *genomes.Genomes, patterns []string) []Pair {
 	for i := 0; i < g.NumGenomes(); i++ {
 		for j := 0; j < i; j++ {
 			ss := g.SequenceSimilarity(i, j) * 100
-			ct, mps := SilentInPatterns(g, i, j, patterns)
+			ct, mps := SilentInPatterns(g, i, j, patterns, false)
 			ret = append(ret, Pair{i, j, ss, ct, mps})
-			/*
-				fmt.Printf("%s/%s: (%.2f%% ss) %s %f\n",
-					g.Names[i], g.Names[j], ss, ct.ToString(), ct.OR)
-			*/
+			fmt.Printf("%s/%s: (%.2f%% ss) %s\n",
+				g.Names[i], g.Names[j], ss, ct.ToString())
 		}
 	}
 	return ret
@@ -390,16 +403,14 @@ func main() {
 		"GAGACG", // BsmBI
 	}
 
-	ct, mps := SilentInPatterns(g, 0, 463, interesting)
-	fmt.Println(ct, mps)
-	return
-
+	/*
 	for i := 0; i < len(interesting); i++ {
 		fmt.Printf("Trying %s\n", interesting[i])
-		pairs := TestAllPairs(g, interesting[i:i+1])
+		pairs := TestAllPairs(g, interesting[i:i+1], true)
 		a, b := RankPairs(pairs)
 		fmt.Printf("Ranks are %d,%d for %s\n", a, b, interesting[i])
 	}
+	*/
 
 	// Controls, that code for LR, but aren't BsaI or BsmBI sites or anything
 	/*
@@ -412,20 +423,13 @@ func main() {
 	*/
 
 	// g.PrintSummary()
-	// TestAllPairs(g, interesting)
-	/*
-		ct := SilentInPatterns(g, 0, 461, interesting)
-		fmt.Printf("CT[%d %d %d %d]\n", ct.A, ct.B, ct.C, ct.D)
-		ct = SilentInPatterns(g, 0, 462, interesting)
-		fmt.Printf("CT[%d %d %d %d]\n", ct.A, ct.B, ct.C, ct.D)
-		g.SaveSelected("WH1-B52.fasta", 0, 461)
-	*/
+	TestAllPairs(g, interesting)
 	return
 
 	results := FindPatterns(g, interesting)
-
 	interestingSet := ToSet(interesting)
 	byLocation := ByLocation(results)
+
 	for k, v := range byLocation {
 		p, q, md := mostDifferent(v)
 
@@ -435,7 +439,7 @@ func main() {
 
 		if md >= 4 && (interestingSet[p.nts] || interestingSet[q.nts]) {
 			ss := g.SequenceSimilarity(p.which, q.which) * 100
-			ct, _ := SilentInPatterns(g, p.which, q.which, interesting)
+			ct, _ := SilentInPatterns(g, p.which, q.which, interesting, false)
 			fmt.Printf("%d %s vs %s: %s/%s %d muts %.2f%% ss ", k,
 				p.name, q.name, p.nts, q.nts, md, ss)
 			fmt.Printf("CT[%d %d %d %d]\n", ct.A, ct.B, ct.C, ct.D)
