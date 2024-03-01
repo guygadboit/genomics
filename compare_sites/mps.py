@@ -8,8 +8,7 @@ def main():
 			p = float(line.split()[-1])
 			m = re.search(r'mps=(\d)', line)
 			mps = int(m.group(1))
-			if mps >= 4:
-				print(mps)
+			print(mps)
 
 
 if __name__ == "__main__":

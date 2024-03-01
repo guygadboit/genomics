@@ -359,21 +359,23 @@ func RandomSites() []string {
 func MontecarloHotpots(g *genomes.Genomes, its int) {
 	for i := 0; i < its; i++ {
 		sites := RandomSites()
-		pairs := TestAllPairs(g, sites)
+		pairs := TestAllPairs(g, sites, false)
 		fmt.Printf("%d: %d\n", i, CountHotspots(pairs))
 	}
 }
 
-func TestAllPairs(g *genomes.Genomes, patterns []string) []Pair {
+func TestAllPairs(g *genomes.Genomes, patterns []string, verbose bool) []Pair {
 	ret := make([]Pair, 0)
 	for i := 0; i < g.NumGenomes(); i++ {
 		for j := 0; j < i; j++ {
 			ss := g.SequenceSimilarity(i, j) * 100
-			ct, mps := SilentInPatterns(g, i, j, patterns, true)
+			ct, mps := SilentInPatterns(g, i, j, patterns, false)
 			ret = append(ret, Pair{i, j, ss, ct, mps})
-			fmt.Printf("%s/%s: (%.2f%% ss) mps=%d %s OR=%g %g\n",
-				g.Names[i], g.Names[j], ss, mps, ct.ToString(),
-				ct.OR, ct.p)
+			if verbose {
+				fmt.Printf("%s/%s: (%.2f%% ss) mps=%d %s OR=%g %g\n",
+					g.Names[i], g.Names[j], ss, mps, ct.ToString(),
+					ct.OR, ct.p)
+			}
 		}
 	}
 	return ret
@@ -423,11 +425,12 @@ func init() {
 }
 
 func main() {
+
 	g := genomes.LoadGenomes("../fasta/more_relatives.fasta",
 		"../fasta/WH1.orfs", false)
 	/*
-		g := genomes.LoadGenomes("../fasta/relatives.fasta",
-			"../fasta/WH1.orfs", false)
+	g := genomes.LoadGenomes("../fasta/relatives.fasta",
+		"../fasta/WH1.orfs", false)
 	*/
 	g.RemoveGaps()
 
@@ -457,16 +460,16 @@ func main() {
 		}
 	*/
 
-	/*
-		MontecarloHotpots(g, 100)
-		return
+	MontecarloHotpots(g, 100)
+	return
 
+	/*
 		randomSites := RandomSites()
 		fmt.Println(randomSites)
 		return
 	*/
 
-	pairs := TestAllPairs(g, interesting)
+	pairs := TestAllPairs(g, interesting, true)
 	fmt.Printf("%d / %d\n", CountHotspots(pairs), len(pairs))
 	return
 
