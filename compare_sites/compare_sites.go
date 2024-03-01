@@ -335,10 +335,11 @@ func TestAllPairs(g *genomes.Genomes, patterns []string) []Pair {
 	for i := 0; i < g.NumGenomes(); i++ {
 		for j := 0; j < i; j++ {
 			ss := g.SequenceSimilarity(i, j) * 100
-			ct, mps := SilentInPatterns(g, i, j, patterns, false)
+			ct, mps := SilentInPatterns(g, i, j, patterns, true)
 			ret = append(ret, Pair{i, j, ss, ct, mps})
-			fmt.Printf("%s/%s: (%.2f%% ss) %s\n",
-				g.Names[i], g.Names[j], ss, ct.ToString())
+			fmt.Printf("%s/%s: (%.2f%% ss) mps=%d %s OR=%g %g\n",
+				g.Names[i], g.Names[j], ss, mps, ct.ToString(),
+				ct.OR, ct.p)
 		}
 	}
 	return ret
