@@ -252,7 +252,7 @@ func IsSilent(g *genomes.Genomes, a, b int, pos int) bool {
 		return false
 	}
 
-	err = envB.Init(g, pos, 1, a)
+	err = envB.Init(g, pos, 1, b)
 	if err != nil {
 		return false
 	}
