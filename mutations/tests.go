@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
+	"genomics/genomes"
 )
 
-func testMutations(genome *Genomes) {
+func testMutations(genome *genomes.Genomes) {
 	fmt.Printf("Loaded %d genomes length %d\n",
 		genome.NumGenomes(), genome.Length())
 
@@ -13,11 +14,12 @@ func testMutations(genome *Genomes) {
 
 	nd := NewNucDistro(genome)
 
-	var mutant *Genomes
+	var mutant *genomes.Genomes
 	for {
 		mutant = genome.Clone()
 		MutateSilent(mutant, nd, 700)
-		count, maxLength, unique, interleaved := FindRestrictionMap(mutant)
+		count, maxLength, unique, interleaved, _ :=
+			FindRestrictionMap(mutant)
 		if unique && maxLength < 8000 {
 			fmt.Println(count, maxLength, unique, interleaved)
 			break
@@ -27,7 +29,7 @@ func testMutations(genome *Genomes) {
 	fmt.Printf("Saved as B52-mutated.fasta\n")
 }
 
-func testTamper(genome *Genomes) {
+func testTamper(genome *genomes.Genomes) {
 	num := Tamper(genome, RE_SITES, 10, 10)
 	fmt.Printf("Tampered with %d sites\n", num)
 
@@ -35,15 +37,15 @@ func testTamper(genome *Genomes) {
 	fmt.Printf("Saved as B52-mutated.fasta\n")
 }
 
-func testAlternatives(genome *Genomes) {
-	var env Environment
+func testAlternatives(genome *genomes.Genomes) {
+	var env genomes.Environment
 	env.Init(genome, 300, 6, 0)
 
 	alternatives := env.FindAlternatives(6)
 	fmt.Println(alternatives)
 }
 
-func testCachedSearch(genome *Genomes) {
+func testCachedSearch(genome *genomes.Genomes) {
 	var cs CachedSearch
 
 	for i := 0; i < 3; i++ {
@@ -60,8 +62,8 @@ func testCachedSearch(genome *Genomes) {
 	}
 }
 
-func testTranslate(genome *Genomes) {
-	var it CodonIter
+func testTranslate(genome *genomes.Genomes) {
+	var it genomes.CodonIter
 	it.Init(genome, 0)
 
 	for {
@@ -75,8 +77,8 @@ func testTranslate(genome *Genomes) {
 }
 
 func Test() {
-	// genome := LoadGenomes("BANAL-20-52.fasta", "BANAL-20-52.orfs")
-	genome := LoadGenomes("WH1.fasta", "WH1.orfs")
+	genome := genomes.LoadGenomes("../fasta/B52.fasta",
+		"../fasta/B52.orfs", false)
 	// testCachedSearch(genome)
 	// testMutations(genome)
 	// testAlternatives(genome)

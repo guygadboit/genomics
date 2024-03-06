@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"genomics/genomes"
 	//"fmt"
 )
 
@@ -34,7 +35,8 @@ func reverse(b []byte) []byte {
 	return ret
 }
 
-func getStickyEnd(genome *Genomes, pos int, site *ReSite) (string, error) {
+func getStickyEnd(genome *genomes.Genomes,
+	pos int, site *ReSite) (string, error) {
 	start := pos + site.stickyStart
 	end := pos + site.stickyEnd
 
@@ -42,7 +44,7 @@ func getStickyEnd(genome *Genomes, pos int, site *ReSite) (string, error) {
 		return "", errors.New("Out of bounds")
 	}
 
-	s := genome.nts[0][start:end]
+	s := genome.Nts[0][start:end]
 	if site.reverse {
 		s = reverse(s)
 	}
@@ -56,12 +58,14 @@ func getStickyEnd(genome *Genomes, pos int, site *ReSite) (string, error) {
 }
 
 /*
-	Returns the number of segments the length of the longest one, whether
-	the sticky ends are all unique, and whether there is interleaving. Note: I
-	doubt interleaving has any significance but it's something people ask about
-	so we might as well generate a result for them.
+Returns the number of segments the length of the longest one, whether the
+sticky ends are all unique, whether there is interleaving, and the
+positions of the sites. Note: I doubt interleaving has any significance but
+it's something people ask about so we might as well generate a result for
+them.
 */
-func FindRestrictionMap(genome *Genomes) (int, int, bool, bool) {
+func FindRestrictionMap(genome *genomes.Genomes) (int,
+	int, bool, bool, []int) {
 	var s Search
 	prev, maxLength, count := 0, 0, 0
 	stickyEnds := make(map[string]int)
@@ -69,12 +73,15 @@ func FindRestrictionMap(genome *Genomes) (int, int, bool, bool) {
 	interleaved := false
 	// The previous type and how many types we changed type
 	var typ, prevType, typeChanged int
+	positions := make([]int, 0)
 
 	for s.Init(genome, RE_SITES); ; {
 		pos, site := s.Iter()
 		if s.End() {
 			break
 		}
+
+		positions = append(positions, pos)
 
 		typ = site.typ
 		if typ != prevType {
@@ -113,5 +120,5 @@ func FindRestrictionMap(genome *Genomes) (int, int, bool, bool) {
 	}
 	count++
 
-	return count, maxLength, unique, interleaved
+	return count, maxLength, unique, interleaved, positions
 }

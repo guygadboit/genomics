@@ -4,13 +4,15 @@ import (
 	"fmt"
 	"io"
 	"math/rand"
+	"genomics/genomes"
 )
 
 type TamperTrial struct {
-	runFunc func(genome *Genomes, numMuts int, results chan interface{})
+	runFunc func(genome *genomes.Genomes,
+	numMuts int, results chan interface{})
 }
 
-func (t *TamperTrial) Run(genome *Genomes,
+func (t *TamperTrial) Run(genome *genomes.Genomes,
 	numMuts int, results chan interface{}) {
 	t.runFunc(genome, numMuts, results)
 }
@@ -31,12 +33,12 @@ func (r *TamperTrialResult) Write(w io.Writer) {
 		r.totalMuts, r.totalSites, r.totalSingleSites)
 }
 
-func TamperTrials(genome *Genomes, nd *NucDistro,
+func TamperTrials(genome *genomes.Genomes, nd *NucDistro,
 	numTrials int, numMuts int, numEdits int, results chan interface{}) {
 
 	reportProgress := func(n int) {
 		fmt.Printf("%s (%d muts) %d/%d trials\n",
-			genome.names[0], numMuts, n, numTrials)
+			genome.Names[0], numMuts, n, numTrials)
 	}
 
 	for i := 0; i < numTrials; i++ {
@@ -51,7 +53,7 @@ func TamperTrials(genome *Genomes, nd *NucDistro,
 		var result TamperTrialResult
 		mutant.Combine(genome)
 		result.SilentInSites = CountSilentInSites(mutant, RE_SITES, true)
-		result.name = genome.names[0]
+		result.name = genome.Names[0]
 		result.tampered = tampered
 
 		results <- &result

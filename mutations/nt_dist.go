@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"math/rand"
+	"genomics/genomes"
 )
 
 // Counts for each nucleotide in a genome
@@ -11,10 +12,10 @@ type NucDistro struct {
 	total int
 }
 
-func (nd *NucDistro) Count(g *Genomes) {
+func (nd *NucDistro) Count(g *genomes.Genomes) {
 	for i := 0; i < g.NumGenomes(); i++ {
 		for j := 0; j < g.Length(); j++ {
-			nt := g.nts[i][j]
+			nt := g.Nts[i][j]
 
 			switch nt {
 			case 'R':
@@ -30,7 +31,7 @@ func (nd *NucDistro) Count(g *Genomes) {
 	}
 }
 
-func NewNucDistro(g *Genomes) *NucDistro {
+func NewNucDistro(g *genomes.Genomes) *NucDistro {
 	ret := NucDistro{nts: make(map[byte]int)}
 	if g != nil {
 		ret.Count(g)
@@ -47,7 +48,7 @@ func (nd *NucDistro) Show() {
 }
 
 /*
-	Pick a nucleotide randomly from the distribution represented by nd
+Pick a nucleotide randomly from the distribution represented by nd
 */
 func (nd *NucDistro) Random() byte {
 	r := rand.Intn(nd.total)

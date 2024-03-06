@@ -3,14 +3,15 @@ package main
 import (
 	"errors"
 	"math/rand"
+	"genomics/genomes"
 )
 
 /*
-	Add one of the sites in sites somewhere randomly but not in notAt using a
-	maximum of maxMuts mutations. Return where it was added or an error in the
-	unlikely event that it couldn't be.
+Add one of the sites in sites somewhere randomly but not in notAt using a
+maximum of maxMuts mutations. Return where it was added or an error in the
+unlikely event that it couldn't be.
 */
-func AddSite(genome *Genomes, sites []ReSite,
+func AddSite(genome *genomes.Genomes, sites []ReSite,
 	notAt map[int]bool, maxMuts int) (int, error) {
 	site := sites[rand.Intn(len(sites))]
 	m := len(site.pattern)
@@ -21,7 +22,7 @@ func AddSite(genome *Genomes, sites []ReSite,
 			return false
 		}
 
-		var env Environment
+		var env genomes.Environment
 		err := env.Init(genome, pos, m, 0)
 		if err != nil {
 			return false
@@ -29,7 +30,7 @@ func AddSite(genome *Genomes, sites []ReSite,
 
 		silent, numMuts := env.Replace(site.pattern)
 		if silent && numMuts <= maxMuts {
-			copy(genome.nts[0][pos:pos+m], site.pattern)
+			copy(genome.Nts[0][pos:pos+m], site.pattern)
 		}
 		return silent && numMuts <= maxMuts
 	}
@@ -50,15 +51,15 @@ func AddSite(genome *Genomes, sites []ReSite,
 }
 
 /*
-	Remove a site from somewhere random, but not in notAt. Return the position
-	it was removed from.
+Remove a site from somewhere random, but not in notAt. Return the position
+it was removed from.
 */
-func RemoveSite(genome *Genomes,
+func RemoveSite(genome *genomes.Genomes,
 	search *CachedSearch, notAt map[int]bool) (int, error) {
 	n := genome.Length()
 	sites := search.GetSites()
 	m := len(sites[0].pattern)
-	nts := genome.nts[0]
+	nts := genome.Nts[0]
 
 	genomeStart := rand.Intn(n)
 
@@ -68,7 +69,7 @@ func RemoveSite(genome *Genomes,
 			return false
 		}
 
-		var env Environment
+		var env genomes.Environment
 		err := env.Init(genome, pos, m, 0)
 		if err != nil {
 			return false
@@ -86,7 +87,7 @@ func RemoveSite(genome *Genomes,
 				string(nts[pos:pos+m]), string(alt.nts), pos)
 		*/
 
-		copy(nts[pos:pos+m], alt.nts)
+		copy(nts[pos:pos+m], alt.Nts)
 		return true
 	}
 
@@ -122,10 +123,10 @@ func RemoveSite(genome *Genomes,
 }
 
 /*
-	Try to silently remove the specified numbers of sites. Return the actual number
-	modified
+Try to silently remove the specified numbers of sites. Return the actual number
+modified
 */
-func Tamper(genome *Genomes, sites []ReSite, remove, add int) int {
+func Tamper(genome *genomes.Genomes, sites []ReSite, remove, add int) int {
 	removed := make(map[int]bool)
 	count := 0
 

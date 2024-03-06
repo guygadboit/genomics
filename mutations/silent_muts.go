@@ -1,12 +1,13 @@
 /*
-	Explore various scoring systems for how suspiciously engineered a genome
-	might look based on whether it has more silent mutations, or more of
-	particular kinds, in the sites of interest rather than outside them.
+Explore various scoring systems for how suspiciously engineered a genome
+might look based on whether it has more silent mutations, or more of
+particular kinds, in the sites of interest rather than outside them.
 */
 package main
 
 import (
 	"fmt"
+	"genomics/genomes"
 )
 
 type SilentInSites struct {
@@ -19,14 +20,14 @@ func (sis SilentInSites) Show() {
 }
 
 /*
-	Assume there are two aligned genomes in Genomes. Return if they code for
-	the same protein for count nts at pos
+Assume there are two aligned genomes in Genomes. Return if they code for
+the same protein for count nts at pos
 */
-func isSilent(genomes *Genomes, pos int, count int) bool {
-	var aEnv, bEnv Environment
+func isSilent(g *genomes.Genomes, pos int, count int) bool {
+	var aEnv, bEnv genomes.Environment
 
-	aEnv.Init(genomes, pos, count, 0)
-	bEnv.Init(genomes, pos, count, 1)
+	aEnv.Init(g, pos, count, 0)
+	bEnv.Init(g, pos, count, 1)
 
 	aProt := aEnv.Protein()
 	bProt := bEnv.Protein()
@@ -40,18 +41,18 @@ func isSilent(genomes *Genomes, pos int, count int) bool {
 }
 
 /*
-	Return the total number of mutations in the sites, the number of sites, and
-	the number of sites with only one mutation. If assumeSilent don't bother
-	checking if the mutations were silent (because in our common use case we
-	only introduce silent mutations in the first place, so this saves time)
+Return the total number of mutations in the sites, the number of sites, and
+the number of sites with only one mutation. If assumeSilent don't bother
+checking if the mutations were silent (because in our common use case we
+only introduce silent mutations in the first place, so this saves time)
 */
-func CountSilentInSites(genomes *Genomes,
+func CountSilentInSites(g *genomes.Genomes,
 	sites []ReSite, assumeSilent bool) SilentInSites {
 	var ret SilentInSites
 	var s Search
 	m := len(sites[0].pattern)
 
-	for s.Init(genomes, sites); ; {
+	for s.Init(g, sites); ; {
 		pos, _ := s.Iter()
 		if s.End() {
 			break
@@ -60,7 +61,7 @@ func CountSilentInSites(genomes *Genomes,
 		// First count how many muts
 		numMuts := 0
 		for k := 0; k < m; k++ {
-			if genomes.nts[0][pos+k] != genomes.nts[1][pos+k] {
+			if g.Nts[0][pos+k] != g.Nts[1][pos+k] {
 				numMuts++
 			}
 		}
@@ -73,18 +74,10 @@ func CountSilentInSites(genomes *Genomes,
 		// Now given that it is mutated, check that it's silent (we might
 		// already know that it is)
 		if !assumeSilent {
-			if !isSilent(genomes, pos, m) {
+			if !isSilent(g, pos, m) {
 				continue
 			}
 		}
-
-		/*
-			first := string(genomes.nts[0][pos:pos+m])
-			second := string(genomes.nts[1][pos:pos+m])
-			fmt.Printf("%s silent mut %s (%s %s) at %d\n", genomes.names[0],
-				string(site.pattern),
-				first, second, pos)
-		*/
 
 		ret.totalMuts += numMuts
 		ret.totalSites++
@@ -96,8 +89,8 @@ func CountSilentInSites(genomes *Genomes,
 }
 
 /*
-	For each of our alignments of WH1 with various relatives, count the silent
-	in sites. We will compare these to the simulated figures
+For each of our alignments of WH1 with various relatives, count the silent
+in sites. We will compare these to the simulated figures
 */
 func CountSilentInSitesReference(name string, sites []ReSite,
 	results chan interface{}) {
@@ -106,10 +99,10 @@ func CountSilentInSitesReference(name string, sites []ReSite,
 	// ORFS
 	baseName := fmt.Sprintf("WH1-%s", name)
 	fname := fmt.Sprintf("%s.fasta", baseName)
-	genomes := LoadGenomes(fname, "WH1.orfs")
+	g := genomes.LoadGenomes(fname, "WH1.orfs", false)
 
 	var result TamperTrialResult
-	result.SilentInSites = CountSilentInSites(genomes, RE_SITES, false)
+	result.SilentInSites = CountSilentInSites(g, RE_SITES, false)
 	result.name = baseName
 
 	results <- &result

@@ -1,11 +1,12 @@
 package main
 
 import (
+	"genomics/genomes"
 	"reflect"
 )
 
 type Search struct {
-	genomes *Genomes // Where we're looking
+	genomes *genomes.Genomes // Where we're looking
 	reSites []ReSite // What we're looking for
 
 	i     int         // Where we got to looking for sites
@@ -26,13 +27,13 @@ type SearchCacheResult struct {
 
 type SearchCache []SearchCacheResult
 
-func (s *Search) Init(genomes *Genomes, reSites []ReSite) {
+func (s *Search) Init(genomes *genomes.Genomes, reSites []ReSite) {
 	s.genomes = genomes
 	s.reSites = reSites
 	s.i = 0
 }
 
-func (s *CachedSearch) Init(genomes *Genomes, reSites []ReSite) {
+func (s *CachedSearch) Init(genomes *genomes.Genomes, reSites []ReSite) {
 	// If we have cached data, we just need to rewind so that we start
 	// retrieving it.
 	if s.cacheFull {
@@ -48,12 +49,12 @@ func (s *CachedSearch) Init(genomes *Genomes, reSites []ReSite) {
 }
 
 /*
-	Returns the position in the nts and the ReSite that matched. If there are
-	multiple genomes we look for matches in any of them.
+Returns the position in the nts and the ReSite that matched. If there are
+multiple genomes we look for matches in any of them.
 */
 func (s *Search) Iter() (int, *ReSite) {
 	genomes := s.genomes
-	nts := s.genomes.nts
+	nts := s.genomes.Nts
 	n := genomes.Length()
 	m := len(s.reSites[0].pattern)
 

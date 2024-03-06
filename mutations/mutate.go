@@ -2,16 +2,17 @@ package main
 
 import (
 	"math/rand"
+	"genomics/genomes"
 )
 
 /*
-	Introduce num silent mutations into genome (the first one), selecting nts
-	randomly from nucDist. Return the number of mutations
+Introduce num silent mutations into genome (the first one), selecting nts
+randomly from nucDist. Return the number of mutations
 */
-func MutateSilent(genome *Genomes, nucDist *NucDistro, num int) int {
+func MutateSilent(genome *genomes.Genomes, nucDist *NucDistro, num int) int {
 	numMuts := 0
 	alreadyDone := make(map[int]int)
-	nts := genome.nts[0]
+	nts := genome.Nts[0]
 
 	// Try to mutate silently at pos. Return true if we succeeded.
 	tryMutate := func(pos int) bool {
@@ -20,7 +21,7 @@ func MutateSilent(genome *Genomes, nucDist *NucDistro, num int) int {
 			return false
 		}
 
-		var env Environment
+		var env genomes.Environment
 		err := env.Init(genome, pos, 1, 0)
 		if err != nil {
 			// You get an error if pos is not in an ORF
@@ -72,15 +73,15 @@ mutations:
 }
 
 /*
-	Returns the number of silent and non-silent mutations in an alignment of
-	two genomes. Ignores indels.
+Returns the number of silent and non-silent mutations in an alignment of
+two genomes. Ignores indels.
 */
-func CountMutations(genomes *Genomes) (int, int) {
+func CountMutations(g *genomes.Genomes) (int, int) {
 	var nonSilent, silent int
-	var env Environment
-	a_nts := genomes.nts[0]
-	b_nts := genomes.nts[1]
-	n := genomes.Length()
+	var env genomes.Environment
+	a_nts := g.Nts[0]
+	b_nts := g.Nts[1]
+	n := g.Length()
 
 	for i := 0; i < n; i++ {
 		a := a_nts[i]
@@ -94,7 +95,7 @@ func CountMutations(genomes *Genomes) (int, int) {
 			continue
 		}
 
-		err := env.Init(genomes, i, 1, 0)
+		err := env.Init(g, i, 1, 0)
 		if err != nil {
 			// Ignore anything not in an ORF
 			continue

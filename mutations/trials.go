@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 	"sync"
+	"genomics/genomes"
 )
 
 type TrialResult interface {
@@ -16,32 +17,32 @@ type TrialResult interface {
 
 type Trial interface {
 	WriteHeadings(w io.Writer)
-	Run(genome *Genomes, numMuts int, results chan interface{})
+	Run(genome *genomes.Genomes, numMuts int, results chan interface{})
 }
 
-func loadGenomes(fnames []string) []*Genomes {
-	genomes := make([]*Genomes, len(fnames))
+func loadGenomes(fnames []string) []*genomes.Genomes {
+	g := make([]*genomes.Genomes, len(fnames))
 	for i := 0; i < len(fnames); i++ {
-		genomes[i] = LoadGenomes(
-			fnames[i]+".fasta",
-			fnames[i]+".orfs",
-		)
+		g[i] = genomes.LoadGenomes(
+			"../fasta/"+fnames[i]+".fasta",
+			"../fasta/"+fnames[i]+".orfs",
+			false)
 	}
-	return genomes
+	return g
 }
 
-func findNucDistro(genomes []*Genomes) *NucDistro {
+func findNucDistro(g []*genomes.Genomes) *NucDistro {
 	nd := NewNucDistro(nil)
-	for i := 0; i < len(genomes); i++ {
-		nd.Count(genomes[i])
+	for i := 0; i < len(g); i++ {
+		nd.Count(g[i])
 	}
 	return nd
 }
 
 /*
-	Return an array of ints for how many muts to apply, which either numMuts
-	for everything, or the number of silent muts there are between each genome
-	and WH1.
+Return an array of ints for how many muts to apply, which either numMuts
+for everything, or the number of silent muts there are between each genome
+and WH1.
 */
 func findMutsPerGenome(fnames []string, numMuts int) []int {
 	mutsPerGenome := make([]int, len(fnames))
@@ -50,9 +51,9 @@ func findMutsPerGenome(fnames []string, numMuts int) []int {
 		if numMuts != 0 {
 			mutsPerGenome[i] = numMuts
 		} else {
-			genomes := LoadGenomes(fmt.Sprintf("WH1-%s.fasta",
-				fnames[i]), "WH1.orfs")
-			mutsPerGenome[i], _ = CountMutations(genomes)
+			g := genomes.LoadGenomes(fmt.Sprintf("WH1-%s.fasta",
+				fnames[i]), "../fasta/WH1.orfs", false)
+			mutsPerGenome[i], _ = CountMutations(g)
 		}
 	}
 
@@ -84,6 +85,7 @@ func main() {
 	}
 
 	fnames := []string{
+		"RpYN06",
 		"BtSY2",
 		"ChimericAncestor",
 		"BANAL-20-236",
@@ -92,8 +94,8 @@ func main() {
 		"RaTG13",
 	}
 
-	genomes := loadGenomes(fnames)
-	nd := findNucDistro(genomes)
+	g := loadGenomes(fnames)
+	nd := findNucDistro(g)
 	nd.Show()
 
 	// How many silent muts to apply per genome? If they set 0 that means
@@ -102,14 +104,15 @@ func main() {
 
 	// Construct the trial objects
 	spacingTrial := SpacingTrial{
-		func(genome *Genomes, numMuts int, results chan interface{}) {
+		func(genome *genomes.Genomes, numMuts int, results chan interface{}) {
 			SpacingTrials(genome, nd, nTrials/nThreads,
 				numMuts, countSites, results)
 		}}
 
 	tamperTrial := TamperTrial{
-		func(genome *Genomes, numMuts int, results chan interface{}) {
-			TamperTrials(genome, nd, nTrials/nThreads, numMuts, nEdits, results)
+		func(genome *genomes.Genomes, numMuts int, results chan interface{}) {
+			TamperTrials(genome, nd,
+				nTrials/nThreads, numMuts, nEdits, results)
 		}}
 
 	trials := map[string]Trial{
@@ -144,11 +147,11 @@ func main() {
 	// single channel. Each thread will do a portion of the tests but for all
 	// genomes
 	for i := 0; i < nThreads; i++ {
-		wg.Add(len(genomes))
+		wg.Add(len(g))
 
 		go func() {
-			for j := 0; j < len(genomes); j++ {
-				trial.Run(genomes[j], mutsPerGenome[j], results)
+			for j := 0; j < len(g); j++ {
+				trial.Run(g[j], mutsPerGenome[j], results)
 				wg.Done()
 			}
 		}()

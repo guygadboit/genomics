@@ -116,7 +116,7 @@ func LoadOrfs(fname string) Orfs {
 
 	fd, err := os.Open(fname)
 	if err != nil {
-		log.Fatal("Can't open file")
+		log.Fatalf("Can't open file %s", fname)
 	}
 	defer fd.Close()
 
