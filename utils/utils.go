@@ -146,3 +146,26 @@ func IsRegularPattern(nts []byte) bool {
 	}
 	return true
 }
+
+// Given two sequences return the number of differences between them. They are
+// assumed to be the same length. Only count "regular" nts, not gaps etc.
+func NumMuts(a []byte, b[] byte) int {
+	var ret int
+	for i := 0; i < len(a); i++ {
+		if !IsRegularNt(a[i]) || !IsRegularNt(b[i]) {
+			continue
+		}
+		if a[i] != b[i] {
+			ret++
+		}
+	}
+	return ret
+}
+
+func ToSet[S comparable](s []S) map[S]bool {
+    ret := make(map[S]bool)
+    for _, item := range s {
+        ret[item] = true
+    }
+    return ret
+}

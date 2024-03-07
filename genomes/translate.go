@@ -106,7 +106,7 @@ var CodonTable = map[string]byte{
 var ReverseCodonTable map[byte][]string
 
 type Orf struct {
-	start, end int
+	Start, End int
 }
 
 type Orfs []Orf
@@ -164,9 +164,9 @@ fast as anything else
 func (orfs Orfs) GetCodonOffset(pos int) (int, int, error) {
 	for i := 0; i < len(orfs); i++ {
 		orf := &orfs[i]
-		if pos >= orf.start && pos < orf.end {
-			orfPos := pos - orf.start // pos relative to start of ORF
-			return orf.start + (orfPos/3)*3, orfPos % 3, nil
+		if pos >= orf.Start && pos < orf.End {
+			orfPos := pos - orf.Start // pos relative to start of ORF
+			return orf.Start + (orfPos/3)*3, orfPos % 3, nil
 		}
 	}
 	return 0, 0, errors.New("Not in ORF")
@@ -430,7 +430,7 @@ type CodonIter struct {
 func (it *CodonIter) Init(genome *Genomes, which int) {
 	it.genome = genome
 	it.which = which
-	it.pos = genome.Orfs[0].start
+	it.pos = genome.Orfs[0].Start
 }
 
 func (it *CodonIter) Next() (pos int, codon string, aa byte, err error) {
@@ -438,7 +438,7 @@ func (it *CodonIter) Next() (pos int, codon string, aa byte, err error) {
 	for ; it.orfI < len(genome.Orfs); it.orfI++ {
 		orf := genome.Orfs[it.orfI]
 		pos = it.pos
-		if pos+3 <= orf.end {
+		if pos+3 <= orf.End {
 			codon = string(genome.Nts[it.which][pos : pos+3])
 			aa = CodonTable[codon]
 			err = nil
@@ -487,6 +487,30 @@ func (t Translation) Find(protein []byte, start int) int {
 		}
 	}
 	return -1
+}
+
+/*
+Do genomes a and b in an alignment code for the same thing between pos and
+pos+length? Return error, silent, and the number of muts
+*/
+func IsSilent(g *Genomes, pos int, length int, a, b int) (error, bool, int) {
+	var envA, envB Environment
+
+	err := envA.Init(g, pos, length, a)
+	if err != nil {
+		return err, false, 0
+	}
+
+	err = envB.Init(g, pos, length, b)
+	if err != nil {
+		return err, false, 0
+	}
+
+	silent := reflect.DeepEqual(envA.Protein(), envB.Protein())
+	numMuts := utils.NumMuts(g.Nts[a][pos:pos+length],
+		g.Nts[b][pos:pos+length])
+
+	return nil, silent, numMuts
 }
 
 func init() {

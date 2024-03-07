@@ -250,3 +250,38 @@ func (g *Genomes) SequenceSimilarity(a, b int) float64{
 	}
 	return float64(same) / float64(total)
 }
+
+/*
+What is the sequence similarity between (start, end]? If include is false, then
+return the SS everywhere else instead
+*/
+func (g *Genomes) SubSequenceSimilarity(a, b int,
+	start, end int, include bool) float64 {
+	var same, total int
+	for i := 0; i < g.Length(); i++ {
+		// Only consider proper nts
+		switch g.Nts[a][i] {
+		case 'A':
+			fallthrough
+		case 'C':
+			fallthrough
+		case 'G':
+			fallthrough
+		case 'T':
+			break
+		default:
+			continue
+		}
+
+		inRange := i >= start && i < end
+		if inRange != include {
+			continue
+		}
+
+		total++
+		if g.Nts[a][i] == g.Nts[b][i] {
+			same++
+		}
+	}
+	return float64(same) / float64(total)
+}

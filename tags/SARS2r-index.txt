@@ -1,0 +1,57 @@
+0: NC_045512.2 Severe acute respiratory syndrome coronavirus 2 isolate Wuhan-Hu-1, complete genome
+1: OR233328.1 Horseshoe bat sarbecovirus isolate Ra22QT137 surface glycoprotein gene, complete cds
+2: OR233322.1 Horseshoe bat sarbecovirus isolate Ra22QT106 surface glycoprotein gene, complete cds
+3: OR233323.1 Horseshoe bat sarbecovirus isolate Ra22QT135 surface glycoprotein gene, complete cds
+4: OR233324.1 Horseshoe bat sarbecovirus isolate Ra22QT77 surface glycoprotein gene, complete cds
+5: MZ937003.2 Bat coronavirus isolate BANAL-20-236/Laos/2020, complete genome
+6: MZ937001.1 Bat coronavirus isolate BANAL-20-103/Laos/2020, complete genome
+7: MZ937000.1 Bat coronavirus isolate BANAL-20-52/Laos/2020, complete genome
+8: MN996532.2 Bat coronavirus RaTG13, complete genome
+9: MZ081381.1 Betacoronavirus sp. RpYN06 strain bat/Yunnan/RpYN06/2020, complete genome
+10: MZ937004.1 Bat coronavirus isolate BANAL-20-247/Laos/2020, complete genome
+11: MZ937002.1 Bat coronavirus isolate BANAL-20-116/Laos/2020, complete genome
+12: MW251312.1 Bat coronavirus RacCS271, partial genome
+13: MW251311.1 Bat coronavirus RacCS264, partial genome
+14: MW251310.1 Bat coronavirus RacCS253, partial genome
+15: MW251308.1 Bat coronavirus RacCS203, complete genome
+16: MW251309.1 Bat coronavirus RacCS224, partial genome
+17: OR233327.1 Horseshoe bat sarbecovirus isolate Rp22DB167 surface glycoprotein gene, complete cds
+18: MW703458.1 Sarbecovirus sp. isolate PrC31, complete genome
+19: OK017806.1 Sarbecovirus sp. isolate YN2021, complete genome
+20: OK287355.1 Sarbecovirus sp. isolate BetaCoV_Yunnan_Rp_JCC9_2020, complete genome
+21: OR233302.1 Horseshoe bat sarbecovirus isolate Rp22DB159 surface glycoprotein gene, complete cds
+22: OP963576.1 Bat SARS-like virus BtSY2 ORF1ab polyprotein (ORF1ab), ORF1a polyprotein (ORF1ab), surface glycoprotein, ORF3a protein, ORF3b protein, envelope protein, membrane protein M, ORF6 protein, ORF7a protein, ORF7b protein, ORF8 protein, nucleocapsid
+23: OQ297732.1 MAG: Severe acute respiratory syndrome-related coronavirus isolate GD/L105.18/2022, partial genome
+24: OQ297706.1 MAG: Severe acute respiratory syndrome-related coronavirus isolate GD/L102.18/2022, partial genome
+25: OK017804.1 Sarbecovirus sp. isolate HN2021B, complete genome
+26: OK017803.1 Sarbecovirus sp. isolate HN2021A, complete genome
+27: OK017805.1 Sarbecovirus sp. isolate HN2021G, complete genome
+28: MG772934.1 Bat SARS-like coronavirus isolate bat-SL-CoVZXC21, complete genome
+29: MG772933.1 Bat SARS-like coronavirus isolate bat-SL-CoVZC45, complete genome
+30: OQ297708.1 MAG: Pangolin coronavirus isolate GD/P79-9/2019, complete genome
+31: OQ297700.1 MAG: Pangolin coronavirus isolate GD/M5-9/2019, partial genome
+32: OQ297707.1 MAG: Pangolin coronavirus isolate GD/P44-9/2019, partial genome
+33: MT121216.1 Pangolin coronavirus isolate MP789, complete genome
+34: MT084071.1 Pangolin coronavirus isolate MP789 genomic sequence
+35: MW532698.1 Pangolin coronavirus isolate GX_P2V, complete genome
+36: MT072864.1 Pangolin coronavirus isolate PCoV_GX-P2V, complete genome
+37: MT040336.1 Pangolin coronavirus isolate PCoV_GX-P5E, complete genome
+38: MT040335.1 Pangolin coronavirus isolate PCoV_GX-P5L, complete genome
+39: MT040334.1 Pangolin coronavirus isolate PCoV_GX-P1E, complete genome
+40: MT040333.1 Pangolin coronavirus isolate PCoV_GX-P4L, complete genome
+41: MT072865.1 Pangolin coronavirus isolate PCoV_GX-P3B genomic sequence
+42: LC663959.1 Sarbecovirus sp. Rc-mk2 RNA, complete geneome
+43: LC663958.1 Sarbecovirus sp. Rc-os20 RNA, complete geneome
+44: LC663793.1 Sarbecovirus sp. Rc-kw8 RNA, complete genome
+45: LC556375.1 Severe acute respiratory syndrome-related coronavirus Rc-o319 RNA, complete genome
+46: OL674081.1 Severe acute respiratory syndrome-related coronavirus isolate Rs7952, complete genome
+47: OL674080.1 Severe acute respiratory syndrome-related coronavirus isolate Rs7931, complete genome
+48: OL674074.1 Severe acute respiratory syndrome-related coronavirus isolate Rs7896, complete genome
+49: OL674075.1 Severe acute respiratory syndrome-related coronavirus isolate Rs7905, complete genome
+50: OL674079.1 Severe acute respiratory syndrome-related coronavirus isolate Rs7924, complete genome
+51: OL674077.1 Severe acute respiratory syndrome-related coronavirus isolate Ra7909, complete genome
+52: OL674076.1 Severe acute respiratory syndrome-related coronavirus isolate Rs7907, complete genome
+53: OL674078.1 Severe acute respiratory syndrome-related coronavirus isolate Rs7921, complete genome
+54: MZ081380.1 Betacoronavirus sp. RsYN04 strain bat/Yunnan/RsYN04/2020, complete genome
+55: MZ081378.1 Betacoronavirus sp. RmYN08 strain bat/Yunnan/RmYN08/2020, complete genome
+56: MZ081376.1 Betacoronavirus sp. RmYN05 strain bat/Yunnan/RmYN05/2020, complete genome

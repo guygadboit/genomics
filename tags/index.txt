@@ -1,0 +1,529 @@
+0: NC_045512.2 Severe acute respiratory syndrome coronavirus 2 isolate Wuhan-Hu-1, complete genome
+1: OR233321.1 Horseshoe bat sarbecovirus isolate Rt22QT53 surface glycoprotein gene, complete cds
+2: OR233320.1 Horseshoe bat sarbecovirus isolate Rt22QT48 surface glycoprotein gene, complete cds
+3: OR233316.1 Horseshoe bat sarbecovirus isolate Rt22QT161 surface glycoprotein gene, complete cds
+4: OR233300.1 Horseshoe bat sarbecovirus isolate Rt22QT124 surface glycoprotein gene, complete cds
+5: OR233318.1 Horseshoe bat sarbecovirus isolate Rt22QT36 surface glycoprotein gene, complete cds
+6: OR233319.1 Horseshoe bat sarbecovirus isolate Rt22QT46 surface glycoprotein gene, complete cds
+7: OR233317.1 Horseshoe bat sarbecovirus isolate Rt22QT178 surface glycoprotein gene, complete cds
+8: OR233315.1 Horseshoe bat sarbecovirus isolate Ra22QT27 surface glycoprotein gene, complete cds
+9: OR233299.1 Horseshoe bat sarbecovirus isolate Rt22QB8 surface glycoprotein gene, complete cds
+10: OR233298.1 Horseshoe bat sarbecovirus isolate Rt22QB78 surface glycoprotein gene, complete cds
+11: OR233326.1 Horseshoe bat sarbecovirus isolate Ra22DB173 surface glycoprotein gene, complete cds
+12: OR233325.1 Horseshoe bat sarbecovirus isolate Ra22DB163 surface glycoprotein gene, complete cds
+13: OR233314.1 Horseshoe bat sarbecovirus isolate Rt22SL92 surface glycoprotein gene, complete cds
+14: OR233312.1 Horseshoe bat sarbecovirus isolate Rt22SL58 surface glycoprotein gene, complete cds
+15: OR233313.1 Horseshoe bat sarbecovirus isolate Rt22SL85 surface glycoprotein gene, complete cds
+16: OR233311.1 Horseshoe bat sarbecovirus isolate Rt22SL130 surface glycoprotein gene, complete cds
+17: OR233301.1 Horseshoe bat sarbecovirus isolate Rt22SL115 surface glycoprotein gene, complete cds
+18: OR233303.1 Horseshoe bat sarbecovirus isolate Rt22SL9 surface glycoprotein gene, complete cds
+19: OR233310.1 Horseshoe bat sarbecovirus isolate Rt22DB38 surface glycoprotein gene, complete cds
+20: OR233294.1 Horseshoe bat sarbecovirus isolate Rt22DB31 surface glycoprotein gene, complete cds
+21: OR233309.1 Horseshoe bat sarbecovirus isolate Rt22SL67 surface glycoprotein gene, partial cds
+22: OR233308.1 Horseshoe bat sarbecovirus isolate Rt21LC39 surface glycoprotein gene, complete cds
+23: OR233296.1 Horseshoe bat sarbecovirus isolate Rt22LC378 surface glycoprotein gene, complete cds
+24: OR233305.1 Horseshoe bat sarbecovirus isolate Rt321LC192 surface glycoprotein gene, complete cds
+25: OR233306.1 Horseshoe bat sarbecovirus isolate Rt22LC371 surface glycoprotein gene, complete cds
+26: OR233307.1 Horseshoe bat sarbecovirus isolate Rt22LC376 surface glycoprotein gene, partial cds
+27: OR233297.1 Horseshoe bat sarbecovirus isolate Rt21LC92 surface glycoprotein gene, complete cds
+28: OR233293.1 Horseshoe bat sarbecovirus isolate Rt22CB395 surface glycoprotein gene, complete cds
+29: OK017793.1 Sarbecovirus sp. isolate YN2020A, complete genome
+30: OR233304.1 Horseshoe bat sarbecovirus isolate Ra22DB191 surface glycoprotein gene, complete cds
+31: OR233292.1 Horseshoe bat sarbecovirus isolate Ra22DB107, complete genome
+32: OQ503502.1 Severe acute respiratory syndrome-related coronavirus isolate 6301, complete genome
+33: KY417148.1 Bat SARS-like coronavirus isolate Rs4247, complete genome
+34: KY417147.1 Bat SARS-like coronavirus isolate Rs4237, complete genome
+35: MK211377.1 Coronavirus BtRs-BetaCoV/YN2018C, complete genome
+36: KY417142.1 Bat SARS-like coronavirus isolate As6526, complete genome
+37: MK211375.1 Coronavirus BtRs-BetaCoV/YN2018A, complete genome
+38: MK211378.1 Coronavirus BtRs-BetaCoV/YN2018D, complete genome
+39: KY417149.1 Bat SARS-like coronavirus isolate Rs4255, complete genome
+40: KY417143.1 Bat SARS-like coronavirus isolate Rs4081, complete genome
+41: FJ588686.1 Bat SARS CoV Rs672/2006, complete genome
+42: OR233291.1 Horseshoe bat sarbecovirus isolate Ra21CB8 surface glycoprotein gene, complete cds
+43: OK017792.1 Sarbecovirus sp. isolate GD2017F, complete genome
+44: OK287354.1 Sarbecovirus sp. isolate BetaCoV_Yunnan_Rs_KMC6_2020, complete genome
+45: KJ473816.1 BtRs-BetaCoV/YN2013, complete genome
+46: KY770859.1 Sarbecovirus sp. isolate Anlong-112, complete genome
+47: KY770858.1 Sarbecovirus sp. isolate Anlong-103, complete genome
+48: KY417145.1 Bat SARS-like coronavirus isolate Rf4092, complete genome
+49: DQ071615.1 Bat SARS coronavirus Rp3, complete genome
+50: OK017831.1 Sarbecovirus sp. isolate GZ2021I, complete genome
+51: OK017829.1 Sarbecovirus sp. isolate GZ2021C, complete genome
+52: OK017830.1 Sarbecovirus sp. isolate GZ2021H, complete genome
+53: OQ503505.1 Severe acute respiratory syndrome-related coronavirus isolate 162181, complete genome
+54: MK211376.1 Coronavirus BtRs-BetaCoV/YN2018B, complete genome
+55: OQ503504.1 Severe acute respiratory syndrome-related coronavirus isolate 162173, complete genome
+56: OK017851.1 Sarbecovirus sp. isolate YN2016E, complete genome
+57: OK017850.1 Sarbecovirus sp. isolate YN2016D, complete genome
+58: OK017849.1 Sarbecovirus sp. isolate YN2016C, complete genome
+59: OK017848.1 Sarbecovirus sp. isolate YN2016B, complete genome
+60: OK017847.1 Sarbecovirus sp. isolate YN2016A, complete genome
+61: OQ503503.1 Severe acute respiratory syndrome-related coronavirus isolate 162171, complete genome
+62: KY417152.1 Bat SARS-like coronavirus isolate Rs9401, complete genome
+63: KY417151.1 Bat SARS-like coronavirus isolate Rs7327, complete genome
+64: OQ503501.1 Severe acute respiratory syndrome-related coronavirus isolate 4230, complete genome
+65: OQ503500.1 Severe acute respiratory syndrome-related coronavirus isolate 4105, complete genome
+66: KC881006.1 Bat SARS-like coronavirus Rs3367, complete genome
+67: KF367457.1 Bat SARS-like coronavirus WIV1, complete genome
+68: KC881005.1 Bat SARS-like coronavirus RsSHC014, complete genome
+69: KY417144.1 Bat SARS-like coronavirus isolate Rs4084, complete genome
+70: OK017858.1 Sarbecovirus sp. isolate YN2020H, complete genome
+71: KY417150.1 Bat SARS-like coronavirus isolate Rs4874, complete genome
+72: KT444582.1 SARS-like coronavirus WIV16, complete genome
+73: KY417146.1 Bat SARS-like coronavirus isolate Rs4231, complete genome
+74: AY278489.2 SARS coronavirus GD01, complete genome
+75: AY390556.1 SARS coronavirus GZ02, complete genome
+76: AY304488.1 SARS coronavirus SZ16, complete genome
+77: AY304486.1 SARS coronavirus SZ3, complete genome
+78: AY394981.1 SARS coronavirus HGZ8L1-A, partial genome
+79: NC_004718.3 SARS coronavirus Tor2, complete genome
+80: DQ898174.1 SARS coronavirus strain CV7, complete genome
+81: AY323977.2 SARS coronavirus HSR 1, complete genome
+82: AY278741.1 SARS coronavirus Urbani, complete genome
+83: JN854286.1 SARS coronavirus HKU-39849 isolate recSARS-CoV HKU-39849, complete genome
+84: JQ316196.1 SARS coronavirus HKU-39849 isolate UOB, complete genome
+85: AY714217.1 SARS Coronavirus CDC#200301157, complete genome
+86: AY502932.1 SARS coronavirus TW9, complete genome
+87: AY502923.1 SARS coronavirus TW10, complete genome
+88: AY502931.1 SARS coronavirus TW8, complete genome
+89: AY502930.1 SARS coronavirus TW7, complete genome
+90: AY502929.1 SARS coronavirus TW6, complete genome
+91: AY502928.1 SARS coronavirus TW5, complete genome
+92: AY502927.1 SARS coronavirus TW4, complete genome
+93: AY502925.1 SARS coronavirus TW2, complete genome
+94: AY291451.1 SARS coronavirus TW1, complete genome
+95: AY502926.1 SARS coronavirus TW3, complete genome
+96: AP006561.1 SARS coronavirus TWY genomic RNA, complete genome
+97: AP006560.1 SARS coronavirus TWS genomic RNA, complete genome
+98: AP006559.1 SARS coronavirus TWK genomic RNA, complete genome
+99: AP006557.1 SARS coronavirus TWH genomic RNA, complete genome
+100: AY362698.1 SARS coronavirus TWC2, complete genome
+101: AY362699.1 SARS coronavirus TWC3, complete genome
+102: EU371559.1 SARS coronavirus ZJ02, complete genome
+103: AY283798.2 SARS coronavirus Sin2774, complete genome
+104: AY283796.1 SARS coronavirus Sin2679, complete genome
+105: AY283794.1 SARS coronavirus Sin2500, complete genome
+106: AY427439.1 SARS coronavirus AS, complete genome
+107: AY283797.1 SARS coronavirus Sin2748, complete genome
+108: AY310120.1 SARS coronavirus FRA, complete genome
+109: AY291315.1 SARS coronavirus Frankfurt 1, complete genome
+110: AY283795.1 SARS coronavirus Sin2677, complete genome
+111: AY321118.1 SARS coronavirus TWC, complete genome
+112: DQ497008.1 SARS coronavirus strain MA-15, complete genome
+113: MK062180.1 SARS coronavirus Urbani isolate icSARS-MA, complete genome
+114: MK062179.1 SARS coronavirus Urbani isolate icSARS, complete genome
+115: AP006558.1 SARS coronavirus TWJ genomic RNA, complete genome
+116: AY282752.2 SARS coronavirus CUHK-Su10, complete genome
+117: AY345987.1 SARS coronavirus CUHK-AG02, complete genome
+118: AY345986.1 SARS coronavirus CUHK-AG01, complete genome
+119: AY394998.1 SARS coronavirus LC1, complete genome
+120: AY345988.1 SARS coronavirus CUHK-AG03, complete genome
+121: AY350750.1 SARS coronavirus PUMC01, complete genome
+122: AY278554.2 SARS coronavirus CUHK-W1, complete genome
+123: AY394993.1 SARS coronavirus HGZ8L2, complete genome
+124: AY394992.1 SARS coronavirus HZS2-C, complete genome
+125: AY394990.1 SARS coronavirus HZS2-E, complete genome
+126: AY394989.1 SARS coronavirus HZS2-D, complete genome
+127: AY394991.1 SARS coronavirus HZS2-Fc, complete genome
+128: AY394987.1 SARS coronavirus HZS2-Fb, complete genome
+129: AY394983.1 SARS coronavirus HSZ2-A, complete genome
+130: AY864805.1 SARS coronavirus BJ162, complete genome
+131: AY864806.1 SARS coronavirus BJ202, complete genome
+132: AY394982.1 SARS coronavirus HGZ8L1-B, partial genome
+133: GU553365.1 SARS coronavirus HKU-39849 isolate TCVSP-HARROD-00003, complete genome
+134: GU553364.1 SARS coronavirus HKU-39849 isolate TCVSP-HARROD-00002, complete genome
+135: GU553363.1 SARS coronavirus HKU-39849 isolate TCVSP-HARROD-00001, complete genome
+136: AY348314.1 SARS coronavirus Taiwan TC3, complete genome
+137: AY338174.1 SARS coronavirus Taiwan TC1, complete genome
+138: AY338175.1 SARS coronavirus Taiwan TC2, complete genome
+139: AY559096.1 SARS coronavirus Sin850, complete genome
+140: AY559095.1 SARS coronavirus Sin847, complete genome
+141: AY559085.1 SARS coronavirus Sin848, complete genome
+142: AY559093.1 SARS coronavirus Sin845, complete genome
+143: AY559087.1 SARS coronavirus Sin3725V, complete genome
+144: AY559084.1 SARS coronavirus Sin3765V, complete genome
+145: AY559086.1 SARS coronavirus Sin849, complete genome
+146: AY559081.1 SARS coronavirus Sin842, complete genome
+147: FJ882963.1 SARS coronavirus P2, complete genome
+148: AY395004.1 SARS coronavirus HZS2-Bb, partial genome
+149: AY394977.1 SARS coronavirus GZ-A, partial genome
+150: AY304495.1 SARS coronavirus GZ50, complete genome
+151: AY278488.2 SARS coronavirus BJ01, complete genome
+152: AY485278.1 SARS coronavirus Sino3-11, complete genome
+153: AY278491.2 SARS coronavirus HKU-39849, complete genome
+154: AY357076.1 SARS coronavirus PUMC03, complete genome
+155: AY357075.1 SARS coronavirus PUMC02, complete genome
+156: AY395002.1 SARS coronavirus LC5, complete genome
+157: AY395001.1 SARS coronavirus LC4, complete genome
+158: AY395000.1 SARS coronavirus LC3, complete genome
+159: AY394999.1 SARS coronavirus LC2, complete genome
+160: AY286320.4 SARS coronavirus ZJ01, partial genome
+161: DQ182595.1 SARS coronavirus ZJ0301 from China, complete genome
+162: AY559092.1 SARS coronavirus SinP5, complete genome
+163: AY559088.1 SARS coronavirus SinP1, complete genome
+164: AY559091.1 SARS coronavirus SinP4, complete genome
+165: AY502924.1 SARS coronavirus TW11, complete genome
+166: AY485277.1 SARS coronavirus Sino1-11, complete genome
+167: AY654624.1 SARS coronavirus TJF, complete genome
+168: AY394850.2 SARS coronavirus WHU, complete genome
+169: AY394978.1 SARS coronavirus GZ-B, complete genome
+170: AY279354.2 SARS coronavirus BJ04, complete genome
+171: AY508724.1 SARS coronavirus NS-1, complete genome
+172: AY278487.3 SARS coronavirus BJ02, complete genome
+173: AY278490.3 SARS coronavirus BJ03, complete genome
+174: AY394995.1 SARS coronavirus HSZ-Cc, complete genome
+175: AY394994.1 SARS coronavirus HSZ-Bc, complete genome
+176: AY394985.1 SARS coronavirus HSZ-Bb, complete genome
+177: AY394986.1 SARS coronavirus HSZ-Cb, complete genome
+178: AY394984.1 SARS coronavirus HSZ-A, partial genome
+179: AY461660.1 SARS coronavirus SoD, complete genome
+180: AY559094.1 SARS coronavirus Sin846, complete genome
+181: AY595412.1 SARS coronavirus LLJ-2004, complete genome
+182: AY559082.1 SARS coronavirus Sin852, complete genome
+183: AY313906.1 SARS coronavirus GD69, complete genome
+184: KF514423.1 SARS coronavirus wtic-MB strain SARS/VeroE6_lab/USA/WTic_c3P20/2009, complete genome
+185: KF514422.1 SARS coronavirus wtic-MB strain SARS/VeroE6_lab/USA/WTic_c1.3P20/2010, complete genome
+186: KF514421.1 SARS coronavirus wtic-MB strain SARS/VeroE6_lab/USA/WTic_c1.2P20/2010, complete genome
+187: KF514419.1 SARS coronavirus wtic-MB strain SARS/VeroE6_lab/USA/WTic_c1P10/2009, complete genome
+188: KF514418.1 SARS coronavirus wtic-MB strain SARS/VeroE6_lab/USA/WTic_c3P1/2009, complete genome
+189: KF514415.1 SARS coronavirus wtic-MB strain SARS/VeroE6_lab/USA/WTic_c1.7P20/2010, complete genome
+190: KF514413.1 SARS coronavirus wtic-MB strain SARS/VeroE6_lab/USA/WTic_c1.6P20/2010, complete genome
+191: KF514409.1 SARS coronavirus wtic-MB strain SARS/VeroE6_lab/USA/WTic_c2P20/2009, complete genome
+192: KF514408.1 SARS coronavirus wtic-MB strain SARS/VeroE6_lab/USA/WTic_c2P1/2009, complete genome
+193: KF514404.1 SARS coronavirus wtic-MB strain SARS/VeroE6_lab/USA/WTic_c1.9P20/2010, complete genome
+194: KF514400.1 SARS coronavirus wtic-MB strain SARS/VeroE6_lab/USA/WTic_c1.8P20/2010, complete genome
+195: KF514399.1 SARS coronavirus wtic-MB strain SARS/VeroE6_lab/USA/WTic_c1.1P20/2010, complete genome
+196: KF514398.1 SARS coronavirus wtic-MB strain SARS/VeroE6_lab/USA/WTic_c1.10P20/2010, complete genome
+197: KF514397.1 SARS coronavirus wtic-MB strain SARS/VeroE6_lab/USA/WTic_c2P10/2009, complete genome
+198: KF514396.1 SARS coronavirus wtic-MB strain SARS/VeroE6_lab/USA/WTic_c3P10/2009, complete genome
+199: KF514394.1 SARS coronavirus wtic-MB strain SARS/VeroE6_lab/USA/WTic_c1P20/2009, complete genome
+200: KF514392.1 SARS coronavirus wtic-MB strain SARS/VeroE6_lab/USA/WTic_c1.4P20/2010, complete genome
+201: KF514388.1 SARS coronavirus wtic-MB strain SARS/VeroE6_lab/USA/WTic_c1.5P20/2010, complete genome
+202: FJ882938.1 SARS coronavirus wtic-MB, complete genome
+203: FJ882927.1 SARS coronavirus wtic-MB isolate P1pp1, complete genome
+204: KF514420.1 SARS coronavirus ExoN1 strain SARS/VeroE6_lab/USA/ExoN1_c5P10/2009, complete genome
+205: KF514417.1 SARS coronavirus ExoN1 strain SARS/VeroE6_lab/USA/ExoN1_c5.3P20/2010, complete genome
+206: KF514416.1 SARS coronavirus ExoN1 strain SARS/VeroE6_lab/USA/ExoN1_c5.8P20/2010, complete genome
+207: KF514414.1 SARS coronavirus ExoN1 strain SARS/VeroE6_lab/USA/ExoN1_c5P20/2009, complete genome
+208: KF514412.1 SARS coronavirus ExoN1 strain SARS/VeroE6_lab/USA/ExoN1_c13P20/2009, complete genome
+209: KF514411.1 SARS coronavirus ExoN1 strain SARS/VeroE6_lab/USA/ExoN1_c13P10/2009, complete genome
+210: KF514410.1 SARS coronavirus ExoN1 strain SARS/VeroE6_lab/USA/ExoN1_c8P20/2009, complete genome
+211: KF514406.1 SARS coronavirus ExoN1 strain SARS/VeroE6_lab/USA/ExoN1_c13P1/2009, complete genome
+212: KF514405.1 SARS coronavirus ExoN1 strain SARS/VeroE6_lab/USA/ExoN1_c5.2P20/2010, complete genome
+213: KF514403.1 SARS coronavirus ExoN1 strain SARS/VeroE6_lab/USA/ExoN1_c5.1P20/2010, complete genome
+214: KF514402.1 SARS coronavirus ExoN1 strain SARS/VeroE6_lab/USA/ExoN1_c5.6P20/2010, complete genome
+215: KF514401.1 SARS coronavirus ExoN1 strain SARS/VeroE6_lab/USA/ExoN1_c5.5P20/2010, complete genome
+216: KF514395.1 SARS coronavirus ExoN1 strain SARS/VeroE6_lab/USA/ExoN1_c8P1/2009, complete genome
+217: KF514393.1 SARS coronavirus ExoN1 strain SARS/VeroE6_lab/USA/ExoN1_c5.10P20/2010, complete genome
+218: KF514391.1 SARS coronavirus ExoN1 strain SARS/VeroE6_lab/USA/ExoN1_c5.9P20/2010, complete genome
+219: KF514390.1 SARS coronavirus ExoN1 strain SARS/VeroE6_lab/USA/ExoN1_c5.4P20/2010, complete genome
+220: KF514389.1 SARS coronavirus ExoN1 strain SARS/VeroE6_lab/USA/ExoN1_c8P10/2009, complete genome
+221: FJ882930.1 SARS coronavirus ExoN1, complete genome
+222: FJ882926.1 SARS coronavirus ExoN1, complete genome
+223: FJ882928.1 SARS coronavirus ExoN1 isolate P1pp1, complete genome
+224: JF292921.1 SARS coronavirus wtic-MB isolate c1P1, complete genome
+225: FJ882936.1 SARS coronavirus wtic-MB isolate P3pp2, complete genome
+226: FJ882932.1 SARS coronavirus wtic-MB isolate P3pp14, complete genome
+227: FJ882939.1 SARS coronavirus wtic-MB isolate P3pp16, complete genome
+228: FJ882934.1 SARS coronavirus wtic-MB isolate P3pp29, complete genome
+229: FJ882947.1 SARS coronavirus wtic-MB isolate P3pp7, complete genome
+230: FJ882949.1 SARS coronavirus wtic-MB isolate P3pp23, complete genome
+231: FJ882946.1 SARS coronavirus wtic-MB isolate P3pp13, complete genome
+232: FJ882935.1 SARS coronavirus wtic-MB isolate P3pp21, complete genome
+233: FJ882937.1 SARS coronavirus wtic-MB isolate P3pp18, complete genome
+234: FJ882933.1 SARS coronavirus wtic-MB isolate P3pp6, complete genome
+235: JF292920.1 SARS coronavirus MA15 isolate d3om5, complete genome
+236: JF292919.1 SARS coronavirus MA15 isolate d3om4, complete genome
+237: JF292918.1 SARS coronavirus MA15 isolate d3om3, complete genome
+238: JF292917.1 SARS coronavirus MA15 isolate d3om2, complete genome
+239: JF292916.1 SARS coronavirus MA15 isolate d3om1, complete genome
+240: JF292912.1 SARS coronavirus MA15 isolate d4ym2, complete genome
+241: JF292911.1 SARS coronavirus MA15 isolate d4ym1, complete genome
+242: JF292908.1 SARS coronavirus MA15 isolate d2ym3, complete genome
+243: JF292907.1 SARS coronavirus MA15 isolate d2ym2, complete genome
+244: HQ890546.1 SARS coronavirus MA15 isolate d2om5, complete genome
+245: HQ890545.1 SARS coronavirus MA15 isolate d2om4, complete genome
+246: HQ890544.1 SARS coronavirus MA15 isolate d2om3, complete genome
+247: HQ890543.1 SARS coronavirus MA15 isolate d2om2, complete genome
+248: HQ890542.1 SARS coronavirus MA15 isolate d2om1, complete genome
+249: HQ890541.1 SARS coronavirus MA15 isolate d2ym1, complete genome
+250: JF292915.1 SARS coronavirus MA15 isolate d4ym5, complete genome
+251: JF292914.1 SARS coronavirus MA15 isolate d4ym4, complete genome
+252: JF292913.1 SARS coronavirus MA15 isolate d4ym3, complete genome
+253: JF292910.1 SARS coronavirus MA15 isolate d2ym5, complete genome
+254: JF292909.1 SARS coronavirus MA15 isolate d2ym4, complete genome
+255: JF292906.1 SARS coronavirus MA15 ExoN1 isolate d3om5, complete genome
+256: HQ890535.1 SARS coronavirus MA15 ExoN1 isolate d2om2, complete genome
+257: JF292905.1 SARS coronavirus MA15 ExoN1 isolate d3om4, complete genome
+258: HQ890540.1 SARS coronavirus MA15 ExoN1 isolate d3om2, complete genome
+259: HQ890539.1 SARS coronavirus MA15 ExoN1 isolate d3om1, complete genome
+260: HQ890538.1 SARS coronavirus MA15 ExoN1 isolate d2om5, complete genome
+261: JF292902.1 SARS coronavirus MA15 ExoN1 isolate d4ym4, complete genome
+262: HQ890537.1 SARS coronavirus MA15 ExoN1 isolate d2om4, complete genome
+263: HQ890533.1 SARS coronavirus MA15 ExoN1 isolate d4ym3, complete genome
+264: HQ890530.1 SARS coronavirus MA15 ExoN1 isolate d2ym5, complete genome
+265: HQ890528.1 SARS coronavirus MA15 ExoN1 isolate d2ym3, complete genome
+266: HQ890527.1 SARS coronavirus MA15 ExoN1 isolate d2ym2, complete genome
+267: HQ890526.1 SARS coronavirus MA15 ExoN1 isolate d2ym1, complete genome
+268: HQ890536.1 SARS coronavirus MA15 ExoN1 isolate d2om3, complete genome
+269: HQ890534.1 SARS coronavirus MA15 ExoN1 isolate d2om1, complete genome
+270: HQ890529.1 SARS coronavirus MA15 ExoN1 isolate d2ym4, complete genome
+271: JF292904.1 SARS coronavirus MA15 ExoN1 isolate d3om3, complete genome
+272: HQ890531.1 SARS coronavirus MA15 ExoN1 isolate d4ym1, complete genome
+273: JF292903.1 SARS coronavirus MA15 ExoN1 isolate d4ym5, complete genome
+274: HQ890532.1 SARS coronavirus MA15 ExoN1 isolate d4ym2, complete genome
+275: FJ882961.1 SARS coronavirus MA15 isolate P3pp5, complete genome
+276: FJ882958.1 SARS coronavirus MA15 isolate P3pp7, complete genome
+277: FJ882952.1 SARS coronavirus MA15 isolate P3pp4, complete genome
+278: FJ882945.1 SARS coronavirus MA15 isolate P3pp6, complete genome
+279: FJ882948.1 SARS coronavirus MA15 isolate P3pp3, complete genome
+280: FJ882957.1 SARS coronavirus MA15, complete genome
+281: FJ882943.1 SARS coronavirus MA15 ExoN1, complete genome
+282: FJ882953.1 SARS coronavirus MA15 ExoN1 isolate P3pp4, complete genome
+283: FJ882960.1 SARS coronavirus ExoN1 isolate P3pp34, complete genome
+284: FJ882955.1 SARS coronavirus ExoN1 isolate P3pp19, complete genome
+285: FJ882950.1 SARS coronavirus ExoN1 isolate P3pp60, complete genome
+286: FJ882940.1 SARS coronavirus ExoN1 isolate P3pp37, complete genome
+287: FJ882931.1 SARS coronavirus ExoN1 isolate P3pp12, complete genome
+288: FJ882956.1 SARS coronavirus ExoN1 isolate P3pp53, complete genome
+289: FJ882944.1 SARS coronavirus ExoN1 isolate P3pp23, complete genome
+290: FJ882954.1 SARS coronavirus ExoN1 isolate P3pp46, complete genome
+291: FJ882929.1 SARS coronavirus ExoN1 isolate P3pp1, complete genome
+292: FJ882941.1 SARS coronavirus ExoN1 isolate P3pp8, complete genome
+293: FJ882962.1 SARS coronavirus MA15 ExoN1 isolate P3pp10, complete genome
+294: FJ882951.1 SARS coronavirus MA15 ExoN1 isolate P3pp3, complete genome
+295: FJ882942.1 SARS coronavirus MA15 ExoN1 isolate P3pp5, complete genome
+296: FJ882959.1 SARS coronavirus MA15 ExoN1 isolate P3pp6, complete genome
+297: KF514407.1 SARS coronavirus ExoN1 strain SARS/VeroE6_lab/USA/ExoN1_c5.7P20/2010, complete genome
+298: JF292922.1 SARS coronavirus ExoN1 isolate c5P1, complete genome
+299: JX162087.1 SARS coronavirus ExoN1 isolate c5P10, complete genome
+300: MK062182.1 SARS coronavirus Urbani isolate icSARS-C3-MA, complete genome
+301: MK062181.1 SARS coronavirus Urbani isolate icSARS-C3, complete genome
+302: EU371564.1 SARS coronavirus BJ182-12, complete genome
+303: EU371563.1 SARS coronavirus BJ182-8, complete genome
+304: EU371561.1 SARS coronavirus BJ182b, complete genome
+305: EU371560.1 SARS coronavirus BJ182a, complete genome
+306: EU371562.1 SARS coronavirus BJ182-4, complete genome
+307: AY559097.1 SARS coronavirus Sin3408L, complete genome
+308: DQ640652.1 SARS coronavirus GDH-BJH01, complete genome
+309: AY395003.1 SARS coronavirus ZS-C, complete genome
+310: AY394997.1 SARS coronavirus ZS-A, complete genome
+311: AY394996.1 SARS coronavirus ZS-B, complete genome
+312: AY394988.1 SARS coronavirus JMD, partial genome
+313: AY463060.1 SARS coronavirus ShanghaiQXC2, complete genome
+314: AY463059.1 SARS coronavirus ShanghaiQXC1, complete genome
+315: AY394979.1 SARS coronavirus GZ-C, complete genome
+316: AY394980.1 SARS coronavirus GZ-D, partial genome
+317: AY559090.1 SARS coronavirus SinP3, complete genome
+318: AH013709.2 SARS coronavirus Sin_WNV, partial sequence
+319: AY772062.1 SARS coronavirus WH20, complete genome
+320: FJ959407.1 SARS coronavirus isolate A001, complete genome
+321: AY686864.1 SARS coronavirus B039, complete genome
+322: AY686863.1 SARS coronavirus A022, complete genome
+323: AY545914.1 SARS coronavirus isolate HC/SZ/79/03, complete genome
+324: AY572035.1 SARS coronavirus civet010, complete genome
+325: AY572034.1 SARS coronavirus civet007, complete genome
+326: AY515512.1 SARS coronavirus HC/SZ/61/03, complete genome
+327: AY572038.1 SARS coronavirus civet020, complete genome
+328: AY545918.1 SARS coronavirus isolate HC/GZ/32/03, complete genome
+329: AY545916.1 SARS coronavirus isolate HC/SZ/266/03, complete genome
+330: AY545915.1 SARS coronavirus isolate HC/SZ/DM1/03, complete genome
+331: AY545919.1 SARS coronavirus isolate CFB/SZ/94/03, complete genome
+332: AY545917.1 SARS coronavirus isolate HC/GZ/81/03, complete genome
+333: AY613950.1 SARS coronavirus PC4-227, complete genome
+334: AY613949.1 SARS coronavirus PC4-136, complete genome
+335: AY613948.1 SARS coronavirus PC4-13, complete genome
+336: AY613947.1 SARS coronavirus GZ0402, complete genome
+337: AY568539.1 SARS coronavirus GZ0401, complete genome
+338: AY297028.1 SARS coronavirus ZJ01, complete genome
+339: AY559083.1 SARS coronavirus Sin3408, complete genome
+340: AH013708.2 SARS coronavirus Sin0409, partial sequence
+341: MK062184.1 SARS coronavirus Urbani isolate icSARS-C7-MA, complete genome
+342: MK062183.1 SARS coronavirus Urbani isolate icSARS-C7, complete genome
+343: AY559089.1 SARS coronavirus SinP2, complete genome
+344: AB257344.1 SARS coronavirus Frankfurt 1 genomic RNA, nearly complete genome, clone: persistent virus #21
+345: AY351680.1 SARS coronavirus ZMY 1, complete genome
+346: MT308984.1 Mutant SARS coronavirus Urbani clone SARS-Urbani-MA_SHC014-spike, complete genome
+347: OK017857.1 Sarbecovirus sp. isolate YN2020G, complete genome
+348: OK017856.1 Sarbecovirus sp. isolate YN2020F, complete genome
+349: OK017855.1 Sarbecovirus sp. isolate YN2020E, complete genome
+350: OK017853.1 Sarbecovirus sp. isolate YN2020C, complete genome
+351: OK017854.1 Sarbecovirus sp. isolate YN2020D, complete genome
+352: OK017852.1 Sarbecovirus sp. isolate YN2020B, complete genome
+353: OQ503499.1 Severe acute respiratory syndrome-related coronavirus isolate RsHB190371, complete genome
+354: OQ503498.1 Severe acute respiratory syndrome-related coronavirus isolate BDA190366, complete genome
+355: OK017801.1 Sarbecovirus sp. isolate HB2020D, complete genome
+356: OK017836.1 Sarbecovirus sp. isolate JX2021AC, complete genome
+357: OK017802.1 Sarbecovirus sp. isolate HB2020E, complete genome
+358: OK017837.1 Sarbecovirus sp. isolate JX2021C, complete genome
+359: OK017845.1 Sarbecovirus sp. isolate JX2021P, complete genome
+360: OK017844.1 Sarbecovirus sp. isolate JX2021O, complete genome
+361: OK017839.1 Sarbecovirus sp. isolate JX2021J, complete genome
+362: OK017840.1 Sarbecovirus sp. isolate JX2021K, complete genome
+363: OK017838.1 Sarbecovirus sp. isolate JX2021G, complete genome
+364: OK017811.1 Sarbecovirus sp. isolate FJ2021M, complete genome
+365: OK017810.1 Sarbecovirus sp. isolate FJ2021E, complete genome
+366: OK017809.1 Sarbecovirus sp. isolate FJ2021D, complete genome
+367: MT782115.1 Mutant Bat SARS coronavirus HKU3 isolate icHKU3-SRBD-MA, complete genome
+368: MT782114.1 Mutant Bat SARS coronavirus HKU3 isolate icHKU3-SRBD, complete genome
+369: DQ022305.2 Bat SARS coronavirus HKU3-1, complete genome
+370: DQ084200.1 bat SARS coronavirus HKU3-3, complete genome
+371: DQ084199.1 bat SARS coronavirus HKU3-2, complete genome
+372: GQ153541.1 Bat SARS coronavirus HKU3-6, complete genome
+373: GQ153539.1 Bat SARS coronavirus HKU3-4, complete genome
+374: GQ153540.1 Bat SARS coronavirus HKU3-5, complete genome
+375: GQ153546.1 Bat SARS coronavirus HKU3-11, complete genome
+376: GQ153545.1 Bat SARS coronavirus HKU3-10, complete genome
+377: GQ153544.1 Bat SARS coronavirus HKU3-9, complete genome
+378: GQ153548.1 Bat SARS coronavirus HKU3-13, complete genome
+379: GQ153547.1 Bat SARS coronavirus HKU3-12, complete genome
+380: GQ153543.1 Bat SARS coronavirus HKU3-8, complete genome
+381: GQ153542.1 Bat SARS coronavirus HKU3-7, complete genome
+382: OK017808.1 Sarbecovirus sp. isolate FJ2021A, complete genome
+383: OK017807.1 Sarbecovirus sp. isolate AH2021A, complete genome
+384: KF294457.1 Bat SARS-like coronavirus isolate Longquan-140 orf1ab polyprotein, spike glycoprotein, envelope protein, membrane protein, and nucleocapsid protein genes, complete cds
+385: OQ503496.1 Severe acute respiratory syndrome-related coronavirus isolate 141376, complete genome
+386: OQ503495.1 Severe acute respiratory syndrome-related coronavirus isolate 141341, complete genome
+387: OK017812.1 Sarbecovirus sp. isolate GD2016B, complete genome
+388: OQ297703.1 MAG: Severe acute respiratory syndrome-related coronavirus isolate GD/L18.18/2020, complete genome
+389: OQ297702.1 MAG: Severe acute respiratory syndrome-related coronavirus isolate GD/L17.18/2020, complete genome
+390: OM240725.1 Bat betacoronavirus isolate RaCH025, complete genome
+391: OQ297701.1 MAG: Severe acute respiratory syndrome-related coronavirus isolate GD/L19.18/2020, complete genome
+392: OK017821.1 Sarbecovirus sp. isolate GD2017O, complete genome
+393: OK017818.1 Sarbecovirus sp. isolate GD2017L, complete genome
+394: OK017817.1 Sarbecovirus sp. isolate GD2017K, complete genome
+395: OK017816.1 Sarbecovirus sp. isolate GD2017J, complete genome
+396: OK017820.1 Sarbecovirus sp. isolate GD2017N, complete genome
+397: OK017815.1 Sarbecovirus sp. isolate GD2017I, complete genome
+398: OK017814.1 Sarbecovirus sp. isolate GD2017H, complete genome
+399: MW681002.1 Severe acute respiratory syndrome-related coronavirus isolate Rs56, complete genome
+400: OK017819.1 Sarbecovirus sp. isolate GD2017M, complete genome
+401: OK017813.1 Sarbecovirus sp. isolate GD2017G, complete genome
+402: OK017843.1 Sarbecovirus sp. isolate JX2021N, complete genome
+403: OK017841.1 Sarbecovirus sp. isolate JX2021L, complete genome
+404: OK017842.1 Sarbecovirus sp. isolate JX2021M, complete genome
+405: OK017828.1 Sarbecovirus sp. isolate GD2019E, complete genome
+406: OK017827.1 Sarbecovirus sp. isolate GD2019D, complete genome
+407: OK017824.1 Sarbecovirus sp. isolate GD2017W, complete genome
+408: OK017822.1 Sarbecovirus sp. isolate GD2017P, complete genome
+409: OK017826.1 Sarbecovirus sp. isolate GD2019B, complete genome
+410: OK017825.1 Sarbecovirus sp. isolate GD2019A, complete genome
+411: OK017823.1 Sarbecovirus sp. isolate GD2017Q, complete genome
+412: KJ473815.1 BtRs-BetaCoV/GX2013, complete genome
+413: KP886809.1 Bat SARS-like coronavirus YNLF_34C, complete genome
+414: KP886808.1 Bat SARS-like coronavirus YNLF_31C, complete genome
+415: KU973692.1 UNVERIFIED: Severe acute respiratory syndrome-related coronavirus isolate F46, complete genome
+416: OP963575.1 Bat SARS-like virus BtSY1 ORF1ab polyprotein (ORF1ab), ORF1a protein (ORF1ab), spike glycoprotein, ORF3a protein, ORF3b protein, envelope protein, membrane glycoprotein M, ORF6 protein, ORF7a protein, ORF7b protein, ORF8 protein, nucleocapsid
+417: OQ503506.1 Severe acute respiratory syndrome-related coronavirus isolate B228, complete genome
+418: MZ081377.1 Betacoronavirus sp. RmYN07 strain bat/Yunnan/RmYN07/2020, complete genome
+419: MZ081379.1 Betacoronavirus sp. RsYN03 strain bat/Yunnan/RsYN03/2019, complete genome
+420: JX993988.1 Bat coronavirus Cp/Yunnan2011, complete genome
+421: MZ081382.1 Betacoronavirus sp. RsYN09 strain bat/Yunnan/RsYN09/2020, complete genome
+422: KF569996.1 Rhinolophus affinis coronavirus isolate LYRa11, complete genome
+423: MK211374.1 Coronavirus BtRl-BetaCoV/SC2018, complete genome
+424: OQ503497.1 Severe acute respiratory syndrome-related coronavirus isolate 151491, complete genome
+425: OK017835.1 Sarbecovirus sp. isolate HN2021F, complete genome
+426: OK017834.1 Sarbecovirus sp. isolate HN2021E, complete genome
+427: MZ328294.1 Jingmen Rhinolophus sinicus betacoronavirus 1, complete genome
+428: KJ473814.1 BtRs-BetaCoV/HuB2013, complete genome
+429: OQ297705.1 MAG: Severe acute respiratory syndrome-related coronavirus isolate CQ/L80.18/2021, complete genome
+430: OQ297704.1 MAG: Severe acute respiratory syndrome-related coronavirus isolate SC/L75.18/2021, complete genome
+431: DQ412043.1 Bat SARS coronavirus Rm1, complete genome
+432: DQ648857.1 Bat coronavirus (BtCoV/279/2005), complete genome
+433: OK017860.1 Sarbecovirus sp. isolate JX2021D, complete genome
+434: OK017833.1 Sarbecovirus sp. isolate HN2021D, complete genome
+435: OK017832.1 Sarbecovirus sp. isolate HN2021C, complete genome
+436: OK017859.1 Sarbecovirus sp. isolate GX2019A, complete genome
+437: OK017846.1 Sarbecovirus sp. isolate SC2018B, complete genome
+438: JX993987.1 Bat coronavirus Rp/Shaanxi2011, complete genome
+439: ON378802.1 MAG: Severe acute respiratory syndrome-related coronavirus isolate BatCoV_B20-50, complete genome
+440: KY938558.1 Sarbecovirus sp. strain 16BO133, complete genome
+441: OK017800.1 Sarbecovirus sp. isolate LN2020H, complete genome
+442: OK017798.1 Sarbecovirus sp. isolate LN2020F, complete genome
+443: OK017796.1 Sarbecovirus sp. isolate LN2020C, complete genome
+444: OK017795.1 Sarbecovirus sp. isolate LN2020B, complete genome
+445: OK017797.1 Sarbecovirus sp. isolate LN2020E, complete genome
+446: OK017799.1 Sarbecovirus sp. isolate LN2020G, complete genome
+447: OK017794.1 Sarbecovirus sp. isolate LN2020A, complete genome
+448: KU182964.1 Sarbecovirus sp. isolate JTMC15, complete genome
+449: KJ473811.1 BtRf-BetaCoV/JL2012, complete genome
+450: KY770860.1 Sarbecovirus sp. isolate Jiyuan-84, complete genome
+451: KJ473813.1 BtRf-BetaCoV/SX2013, complete genome
+452: KJ473812.1 BtRf-BetaCoV/HeB2013, complete genome
+453: DQ412042.1 Bat SARS coronavirus Rf1, complete genome
+454: DQ648856.1 Bat coronavirus (BtCoV/273/2005), complete genome
+455: OR233328.1 Horseshoe bat sarbecovirus isolate Ra22QT137 surface glycoprotein gene, complete cds
+456: OR233322.1 Horseshoe bat sarbecovirus isolate Ra22QT106 surface glycoprotein gene, complete cds
+457: OR233323.1 Horseshoe bat sarbecovirus isolate Ra22QT135 surface glycoprotein gene, complete cds
+458: OR233324.1 Horseshoe bat sarbecovirus isolate Ra22QT77 surface glycoprotein gene, complete cds
+459: OR233295.1 Horseshoe bat sarbecovirus isolate Rt17DN420 surface glycoprotein gene, complete cds
+460: MZ937003.2 Bat coronavirus isolate BANAL-20-236/Laos/2020, complete genome
+461: MZ937001.1 Bat coronavirus isolate BANAL-20-103/Laos/2020, complete genome
+462: MZ937000.1 Bat coronavirus isolate BANAL-20-52/Laos/2020, complete genome
+463: MN996532.2 Bat coronavirus RaTG13, complete genome
+464: MZ081381.1 Betacoronavirus sp. RpYN06 strain bat/Yunnan/RpYN06/2020, complete genome
+465: MZ937004.1 Bat coronavirus isolate BANAL-20-247/Laos/2020, complete genome
+466: MZ937002.1 Bat coronavirus isolate BANAL-20-116/Laos/2020, complete genome
+467: MW251312.1 Bat coronavirus RacCS271, partial genome
+468: MW251311.1 Bat coronavirus RacCS264, partial genome
+469: MW251310.1 Bat coronavirus RacCS253, partial genome
+470: MW251308.1 Bat coronavirus RacCS203, complete genome
+471: MW251309.1 Bat coronavirus RacCS224, partial genome
+472: OR233327.1 Horseshoe bat sarbecovirus isolate Rp22DB167 surface glycoprotein gene, complete cds
+473: MW703458.1 Sarbecovirus sp. isolate PrC31, complete genome
+474: OK017806.1 Sarbecovirus sp. isolate YN2021, complete genome
+475: OK287355.1 Sarbecovirus sp. isolate BetaCoV_Yunnan_Rp_JCC9_2020, complete genome
+476: OR233302.1 Horseshoe bat sarbecovirus isolate Rp22DB159 surface glycoprotein gene, complete cds
+477: OP963576.1 Bat SARS-like virus BtSY2 ORF1ab polyprotein (ORF1ab), ORF1a polyprotein (ORF1ab), surface glycoprotein, ORF3a protein, ORF3b protein, envelope protein, membrane protein M, ORF6 protein, ORF7a protein, ORF7b protein, ORF8 protein, nucleocapsid
+478: OQ297732.1 MAG: Severe acute respiratory syndrome-related coronavirus isolate GD/L105.18/2022, partial genome
+479: OQ297706.1 MAG: Severe acute respiratory syndrome-related coronavirus isolate GD/L102.18/2022, partial genome
+480: OK017804.1 Sarbecovirus sp. isolate HN2021B, complete genome
+481: OK017803.1 Sarbecovirus sp. isolate HN2021A, complete genome
+482: OK017805.1 Sarbecovirus sp. isolate HN2021G, complete genome
+483: MG772934.1 Bat SARS-like coronavirus isolate bat-SL-CoVZXC21, complete genome
+484: MG772933.1 Bat SARS-like coronavirus isolate bat-SL-CoVZC45, complete genome
+485: OQ297708.1 MAG: Pangolin coronavirus isolate GD/P79-9/2019, complete genome
+486: OQ297700.1 MAG: Pangolin coronavirus isolate GD/M5-9/2019, partial genome
+487: OQ297707.1 MAG: Pangolin coronavirus isolate GD/P44-9/2019, partial genome
+488: MT121216.1 Pangolin coronavirus isolate MP789, complete genome
+489: MT084071.1 Pangolin coronavirus isolate MP789 genomic sequence
+490: MW532698.1 Pangolin coronavirus isolate GX_P2V, complete genome
+491: MT072864.1 Pangolin coronavirus isolate PCoV_GX-P2V, complete genome
+492: MT040336.1 Pangolin coronavirus isolate PCoV_GX-P5E, complete genome
+493: MT040335.1 Pangolin coronavirus isolate PCoV_GX-P5L, complete genome
+494: MT040334.1 Pangolin coronavirus isolate PCoV_GX-P1E, complete genome
+495: MT040333.1 Pangolin coronavirus isolate PCoV_GX-P4L, complete genome
+496: MT072865.1 Pangolin coronavirus isolate PCoV_GX-P3B genomic sequence
+497: LC663959.1 Sarbecovirus sp. Rc-mk2 RNA, complete geneome
+498: LC663958.1 Sarbecovirus sp. Rc-os20 RNA, complete geneome
+499: LC663793.1 Sarbecovirus sp. Rc-kw8 RNA, complete genome
+500: LC556375.1 Severe acute respiratory syndrome-related coronavirus Rc-o319 RNA, complete genome
+501: OQ401252.2 MAG: Sarbecovirus sp. RhGB08 isolate Sample-18, partial genome
+502: OQ401249.1 MAG: Sarbecovirus RfGB02, complete genome
+503: OQ401247.1 MAG: Sarbecovirus RfGB01, complete genome
+504: OP776340.1 Sarbecovirus sp. isolate RhGB06, complete genome
+505: OP776339.1 Sarbecovirus sp. isolate RhGB05, complete genome
+506: OP837780.1 UNVERIFIED: Sarbecovirus sp. isolate RhGB03, partial genome
+507: OQ401248.1 MAG: Sarbecovirus sp. RhGB07 isolate 2-30B, complete genome
+508: OP776338.1 Sarbecovirus sp. isolate RhGB02, complete genome
+509: MW719567.1 Sarbecovirus RhGB01, complete genome
+510: MZ190138.1 Bat SARS-like coronavirus Khosta-2 strain BtCoV/Khosta-2/Rh/Russia/2020, complete genome
+511: MT726045.1 Sarbecovirus sp. isolate PREDICT/PRD-0038/AABSMF, complete genome
+512: MT726044.1 Bat coronavirus isolate PREDICT/PDF-2370/OTBA35RSV, complete genome
+513: MT726043.1 Sarbecovirus sp. isolate PREDICT/PDF-2386/OTBA40RSV, complete genome
+514: KY352407.1 Severe acute respiratory syndrome-related coronavirus strain BtKY72, complete genome
+515: NC_014470.1 Bat coronavirus BM48-31/BGR/2008, complete genome
+516: GU190215.1 Bat coronavirus BM48-31/BGR/2008, complete genome
+517: MZ190137.1 Bat SARS-like coronavirus Khosta-1 strain BtCoV/Khosta-1/Rh/Russia/2020, complete genome
+518: OL674081.1 Severe acute respiratory syndrome-related coronavirus isolate Rs7952, complete genome
+519: OL674080.1 Severe acute respiratory syndrome-related coronavirus isolate Rs7931, complete genome
+520: OL674074.1 Severe acute respiratory syndrome-related coronavirus isolate Rs7896, complete genome
+521: OL674075.1 Severe acute respiratory syndrome-related coronavirus isolate Rs7905, complete genome
+522: OL674079.1 Severe acute respiratory syndrome-related coronavirus isolate Rs7924, complete genome
+523: OL674077.1 Severe acute respiratory syndrome-related coronavirus isolate Ra7909, complete genome
+524: OL674076.1 Severe acute respiratory syndrome-related coronavirus isolate Rs7907, complete genome
+525: OL674078.1 Severe acute respiratory syndrome-related coronavirus isolate Rs7921, complete genome
+526: MZ081380.1 Betacoronavirus sp. RsYN04 strain bat/Yunnan/RsYN04/2020, complete genome
+527: MZ081378.1 Betacoronavirus sp. RmYN08 strain bat/Yunnan/RmYN08/2020, complete genome
+528: MZ081376.1 Betacoronavirus sp. RmYN05 strain bat/Yunnan/RmYN05/2020, complete genome

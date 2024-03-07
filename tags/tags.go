@@ -1,0 +1,462 @@
+package main
+
+import (
+	"bufio"
+	"encoding/gob"
+	"fmt"
+	"genomics/genomes"
+	"genomics/utils"
+	"log"
+	"os"
+	"slices"
+)
+
+// A short pattern of nts, probably 6, with a lot of silent muts in it, that
+// might be useful as a classifer
+type Pattern struct {
+	Origin int // the genome the nts we record here were in
+	Pos    int
+	Nts    []byte
+}
+
+// Represents the "distance" (number of silent muts) from a particular pattern
+type TagDist struct {
+	// The pattern that we have and the one that we are numMuts from
+	Us, Them string
+	NumMuts  int
+}
+
+// Patterns indexed by their nts converted to string
+type PatternSet map[string]Pattern
+
+type Tag struct {
+	genomes *genomes.Genomes
+	Pos     int
+
+	// The set of alternative patterns found in all the genomes for this tag.
+	Patterns PatternSet
+
+	// Maps each genome to its distance from the tag it's closest to
+	Mapping map[int]TagDist
+}
+
+// Return a map of the alleles and their counts
+func (t *Tag) Alleles() map[string]int {
+	ret := make(map[string]int)
+
+	for _, v := range t.Mapping {
+		ret[v.Us]++
+	}
+
+	return ret
+}
+
+func (t *Tag) Length() int {
+	for k, _ := range t.Patterns {
+		return len(k)
+	}
+	log.Fatal("Tag has no patterns!")
+	return 0
+}
+
+func (t *Tag) Print() {
+	fmt.Printf("Tag at %d (%s)\n", t.Pos, OrfNames.GetName(t.Pos))
+
+	for k, v := range t.Mapping {
+		fmt.Printf("%d(%s): %d has %s (%d muts from %s)\n", t.Pos,
+			OrfNames.GetName(t.Pos), k, v.Us, v.NumMuts, v.Them)
+	}
+}
+
+func (t *Tag) NumGroups() int {
+	alleles := t.Alleles()
+	return len(alleles)
+}
+
+// Does tag contain the specified genome?
+func (t *Tag) Contains(which int) bool {
+	for k, _ := range t.Mapping {
+		if k == which {
+			return true
+		}
+	}
+	return false
+}
+
+// Show which other genomes have the same allele, or differ by only one, from
+// which, sorted by index.
+func (t *Tag) ShowClosest(which int) {
+	friends := make([]int, 0)
+
+	us := []byte(t.Mapping[which].Us)
+
+	for k, td := range t.Mapping {
+		nm := utils.NumMuts(us, []byte(td.Us))
+		if nm <= 1 {
+			friends = append(friends, k)
+		}
+	}
+	slices.Sort(friends)
+
+	fmt.Printf("%d: %d (%s): ", which, t.Pos, OrfNames.GetName(t.Pos))
+	for _, f := range friends {
+		fmt.Printf("%d ", f)
+	}
+	fmt.Printf("\n")
+}
+
+// Show what the specified genome has at the location where t is.
+func (t *Tag) Compare(which int) {
+	t.Print()
+	n := t.Length()
+	fmt.Printf("%d has %s\n",
+		which, string(t.genomes.Nts[which][t.Pos:t.Pos+n]))
+}
+
+/*
+Find Patterns that could potentially be used as tags because they are
+length long and differ between two genomes by at least minMuts. Another
+function will build a tag from a pattern.
+*/
+func FindPatterns(g *genomes.Genomes, length int, minMuts int) []Pattern {
+	ret := make([]Pattern, 0)
+
+positions:
+	for i := 0; i < g.Length()-length; i++ {
+		for j := 0; j < g.NumGenomes(); j++ {
+			for k := 0; k < j; k++ {
+				err, silent, numMuts := genomes.IsSilent(g, i, length, j, k)
+				if err != nil {
+					continue
+				}
+				if silent && numMuts >= minMuts {
+					fmt.Printf("Found tag at %d\n", i)
+					ret = append(ret, Pattern{j, i, g.Nts[j][i : i+length]})
+					continue positions
+				}
+			}
+		}
+	}
+	return ret
+}
+
+func (t *Tag) Init(g *genomes.Genomes, p Pattern) {
+	n := len(p.Nts)
+
+	t.genomes = g
+	t.Pos = p.Pos
+	t.Patterns = make(PatternSet)
+	t.Mapping = make(map[int]TagDist)
+
+	// The first alternative at this location is the one we started with-- p,
+	// which has a zero distance to itself.
+	sp := string(p.Nts)
+	t.Patterns[sp] = p
+	t.Mapping[p.Origin] = TagDist{sp, sp, 0}
+
+	for i := 0; i < g.NumGenomes(); i++ {
+		if i == p.Origin {
+			continue
+		}
+
+		// There shouldn't be an error here because we wouldn't be here if this
+		// location hadn't been OK in FindPatterns
+		_, silent, numMuts := genomes.IsSilent(g, p.Pos, n, p.Origin, i)
+
+		if silent {
+			alt := g.Nts[i][p.Pos : p.Pos+n]
+			us := string(alt)
+			t.Patterns[us] = Pattern{i, p.Pos, alt}
+			t.Mapping[i] = TagDist{us, sp, numMuts}
+		}
+	}
+}
+
+func CreateTags(g *genomes.Genomes, patterns []Pattern) []Tag {
+	ret := make([]Tag, len(patterns))
+	for i, p := range patterns {
+		ret[i].Init(g, p)
+	}
+	return ret
+}
+
+func SaveTags(fname string, tags []Tag) {
+	fd, err := os.Create(fname)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer fd.Close()
+
+	fp := bufio.NewWriter(fd)
+	enc := gob.NewEncoder(fp)
+	err = enc.Encode(tags)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+/*
+Load serialized tags and associate them with a set of genomes (which should be
+identical to those used when they were originally created)
+*/
+func LoadTags(g *genomes.Genomes, fname string) []Tag {
+	ret := make([]Tag, 0)
+
+	fd, err := os.Open(fname)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer fd.Close()
+
+	fp := bufio.NewReader(fd)
+	dec := gob.NewDecoder(fp)
+	err = dec.Decode(&ret)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for i, _ := range ret {
+		ret[i].genomes = g
+	}
+
+	return ret
+}
+
+// Show which triples "which" is in, and return the triples
+func TriplesWith(tags []Tag, which int) {
+	for _, tag := range tags {
+		if tag.Contains(which) && tag.NumGroups() <= 3 {
+			tag.ShowClosest(which)
+		}
+	}
+}
+
+// Just find the tag at a particular position
+func FindTag(tags []Tag, pos int) *Tag {
+	for _, t := range tags {
+		if t.Pos == pos {
+			return &t
+		}
+	}
+	return nil
+}
+
+// Find tags where only one genome has a particular allele
+func FindUnique(tags []Tag) {
+	// Count of how many unique tags each genome has
+	unique := make(map[int]int)
+
+	for _, t := range tags {
+		alleles := t.Alleles()
+		for k, v := range alleles {
+			if v != 1 {
+				continue
+			}
+			for genome, td := range t.Mapping {
+				if td.Us == k {
+					fmt.Printf("%s at %d(%s) unique in %d\n",
+						k, t.Pos, OrfNames.GetName(t.Pos), genome)
+				}
+				unique[genome]++
+			}
+		}
+	}
+	for k, v := range unique {
+		fmt.Printf("%d has %d unique tags\n", k, v)
+	}
+}
+
+// Look for any genomes where you share some tags but are 4 muts away on
+// others-- this may indicate recombination. Return the genomes you share both
+// friends and opposites with.
+func FindParadoxes(tags []Tag, which int) []int {
+	ret := make([]int, 0)
+	friends := make(map[int]bool)
+	opposites := make(map[int]bool)
+
+	for _, tag := range tags {
+		us := []byte(tag.Mapping[which].Us)
+		for k, td := range tag.Mapping {
+			nm := utils.NumMuts(us, []byte(td.Us))
+
+			if nm == 0 {
+				friends[k] = true
+			} else if nm >= 4 {
+				opposites[k] = true
+			}
+		}
+	}
+
+	// Now you want the intersection of friends and opposites
+	for f, _ := range friends {
+		if opposites[f] {
+			ret = append(ret, f)
+		}
+	}
+
+	return ret
+}
+
+func ShowAllParadoxes(g *genomes.Genomes, tags []Tag) {
+	for i := 0; i < g.NumGenomes(); i++ {
+		p := FindParadoxes(tags, i)
+		fmt.Printf("%d %d\n", i, len(p))
+	}
+}
+
+type ParadoxDetail struct {
+	pos     int
+	other   int
+	agrees  bool
+	orfName string
+}
+
+// paradoxes are the indexes of other genomes with which we have paradoxical
+// relationships
+func ParadoxDetails(g *genomes.Genomes,
+	tags []Tag, which int, paradoxes []int) []ParadoxDetail {
+
+	ret := make([]ParadoxDetail, 0)
+	sequenceSimilarities := make(map[int]float64)
+
+	var getSS func(int) float64
+	getSS = func(other int) float64 {
+		ss, there := sequenceSimilarities[other]
+		if !there {
+			sequenceSimilarities[other] =
+				g.SequenceSimilarity(which, other) * 100
+			return getSS(other)
+		}
+		return ss
+	}
+
+	for _, p := range paradoxes {
+		for _, tag := range tags {
+			us := []byte(tag.Mapping[which].Us)
+			them, there := tag.Mapping[p]
+			if !there {
+				continue
+			}
+			nm := utils.NumMuts(us, []byte(them.Us))
+			name := OrfNames.GetName(tag.Pos)
+			ss := getSS(p)
+
+			if nm == 0 {
+				fmt.Printf("%d: %d(%s) agrees with %d (%.2f%% ss)\n",
+					which, tag.Pos, name, p, ss)
+				ret = append(ret, ParadoxDetail{tag.Pos, p, true, name})
+			} else if nm >= 4 {
+				fmt.Printf("%d: %d(%s) opposes %d (%.2f%% ss)\n",
+					which, tag.Pos, name, p, ss)
+				ret = append(ret, ParadoxDetail{tag.Pos, p, false, name})
+			}
+		}
+	}
+	return ret
+}
+
+// Look for differences in the agree/oppose counts organized by OrfName
+func SpikeSwap(g *genomes.Genomes, which int, details []ParadoxDetail) {
+	for i := 0; i < g.NumGenomes(); i++ {
+		var agree, oppose int
+		var agreeS, opposeS int
+		ss := g.SequenceSimilarity(which, i)
+		if ss < 0.9 {
+			continue
+		}
+
+		for _, pd := range details {
+			if pd.other != i {
+				continue
+			}
+			if pd.orfName == "S" {
+				if pd.agrees {
+					agreeS++
+				} else {
+					opposeS++
+				}
+			} else {
+				if pd.agrees {
+					agree++
+				} else {
+					oppose++
+				}
+			}
+		}
+		fmt.Printf("Comparing with %d(%.2f): %d:%d on S %d:%d off-S\n",
+			i, ss*100, agreeS, opposeS, agree, oppose)
+	}
+}
+
+func main() {
+	big := true
+	save := false
+	print := false
+
+	var g *genomes.Genomes
+
+	if big {
+		g = genomes.LoadGenomes("../fasta/SARS2-relatives.fasta",
+			"../fasta/WH1.orfs", false)
+		/*
+			g = genomes.LoadGenomes("../fasta/more_relatives.fasta",
+				"../fasta/WH1.orfs", false)
+		*/
+	} else {
+		g = genomes.LoadGenomes("../fasta/relatives.fasta",
+			"../fasta/WH1.orfs", false)
+	}
+
+	var tags []Tag
+
+	if save {
+		patterns := FindPatterns(g, 6, 4)
+		tags = CreateTags(g, patterns)
+
+		SaveTags("tags.gob", tags)
+		fmt.Printf("Tags saved")
+	} else {
+		tags = LoadTags(g, "tags.gob")
+	}
+
+	if print {
+		for _, tag := range tags {
+			tag.Print()
+		}
+	}
+
+	//ShowAllParadoxes(g, tags)
+	//FindUnique(tags)
+
+	paradoxes := FindParadoxes(tags, 0)
+	details := ParadoxDetails(g, tags, 0, paradoxes)
+	SpikeSwap(g, 0, details)
+
+	// g.SaveSelected("WH1-Rt22QT161.fasta", 0, 3)
+	// g.SaveSelected("WH1-Rt21LC39", 0, 22)
+
+	/*
+		fmt.Printf("SS inside spike: %.2f%%\n", g.SubSequenceSimilarity(0,
+			22, 21562, 25385, true) * 100)
+
+		fmt.Printf("SS outside spike: %.2f%%\n", g.SubSequenceSimilarity(0,
+			22, 21562, 25385, false) * 100)
+	*/
+
+	/*
+		paradoxes = FindParadoxes(tags, 8)
+		ParadoxDetails(g, tags, 8, paradoxes)
+	*/
+
+	/*
+		for pos := 28996; pos <= 28999; pos++ {
+			t := FindTag(tags, pos)
+			t.Compare(0)
+		}
+	*/
+
+	/*
+		TriplesWith(tags, 0)
+		TriplesWith(tags, 8)
+	*/
+}

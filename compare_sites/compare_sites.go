@@ -360,7 +360,12 @@ func MontecarloHotpots(g *genomes.Genomes, its int) {
 	for i := 0; i < its; i++ {
 		sites := RandomSites()
 		pairs := TestAllPairs(g, sites, false)
-		fmt.Printf("%d: %d\n", i, CountHotspots(pairs))
+		fmt.Printf("%d: %s %s %s %s %d\n", i,
+			string(sites[0]),
+			string(sites[1]),
+			string(sites[2]),
+			string(sites[3]),
+			CountHotspots(pairs))
 	}
 }
 
@@ -429,8 +434,8 @@ func main() {
 	g := genomes.LoadGenomes("../fasta/more_relatives.fasta",
 		"../fasta/WH1.orfs", false)
 	/*
-	g := genomes.LoadGenomes("../fasta/relatives.fasta",
-		"../fasta/WH1.orfs", false)
+		g := genomes.LoadGenomes("../fasta/relatives.fasta",
+			"../fasta/WH1.orfs", false)
 	*/
 	g.RemoveGaps()
 
