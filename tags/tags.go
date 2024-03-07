@@ -155,10 +155,6 @@ func (t *Tag) Init(g *genomes.Genomes, p Pattern) {
 	t.Mapping[p.Origin] = TagDist{sp, sp, 0}
 
 	for i := 0; i < g.NumGenomes(); i++ {
-		if i == p.Origin {
-			continue
-		}
-
 		// There shouldn't be an error here because we wouldn't be here if this
 		// location hadn't been OK in FindPatterns
 		_, silent, numMuts := genomes.IsSilent(g, p.Pos, n, p.Origin, i)
@@ -332,12 +328,17 @@ func ParadoxDetails(g *genomes.Genomes,
 
 	for _, p := range paradoxes {
 		for _, tag := range tags {
-			us := []byte(tag.Mapping[which].Us)
+			us, there := tag.Mapping[which]
+			if !there {
+				continue
+			}
+
 			them, there := tag.Mapping[p]
 			if !there {
 				continue
 			}
-			nm := utils.NumMuts(us, []byte(them.Us))
+
+			nm := utils.NumMuts([]byte(us.Us), []byte(them.Us))
 			name := OrfNames.GetName(tag.Pos)
 			ss := getSS(p)
 
@@ -361,14 +362,12 @@ func SpikeSwap(g *genomes.Genomes, which int, details []ParadoxDetail) {
 		var agree, oppose int
 		var agreeS, opposeS int
 		ss := g.SequenceSimilarity(which, i)
-		if ss < 0.9 {
-			continue
-		}
 
 		for _, pd := range details {
 			if pd.other != i {
 				continue
 			}
+
 			if pd.orfName == "S" {
 				if pd.agrees {
 					agreeS++
@@ -383,6 +382,11 @@ func SpikeSwap(g *genomes.Genomes, which int, details []ParadoxDetail) {
 				}
 			}
 		}
+
+		if agree+oppose+agreeS+opposeS == 0 {
+			continue
+		}
+
 		fmt.Printf("Comparing with %d(%.2f): %d:%d on S %d:%d off-S\n",
 			i, ss*100, agreeS, opposeS, agree, oppose)
 	}
@@ -425,19 +429,23 @@ func main() {
 		}
 	}
 
-	patterns := AllPatterns(6)
-	for _, p := range(patterns) {
-		fmt.Println(string(p))
-	}
+	/*
+		bw := Bandwidth(g, 0, 6, false)
+		for i, b := range bw {
+			if b >= 5 {
+				fmt.Println(i, b)
+			}
+		}
+	*/
 
-	//ShowAllParadoxes(g, tags)
+	// ShowAllParadoxes(g, tags)
 	//FindUnique(tags)
 
-	/*
 	paradoxes := FindParadoxes(tags, 0)
 	details := ParadoxDetails(g, tags, 0, paradoxes)
 	SpikeSwap(g, 0, details)
-	*/
+
+	//g.SaveSelected("WH1-RsYN04.fasta", 0, 54)
 
 	/*
 		fmt.Printf("SS inside spike: %.2f%%\n", g.SubSequenceSimilarity(0,
