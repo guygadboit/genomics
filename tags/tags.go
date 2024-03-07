@@ -425,15 +425,19 @@ func main() {
 		}
 	}
 
+	patterns := AllPatterns(6)
+	for _, p := range(patterns) {
+		fmt.Println(string(p))
+	}
+
 	//ShowAllParadoxes(g, tags)
 	//FindUnique(tags)
 
+	/*
 	paradoxes := FindParadoxes(tags, 0)
 	details := ParadoxDetails(g, tags, 0, paradoxes)
 	SpikeSwap(g, 0, details)
-
-	// g.SaveSelected("WH1-Rt22QT161.fasta", 0, 3)
-	// g.SaveSelected("WH1-Rt21LC39", 0, 22)
+	*/
 
 	/*
 		fmt.Printf("SS inside spike: %.2f%%\n", g.SubSequenceSimilarity(0,
