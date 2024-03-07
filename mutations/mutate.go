@@ -1,4 +1,4 @@
-package main
+package mutations
 
 import (
 	"math/rand"

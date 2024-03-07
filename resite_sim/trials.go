@@ -9,6 +9,7 @@ import (
 	"os"
 	"sync"
 	"genomics/genomes"
+	"genomics/mutations"
 )
 
 type TrialResult interface {
@@ -31,8 +32,8 @@ func loadGenomes(fnames []string) []*genomes.Genomes {
 	return g
 }
 
-func findNucDistro(g []*genomes.Genomes) *NucDistro {
-	nd := NewNucDistro(nil)
+func findNucDistro(g []*genomes.Genomes) *mutations.NucDistro {
+	nd := mutations.NewNucDistro(nil)
 	for i := 0; i < len(g); i++ {
 		nd.Count(g[i])
 	}
@@ -53,7 +54,7 @@ func findMutsPerGenome(fnames []string, numMuts int) []int {
 		} else {
 			g := genomes.LoadGenomes(fmt.Sprintf("WH1-%s.fasta",
 				fnames[i]), "../fasta/WH1.orfs", false)
-			mutsPerGenome[i], _ = CountMutations(g)
+			mutsPerGenome[i], _ = mutations.CountMutations(g)
 		}
 	}
 

@@ -5,6 +5,7 @@ import (
 	"io"
 	"math/rand"
 	"genomics/genomes"
+	"genomics/mutations"
 )
 
 type TamperTrial struct {
@@ -33,7 +34,7 @@ func (r *TamperTrialResult) Write(w io.Writer) {
 		r.totalMuts, r.totalSites, r.totalSingleSites)
 }
 
-func TamperTrials(genome *genomes.Genomes, nd *NucDistro,
+func TamperTrials(genome *genomes.Genomes, nd *mutations.NucDistro,
 	numTrials int, numMuts int, numEdits int, results chan interface{}) {
 
 	reportProgress := func(n int) {
@@ -43,7 +44,7 @@ func TamperTrials(genome *genomes.Genomes, nd *NucDistro,
 
 	for i := 0; i < numTrials; i++ {
 		mutant := genome.Clone()
-		MutateSilent(mutant, nd, numMuts)
+		mutations.MutateSilent(mutant, nd, numMuts)
 
 		tampered := rand.Intn(2) == 1
 		if tampered {

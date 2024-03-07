@@ -5,6 +5,7 @@ import (
 	"io"
 	"strings"
 	"genomics/genomes"
+    "genomics/mutations"
 )
 
 type SpacingTrial struct {
@@ -82,7 +83,7 @@ func addedRemoved(before map[int]bool, after []int) (int, int) {
 	return added, removed
 }
 
-func SpacingTrials(genome *genomes.Genomes, nd *NucDistro,
+func SpacingTrials(genome *genomes.Genomes, nd *mutations.NucDistro,
 	numTrials int, numMuts int, countSites bool,
 	results chan interface{}) {
 	good := 0
@@ -101,7 +102,7 @@ func SpacingTrials(genome *genomes.Genomes, nd *NucDistro,
 
 	for i := 0; i < numTrials; i++ {
 		mutant := genome.Clone()
-		MutateSilent(mutant, nd, numMuts)
+		mutations.MutateSilent(mutant, nd, numMuts)
 		count, maxLength, unique, interleaved, positions =
 			FindRestrictionMap(mutant)
 
