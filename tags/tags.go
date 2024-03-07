@@ -392,10 +392,30 @@ func SpikeSwap(g *genomes.Genomes, which int, details []ParadoxDetail) {
 	}
 }
 
+func Simulate(g *genomes.Genomes, count int) {
+	haveTags, total := 0, 0
+	for i := 0; i < count; i++ {
+		gm := MakeSimulatedMutant(g, 0, 35)
+		simTags := CreateTags(gm, FindPatterns(gm, 6, 4))
+
+		if len(simTags) == 0 {
+			fmt.Printf("No tags\n")
+		} else {
+			fmt.Printf("Got %d tags\n", len(simTags))
+			for _, tag := range simTags {
+				tag.Print()
+			}
+			haveTags++
+		}
+		total++
+	}
+	fmt.Printf("%d / %d have tags\n", haveTags, total)
+}
+
 func main() {
 	big := true
 	save := false
-	print := false
+	print := true
 
 	var g *genomes.Genomes
 
@@ -407,8 +427,7 @@ func main() {
 				"../fasta/WH1.orfs", false)
 		*/
 	} else {
-		g = genomes.LoadGenomes("../fasta/relatives.fasta",
-			"../fasta/WH1.orfs", false)
+		g = genomes.LoadGenomes("WH1-P2V.fasta", "../fasta/WH1.orfs", false)
 	}
 
 	var tags []Tag
@@ -441,9 +460,12 @@ func main() {
 	// ShowAllParadoxes(g, tags)
 	//FindUnique(tags)
 
+	/*
 	paradoxes := FindParadoxes(tags, 0)
 	details := ParadoxDetails(g, tags, 0, paradoxes)
 	SpikeSwap(g, 0, details)
+	*/
+	// Simulate(g, 10)
 
 	//g.SaveSelected("WH1-RsYN04.fasta", 0, 54)
 
