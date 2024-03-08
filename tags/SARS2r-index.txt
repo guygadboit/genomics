@@ -9,7 +9,7 @@
 8: MN996532.2 Bat coronavirus RaTG13, complete genome
 9: MZ081381.1 Betacoronavirus sp. RpYN06 strain bat/Yunnan/RpYN06/2020, complete genome
 10: MZ937004.1 Bat coronavirus isolate BANAL-20-247/Laos/2020, complete genome
-11: MZ937002.1 Bat coronavirus isolate BANAL-20-116/Laos/2020, complete genome
+12: MZ937002.1 Bat coronavirus isolate BANAL-20-116/Laos/2020, complete genome
 12: MW251312.1 Bat coronavirus RacCS271, partial genome
 13: MW251311.1 Bat coronavirus RacCS264, partial genome
 14: MW251310.1 Bat coronavirus RacCS253, partial genome

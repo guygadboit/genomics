@@ -445,7 +445,7 @@ func main() {
 	rand.Seed(1)
 	big := true
 	save := false
-	print := false
+	print := true
 
 	var g *genomes.Genomes
 
@@ -504,6 +504,7 @@ func main() {
 		SpikeSwap(g, 0, details)
 	*/
 
+	/*
 	for i := 0; i < 50; {
 		n := g.NumGenomes()
 		a, b := rand.Intn(n), rand.Intn(n)
@@ -512,6 +513,7 @@ func main() {
 		}
 		i += Simulate(g, a, b, 1000)
 	}
+	*/
 
 	//g.SaveSelected("WH1-RsYN04.fasta", 0, 54)
 
@@ -523,10 +525,8 @@ func main() {
 			22, 21562, 25385, false) * 100)
 	*/
 
-	/*
-		paradoxes = FindParadoxes(tags, 8)
-		ParadoxDetails(g, tags, 8, paradoxes)
-	*/
+	paradoxes := FindParadoxes(tags, 7)
+	ParadoxDetails(g, tags, 7, paradoxes)
 
 	/*
 		for pos := 28996; pos <= 28999; pos++ {
