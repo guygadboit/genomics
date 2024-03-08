@@ -154,6 +154,29 @@ func (g *Genomes) Clone() *Genomes {
 	return ret
 }
 
+// Make a shallow copy that matches the specified genomes
+func (g *Genomes) Filter(which ...int) *Genomes {
+	ret := NewGenomes(g.Orfs, len(which))
+
+	for i, w := range which {
+		ret.Nts[i] = g.Nts[w]
+		ret.Names[i] = g.Names[w]
+	}
+
+	return ret
+}
+
+// Make the specified genomes into deep copies of themselves (because you want
+// to mutate them for example)
+func (g *Genomes) DeepCopy(which ...int) {
+	n := g.Length()
+	for _, w := range which {
+		newNts := make([]byte, n)
+		copy(newNts, g.Nts[w])
+		g.Nts[w] = newNts
+	}
+}
+
 /*
 Assuming align is aligned with g, add it to g's own nts array, just doing a
 shallow copy

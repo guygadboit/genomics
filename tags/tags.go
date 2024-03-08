@@ -130,7 +130,7 @@ positions:
 					continue
 				}
 				if silent && numMuts >= minMuts {
-					fmt.Printf("Found tag at %d\n", i)
+					// fmt.Printf("Found tag at %d\n", i)
 					ret = append(ret, Pattern{j, i, g.Nts[j][i : i+length]})
 					continue positions
 				}
@@ -392,42 +392,63 @@ func SpikeSwap(g *genomes.Genomes, which int, details []ParadoxDetail) {
 	}
 }
 
-func Simulate(g *genomes.Genomes, count int) {
-	haveTags, total := 0, 0
-	for i := 0; i < count; i++ {
-		gm := MakeSimulatedMutant(g, 0, 35)
-		simTags := CreateTags(gm, FindPatterns(gm, 6, 4))
+// How many tags between a and b? Also return their sequence similarity
+func CountTags(g *genomes.Genomes, a, b int) (int, float64) {
+	g2 := g.Filter(a, b)
+	numTags := len(FindPatterns(g2, 6, 4))
+	ss := g2.SequenceSimilarity(0, 1)
+	return numTags, ss
+}
 
-		if len(simTags) == 0 {
-			fmt.Printf("No tags\n")
-		} else {
-			fmt.Printf("Got %d tags\n", len(simTags))
-			for _, tag := range simTags {
-				tag.Print()
-			}
-			haveTags++
-		}
+func Simulate(g *genomes.Genomes, a, b int, count int) {
+	numTags, total := 0, 0
+	var numSilent int
+
+	for i := 0; i < count; i++ {
+		var gm *genomes.Genomes
+		gm, numSilent = MakeSimulatedMutant(g, a, b)
+		numTags += len(FindPatterns(gm, 6, 4))
 		total++
+
+		/*
+			if i % 10 == 0 {
+				fmt.Printf("%d/%d\n", i, count)
+			}
+		*/
 	}
-	fmt.Printf("%d / %d have tags\n", haveTags, total)
+
+	actual, _ := CountTags(g, a, b)
+	fmt.Printf("%d vs %d. Average number of tags: %.2f. "+
+		"Actual: %d. Silent muts: %d\n",
+		a, b,
+		float64(numTags)/float64(total),
+		actual,
+		numSilent)
 }
 
 func main() {
 	big := true
 	save := false
-	print := true
+	print := false
 
 	var g *genomes.Genomes
 
 	if big {
+		/*
 		g = genomes.LoadGenomes("../fasta/SARS2-relatives.fasta",
 			"../fasta/WH1.orfs", false)
+		*/
+
+		g = genomes.LoadGenomes("../fasta/SARS1-relatives.fasta",
+			"../fasta/WH1.orfs", false)
+
 		/*
-			g = genomes.LoadGenomes("../fasta/more_relatives.fasta",
-				"../fasta/WH1.orfs", false)
+		g = genomes.LoadGenomes("../fasta/more_relatives.fasta",
+			"../fasta/WH1.orfs", false)
 		*/
 	} else {
-		g = genomes.LoadGenomes("WH1-P2V.fasta", "../fasta/WH1.orfs", false)
+		g = genomes.LoadGenomes("../fasta/relatives.fasta",
+			"../fasta/WH1.orfs", false)
 	}
 
 	var tags []Tag
@@ -461,11 +482,16 @@ func main() {
 	//FindUnique(tags)
 
 	/*
-	paradoxes := FindParadoxes(tags, 0)
-	details := ParadoxDetails(g, tags, 0, paradoxes)
-	SpikeSwap(g, 0, details)
+		paradoxes := FindParadoxes(tags, 0)
+		details := ParadoxDetails(g, tags, 0, paradoxes)
+		SpikeSwap(g, 0, details)
 	*/
-	// Simulate(g, 10)
+
+	for i := 1; i < g.NumGenomes(); i++ {
+		// Rather than always using 0 as the first one maybe Montecarlo it?
+		// FIXME YOU ARE HERE.
+		Simulate(g, 0, i, 1000)
+	}
 
 	//g.SaveSelected("WH1-RsYN04.fasta", 0, 54)
 

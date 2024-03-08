@@ -17,6 +17,7 @@ type Similarity struct {
 func SARS1Similarity(g *genomes.Genomes) {
 	similarities := make([]Similarity, g.NumGenomes())
 	SC2Closer := make([]int, 0)
+    SC1Closer := make([]int, 0)
 
 	Tor2 := 79
 	SC2 := 0
@@ -27,7 +28,9 @@ func SARS1Similarity(g *genomes.Genomes) {
 		similarities[i] = Similarity{i, ss1, ss2}
 		if ss2 > ss1 {
 			SC2Closer = append(SC2Closer, i)
-		}
+		} else {
+            SC1Closer = append(SC1Closer, i)
+        }
 
 	}
 	slices.SortFunc(similarities, func(a, b Similarity) int {
@@ -46,4 +49,5 @@ func SARS1Similarity(g *genomes.Genomes) {
 	}
 
 	g.SaveSelected("SARS2-relatives.fasta", SC2Closer...)
+	g.SaveSelected("SARS1-relatives.fasta", SC1Closer...)
 }
