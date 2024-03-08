@@ -15,6 +15,9 @@ func MakeSimulatedMutant(g *genomes.Genomes, a, b int) (*genomes.Genomes, int) {
 	// First obtain a nucleotide distribution based on both of them
 	g2 := g.Filter(a, b)
 	silent, _ := mutations.CountMutations(g2)
+	if silent < 1000 {
+		return nil, 0
+	}
 	nd := mutations.NewNucDistro(g2)
 
 	// Now create a new set with a twice

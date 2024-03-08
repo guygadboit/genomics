@@ -7,6 +7,7 @@ import (
 	"genomics/genomes"
 	"genomics/utils"
 	"log"
+	"math/rand"
 	"os"
 	"slices"
 )
@@ -400,15 +401,28 @@ func CountTags(g *genomes.Genomes, a, b int) (int, float64) {
 	return numTags, ss
 }
 
-func Simulate(g *genomes.Genomes, a, b int, count int) {
+// Return the number of simulations actually run
+func Simulate(g *genomes.Genomes, a, b int, count int) int {
 	numTags, total := 0, 0
 	var numSilent int
 
 	for i := 0; i < count; i++ {
 		var gm *genomes.Genomes
 		gm, numSilent = MakeSimulatedMutant(g, a, b)
-		numTags += len(FindPatterns(gm, 6, 4))
+		if gm == nil {
+			return 0
+		}
+		patterns := FindPatterns(gm, 6, 4)
+		numTags += len(patterns)
 		total++
+
+		/*
+		tags := CreateTags(gm, patterns)
+		for _, tag := range tags {
+			tag.Print()
+		}
+		gm.SaveMulti("test.fasta")
+		*/
 
 		/*
 			if i % 10 == 0 {
@@ -424,9 +438,11 @@ func Simulate(g *genomes.Genomes, a, b int, count int) {
 		float64(numTags)/float64(total),
 		actual,
 		numSilent)
+	return 1
 }
 
 func main() {
+	rand.Seed(1)
 	big := true
 	save := false
 	print := false
@@ -434,22 +450,23 @@ func main() {
 	var g *genomes.Genomes
 
 	if big {
-		/*
 		g = genomes.LoadGenomes("../fasta/SARS2-relatives.fasta",
 			"../fasta/WH1.orfs", false)
-		*/
 
+			/*
 		g = genomes.LoadGenomes("../fasta/SARS1-relatives.fasta",
-			"../fasta/WH1.orfs", false)
+			"../fasta/SARS1.orfs", false)
+			*/
 
 		/*
-		g = genomes.LoadGenomes("../fasta/more_relatives.fasta",
-			"../fasta/WH1.orfs", false)
+			g = genomes.LoadGenomes("../fasta/more_relatives.fasta",
+				"../fasta/WH1.orfs", false)
 		*/
 	} else {
 		g = genomes.LoadGenomes("../fasta/relatives.fasta",
 			"../fasta/WH1.orfs", false)
 	}
+	g.RemoveGaps()
 
 	var tags []Tag
 
@@ -487,10 +504,13 @@ func main() {
 		SpikeSwap(g, 0, details)
 	*/
 
-	for i := 1; i < g.NumGenomes(); i++ {
-		// Rather than always using 0 as the first one maybe Montecarlo it?
-		// FIXME YOU ARE HERE.
-		Simulate(g, 0, i, 1000)
+	for i := 0; i < 50; {
+		n := g.NumGenomes()
+		a, b := rand.Intn(n), rand.Intn(n)
+		if a == b {
+			continue
+		}
+		i += Simulate(g, a, b, 1000)
 	}
 
 	//g.SaveSelected("WH1-RsYN04.fasta", 0, 54)
