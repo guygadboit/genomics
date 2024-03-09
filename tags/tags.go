@@ -510,7 +510,7 @@ func main() {
 		if a == b {
 			continue
 		}
-		i += Simulate(g, a, b, 1000)
+		i += Simulate(g, a, b, 500)
 	}
 
 	//g.SaveSelected("WH1-RsYN04.fasta", 0, 54)
