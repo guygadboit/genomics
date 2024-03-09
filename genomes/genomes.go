@@ -308,3 +308,79 @@ func (g *Genomes) SubSequenceSimilarity(a, b int,
 	}
 	return float64(same) / float64(total)
 }
+
+func shorten(s string, length int) string {
+	words := strings.Split(s, " ")
+	w := words[0]
+	if len(w) > length {
+		return w[0:length]
+	} else {
+		return w
+	}
+}
+
+// Return a string with * where they're all the same or ' ' when not.
+func (g *Genomes) compare(start, end int, which ...int) string {
+	n := end - start
+	ret := make([]byte, n)
+outer:
+	for i := 0; i < n; i++ {
+		pos := i + start
+		nts := make(map[byte]bool)
+		for j, w := range which {
+			if j > 0 {
+				_, there := nts[g.Nts[w][pos]]
+				if !there {
+					ret[i] = ' '
+					continue outer
+				}
+			}
+			nts[g.Nts[w][pos]] = true
+		}
+		ret[i] = '*'
+	}
+	return string(ret)
+}
+
+// Save in a clu-style format with the translation. Assume a and b are aligned.
+func (g *Genomes) SaveWithTranslation(fname string, which ...int) error {
+	fd, err := os.Create(fname)
+	if err != nil {
+		return err
+	}
+	defer fd.Close()
+	fp := bufio.NewWriter(fd)
+
+	names := make([]string, len(which))
+	trans := make([]Translation, len(which))
+	var index, nextIndex int
+	for i, w := range which {
+		names[i] = shorten(g.Names[w], 12)
+		trans[i] = Translate(g, w)
+	}
+
+	for i := 0; i < g.Length(); i += 60 {
+		n := g.Length() - i
+		if n > 60 {
+			n = 60
+		}
+
+		for j, w := range which {
+			nts := g.Nts[w][i:i+n]
+			fmt.Fprintf(fp, "%-16s%s\t%d\n", names[j], string(nts), i+n)
+		}
+
+		fmt.Fprintf(fp, "%-16s%s\n", "", g.compare(i, i+n, which...))
+
+		for j, _ := range which {
+			var aas []byte
+			nextIndex, aas = trans[j].TranslateLong(index, i, i+n)
+			fmt.Fprintf(fp, "%-16s%s\n", names[j], string(aas))
+		}
+		fmt.Fprintf(fp, "\n")
+		index = nextIndex
+	}
+
+	fp.Flush()
+	return nil
+}

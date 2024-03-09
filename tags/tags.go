@@ -453,10 +453,10 @@ func main() {
 		g = genomes.LoadGenomes("../fasta/SARS2-relatives.fasta",
 			"../fasta/WH1.orfs", false)
 
-			/*
+            /*
 		g = genomes.LoadGenomes("../fasta/SARS1-relatives.fasta",
 			"../fasta/SARS1.orfs", false)
-			*/
+            */
 
 		/*
 			g = genomes.LoadGenomes("../fasta/more_relatives.fasta",
@@ -479,6 +479,10 @@ func main() {
 	} else {
 		tags = LoadTags(g, "tags.gob")
 	}
+
+    //g.SaveWithTranslation("test.clu", 0, 1)
+    g.SaveWithTranslation("test.clu", 0, 7)
+    return
 
 	if print {
 		for _, tag := range tags {

@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
+	"genomics/utils"
 	"io"
 	"log"
 	"os"
@@ -11,7 +12,6 @@ import (
 	"sort"
 	"strconv"
 	"strings"
-	"genomics/utils"
 )
 
 var CodonTable = map[string]byte{
@@ -437,6 +437,9 @@ func (it *CodonIter) Next() (pos int, codon string, aa byte, err error) {
 	genome := it.genome
 	for ; it.orfI < len(genome.Orfs); it.orfI++ {
 		orf := genome.Orfs[it.orfI]
+		if it.pos == -1 {
+			it.pos = orf.Start
+		}
 		pos = it.pos
 		if pos+3 <= orf.End {
 			codon = string(genome.Nts[it.which][pos : pos+3])
@@ -445,6 +448,7 @@ func (it *CodonIter) Next() (pos int, codon string, aa byte, err error) {
 			it.pos = pos + 3
 			return
 		}
+		it.pos = -1	// Marks that we just moved to a new ORF.
 	}
 	return 0, "", 0, errors.New("No more ORFs")
 }
@@ -487,6 +491,38 @@ func (t Translation) Find(protein []byte, start int) int {
 		}
 	}
 	return -1
+}
+
+/*
+Return the translation between start and end in "long" form so RRR for an R
+codon. Start looking from index, and return the codon index (use this to
+improve performance if you're calling this in a loop for the whole genome).
+It should always work just to pass 0 for index, but be slower.
+*/
+func (t Translation) TranslateLong(index, start, end int) (int, []byte) {
+	ret := make([]byte, 0)
+
+	for pos := start; pos < end; pos++ {
+		for ; index < len(t) && t[index].Pos+2 < pos; index++ {
+		}
+		if index == len(t) {
+			break
+		}
+		codon := t[index]
+
+		offset := pos - codon.Pos
+		if offset < 0 {
+			ret = append(ret, '|')
+			continue
+		}
+		if codon.Aa == 0 {
+			ret = append(ret, 'X')
+		} else {
+			ret = append(ret, codon.Aa)
+		}
+	}
+
+	return index, ret
 }
 
 /*
