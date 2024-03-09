@@ -442,10 +442,10 @@ func Simulate(g *genomes.Genomes, a, b int, count int) int {
 }
 
 func main() {
-	rand.Seed(1)
+	rand.Seed(1)	// FIXME this ain't working
 	big := true
 	save := false
-	print := true
+	print := false
 
 	var g *genomes.Genomes
 
@@ -504,7 +504,6 @@ func main() {
 		SpikeSwap(g, 0, details)
 	*/
 
-	/*
 	for i := 0; i < 50; {
 		n := g.NumGenomes()
 		a, b := rand.Intn(n), rand.Intn(n)
@@ -513,7 +512,6 @@ func main() {
 		}
 		i += Simulate(g, a, b, 1000)
 	}
-	*/
 
 	//g.SaveSelected("WH1-RsYN04.fasta", 0, 54)
 
@@ -524,9 +522,6 @@ func main() {
 		fmt.Printf("SS outside spike: %.2f%%\n", g.SubSequenceSimilarity(0,
 			22, 21562, 25385, false) * 100)
 	*/
-
-	paradoxes := FindParadoxes(tags, 7)
-	ParadoxDetails(g, tags, 7, paradoxes)
 
 	/*
 		for pos := 28996; pos <= 28999; pos++ {

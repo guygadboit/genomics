@@ -20,11 +20,14 @@ func MakeSimulatedMutant(g *genomes.Genomes, a, b int) (*genomes.Genomes, int) {
 	}
 	nd := mutations.NewNucDistro(g2)
 
-	// Now create a new set with a twice
-	ret := g.Filter(a, a)
+	ret := g.Filter(a, b)
 
-	// But make a deep copy of the one we're going to mutate
-	ret.DeepCopy(0)
+	// Now take out the silent muts
+	ret.DeepCopy(0)	// Take a copy so we don't mess up g
+	mutations.RevertSilent(ret, 0, 1)
+
+	// And put them back randomly. We're interested to see if this gives
+	// different results.
 	mutations.MutateSilent(ret, nd, silent)
 
 	ret.Names[0] = "Simulated Mutant"

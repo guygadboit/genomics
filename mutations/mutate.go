@@ -78,7 +78,6 @@ two genomes. Ignores indels.
 */
 func CountMutations(g *genomes.Genomes) (int, int) {
 	var nonSilent, silent int
-	var env genomes.Environment
 	a_nts := g.Nts[0]
 	b_nts := g.Nts[1]
 	n := g.Length()
@@ -95,12 +94,11 @@ func CountMutations(g *genomes.Genomes) (int, int) {
 			continue
 		}
 
-		err := env.Init(g, i, 1, 0)
+		err, isSilent, _ := genomes.IsSilent(g, i, 1, 0, 1)
 		if err != nil {
 			// Ignore anything not in an ORF
 			continue
 		}
-		isSilent, _ := env.Replace(b_nts[i : i+1])
 
 		if isSilent {
 			silent++
@@ -109,4 +107,36 @@ func CountMutations(g *genomes.Genomes) (int, int) {
 		}
 	}
 	return silent, nonSilent
+}
+
+// Wherever a differs from b silently revert a to b. Return the number
+// reverted.
+func RevertSilent(g *genomes.Genomes, a, b int) int {
+	newNts := make([]byte, g.Length())
+	var ret int
+
+	for i := 0; i < g.Length(); i++ {
+		an := g.Nts[a][i]
+		bn := g.Nts[b][i]
+
+		// By default keep what we have. If it's silently different, we will
+		// take the b nucleotide below.
+		newNts[i] = an
+
+		if an == bn {
+			continue
+		}
+
+		err, silent, _ := genomes.IsSilent(g, i, 1, a, b)
+		if err != nil {
+			continue
+		}
+
+		if silent {
+			newNts[i] = bn
+			ret++
+		}
+	}
+	g.Nts[a] = newNts
+	return ret
 }
