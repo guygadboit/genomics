@@ -7,8 +7,8 @@ import (
 	"io"
 	"log"
 	"os"
-	"strings"
 	"slices"
+	"strings"
 )
 
 /*
@@ -251,7 +251,7 @@ What's the sequence similarity between the a'th and b'th genomes in an
 alignment? Returns a number between 0 and 1 (so multiply by 100 if you want a
 percentage)
 */
-func (g *Genomes) SequenceSimilarity(a, b int) float64{
+func (g *Genomes) SequenceSimilarity(a, b int) float64 {
 	var same, total int
 	for i := 0; i < g.Length(); i++ {
 		// Only consider proper nts
@@ -345,9 +345,9 @@ outer:
 
 // Mark a region with some character above the alignment.
 type Highlight struct {
-	Start	int
-	End		int
-	Char	byte
+	Start int
+	End   int
+	Char  byte
 }
 
 // Save in a clu-style format with the translation. Assume a and b are aligned.
@@ -383,7 +383,7 @@ func (g *Genomes) SaveWithTranslation(fname string, highlights []Highlight,
 			fmt.Fprintf(fp, "%16s", "")
 			for _, h := range highlights[highlightIt:] {
 				found := false
-				if i+n >= h.Start {
+				if i+n >= h.Start && i < h.End {
 					found = true
 					for j := i; j < h.Start; j++ {
 						fmt.Fprintf(fp, " ")
@@ -392,10 +392,10 @@ func (g *Genomes) SaveWithTranslation(fname string, highlights []Highlight,
 						fmt.Fprintf(fp, "%c", h.Char)
 					}
 				}
-				if i + n >= h.End {
+				if i+n >= h.End {
 					highlightIt++
 				}
-				if found {	// Don't attempt to print overlapping highlights
+				if found { // Don't attempt to print overlapping highlights
 					break
 				}
 			}
@@ -403,7 +403,7 @@ func (g *Genomes) SaveWithTranslation(fname string, highlights []Highlight,
 		}
 
 		for j, w := range which {
-			nts := g.Nts[w][i:i+n]
+			nts := g.Nts[w][i : i+n]
 			fmt.Fprintf(fp, "%-16s%s\t%d\n", names[j], string(nts), i+n)
 		}
 

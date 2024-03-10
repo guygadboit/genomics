@@ -549,7 +549,7 @@ func main() {
 		}
 	}
 
-	SelfRecombination(g, 1000)
+	// SelfRecombination(g, 1000)
 
 	/*
 	   for i := 0; i < g.NumGenomes(); i++ {
@@ -558,13 +558,14 @@ func main() {
 	   }
 	*/
 
-	/*
-	   g2 := g.Filter(7, 35)
-	   patterns := FindPatterns(g2, 6, 4)
-	   tags = CreateTags(g2, patterns)
-	   highlights := CreateHighlights(patterns)
-	   g2.SaveWithTranslation("output.clu", highlights, 0, 1)
-	*/
+   g2 := g.Filter(7, 35)
+   patterns := FindPatterns(g2, 6, 4)
+   tags = CreateTags(g2, patterns)
+   for _, t := range tags {
+       t.Print()
+   }
+   highlights := CreateHighlights(patterns)
+   g2.SaveWithTranslation("output.clu", highlights, 0, 1)
 
 	/*
 	   var count int
