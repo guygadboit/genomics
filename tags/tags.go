@@ -453,7 +453,7 @@ func main() {
 	rand.Seed(1) // FIXME this ain't working
 	big := true
 	save := false
-	print := false
+	print := true
 
 	var g *genomes.Genomes
 
@@ -512,11 +512,13 @@ func main() {
     }
     */
 
+    /*
     g2 := g.Filter(7, 35)
     patterns := FindPatterns(g2, 6, 4)
     // tags = CreateTags(g2, patterns)
     highlights := CreateHighlights(patterns)
     g2.SaveWithTranslation("output.clu", highlights, 0, 1)
+    */
 
 
 	/*
