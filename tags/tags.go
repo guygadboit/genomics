@@ -10,6 +10,7 @@ import (
 	"math/rand"
 	"os"
 	"slices"
+    "reflect"
 )
 
 // A short pattern of nts, probably 6, with a lot of silent muts in it, that
@@ -442,18 +443,62 @@ func Simulate(g *genomes.Genomes, a, b int, count int) int {
 }
 
 func CreateHighlights(patterns []Pattern) []genomes.Highlight {
-    ret := make([]genomes.Highlight, len(patterns))
-    for i, p := range patterns {
-        ret[i] = genomes.Highlight{p.Pos, p.Pos + len(p.Nts), 'v'}
+	ret := make([]genomes.Highlight, len(patterns))
+	for i, p := range patterns {
+		ret[i] = genomes.Highlight{p.Pos, p.Pos + len(p.Nts), 'v'}
+	}
+	return ret
+}
+
+func FindElsewhere(g *genomes.Genomes, which int, tag *Tag) int {
+	var ret int
+
+    // pos := rand.Intn(g.Length()-8) + 1
+    pos := tag.Pos
+
+	pat := g.Nts[which][pos-1 : pos+7]
+	var s genomes.Search
+
+	for s.Init(g, which, pat, 0.0); !s.End(); s.Next() {
+		ret++
+	}
+
+	rc := utils.ReverseComplement(pat)
+    if !reflect.DeepEqual(rc, pat) {
+        for s.Init(g, which, rc, 0.0); !s.End(); s.Next() {
+            ret++
+        }
     }
-    return ret
+
+	return ret
+}
+
+func SelfRecombination(g *genomes.Genomes, iterations int) {
+	n := g.NumGenomes()
+	var count, total int
+
+	for i := 0; i < iterations; i++ {
+		a, b := rand.Intn(n), rand.Intn(n)
+		g2 := g.Filter(a, b)
+		patterns := FindPatterns(g2, 6, 4)
+		tags := CreateTags(g2, patterns)
+
+		for _, t := range tags {
+			found := FindElsewhere(g, 0, &t) > 1
+			if found {
+				count++
+			}
+			total++
+		}
+	}
+	fmt.Printf("%d/%d %.2f\n", count, total, float64(count)/float64(total))
 }
 
 func main() {
 	rand.Seed(1) // FIXME this ain't working
 	big := true
 	save := false
-	print := true
+	print := false
 
 	var g *genomes.Genomes
 
@@ -488,16 +533,15 @@ func main() {
 		tags = LoadTags(g, "tags.gob")
 	}
 
+	/*
+			highlights := []genomes.Highlight{
+		        {200, 201, 'x'},
+				{100, 140, 'v'},
+			}
 
-    /*
-	highlights := []genomes.Highlight{
-        {200, 201, 'x'},
-		{100, 140, 'v'},
-	}
-
-	g.SaveWithTranslation("test.clu", highlights, 0, 7)
-	return
-    */
+			g.SaveWithTranslation("test.clu", highlights, 0, 7)
+			return
+	*/
 
 	if print {
 		for _, tag := range tags {
@@ -505,21 +549,32 @@ func main() {
 		}
 	}
 
-    /*
-    for i := 0; i < g.NumGenomes(); i++ {
-        n, ss := CountTags(g, 7, i)
-        fmt.Printf("7 vs %d (%s): %d tags %.2f%% ss\n", i, g.Names[i], n, ss)
-    }
-    */
+	SelfRecombination(g, 1000)
 
-    /*
-    g2 := g.Filter(7, 35)
-    patterns := FindPatterns(g2, 6, 4)
-    // tags = CreateTags(g2, patterns)
-    highlights := CreateHighlights(patterns)
-    g2.SaveWithTranslation("output.clu", highlights, 0, 1)
-    */
+	/*
+	   for i := 0; i < g.NumGenomes(); i++ {
+	       n, ss := CountTags(g, 7, i)
+	       fmt.Printf("7 vs %d (%s): %d tags %.2f%% ss\n", i, g.Names[i], n, ss)
+	   }
+	*/
 
+	/*
+	   g2 := g.Filter(7, 35)
+	   patterns := FindPatterns(g2, 6, 4)
+	   tags = CreateTags(g2, patterns)
+	   highlights := CreateHighlights(patterns)
+	   g2.SaveWithTranslation("output.clu", highlights, 0, 1)
+	*/
+
+	/*
+	   var count int
+	   for _, t := range tags {
+	       t.Print()
+	       if FindElsewhere(g2, 0, &t) > 1 {
+	           count++
+	       }
+	   }
+	*/
 
 	/*
 		bw := Bandwidth(g, 0, 6, false)
@@ -539,16 +594,16 @@ func main() {
 		SpikeSwap(g, 0, details)
 	*/
 
-    /*
-	for i := 0; i < 50; {
-		n := g.NumGenomes()
-		a, b := rand.Intn(n), rand.Intn(n)
-		if a == b {
-			continue
+	/*
+		for i := 0; i < 50; {
+			n := g.NumGenomes()
+			a, b := rand.Intn(n), rand.Intn(n)
+			if a == b {
+				continue
+			}
+			i += Simulate(g, a, b, 500)
 		}
-		i += Simulate(g, a, b, 500)
-	}
-    */
+	*/
 
 	//g.SaveSelected("WH1-RsYN04.fasta", 0, 54)
 
@@ -565,10 +620,5 @@ func main() {
 			t := FindTag(tags, pos)
 			t.Compare(0)
 		}
-	*/
-
-	/*
-		TriplesWith(tags, 0)
-		TriplesWith(tags, 8)
 	*/
 }

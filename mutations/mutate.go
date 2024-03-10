@@ -3,6 +3,7 @@ package mutations
 import (
 	"math/rand"
 	"genomics/genomes"
+	"fmt"
 )
 
 /*
@@ -46,11 +47,13 @@ func MutateSilent(genome *genomes.Genomes, nucDist *NucDistro, num int) int {
 		return silent
 	}
 
+	tries := 0
 mutations:
 	for i := 0; i < num; {
 		start := rand.Intn(genome.Length())
 
 		for j := start; j < genome.Length(); j++ {
+			tries++
 			if tryMutate(j) {
 				i++
 				continue mutations
@@ -58,6 +61,7 @@ mutations:
 		}
 
 		for j := 0; j < start; j++ {
+			tries++
 			if tryMutate(j) {
 				i++
 				continue mutations
@@ -69,6 +73,7 @@ mutations:
 		// ever happen.
 		break
 	}
+	fmt.Printf("%d/%d %f\n", numMuts, tries, float64(numMuts)/float64(tries))
 	return numMuts
 }
 
