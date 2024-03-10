@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"slices"
 )
 
 /*
@@ -342,8 +343,16 @@ outer:
 	return string(ret)
 }
 
+// Mark a region with some character above the alignment.
+type Highlight struct {
+	Start	int
+	End		int
+	Char	byte
+}
+
 // Save in a clu-style format with the translation. Assume a and b are aligned.
-func (g *Genomes) SaveWithTranslation(fname string, which ...int) error {
+func (g *Genomes) SaveWithTranslation(fname string, highlights []Highlight,
+	which ...int) error {
 	fd, err := os.Create(fname)
 	if err != nil {
 		return err
@@ -359,10 +368,38 @@ func (g *Genomes) SaveWithTranslation(fname string, which ...int) error {
 		trans[i] = Translate(g, w)
 	}
 
+	slices.SortFunc(highlights, func(a, b Highlight) int {
+		return a.Start - b.Start
+	})
+	var highlightIt int
+
 	for i := 0; i < g.Length(); i += 60 {
 		n := g.Length() - i
 		if n > 60 {
 			n = 60
+		}
+
+		if len(highlights) > 0 {
+			fmt.Fprintf(fp, "%16s", "")
+			for _, h := range highlights[highlightIt:] {
+				found := false
+				if i+n >= h.Start {
+					found = true
+					for j := i; j < h.Start; j++ {
+						fmt.Fprintf(fp, " ")
+					}
+					for j := h.Start; j < h.End && j < i+n; j++ {
+						fmt.Fprintf(fp, "%c", h.Char)
+					}
+				}
+				if i + n >= h.End {
+					highlightIt++
+				}
+				if found {	// Don't attempt to print overlapping highlights
+					break
+				}
+			}
+			fmt.Fprintf(fp, "\n")
 		}
 
 		for j, w := range which {

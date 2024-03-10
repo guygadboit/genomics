@@ -417,11 +417,11 @@ func Simulate(g *genomes.Genomes, a, b int, count int) int {
 		total++
 
 		/*
-		tags := CreateTags(gm, patterns)
-		for _, tag := range tags {
-			tag.Print()
-		}
-		gm.SaveMulti("test.fasta")
+			tags := CreateTags(gm, patterns)
+			for _, tag := range tags {
+				tag.Print()
+			}
+			gm.SaveMulti("test.fasta")
 		*/
 
 		/*
@@ -441,8 +441,16 @@ func Simulate(g *genomes.Genomes, a, b int, count int) int {
 	return 1
 }
 
+func CreateHighlights(patterns []Pattern) []genomes.Highlight {
+    ret := make([]genomes.Highlight, len(patterns))
+    for i, p := range patterns {
+        ret[i] = genomes.Highlight{p.Pos, p.Pos + len(p.Nts), 'v'}
+    }
+    return ret
+}
+
 func main() {
-	rand.Seed(1)	// FIXME this ain't working
+	rand.Seed(1) // FIXME this ain't working
 	big := true
 	save := false
 	print := false
@@ -453,10 +461,10 @@ func main() {
 		g = genomes.LoadGenomes("../fasta/SARS2-relatives.fasta",
 			"../fasta/WH1.orfs", false)
 
-            /*
-		g = genomes.LoadGenomes("../fasta/SARS1-relatives.fasta",
-			"../fasta/SARS1.orfs", false)
-            */
+		/*
+			g = genomes.LoadGenomes("../fasta/SARS1-relatives.fasta",
+				"../fasta/SARS1.orfs", false)
+		*/
 
 		/*
 			g = genomes.LoadGenomes("../fasta/more_relatives.fasta",
@@ -480,15 +488,36 @@ func main() {
 		tags = LoadTags(g, "tags.gob")
 	}
 
-    //g.SaveWithTranslation("test.clu", 0, 1)
-    g.SaveWithTranslation("test.clu", 0, 7)
-    return
+
+    /*
+	highlights := []genomes.Highlight{
+        {200, 201, 'x'},
+		{100, 140, 'v'},
+	}
+
+	g.SaveWithTranslation("test.clu", highlights, 0, 7)
+	return
+    */
 
 	if print {
 		for _, tag := range tags {
 			tag.Print()
 		}
 	}
+
+    /*
+    for i := 0; i < g.NumGenomes(); i++ {
+        n, ss := CountTags(g, 7, i)
+        fmt.Printf("7 vs %d (%s): %d tags %.2f%% ss\n", i, g.Names[i], n, ss)
+    }
+    */
+
+    g2 := g.Filter(7, 35)
+    patterns := FindPatterns(g2, 6, 4)
+    // tags = CreateTags(g2, patterns)
+    highlights := CreateHighlights(patterns)
+    g2.SaveWithTranslation("output.clu", highlights, 0, 1)
+
 
 	/*
 		bw := Bandwidth(g, 0, 6, false)
@@ -508,6 +537,7 @@ func main() {
 		SpikeSwap(g, 0, details)
 	*/
 
+    /*
 	for i := 0; i < 50; {
 		n := g.NumGenomes()
 		a, b := rand.Intn(n), rand.Intn(n)
@@ -516,6 +546,7 @@ func main() {
 		}
 		i += Simulate(g, a, b, 500)
 	}
+    */
 
 	//g.SaveSelected("WH1-RsYN04.fasta", 0, 54)
 
