@@ -31,7 +31,29 @@ func MakeSimulatedMutant(g *genomes.Genomes, a, b int) (*genomes.Genomes, int) {
 	mutations.MutateSilent(ret, nd, silent)
 
 	ret.Names[0] = "Simulated Mutant"
-	ret.Names[1] = g.Names[0]
+	return ret, silent
+}
 
+/*
+Count the number of silent and non-silent muts between a, b, and return
+something that contains a mutated version of a, with the same numbers of each,
+but distributed evenly, and then the original a. Fail if there are fewer than
+1000 silent muts to be consistent with MakeSimulatedMutant above.
+*/
+func MakeSimulatedMutant2(g *genomes.Genomes,
+	a, b int) (*genomes.Genomes, int) {
+	g2 := g.Filter(a, b)
+	silent, nonSilent := mutations.CountMutations(g2)
+	if silent < 1000 {
+		return nil, 0
+	}
+	nd := mutations.NewNucDistro(g2)
+
+	ret := g.Filter(a, a)
+	ret.DeepCopy(0)
+	mutations.MutateSilent(ret, nd, silent)
+	mutations.MutateNonSilent(ret, nd, nonSilent)
+
+	ret.Names[0] = "Simulated Mutant"
 	return ret, silent
 }

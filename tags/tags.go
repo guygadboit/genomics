@@ -9,8 +9,8 @@ import (
 	"log"
 	"math/rand"
 	"os"
+	"reflect"
 	"slices"
-    "reflect"
 )
 
 // A short pattern of nts, probably 6, with a lot of silent muts in it, that
@@ -411,9 +411,16 @@ func Simulate(g *genomes.Genomes, a, b int,
 	numTags, total := 0, 0
 	var numSilent int
 
+	var makeMutant func(g *genomes.Genomes, a, b int) (*genomes.Genomes, int)
+	if requireSilent {
+		makeMutant = MakeSimulatedMutant
+	} else {
+		makeMutant = MakeSimulatedMutant2
+	}
+
 	for i := 0; i < count; i++ {
 		var gm *genomes.Genomes
-		gm, numSilent = MakeSimulatedMutant(g, a, b)
+		gm, numSilent = makeMutant(g, a, b)
 		if gm == nil {
 			return 0
 		}
@@ -437,12 +444,17 @@ func Simulate(g *genomes.Genomes, a, b int,
 	}
 
 	actual, _ := CountTags(g, a, b, requireSilent)
-	fmt.Printf("%d vs %d. Average number of tags: %.2f. "+
-		"Actual: %d. Silent muts: %d\n",
-		a, b,
-		float64(numTags)/float64(total),
-		actual,
-		numSilent)
+	average := float64(numTags) / float64(total)
+	/*
+		fmt.Printf("%d vs %d. Average number of tags: %.2f. "+
+			"Actual: %d. Silent muts: %d\n",
+			a, b,
+			float64(numTags)/float64(total),
+			actual,
+			numSilent)
+	*/
+	fmt.Printf("%f %d %d %f\n", average,
+		actual, numSilent, float64(actual)/average)
 	return 1
 }
 
@@ -457,8 +469,8 @@ func CreateHighlights(patterns []Pattern) []genomes.Highlight {
 func FindElsewhere(g *genomes.Genomes, which int, tag *Tag) int {
 	var ret int
 
-    // pos := rand.Intn(g.Length()-8) + 1
-    pos := tag.Pos
+	// pos := rand.Intn(g.Length()-8) + 1
+	pos := tag.Pos
 
 	pat := g.Nts[which][pos-1 : pos+7]
 	var s genomes.Search
@@ -468,11 +480,11 @@ func FindElsewhere(g *genomes.Genomes, which int, tag *Tag) int {
 	}
 
 	rc := utils.ReverseComplement(pat)
-    if !reflect.DeepEqual(rc, pat) {
-        for s.Init(g, which, rc, 0.0); !s.End(); s.Next() {
-            ret++
-        }
-    }
+	if !reflect.DeepEqual(rc, pat) {
+		for s.Init(g, which, rc, 0.0); !s.End(); s.Next() {
+			ret++
+		}
+	}
 
 	return ret
 }
@@ -565,8 +577,8 @@ func main() {
 	}
 
 	/*
-	ByLocation(g, tags)
-	return
+		ByLocation(g, tags)
+		return
 	*/
 
 	// SelfRecombination(g, 1000)
@@ -578,14 +590,16 @@ func main() {
 	   }
 	*/
 
-   g2 := g.Filter(5, 22)
-   patterns := FindPatterns(g2, 6, 4, false)
-   tags = CreateTags(g2, patterns)
-   for _, t := range tags {
-       t.Print()
-   }
-   highlights := CreateHighlights(patterns)
-   g2.SaveWithTranslation("output.clu", highlights, 0, 1)
+	/*
+	   g2 := g.Filter(5, 22)
+	   patterns := FindPatterns(g2, 6, 4, false)
+	   tags = CreateTags(g2, patterns)
+	   for _, t := range tags {
+	       t.Print()
+	   }
+	   highlights := CreateHighlights(patterns)
+	   g2.SaveWithTranslation("output.clu", highlights, 0, 1)
+	*/
 
 	/*
 	   var count int
@@ -615,14 +629,14 @@ func main() {
 		SpikeSwap(g, 0, details)
 	*/
 
-    for i := 0; i < 500; {
-        n := g.NumGenomes()
-        a, b := rand.Intn(n), rand.Intn(n)
-        if a == b {
-            continue
-        }
-        i += Simulate(g, a, b, 1, true)
-    }
+	for i := 0; i < 500; {
+		n := g.NumGenomes()
+		a, b := rand.Intn(n), rand.Intn(n)
+		if a == b {
+			continue
+		}
+		i += Simulate(g, a, b, 1, false)
+	}
 
 	//g.SaveSelected("WH1-RsYN04.fasta", 0, 54)
 
