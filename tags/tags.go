@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"genomics/genomes"
 	"genomics/utils"
+	"genomics/mutations"
 	"log"
 	"math/rand"
 	"os"
@@ -521,6 +522,50 @@ func ByLocation(g *genomes.Genomes, tags []Tag) {
 	}
 }
 
+// Output mutation positions from random pairs of genomes
+func Kstest(g *genomes.Genomes, count int) {
+	var a, b int
+
+	display := func(muts []mutations.Mutation, caption string) {
+		fmt.Printf("%s %d-%d silent: ", caption, a, b)
+		for _, mut := range muts {
+			if mut.Silent {
+				fmt.Printf("%d ", mut.Pos)
+			}
+		}
+		fmt.Printf("\n")
+
+		fmt.Printf("%s %d-%d non-silent: ", caption, a, b)
+		for _, mut := range muts {
+			if !mut.Silent {
+				fmt.Printf("%d ", mut.Pos)
+			}
+		}
+		fmt.Printf("\n")
+
+		fmt.Printf("%s %d-%d all: ", caption, a, b)
+		for _, mut := range muts {
+			fmt.Printf("%d ", mut.Pos)
+		}
+		fmt.Printf("\n")
+	}
+
+	for i := 0; i < count; i++ {
+		for {
+			a, b = rand.Intn(g.NumGenomes()), rand.Intn(g.NumGenomes())
+			if a != b {
+				break
+			}
+		}
+		muts := mutations.FindMutations(g, a, b)
+		display(muts, "real")
+
+		g2, _ := MakeSimulatedMutant2(g, a, b)
+		muts = mutations.FindMutations(g2, 0, 1)
+		display(muts, "sim")
+	}
+}
+
 func main() {
 	rand.Seed(1) // FIXME this ain't working
 	big := true
@@ -575,6 +620,9 @@ func main() {
 			tag.Print()
 		}
 	}
+
+	Kstest(g, 10)
+	return
 
 	/*
 		ByLocation(g, tags)

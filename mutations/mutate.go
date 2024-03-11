@@ -122,6 +122,35 @@ func CountMutations(g *genomes.Genomes) (int, int) {
 	return silent, nonSilent
 }
 
+type Mutation struct {
+	Pos    int
+	Silent bool
+}
+
+func FindMutations(g *genomes.Genomes, a, b int) []Mutation {
+	a_nts := g.Nts[a]
+	b_nts := g.Nts[b]
+	ret := make([]Mutation, 0)
+
+	for i := 0; i < g.Length(); i++ {
+		a := a_nts[i]
+		b := b_nts[i]
+
+		if a == b {
+			continue
+		}
+
+		if a == '-' || b == '-' {
+			continue
+		}
+
+		_, isSilent, _ := genomes.IsSilent(g, i, 1, 0, 1)
+
+		ret = append(ret, Mutation{i, isSilent})
+	}
+	return ret
+}
+
 // Wherever a differs from b silently revert a to b. Return the number
 // reverted.
 func RevertSilent(g *genomes.Genomes, a, b int) int {
