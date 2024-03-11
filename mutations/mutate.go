@@ -1,15 +1,13 @@
 package mutations
 
 import (
-	"math/rand"
 	"genomics/genomes"
+	"math/rand"
 )
 
-/*
-Introduce num silent mutations into genome (the first one), selecting nts
-randomly from nucDist. Return the number of mutations
-*/
-func MutateSilent(genome *genomes.Genomes, nucDist *NucDistro, num int) int {
+// if wantSilent, then make the muts silent, otherwise make them non-silent.
+func mutate(genome *genomes.Genomes,
+	nucDist *NucDistro, num int, wantSilent bool) int {
 	numMuts := 0
 	alreadyDone := make(map[int]int)
 	nts := genome.Nts[0]
@@ -38,21 +36,20 @@ func MutateSilent(genome *genomes.Genomes, nucDist *NucDistro, num int) int {
 		}
 
 		silent, _ := env.Replace([]byte{replacement})
-		if silent {
+		success := silent == wantSilent
+		if success {
 			nts[pos] = replacement
 			alreadyDone[pos] = 1
 			numMuts++
 		}
-		return silent
+		return success
 	}
 
-	tries := 0
 mutations:
 	for i := 0; i < num; {
 		start := rand.Intn(genome.Length())
 
 		for j := start; j < genome.Length(); j++ {
-			tries++
 			if tryMutate(j) {
 				i++
 				continue mutations
@@ -60,7 +57,6 @@ mutations:
 		}
 
 		for j := 0; j < start; j++ {
-			tries++
 			if tryMutate(j) {
 				i++
 				continue mutations
@@ -73,6 +69,20 @@ mutations:
 		break
 	}
 	return numMuts
+}
+
+/*
+Introduce num silent mutations into genome (the first one), selecting nts
+randomly from nucDist. Return the number of mutations
+*/
+func MutateSilent(genome *genomes.Genomes, nucDist *NucDistro, num int) int {
+	return mutate(genome, nucDist, num, true)
+}
+
+// The same as MutateSilent but make sure the muts are non-silent
+func MutateNonSilent(genome *genomes.Genomes,
+	nucDist *NucDistro, num int) int {
+	return mutate(genome, nucDist, num, false)
 }
 
 /*

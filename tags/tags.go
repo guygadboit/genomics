@@ -564,8 +564,10 @@ func main() {
 		}
 	}
 
+	/*
 	ByLocation(g, tags)
 	return
+	*/
 
 	// SelfRecombination(g, 1000)
 
