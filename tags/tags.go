@@ -498,6 +498,17 @@ func SelfRecombination(g *genomes.Genomes, iterations int) {
 	fmt.Printf("%d/%d %.2f\n", count, total, float64(count)/float64(total))
 }
 
+func ByLocation(g *genomes.Genomes, tags []Tag) {
+	positions := make(map[int]int)
+	for _, tag := range tags {
+		positions[tag.Pos] = 1
+	}
+
+	for i := 0; i < g.Length(); i++ {
+		fmt.Printf("%d %d\n", i, positions[i])
+	}
+}
+
 func main() {
 	rand.Seed(1) // FIXME this ain't working
 	big := true
@@ -552,6 +563,9 @@ func main() {
 			tag.Print()
 		}
 	}
+
+	ByLocation(g, tags)
+	return
 
 	// SelfRecombination(g, 1000)
 
