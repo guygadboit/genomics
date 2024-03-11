@@ -120,7 +120,8 @@ Find Patterns that could potentially be used as tags because they are
 length long and differ between two genomes by at least minMuts. Another
 function will build a tag from a pattern.
 */
-func FindPatterns(g *genomes.Genomes, length int, minMuts int) []Pattern {
+func FindPatterns(g *genomes.Genomes,
+	length int, minMuts int, requireSilent bool) []Pattern {
 	ret := make([]Pattern, 0)
 
 positions:
@@ -131,7 +132,8 @@ positions:
 				if err != nil {
 					continue
 				}
-				if silent && numMuts >= minMuts {
+				ok := silent || !requireSilent
+				if ok && numMuts >= minMuts {
 					// fmt.Printf("Found tag at %d\n", i)
 					ret = append(ret, Pattern{j, i, g.Nts[j][i : i+length]})
 					continue positions
@@ -395,15 +397,17 @@ func SpikeSwap(g *genomes.Genomes, which int, details []ParadoxDetail) {
 }
 
 // How many tags between a and b? Also return their sequence similarity
-func CountTags(g *genomes.Genomes, a, b int) (int, float64) {
+func CountTags(g *genomes.Genomes, a, b int,
+	requireSilent bool) (int, float64) {
 	g2 := g.Filter(a, b)
-	numTags := len(FindPatterns(g2, 6, 4))
+	numTags := len(FindPatterns(g2, 6, 4, requireSilent))
 	ss := g2.SequenceSimilarity(0, 1)
 	return numTags, ss
 }
 
 // Return the number of simulations actually run
-func Simulate(g *genomes.Genomes, a, b int, count int) int {
+func Simulate(g *genomes.Genomes, a, b int,
+	count int, requireSilent bool) int {
 	numTags, total := 0, 0
 	var numSilent int
 
@@ -413,7 +417,7 @@ func Simulate(g *genomes.Genomes, a, b int, count int) int {
 		if gm == nil {
 			return 0
 		}
-		patterns := FindPatterns(gm, 6, 4)
+		patterns := FindPatterns(gm, 6, 4, requireSilent)
 		numTags += len(patterns)
 		total++
 
@@ -432,7 +436,7 @@ func Simulate(g *genomes.Genomes, a, b int, count int) int {
 		*/
 	}
 
-	actual, _ := CountTags(g, a, b)
+	actual, _ := CountTags(g, a, b, requireSilent)
 	fmt.Printf("%d vs %d. Average number of tags: %.2f. "+
 		"Actual: %d. Silent muts: %d\n",
 		a, b,
@@ -480,7 +484,7 @@ func SelfRecombination(g *genomes.Genomes, iterations int) {
 	for i := 0; i < iterations; i++ {
 		a, b := rand.Intn(n), rand.Intn(n)
 		g2 := g.Filter(a, b)
-		patterns := FindPatterns(g2, 6, 4)
+		patterns := FindPatterns(g2, 6, 4, true)
 		tags := CreateTags(g2, patterns)
 
 		for _, t := range tags {
@@ -524,7 +528,7 @@ func main() {
 	var tags []Tag
 
 	if save {
-		patterns := FindPatterns(g, 6, 4)
+		patterns := FindPatterns(g, 6, 4, true)
 		tags = CreateTags(g, patterns)
 
 		SaveTags("tags.gob", tags)
@@ -558,8 +562,8 @@ func main() {
 	   }
 	*/
 
-   g2 := g.Filter(7, 35)
-   patterns := FindPatterns(g2, 6, 4)
+   g2 := g.Filter(5, 22)
+   patterns := FindPatterns(g2, 6, 4, false)
    tags = CreateTags(g2, patterns)
    for _, t := range tags {
        t.Print()
@@ -595,16 +599,14 @@ func main() {
 		SpikeSwap(g, 0, details)
 	*/
 
-	/*
-		for i := 0; i < 50; {
-			n := g.NumGenomes()
-			a, b := rand.Intn(n), rand.Intn(n)
-			if a == b {
-				continue
-			}
-			i += Simulate(g, a, b, 500)
-		}
-	*/
+    for i := 0; i < 500; {
+        n := g.NumGenomes()
+        a, b := rand.Intn(n), rand.Intn(n)
+        if a == b {
+            continue
+        }
+        i += Simulate(g, a, b, 1, true)
+    }
 
 	//g.SaveSelected("WH1-RsYN04.fasta", 0, 54)
 

@@ -3,7 +3,6 @@ package mutations
 import (
 	"math/rand"
 	"genomics/genomes"
-	"fmt"
 )
 
 /*
@@ -73,7 +72,6 @@ mutations:
 		// ever happen.
 		break
 	}
-	fmt.Printf("%d/%d %f\n", numMuts, tries, float64(numMuts)/float64(tries))
 	return numMuts
 }
 
