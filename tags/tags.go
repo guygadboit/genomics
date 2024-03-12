@@ -666,7 +666,7 @@ func main() {
 	   }
 	*/
 
-	g2 := g.Filter(7, 35)
+	g2 := g.Filter(5, 33)
 	patterns := FindPatterns(g2, 2, 2, true)
 	tags = CreateTags(g2, patterns)
 	for _, t := range tags {
@@ -714,8 +714,8 @@ func main() {
 		i += Simulate(g, a, b, 1, 2, 2, false)
 	}
 	*/
-	// MontecarloDoubles(g, 10000)
-	SimulateDoubles(g, -1)
+	MontecarloDoubles(g, 1000)
+	// SimulateDoubles(g, -1)
 
 	//g.SaveSelected("WH1-RsYN04.fasta", 0, 54)
 
