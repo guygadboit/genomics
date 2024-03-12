@@ -6,13 +6,37 @@ from pdb import set_trace as brk
 LENGTH = 29903
 
 
+def normalize(data):
+	"""Assume data are sorted low to high"""
+	offset = data[0]
+	maximum = data[-1] - offset
+	return [float(datum - offset) / maximum for datum in data]
+
+
+def kstest_subdivided(data, num_chunks):
+	"""Subdivide data up into chunks and return the average p value of the
+	windows"""
+	total, count = 0.0, 0
+	chunk_size = LENGTH // num_chunks
+	for i in range(0, LENGTH, chunk_size):
+		subdata = data[i:i+chunk_size]
+		if subdata:
+			try:
+				subdata = normalize(data[i:i+chunk_size])
+			except:
+				continue
+			p = kstest(subdata, "uniform").pvalue
+			total += p
+			count += 1
+	return total/count
+
+
 def analyse_results(fp):
 	for line in fp:
 		line = line.strip()
 		start, numbers = line.split(':')
-		data = [float(n) / LENGTH for n in numbers.split()]
-		result = kstest(data, "uniform")
-		print("{}: {} {:g}".format(start, result.statistic, result.pvalue))
+		data = [float(n) for n in numbers.split()]
+		print("{}: {:g}".format(start, kstest_subdivided(data, 500)))
 
 
 def main():

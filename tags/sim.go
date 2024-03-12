@@ -15,9 +15,6 @@ func MakeSimulatedMutant(g *genomes.Genomes, a, b int) (*genomes.Genomes, int) {
 	// First obtain a nucleotide distribution based on both of them
 	g2 := g.Filter(a, b)
 	silent, _ := mutations.CountMutations(g2)
-	if silent < 1000 {
-		return nil, 0
-	}
 	nd := mutations.NewNucDistro(g2)
 
 	ret := g.Filter(a, b)
@@ -37,16 +34,12 @@ func MakeSimulatedMutant(g *genomes.Genomes, a, b int) (*genomes.Genomes, int) {
 /*
 Count the number of silent and non-silent muts between a, b, and return
 something that contains a mutated version of a, with the same numbers of each,
-but distributed evenly, and then the original a. Fail if there are fewer than
-1000 silent muts to be consistent with MakeSimulatedMutant above.
+but distributed evenly, and then the original a.
 */
 func MakeSimulatedMutant2(g *genomes.Genomes,
 	a, b int) (*genomes.Genomes, int) {
 	g2 := g.Filter(a, b)
 	silent, nonSilent := mutations.CountMutations(g2)
-	if silent < 1000 {
-		return nil, 0
-	}
 	nd := mutations.NewNucDistro(g2)
 
 	ret := g.Filter(a, a)

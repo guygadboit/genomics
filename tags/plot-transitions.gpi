@@ -1,0 +1,4 @@
+set boxwidth 0.5
+set style fill solid
+set xtics rotate by -90
+plot "double-transitions.txt"  using 2:xtic(1) with boxes

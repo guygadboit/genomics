@@ -2,6 +2,7 @@ package mutations
 
 import (
 	"genomics/genomes"
+	"genomics/utils"
 	"math/rand"
 )
 
@@ -140,7 +141,7 @@ func FindMutations(g *genomes.Genomes, a, b int) []Mutation {
 			continue
 		}
 
-		if a == '-' || b == '-' {
+		if !utils.IsRegularNt(a) || !utils.IsRegularNt(b) {
 			continue
 		}
 

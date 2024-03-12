@@ -5,8 +5,8 @@ import (
 	"encoding/gob"
 	"fmt"
 	"genomics/genomes"
-	"genomics/utils"
 	"genomics/mutations"
+	"genomics/utils"
 	"log"
 	"math/rand"
 	"os"
@@ -398,17 +398,17 @@ func SpikeSwap(g *genomes.Genomes, which int, details []ParadoxDetail) {
 }
 
 // How many tags between a and b? Also return their sequence similarity
-func CountTags(g *genomes.Genomes, a, b int,
+func CountTags(g *genomes.Genomes, a, b int, length, minMuts int,
 	requireSilent bool) (int, float64) {
 	g2 := g.Filter(a, b)
-	numTags := len(FindPatterns(g2, 6, 4, requireSilent))
+	numTags := len(FindPatterns(g2, length, minMuts, requireSilent))
 	ss := g2.SequenceSimilarity(0, 1)
 	return numTags, ss
 }
 
 // Return the number of simulations actually run
 func Simulate(g *genomes.Genomes, a, b int,
-	count int, requireSilent bool) int {
+	count int, length, minMuts int, requireSilent bool) int {
 	numTags, total := 0, 0
 	var numSilent int
 
@@ -425,7 +425,7 @@ func Simulate(g *genomes.Genomes, a, b int,
 		if gm == nil {
 			return 0
 		}
-		patterns := FindPatterns(gm, 6, 4, requireSilent)
+		patterns := FindPatterns(gm, length, minMuts, requireSilent)
 		numTags += len(patterns)
 		total++
 
@@ -444,7 +444,7 @@ func Simulate(g *genomes.Genomes, a, b int,
 		*/
 	}
 
-	actual, _ := CountTags(g, a, b, requireSilent)
+	actual, _ := CountTags(g, a, b, length, minMuts, requireSilent)
 	average := float64(numTags) / float64(total)
 	/*
 		fmt.Printf("%d vs %d. Average number of tags: %.2f. "+
@@ -522,6 +522,28 @@ func ByLocation(g *genomes.Genomes, tags []Tag) {
 	}
 }
 
+func MutsByLocation(n int, fname string, muts []mutations.Mutation) {
+	f, _ := os.Create(fname)
+	defer f.Close()
+
+	fp := bufio.NewWriter(f)
+
+	silent := make(map[int]int)
+	for _, m := range muts {
+		if m.Silent {
+			silent[m.Pos] = 1
+		}
+	}
+
+	total := 0
+	for i := 0; i < n; i++ {
+		total += silent[i]
+		fmt.Fprintf(fp, "%d\n", total)
+	}
+
+	fp.Flush()
+}
+
 // Output mutation positions from random pairs of genomes
 func Kstest(g *genomes.Genomes, count int) {
 	var a, b int
@@ -560,6 +582,10 @@ func Kstest(g *genomes.Genomes, count int) {
 		muts := mutations.FindMutations(g, a, b)
 		display(muts, "real")
 
+		if i == 0 {
+			MutsByLocation(g.Length(), "muts.txt", muts)
+		}
+
 		g2, _ := MakeSimulatedMutant2(g, a, b)
 		muts = mutations.FindMutations(g2, 0, 1)
 		display(muts, "sim")
@@ -578,15 +604,15 @@ func main() {
 		g = genomes.LoadGenomes("../fasta/SARS2-relatives.fasta",
 			"../fasta/WH1.orfs", false)
 
-		/*
-			g = genomes.LoadGenomes("../fasta/SARS1-relatives.fasta",
-				"../fasta/SARS1.orfs", false)
-		*/
+			/*
+		g = genomes.LoadGenomes("../fasta/SARS1-relatives.fasta",
+			"../fasta/SARS1.orfs", false)
+			*/
 
-		/*
-			g = genomes.LoadGenomes("../fasta/more_relatives.fasta",
-				"../fasta/WH1.orfs", false)
-		*/
+			/*
+		g = genomes.LoadGenomes("../fasta/more_relatives.fasta",
+			"../fasta/WH1.orfs", false)
+			*/
 	} else {
 		g = genomes.LoadGenomes("../fasta/relatives.fasta",
 			"../fasta/WH1.orfs", false)
@@ -596,7 +622,7 @@ func main() {
 	var tags []Tag
 
 	if save {
-		patterns := FindPatterns(g, 6, 4, true)
+		patterns := FindPatterns(g, 2, 2, true)
 		tags = CreateTags(g, patterns)
 
 		SaveTags("tags.gob", tags)
@@ -621,8 +647,10 @@ func main() {
 		}
 	}
 
+	/*
 	Kstest(g, 10)
 	return
+	*/
 
 	/*
 		ByLocation(g, tags)
@@ -638,16 +666,15 @@ func main() {
 	   }
 	*/
 
-	/*
-	   g2 := g.Filter(5, 22)
-	   patterns := FindPatterns(g2, 6, 4, false)
-	   tags = CreateTags(g2, patterns)
-	   for _, t := range tags {
-	       t.Print()
-	   }
-	   highlights := CreateHighlights(patterns)
-	   g2.SaveWithTranslation("output.clu", highlights, 0, 1)
-	*/
+	g2 := g.Filter(7, 35)
+	patterns := FindPatterns(g2, 2, 2, true)
+	tags = CreateTags(g2, patterns)
+	for _, t := range tags {
+		t.Print()
+	}
+	highlights := CreateHighlights(patterns)
+	g2.SaveWithTranslation("output.clu", highlights, 0, 1)
+
 
 	/*
 	   var count int
@@ -677,14 +704,18 @@ func main() {
 		SpikeSwap(g, 0, details)
 	*/
 
+	/*
 	for i := 0; i < 500; {
 		n := g.NumGenomes()
 		a, b := rand.Intn(n), rand.Intn(n)
 		if a == b {
 			continue
 		}
-		i += Simulate(g, a, b, 1, false)
+		i += Simulate(g, a, b, 1, 2, 2, false)
 	}
+	*/
+	// MontecarloDoubles(g, 10000)
+	SimulateDoubles(g, -1)
 
 	//g.SaveSelected("WH1-RsYN04.fasta", 0, 54)
 
