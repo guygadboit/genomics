@@ -135,7 +135,7 @@ positions:
 				}
 				ok := silent || !requireSilent
 				if ok && numMuts >= minMuts {
-					// fmt.Printf("Found tag at %d\n", i)
+					// fmt.Printf("Found pattern at %d\n", i)
 					ret = append(ret, Pattern{j, i, g.Nts[j][i : i+length]})
 					continue positions
 				}
