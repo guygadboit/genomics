@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"genomics/genomes"
 	"genomics/mutations"
+	"genomics/simulation"
 	"math/rand"
 	"sort"
 )
@@ -120,7 +121,7 @@ func SimulatePair(g *genomes.Genomes, a, b int) {
 	ratio := float64(d) / float64(s)
 
 	// And now the simulated ones
-	g2, silent := MakeSimulatedMutant(g, a, b)
+	g2, silent := simulation.MakeSimulatedMutant(g, a, b)
 
 	simS, simD, _, _ := DoubleMutations(g2, 0, 1, true)
 	simRatio := float64(simD) / float64(simS)
@@ -199,19 +200,19 @@ func PartitionSequential(muts []mutations.Mutation, maxSeqLen int,
 		muts = filterNonSilent(muts)
 	}
 
-	for i := num; i > 0; i-- {
+	for i := maxSeqLen; i > 0; i-- {
 		sMuts := FindSequentialMuts(muts, i)
 		keep := make([]mutations.Mutation, 0)
 
 		for _, mut := range sMuts {
 			if !covered[mut.Pos] {
 				keep = append(keep, mut)
-				for j := 0; j < num; j++ {
+				for j := 0; j < maxSeqLen; j++ {
 					covered[mut.Pos+j] = true
 				}
 			}
 		}
-		ret = append(ret, SequentialMut{num, keep})
+		ret = append(ret, SequentialMut{maxSeqLen, keep})
 	}
 	return ret
 }

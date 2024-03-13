@@ -7,6 +7,7 @@ import (
 	"genomics/genomes"
 	"genomics/mutations"
 	"genomics/utils"
+	"genomics/simulation"
 	"log"
 	"math/rand"
 	"os"
@@ -414,9 +415,9 @@ func Simulate(g *genomes.Genomes, a, b int,
 
 	var makeMutant func(g *genomes.Genomes, a, b int) (*genomes.Genomes, int)
 	if requireSilent {
-		makeMutant = MakeSimulatedMutant
+		makeMutant = simulation.MakeSimulatedMutant
 	} else {
-		makeMutant = MakeSimulatedMutant2
+		makeMutant = simulation.MakeSimulatedMutant2
 	}
 
 	for i := 0; i < count; i++ {
@@ -586,7 +587,7 @@ func Kstest(g *genomes.Genomes, count int) {
 			MutsByLocation(g.Length(), "muts.txt", muts)
 		}
 
-		g2, _ := MakeSimulatedMutant2(g, a, b)
+		g2, _ := simulation.MakeSimulatedMutant2(g, a, b)
 		muts = mutations.FindMutations(g2, 0, 1)
 		display(muts, "sim")
 	}
@@ -723,7 +724,7 @@ func main() {
 	*/
 	// MontecarloDoubles(g, 1000)
 	// SimulateDoubles(g, -1)
-	ShowSequentialAll(g, 3, false)
+	// ShowSequentialAll(g, 3, false)
 
 	//g.SaveSelected("WH1-RsYN04.fasta", 0, 54)
 

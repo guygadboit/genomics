@@ -1,4 +1,4 @@
-package main
+package simulation
 
 import (
 	"genomics/genomes"
@@ -34,7 +34,7 @@ func MakeSimulatedMutant(g *genomes.Genomes, a, b int) (*genomes.Genomes, int) {
 /*
 Count the number of silent and non-silent muts between a, b, and return
 something that contains a mutated version of a, with the same numbers of each,
-but distributed evenly, and then the original a.
+but distributed evenly, and the original a.
 */
 func MakeSimulatedMutant2(g *genomes.Genomes,
 	a, b int) (*genomes.Genomes, int) {
