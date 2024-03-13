@@ -61,3 +61,9 @@ func (nd *NucDistro) Random() byte {
 	}
 	return k
 }
+
+func (nd *NucDistro) RandomSequence(s []byte) {
+	for i := 0; i < len(s); i++ {
+		s[i] = nd.Random()
+	}
+}

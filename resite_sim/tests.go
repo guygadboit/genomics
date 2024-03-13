@@ -18,7 +18,7 @@ func testMutations(genome *genomes.Genomes) {
 	var mutant *genomes.Genomes
 	for {
 		mutant = genome.Clone()
-		mutations.MutateSilent(mutant, nd, 700)
+		mutations.MutateSilent(mutant, nd, 1, 700)
 		count, maxLength, unique, interleaved, _ :=
 			FindRestrictionMap(mutant)
 		if unique && maxLength < 8000 {

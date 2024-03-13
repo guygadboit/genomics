@@ -4,11 +4,16 @@ import (
 	"genomics/genomes"
 	"genomics/utils"
 	"math/rand"
+	"reflect"
 )
 
-// if wantSilent, then make the muts silent, otherwise make them non-silent.
+/*
+if wantSilent, then make the muts silent, otherwise make them non-silent.
+numSeq is 1 if you want single-nt muts. It's 2 if you want "SDMs" ("sequential
+double mutations") etc.
+*/
 func mutate(genome *genomes.Genomes,
-	nucDist *NucDistro, num int, wantSilent bool) int {
+	nucDist *NucDistro, num int, numSeq int, wantSilent bool) int {
 	numMuts := 0
 	alreadyDone := make(map[int]int)
 	nts := genome.Nts[0]
@@ -21,26 +26,28 @@ func mutate(genome *genomes.Genomes,
 		}
 
 		var env genomes.Environment
-		err := env.Init(genome, pos, 1, 0)
+		err := env.Init(genome, pos, numSeq, 0)
 		if err != nil {
 			// You get an error if pos is not in an ORF
 			return false
 		}
 
-		existing := nts[pos]
-		var replacement byte
+		existing := nts[pos:pos+numSeq]
+		replacement := make([]byte, numSeq)
 		for {
-			replacement = nucDist.Random()
-			if replacement != existing {
+			nucDist.RandomSequence(replacement)
+			if !reflect.DeepEqual(existing, replacement) {
 				break
 			}
 		}
 
-		silent, _ := env.Replace([]byte{replacement})
+		silent, _ := env.Replace(replacement)
 		success := silent == wantSilent
 		if success {
-			nts[pos] = replacement
-			alreadyDone[pos] = 1
+			copy(nts[pos:pos+numSeq], replacement)
+			for i := pos; i < pos+numSeq; i++ {
+				alreadyDone[i] = 1
+			}
 			numMuts++
 		}
 		return success
@@ -76,14 +83,15 @@ mutations:
 Introduce num silent mutations into genome (the first one), selecting nts
 randomly from nucDist. Return the number of mutations
 */
-func MutateSilent(genome *genomes.Genomes, nucDist *NucDistro, num int) int {
-	return mutate(genome, nucDist, num, true)
+func MutateSilent(genome *genomes.Genomes,
+	nucDist *NucDistro, num int, numSeq int) int {
+	return mutate(genome, nucDist, num, numSeq, true)
 }
 
 // The same as MutateSilent but make sure the muts are non-silent
 func MutateNonSilent(genome *genomes.Genomes,
-	nucDist *NucDistro, num int) int {
-	return mutate(genome, nucDist, num, false)
+	nucDist *NucDistro, num int, numSeq int) int {
+	return mutate(genome, nucDist, num, numSeq, false)
 }
 
 /*
