@@ -18,8 +18,8 @@ func CanSplit(g *genomes.Genomes, a, b int, m mutations.Mutation) bool {
 	var env genomes.Environment
 
 	pos := m.Pos
-	aNts := g.Nts[a][pos:pos+2]
-	bNts := g.Nts[b][pos:pos+2]
+	aNts := g.Nts[a][pos : pos+2]
+	bNts := g.Nts[b][pos : pos+2]
 
 	env.Init(g, pos, 2, a)
 
@@ -41,6 +41,10 @@ func CanSplit(g *genomes.Genomes, a, b int, m mutations.Mutation) bool {
 	return false
 }
 
+/*
+Return the number of singles, the number of doubles, the number of splittable
+doubles, and the counts of which pairs were involved in the doubles
+*/
 func DoubleMutations(g *genomes.Genomes,
 	a, b int, requireSilent bool) (int, int, int, DoubleMap) {
 	doubles := make(DoubleMap)
@@ -68,7 +72,6 @@ func DoubleMutations(g *genomes.Genomes,
 				}
 			}
 
-
 		} else {
 			singleCount++
 		}
@@ -76,9 +79,9 @@ func DoubleMutations(g *genomes.Genomes,
 	}
 
 	/*
-	fmt.Printf("%d-%d %d singles %d doubles of which %d can be split\n",
-		a, b, singleCount, doubleCount, splittableCount)
-	// fmt.Println(doubles)
+		fmt.Printf("%d-%d %d singles %d doubles of which %d can be split\n",
+			a, b, singleCount, doubleCount, splittableCount)
+		// fmt.Println(doubles)
 	*/
 	return singleCount, doubleCount, splittableCount, doubles
 }
@@ -139,6 +142,83 @@ func SimulateDoubles(g *genomes.Genomes, count int) {
 		for i := 0; i < count; i++ {
 			a, b := rand.Intn(n), rand.Intn(n)
 			SimulatePair(g, a, b)
+		}
+	}
+}
+
+/*
+If num is 2 return the start of every double mut. If it's 3 return the start of
+every triple, etc.
+*/
+func SequentialMuts(muts []mutations.Mutation,
+	num int, requireSilent bool) []mutations.Mutation {
+	var muts2 []mutations.Mutation
+
+	// Simplest to get rid of non-silent muts up front
+	if requireSilent {
+		newMuts := make([]mutations.Mutation, 0)
+		for _, mut := range muts {
+			if mut.Silent {
+				newMuts = append(newMuts, mut)
+			}
+		}
+		muts2 = newMuts
+	} else {
+		muts2 = muts
+	}
+
+	ret := make([]mutations.Mutation, 0)
+
+i:
+	for i := 0; i < len(muts2)+1-num; i++ {
+		mut := muts2[i]
+		for j := 1; j < num; j++ {
+			if muts2[i+j].Pos != mut.Pos+j {
+				continue i
+			}
+		}
+		ret = append(ret, mut)
+	}
+
+	return ret
+}
+
+/*
+If num is 2, show the doubles, then the singles (that aren't part of doubles)
+prefixed by key. If num is 3, start with the triples, etc.
+*/
+func ShowSequentialMuts(muts []mutations.Mutation, num int,
+	requireSilent bool, key string) {
+	covered := make(map[int]bool)
+
+	for i := num; i > 0; i-- {
+		fmt.Printf("%s %d: ", key, i)
+		sMuts := SequentialMuts(muts, i, requireSilent)
+
+		for _, mut := range sMuts {
+			if !covered[mut.Pos] {
+				fmt.Printf("%d ", mut.Pos)
+				// If we found a bunch of doubles first, those positions are
+				// "covered", and so don't report them again as singles.
+				for j := 0; j < num; j++ {
+					covered[mut.Pos+j] = true
+				}
+			}
+		}
+		fmt.Printf("\n")
+	}
+}
+
+func ShowSequentialAll(g *genomes.Genomes, num int, requireSilent bool) {
+	for i := 0; i < g.NumGenomes(); i++ {
+		for j := 0; j < i; j++ {
+			muts := mutations.FindMutations(g, i, j)
+			/*
+			sim, _ := MakeSimulatedMutant(g, i, j)
+			muts = mutations.FindMutations(sim, 0, 1)
+			*/
+			ShowSequentialMuts(muts, num,
+				requireSilent, fmt.Sprintf("%d-%d (%d)", i, j, len(muts)))
 		}
 	}
 }

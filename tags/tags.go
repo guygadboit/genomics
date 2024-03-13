@@ -669,11 +669,18 @@ func main() {
 	g2 := g.Filter(5, 33)
 	patterns := FindPatterns(g2, 2, 2, true)
 	tags = CreateTags(g2, patterns)
+	/*
 	for _, t := range tags {
 		t.Print()
 	}
+	*/
 	highlights := CreateHighlights(patterns)
 	g2.SaveWithTranslation("output.clu", highlights, 0, 1)
+
+	/*
+	muts := mutations.FindMutations(g2, 0, 1)
+	ShowSequentialMuts(muts, 3, true, "0-1")
+	*/
 
 
 	/*
@@ -714,8 +721,9 @@ func main() {
 		i += Simulate(g, a, b, 1, 2, 2, false)
 	}
 	*/
-	MontecarloDoubles(g, 1000)
+	// MontecarloDoubles(g, 1000)
 	// SimulateDoubles(g, -1)
+	ShowSequentialAll(g, 3, false)
 
 	//g.SaveSelected("WH1-RsYN04.fasta", 0, 54)
 

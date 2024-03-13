@@ -10,14 +10,16 @@ def normalize(data):
 	"""Assume data are sorted low to high"""
 	offset = data[0]
 	maximum = data[-1] - offset
-	return [float(datum - offset) / maximum for datum in data]
+	if maximum == 0.0:
+		return data
+	return [(datum - offset) / maximum for datum in data]
 
 
 def kstest_subdivided(data, num_chunks):
 	"""Subdivide data up into chunks and return the average p value of the
 	windows"""
 	total, count = 0.0, 0
-	chunk_size = LENGTH // num_chunks
+# 	chunk_size = LENGTH // num_chunks
 	for i in range(0, LENGTH, chunk_size):
 		subdata = data[i:i+chunk_size]
 		if subdata:
@@ -36,7 +38,9 @@ def analyse_results(fp):
 		line = line.strip()
 		start, numbers = line.split(':')
 		data = [float(n) for n in numbers.split()]
-		print("{}: {:g}".format(start, kstest_subdivided(data, 500)))
+		if data:
+			stat, p = kstest(normalize(data), "uniform")
+			print("{}: {:g} {:g}".format(start, stat, p))
 
 
 def main():
