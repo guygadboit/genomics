@@ -75,7 +75,16 @@ func CountTransitions(g *genomes.Genomes,
 	for _, conc := range concentrations {
 		aNts := string(g.Nts[a][conc.Pos : conc.Pos+conc.Length])
 		bNts := string(g.Nts[b][conc.Pos : conc.Pos+conc.Length])
-		t := Transition{aNts, bNts}
+
+		// Sort those so they're always in the same order, as we don't know
+		// which way transitions are going.
+		var t Transition
+		if aNts < bNts {
+			t = Transition{aNts, bNts}
+		} else {
+			t = Transition{bNts, aNts}
+		}
+
 		counts[t]++
 	}
 
@@ -143,14 +152,17 @@ func CompareToSim(g *genomes.Genomes, length int, minMuts int,
 		simCount := len(concs)
 
 		/*
-			fmt.Printf("%d.%d %d-%d: %d %d %.2f (%d)\n",
-				length, minMuts, a, b, realCount, simCount,
-				float64(realCount)/float64(simCount), numSilent)
+		fmt.Printf("%d.%d %d-%d: %d %d %.2f (%d)\n",
+			length, minMuts, a, b, realCount, simCount,
+			float64(realCount)/float64(simCount), numSilent)
 		*/
-		simTotal += simCount
-		realTotal += realCount
-		silentTotal += numSilent
-		numComparisons++
+
+		if simCount > 0 && realCount > 0 {
+			simTotal += simCount
+			realTotal += realCount
+			silentTotal += numSilent
+			numComparisons++
+		}
 	}
 
 	if iterations == -1 {
