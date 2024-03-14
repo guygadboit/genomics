@@ -1,11 +1,14 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"genomics/genomes"
 	"genomics/mutations"
 	"genomics/simulation"
+	"log"
 	"math/rand"
+	"os"
 	"slices"
 )
 
@@ -97,6 +100,14 @@ func (tm TransitionMap) Combine(other TransitionMap) {
 	}
 }
 
+func (tm TransitionMap) Total() int {
+	var total int
+	for _, v := range tm {
+		total += v
+	}
+	return total
+}
+
 func (tm TransitionMap) Sort() TransitionList {
 	ret := make(TransitionList, 0)
 	for k, v := range tm {
@@ -114,6 +125,25 @@ func (tm TransitionMap) Print() {
 	for _, tc := range tm.Sort() {
 		tc.Print()
 	}
+}
+
+func (tm TransitionMap) GraphData(fname string) {
+	f, err := os.Create(fname)
+	if err != nil {
+		log.Fatalf("Can't create %s", fname)
+	}
+	defer f.Close()
+
+	fp := bufio.NewWriter(f)
+
+	total := float64(tm.Total())
+	for _, tc := range tm.Sort() {
+		fmt.Fprintf(fp, "%s<->%s %f\n", tc.ANts, tc.BNts,
+			float64(tc.Count)/total)
+	}
+
+	fp.Flush()
+	fmt.Printf("Wrote %s\n", fname)
 }
 
 func CreateHighlights(concentrations []Concentration) []genomes.Highlight {
@@ -152,9 +182,9 @@ func CompareToSim(g *genomes.Genomes, length int, minMuts int,
 		simCount := len(concs)
 
 		/*
-		fmt.Printf("%d.%d %d-%d: %d %d %.2f (%d)\n",
-			length, minMuts, a, b, realCount, simCount,
-			float64(realCount)/float64(simCount), numSilent)
+			fmt.Printf("%d.%d %d-%d: %d %d %.2f (%d)\n",
+				length, minMuts, a, b, realCount, simCount,
+				float64(realCount)/float64(simCount), numSilent)
 		*/
 
 		if simCount > 0 && realCount > 0 {
@@ -202,16 +232,16 @@ func main() {
 	f := simulation.MakeSimulatedMutant
 
 	/*
-	g = g.Filter(5, 33)
-	concs := FindConcentrations(g, 2, 2, true)
-	fmt.Printf("%d doubles\n", len(concs))
-	transitions := CountTransitions(g, 0, 1, concs)
-	tl := transitions.Sort()
-	for _, t := range tl {
-		t.Print()
-	}
-	highlights := CreateHighlights(concs)
-	g.SaveWithTranslation("output.clu", highlights, 0, 1)
+		g = g.Filter(5, 33)
+		concs := FindConcentrations(g, 2, 2, true)
+		fmt.Printf("%d doubles\n", len(concs))
+		transitions := CountTransitions(g, 0, 1, concs)
+		tl := transitions.Sort()
+		for _, t := range tl {
+			t.Print()
+		}
+		highlights := CreateHighlights(concs)
+		g.SaveWithTranslation("output.clu", highlights, 0, 1)
 	*/
 
 	realMap, simMap := CompareToSim(g, 2, 2, true, -1, f)
@@ -221,6 +251,12 @@ func main() {
 
 	fmt.Println("Sim transition map")
 	simMap.Print()
+
+
+	// TODO: Putting them both on the same graph would be nice, and you can use
+	// that for KS testing externally as well. So output 3 columns
+	realMap.GraphData("transitions.txt")
+	simMap.GraphData("sim.txt")
 
 	return
 
