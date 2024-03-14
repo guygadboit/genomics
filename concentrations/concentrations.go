@@ -59,6 +59,7 @@ exhaustive comparison. Otherwise do a Montecarlo with that many its.
 */
 func CompareToSim(g *genomes.Genomes, length int, minMuts int,
 	requireSilent bool, iterations int) {
+	var simTotal, realTotal, silentTotal, numComparisons int
 	n := g.NumGenomes()
 	nd := mutations.NewNucDistro(g)
 
@@ -74,6 +75,10 @@ func CompareToSim(g *genomes.Genomes, length int, minMuts int,
 		fmt.Printf("%d.%d %d-%d: %d %d %.2f (%d)\n",
 			length, minMuts, a, b, realCount, simCount,
 			float64(simCount)/float64(realCount), numSilent)
+		simTotal += simCount
+		realTotal += realCount
+		silentTotal += numSilent
+		numComparisons++
 	}
 
 	if iterations == -1 {
@@ -94,6 +99,9 @@ func CompareToSim(g *genomes.Genomes, length int, minMuts int,
 			comparePair(a, b)
 		}
 	}
+	fmt.Printf("%d.%d Average ratio: %.2f (%.2f silent muts)\n",
+		length, minMuts, float64(simTotal)/float64(realTotal),
+		float64(silentTotal)/float64(numComparisons))
 }
 
 func main() {
