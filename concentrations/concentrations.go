@@ -68,13 +68,16 @@ func CompareToSim(g *genomes.Genomes, length int, minMuts int,
 		concs := FindConcentrations(g2, length, minMuts, requireSilent)
 		realCount := len(concs)
 
-		simG, numSilent := simulation.MakeSimulatedMutant(g2, 0, 1, nd)
+		// simG, numSilent := simulation.MakeSimulatedMutant(g2, 0, 1, nd)
+		simG, numSilent := simulation.MakeSimulatedMutant3(g2, 0, 1, nd)
 		concs = FindConcentrations(simG, length, minMuts, requireSilent)
 		simCount := len(concs)
 
+		/*
 		fmt.Printf("%d.%d %d-%d: %d %d %.2f (%d)\n",
 			length, minMuts, a, b, realCount, simCount,
 			float64(simCount)/float64(realCount), numSilent)
+		*/
 		simTotal += simCount
 		realTotal += realCount
 		silentTotal += numSilent
@@ -109,4 +112,6 @@ func main() {
 		"../fasta/WH1.orfs", false)
 
 	CompareToSim(g, 2, 2, true, 100)
+	CompareToSim(g, 3, 3, true, 100)
+	CompareToSim(g, 6, 4, true, 100)
 }

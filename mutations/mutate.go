@@ -150,6 +150,10 @@ type Mutation struct {
 	Silent bool
 }
 
+/*
+Return a list of the actual mutations between two genomes, rather than just
+counting them.
+*/
 func FindMutations(g *genomes.Genomes, a, b int) []Mutation {
 	a_nts := g.Nts[a]
 	b_nts := g.Nts[b]
@@ -167,9 +171,7 @@ func FindMutations(g *genomes.Genomes, a, b int) []Mutation {
 			continue
 		}
 
-		// Is this wrong for 5,33 pos 547? FIXME YOU ARE HERE
 		_, isSilent, _ := genomes.IsSilent(g, i, 1, 0, 1)
-
 		ret = append(ret, Mutation{i, isSilent})
 	}
 	return ret
