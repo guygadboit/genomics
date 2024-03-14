@@ -53,12 +53,15 @@ func CreateHighlights(concentrations []Concentration) []genomes.Highlight {
 	return ret
 }
 
+type MutantFunc func(*genomes.Genomes,
+	int, int, *mutations.NucDistro) (*genomes.Genomes, int)
+
 /*
 Compare counts of concentrations to simulations. If iterations is -1, do an
 exhaustive comparison. Otherwise do a Montecarlo with that many its.
 */
 func CompareToSim(g *genomes.Genomes, length int, minMuts int,
-	requireSilent bool, iterations int) {
+	requireSilent bool, iterations int, mutantFunc MutantFunc) {
 	var simTotal, realTotal, silentTotal, numComparisons int
 	n := g.NumGenomes()
 	nd := mutations.NewNucDistro(g)
@@ -68,8 +71,7 @@ func CompareToSim(g *genomes.Genomes, length int, minMuts int,
 		concs := FindConcentrations(g2, length, minMuts, requireSilent)
 		realCount := len(concs)
 
-		// simG, numSilent := simulation.MakeSimulatedMutant(g2, 0, 1, nd)
-		simG, numSilent := simulation.MakeSimulatedMutant3(g2, 0, 1, nd)
+		simG, numSilent := mutantFunc(g2, 0, 1, nd)
 		concs = FindConcentrations(simG, length, minMuts, requireSilent)
 		simCount := len(concs)
 
@@ -102,7 +104,7 @@ func CompareToSim(g *genomes.Genomes, length int, minMuts int,
 			comparePair(a, b)
 		}
 	}
-	fmt.Printf("%d.%d Average ratio: %.2f (%.2f silent muts)\n",
+	fmt.Printf("%d.%d Average ratio: %.4f (%.2f silent muts)\n",
 		length, minMuts, float64(simTotal)/float64(realTotal),
 		float64(silentTotal)/float64(numComparisons))
 }
@@ -126,7 +128,8 @@ func main() {
 	return
 	*/
 
-	CompareToSim(g, 2, 2, true, 100)
-	CompareToSim(g, 3, 3, true, 100)
-	CompareToSim(g, 6, 4, true, 100)
+	f := simulation.MakeSimulatedMutant
+	CompareToSim(g, 2, 2, true, 100, f)
+	CompareToSim(g, 3, 3, true, 100, f)
+	CompareToSim(g, 6, 4, true, 100, f)
 }
