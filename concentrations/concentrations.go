@@ -6,6 +6,7 @@ import (
 	"genomics/mutations"
 	"genomics/simulation"
 	"math/rand"
+	"slices"
 )
 
 /*
@@ -45,6 +46,67 @@ positions:
 	return ret
 }
 
+type Transition struct {
+	ANts string
+	BNts string
+}
+
+type TransitionMap map[Transition]int
+
+type TransitionCount struct {
+	Transition
+	Count int
+}
+
+type TransitionList []TransitionCount
+
+func (t *TransitionCount) Print() {
+	fmt.Printf("%s<->%s: %d\n", t.ANts, t.BNts, t.Count)
+}
+
+/*
+Count which pairs of nts were involved the most often in transitions. Return an
+array sorted by most frequent first.
+*/
+func CountTransitions(g *genomes.Genomes,
+	a, b int, concentrations []Concentration) TransitionMap {
+	counts := make(map[Transition]int)
+
+	for _, conc := range concentrations {
+		aNts := string(g.Nts[a][conc.Pos : conc.Pos+conc.Length])
+		bNts := string(g.Nts[b][conc.Pos : conc.Pos+conc.Length])
+		t := Transition{aNts, bNts}
+		counts[t]++
+	}
+
+	return counts
+}
+
+func (tm TransitionMap) Combine(other TransitionMap) {
+	for k, v := range other {
+		tm[k] += v
+	}
+}
+
+func (tm TransitionMap) Sort() TransitionList {
+	ret := make(TransitionList, 0)
+	for k, v := range tm {
+		ret = append(ret, TransitionCount{k, v})
+	}
+
+	slices.SortFunc(ret, func(a, b TransitionCount) int {
+		return b.Count - a.Count
+	})
+
+	return ret
+}
+
+func (tm TransitionMap) Print() {
+	for _, tc := range tm.Sort() {
+		tc.Print()
+	}
+}
+
 func CreateHighlights(concentrations []Concentration) []genomes.Highlight {
 	ret := make([]genomes.Highlight, len(concentrations))
 	for i, p := range concentrations {
@@ -58,27 +120,32 @@ type MutantFunc func(*genomes.Genomes,
 
 /*
 Compare counts of concentrations to simulations. If iterations is -1, do an
-exhaustive comparison. Otherwise do a Montecarlo with that many its.
+exhaustive comparison. Otherwise do a Montecarlo with that many its. Returns
+the real and simulated transition maps.
 */
 func CompareToSim(g *genomes.Genomes, length int, minMuts int,
-	requireSilent bool, iterations int, mutantFunc MutantFunc) {
+	requireSilent bool, iterations int,
+	mutantFunc MutantFunc) (TransitionMap, TransitionMap) {
 	var simTotal, realTotal, silentTotal, numComparisons int
 	n := g.NumGenomes()
 	nd := mutations.NewNucDistro(g)
+	realMap, simMap := make(TransitionMap), make(TransitionMap)
 
 	comparePair := func(a, b int) {
 		g2 := g.Filter(a, b)
 		concs := FindConcentrations(g2, length, minMuts, requireSilent)
+		realMap.Combine(CountTransitions(g2, 0, 1, concs))
 		realCount := len(concs)
 
 		simG, numSilent := mutantFunc(g2, 0, 1, nd)
 		concs = FindConcentrations(simG, length, minMuts, requireSilent)
+		simMap.Combine(CountTransitions(simG, 0, 1, concs))
 		simCount := len(concs)
 
 		/*
-		fmt.Printf("%d.%d %d-%d: %d %d %.2f (%d)\n",
-			length, minMuts, a, b, realCount, simCount,
-			float64(simCount)/float64(realCount), numSilent)
+			fmt.Printf("%d.%d %d-%d: %d %d %.2f (%d)\n",
+				length, minMuts, a, b, realCount, simCount,
+				float64(realCount)/float64(simCount), numSilent)
 		*/
 		simTotal += simCount
 		realTotal += realCount
@@ -104,9 +171,12 @@ func CompareToSim(g *genomes.Genomes, length int, minMuts int,
 			comparePair(a, b)
 		}
 	}
+
 	fmt.Printf("%d.%d Average ratio: %.4f (%.2f silent muts)\n",
-		length, minMuts, float64(simTotal)/float64(realTotal),
+		length, minMuts, float64(realTotal)/float64(simTotal),
 		float64(silentTotal)/float64(numComparisons))
+
+	return realMap, simMap
 }
 
 func main() {
@@ -114,22 +184,34 @@ func main() {
 		"../fasta/WH1.orfs", false)
 
 	/*
-	g := genomes.LoadGenomes("../fasta/SARS1-relatives.fasta",
-		"../fasta/SARS1.orfs", false)
+		g := genomes.LoadGenomes("../fasta/SARS1-relatives.fasta",
+			"../fasta/SARS1.orfs", false)
 	*/
+	f := simulation.MakeSimulatedMutant
 
 	/*
 	g = g.Filter(5, 33)
 	concs := FindConcentrations(g, 2, 2, true)
 	fmt.Printf("%d doubles\n", len(concs))
+	transitions := CountTransitions(g, 0, 1, concs)
+	tl := transitions.Sort()
+	for _, t := range tl {
+		t.Print()
+	}
 	highlights := CreateHighlights(concs)
 	g.SaveWithTranslation("output.clu", highlights, 0, 1)
-	CompareToSim(g, 2, 2, true, -1)
-	return
 	*/
 
-	f := simulation.MakeSimulatedMutant
-	CompareToSim(g, 2, 2, true, 100, f)
+	realMap, simMap := CompareToSim(g, 2, 2, true, -1, f)
+	fmt.Println("Real transition map")
+	realMap.Print()
+	fmt.Println()
+
+	fmt.Println("Sim transition map")
+	simMap.Print()
+
+	return
+
 	CompareToSim(g, 3, 3, true, 100, f)
 	CompareToSim(g, 6, 4, true, 100, f)
 }

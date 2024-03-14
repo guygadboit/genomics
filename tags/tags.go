@@ -413,7 +413,8 @@ func Simulate(g *genomes.Genomes, a, b int,
 	numTags, total := 0, 0
 	var numSilent int
 
-	var makeMutant func(g *genomes.Genomes, a, b int) (*genomes.Genomes, int)
+	var makeMutant func(*genomes.Genomes, int, int,
+        *mutations.NucDistro) (*genomes.Genomes, int)
 	if requireSilent {
 		makeMutant = simulation.MakeSimulatedMutant
 	} else {
@@ -422,7 +423,7 @@ func Simulate(g *genomes.Genomes, a, b int,
 
 	for i := 0; i < count; i++ {
 		var gm *genomes.Genomes
-		gm, numSilent = makeMutant(g, a, b)
+		gm, numSilent = makeMutant(g, a, b, nil)
 		if gm == nil {
 			return 0
 		}
@@ -587,7 +588,7 @@ func Kstest(g *genomes.Genomes, count int) {
 			MutsByLocation(g.Length(), "muts.txt", muts)
 		}
 
-		g2, _ := simulation.MakeSimulatedMutant2(g, a, b)
+		g2, _ := simulation.MakeSimulatedMutant2(g, a, b, nil)
 		muts = mutations.FindMutations(g2, 0, 1)
 		display(muts, "sim")
 	}

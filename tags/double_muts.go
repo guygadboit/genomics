@@ -121,7 +121,7 @@ func SimulatePair(g *genomes.Genomes, a, b int) {
 	ratio := float64(d) / float64(s)
 
 	// And now the simulated ones
-	g2, silent := simulation.MakeSimulatedMutant(g, a, b)
+	g2, silent := simulation.MakeSimulatedMutant(g, a, b, nil)
 
 	simS, simD, _, _ := DoubleMutations(g2, 0, 1, true)
 	simRatio := float64(simD) / float64(simS)
