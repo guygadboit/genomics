@@ -25,7 +25,7 @@ func MakeSimulatedMutant(g *genomes.Genomes, a, b int) (*genomes.Genomes, int) {
 
 	// And put them back randomly. We're interested to see if this gives
 	// different results.
-	mutations.MutateSilent(ret, nd, 1, silent)
+	mutations.MutateSilent(ret, nd, silent, 1)
 
 	ret.Names[0] = "Simulated Mutant"
 	return ret, silent
@@ -44,8 +44,8 @@ func MakeSimulatedMutant2(g *genomes.Genomes,
 
 	ret := g.Filter(a, a)
 	ret.DeepCopy(0)
-	mutations.MutateSilent(ret, nd, 1, silent)
-	mutations.MutateNonSilent(ret, nd, 1, nonSilent)
+	mutations.MutateSilent(ret, nd, silent, 1)
+	mutations.MutateNonSilent(ret, nd, nonSilent, 1)
 
 	ret.Names[0] = "Simulated Mutant"
 	return ret, silent

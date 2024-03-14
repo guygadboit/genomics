@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"genomics/genomes"
 	"genomics/simulation"
+	"math/rand"
 )
 
 /*
@@ -51,23 +52,44 @@ func CreateHighlights(concentrations []Concentration) []genomes.Highlight {
 	return ret
 }
 
-// Compare counts of concentrations to simulations
+/*
+Compare counts of concentrations to simulations. If iterations is -1, do an
+exhaustive comparison. Otherwise do a Montecarlo with that many its.
+*/
 func CompareToSim(g *genomes.Genomes, length int, minMuts int,
-	requireSilent bool) {
+	requireSilent bool, iterations int) {
 	n := g.NumGenomes()
-	for i := 0; i < n; i++ {
-		for j := 0; j < i; j++ {
-			g2 := g.Filter(i, j)
-			concs := FindConcentrations(g2, length, minMuts, requireSilent)
-			realCount := len(concs)
 
-			simG, numSilent := simulation.MakeSimulatedMutant(g2, 0, 1)
-			concs = FindConcentrations(simG, length, minMuts, requireSilent)
-			simCount := len(concs)
+	comparePair := func(a, b int) {
+		g2 := g.Filter(a, b)
+		concs := FindConcentrations(g2, length, minMuts, requireSilent)
+		realCount := len(concs)
 
-			fmt.Printf("%d.%d %d-%d: %d %d %.2f (%d)\n",
-			length, minMuts, i, j, realCount, simCount,
-			float64(simCount)/float64(realCount), numSilent)
+		simG, numSilent := simulation.MakeSimulatedMutant(g2, 0, 1)
+		concs = FindConcentrations(simG, length, minMuts, requireSilent)
+		simCount := len(concs)
+
+		fmt.Printf("%d.%d %d-%d: %d %d %.2f (%d)\n",
+		length, minMuts, a, b, realCount, simCount,
+		float64(simCount)/float64(realCount), numSilent)
+	}
+
+	if iterations == -1 {
+		for i := 0; i < n; i++ {
+			for j := 0; j < i; j++ {
+				comparePair(i, j)
+			}
+		}
+	} else {
+		for i := 0; i < iterations; i++ {
+			var a, b int
+			for {
+				a, b = rand.Intn(n), rand.Intn(n)
+				if a != b {
+					break
+				}
+			}
+			comparePair(a, b)
 		}
 	}
 }
@@ -76,5 +98,5 @@ func main() {
 	g := genomes.LoadGenomes("../fasta/SARS2-relatives.fasta",
 		"../fasta/WH1.orfs", false)
 
-	CompareToSim(g, 3, 3, true)
+	CompareToSim(g, 2, 2, true, 100)
 }

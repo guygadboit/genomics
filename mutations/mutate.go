@@ -8,9 +8,10 @@ import (
 )
 
 /*
-if wantSilent, then make the muts silent, otherwise make them non-silent.
-numSeq is 1 if you want single-nt muts. It's 2 if you want "SDMs" ("sequential
-double mutations") etc.
+if wantSilent, then make the muts silent, otherwise make them non-silent
+(!wantSilent doesn't mean you don't care, it means you actually want num
+non-silent muts) numSeq is 1 if you want single-nt muts. It's 2 if you want
+"SDMs" ("sequential double mutations") etc.
 */
 func mutate(genome *genomes.Genomes,
 	nucDist *NucDistro, num int, numSeq int, wantSilent bool) int {
@@ -18,7 +19,8 @@ func mutate(genome *genomes.Genomes,
 	alreadyDone := make(map[int]int)
 	nts := genome.Nts[0]
 
-	// Try to mutate silently at pos. Return true if we succeeded.
+	// Try to mutate silently (or not silently, as requested) at pos. Return
+	// true if we succeeded.
 	tryMutate := func(pos int) bool {
 		done, _ := alreadyDone[pos]
 		if done != 0 {
