@@ -97,28 +97,31 @@ func MutateNonSilent(genome *genomes.Genomes,
 }
 
 /*
-Returns the number of silent and non-silent mutations in an alignment of
-two genomes. Ignores indels.
+If seqLen is 2, you're looking for two adjacent mutations. Returns the numbers
+of silent and non-silent. Ignores indels
 */
-func CountMutations(g *genomes.Genomes) (int, int) {
+func CountSequentialMutations(g *genomes.Genomes, seqLen int) (int, int) {
 	var nonSilent, silent int
 	a_nts := g.Nts[0]
 	b_nts := g.Nts[1]
 	n := g.Length()
 
+outer:
 	for i := 0; i < n; i++ {
-		a := a_nts[i]
-		b := b_nts[i]
+		a := a_nts[i:i+seqLen]
+		b := b_nts[i:i+seqLen]
 
-		if a == b {
+		if reflect.DeepEqual(a, b) {
 			continue
 		}
 
-		if a == '-' || b == '-' {
-			continue
+		for j := 0; j < seqLen; j++ {
+			if a[j] == '-' || b[j] == '-' {
+				continue outer
+			}
 		}
 
-		err, isSilent, _ := genomes.IsSilent(g, i, 1, 0, 1)
+		err, isSilent, _ := genomes.IsSilent(g, i, seqLen, 0, 1)
 		if err != nil {
 			// Ignore anything not in an ORF
 			continue
@@ -131,6 +134,15 @@ func CountMutations(g *genomes.Genomes) (int, int) {
 		}
 	}
 	return silent, nonSilent
+}
+
+
+/*
+Returns the number of silent and non-silent mutations in an alignment of
+two genomes. Ignores indels.
+*/
+func CountMutations(g *genomes.Genomes) (int, int) {
+	return CountSequentialMutations(g, 1)
 }
 
 type Mutation struct {
