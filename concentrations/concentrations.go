@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"genomics/genomes"
+	"genomics/mutations"
 	"genomics/simulation"
 	"math/rand"
 )
@@ -59,19 +60,20 @@ exhaustive comparison. Otherwise do a Montecarlo with that many its.
 func CompareToSim(g *genomes.Genomes, length int, minMuts int,
 	requireSilent bool, iterations int) {
 	n := g.NumGenomes()
+	nd := mutations.NewNucDistro(g)
 
 	comparePair := func(a, b int) {
 		g2 := g.Filter(a, b)
 		concs := FindConcentrations(g2, length, minMuts, requireSilent)
 		realCount := len(concs)
 
-		simG, numSilent := simulation.MakeSimulatedMutant(g2, 0, 1)
+		simG, numSilent := simulation.MakeSimulatedMutant(g2, 0, 1, nd)
 		concs = FindConcentrations(simG, length, minMuts, requireSilent)
 		simCount := len(concs)
 
 		fmt.Printf("%d.%d %d-%d: %d %d %.2f (%d)\n",
-		length, minMuts, a, b, realCount, simCount,
-		float64(simCount)/float64(realCount), numSilent)
+			length, minMuts, a, b, realCount, simCount,
+			float64(simCount)/float64(realCount), numSilent)
 	}
 
 	if iterations == -1 {
