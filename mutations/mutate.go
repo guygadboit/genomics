@@ -4,7 +4,6 @@ import (
 	"genomics/genomes"
 	"genomics/utils"
 	"math/rand"
-	"reflect"
 )
 
 /*
@@ -34,13 +33,19 @@ func mutate(genome *genomes.Genomes,
 			return false
 		}
 
-		existing := nts[pos:pos+numSeq]
+		existing := nts[pos : pos+numSeq]
 		replacement := make([]byte, numSeq)
+
+	findingReplacement:
 		for {
 			nucDist.RandomSequence(replacement)
-			if !reflect.DeepEqual(existing, replacement) {
-				break
+			for i := 0; i < len(existing); i++ {
+				if existing[i] == replacement[i] {
+					// It needs to be all different
+					continue findingReplacement
+				}
 			}
+			break
 		}
 
 		silent, _ := env.Replace(replacement)
@@ -107,15 +112,14 @@ func CountSequentialMutations(g *genomes.Genomes, seqLen int) (int, int) {
 	n := g.Length()
 
 outer:
-	for i := 0; i < n; i++ {
-		a := a_nts[i:i+seqLen]
-		b := b_nts[i:i+seqLen]
-
-		if reflect.DeepEqual(a, b) {
-			continue
-		}
+	for i := 0; i < n+1-seqLen; i++ {
+		a := a_nts[i : i+seqLen]
+		b := b_nts[i : i+seqLen]
 
 		for j := 0; j < seqLen; j++ {
+			if a[j] == b[j] {
+				continue outer
+			}
 			if a[j] == '-' || b[j] == '-' {
 				continue outer
 			}
@@ -135,7 +139,6 @@ outer:
 	}
 	return silent, nonSilent
 }
-
 
 /*
 Returns the number of silent and non-silent mutations in an alignment of

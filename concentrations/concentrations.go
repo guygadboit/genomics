@@ -111,6 +111,21 @@ func main() {
 	g := genomes.LoadGenomes("../fasta/SARS2-relatives.fasta",
 		"../fasta/WH1.orfs", false)
 
+	/*
+	g := genomes.LoadGenomes("../fasta/SARS1-relatives.fasta",
+		"../fasta/SARS1.orfs", false)
+	*/
+
+	/*
+	g = g.Filter(5, 33)
+	concs := FindConcentrations(g, 2, 2, true)
+	fmt.Printf("%d doubles\n", len(concs))
+	highlights := CreateHighlights(concs)
+	g.SaveWithTranslation("output.clu", highlights, 0, 1)
+	CompareToSim(g, 2, 2, true, -1)
+	return
+	*/
+
 	CompareToSim(g, 2, 2, true, 100)
 	CompareToSim(g, 3, 3, true, 100)
 	CompareToSim(g, 6, 4, true, 100)
