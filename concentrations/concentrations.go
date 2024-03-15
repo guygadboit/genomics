@@ -251,6 +251,9 @@ func main() {
 	fmt.Println("Sim transition map")
 	simMap.Print()
 
+	concs := FindConcentrations(g, 2, 2, true)
+	ShowDirections(g, Transition{"CT", "TC"}, concs)
+
 	// TODO: Putting them both on the same graph would be nice, and you can use
 	// that for KS testing externally as well. So output 3 columns
 	/*
