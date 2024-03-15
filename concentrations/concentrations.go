@@ -1,14 +1,14 @@
 package main
 
 import (
-	"bufio"
+	//"bufio"
+	//"log"
+	//"os"
 	"fmt"
 	"genomics/genomes"
 	"genomics/mutations"
 	"genomics/simulation"
-	"log"
 	"math/rand"
-	"os"
 	"slices"
 )
 
@@ -54,8 +54,75 @@ type Transition struct {
 	BNts string
 }
 
-type TransitionMap map[Transition]int
+func (t Transition) String() string {
+	return fmt.Sprintf("%s<->%s", t.ANts, t.BNts)
+}
 
+/*
+Return a copy in a "Canonical Order", so that we can use this as a map key on
+both nt strings regardless of which is A and which is B
+*/
+func (t Transition) CanonicalOrder() Transition {
+	var a, b string
+	if t.ANts < t.BNts {
+		a, b = t.ANts, t.BNts
+	} else {
+		a, b = t.BNts, t.ANts
+	}
+	return Transition{a, b}
+}
+
+type TransitionMap struct {
+	Forwards    map[string]int			// Counts by ANts
+	Backwards   map[string]int			// Counts by BNts
+
+	// Counts by all nts involved, regardless of direction
+	Bidirection map[Transition]int
+}
+
+func (tm *TransitionMap) Init() {
+	tm.Forwards = make(map[string]int)
+	tm.Backwards = make(map[string]int)
+	tm.Bidirection = make(map[Transition]int)
+}
+
+func (tm *TransitionMap) Add(t Transition) {
+	tm.Forwards[t.ANts]++
+	tm.Backwards[t.BNts]++
+	tm.Bidirection[t.CanonicalOrder()]++
+}
+
+type Count[T comparable] struct {
+	Key	  T
+	Count int
+}
+
+type CountList[T comparable] []Count[T]
+
+func NewCountList[T comparable](m map[T]int) CountList[T] {
+	ret := make(CountList[T], 0)
+	for k, v := range m {
+		ret = append(ret, Count[T]{k, v})
+	}
+	return ret
+}
+
+func SortCountList[T comparable](cl CountList[T]) {
+	slices.SortFunc(cl, func(a, b Count[T]) int {
+		return b.Count - a.Count
+	})
+}
+
+func SortPrintCountList[T comparable](cl CountList[T]) {
+	SortCountList(cl)
+	for _, c := range cl {
+		fmt.Printf("%s: %d\n", c.Key, c.Count)
+	}
+}
+
+
+// The point of this list is so that you can sort them by Count easily for
+// printing them out etc.
 type TransitionCount struct {
 	Transition
 	Count int
@@ -73,41 +140,31 @@ array sorted by most frequent first.
 */
 func CountTransitions(g *genomes.Genomes,
 	a, b int, concentrations []Concentration) TransitionMap {
-	counts := make(map[Transition]int)
+	var ret TransitionMap
+	ret.Init()
 
 	for _, conc := range concentrations {
 		aNts := string(g.Nts[a][conc.Pos : conc.Pos+conc.Length])
 		bNts := string(g.Nts[b][conc.Pos : conc.Pos+conc.Length])
-
-		// Sort those so they're always in the same order, as we don't know
-		// which way transitions are going.
-		var t Transition
-		if aNts < bNts {
-			t = Transition{aNts, bNts}
-		} else {
-			t = Transition{bNts, aNts}
-		}
-
-		counts[t]++
+		ret.Add(Transition{aNts, bNts})
 	}
 
-	return counts
+	return ret
 }
 
-func (tm TransitionMap) Combine(other TransitionMap) {
-	for k, v := range other {
-		tm[k] += v
+func (tm *TransitionMap) Combine(other TransitionMap) {
+	for k, v := range other.Forwards {
+		tm.Forwards[k] += v
+	}
+	for k, v := range other.Backwards {
+		tm.Backwards[k] += v
+	}
+	for k, v := range other.Bidirection {
+		tm.Bidirection[k] += v
 	}
 }
 
-func (tm TransitionMap) Total() int {
-	var total int
-	for _, v := range tm {
-		total += v
-	}
-	return total
-}
-
+/*
 func (tm TransitionMap) Sort() TransitionList {
 	ret := make(TransitionList, 0)
 	for k, v := range tm {
@@ -120,11 +177,33 @@ func (tm TransitionMap) Sort() TransitionList {
 
 	return ret
 }
+*/
 
 func (tm TransitionMap) Print() {
-	for _, tc := range tm.Sort() {
-		tc.Print()
+	fmt.Println("Forwards")
+
+	clf := NewCountList(tm.Forwards)
+	SortPrintCountList(clf)
+	fmt.Println()
+
+	fmt.Println("Backwards")
+	clb := NewCountList(tm.Backwards)
+	SortPrintCountList(clb)
+	fmt.Println()
+
+	fmt.Println("Bidirection")
+	cli := NewCountList(tm.Bidirection)
+	SortPrintCountList(cli)
+	fmt.Println()
+}
+
+/*
+func (tm TransitionMap) Total() int {
+	var total int
+	for _, v := range tm {
+		total += v
 	}
+	return total
 }
 
 func (tm TransitionMap) GraphData(fname string) {
@@ -153,6 +232,7 @@ func CreateHighlights(concentrations []Concentration) []genomes.Highlight {
 	}
 	return ret
 }
+*/
 
 type MutantFunc func(*genomes.Genomes,
 	int, int, *mutations.NucDistro) (*genomes.Genomes, int)
@@ -168,7 +248,10 @@ func CompareToSim(g *genomes.Genomes, length int, minMuts int,
 	var simTotal, realTotal, silentTotal, numComparisons int
 	n := g.NumGenomes()
 	nd := mutations.NewNucDistro(g)
-	realMap, simMap := make(TransitionMap), make(TransitionMap)
+	var realMap, simMap TransitionMap
+
+	realMap.Init()
+	simMap.Init()
 
 	comparePair := func(a, b int) {
 		g2 := g.Filter(a, b)
@@ -181,11 +264,9 @@ func CompareToSim(g *genomes.Genomes, length int, minMuts int,
 		simMap.Combine(CountTransitions(simG, 0, 1, concs))
 		simCount := len(concs)
 
-		/*
-			fmt.Printf("%d.%d %d-%d: %d %d %.2f (%d)\n",
-				length, minMuts, a, b, realCount, simCount,
-				float64(realCount)/float64(simCount), numSilent)
-		*/
+		fmt.Printf("%d.%d %d-%d: %d %d %.2f (%d)\n",
+			length, minMuts, a, b, realCount, simCount,
+			float64(realCount)/float64(simCount), numSilent)
 
 		if simCount > 0 && realCount > 0 {
 			simTotal += simCount
@@ -230,6 +311,7 @@ func main() {
 			"../fasta/SARS1.orfs", false)
 	*/
 	f := simulation.MakeSimulatedMutant
+	g = g.Filter(5, 33)
 
 	/*
 		g = g.Filter(5, 33)
@@ -252,11 +334,12 @@ func main() {
 	fmt.Println("Sim transition map")
 	simMap.Print()
 
-
 	// TODO: Putting them both on the same graph would be nice, and you can use
 	// that for KS testing externally as well. So output 3 columns
+	/*
 	realMap.GraphData("transitions.txt")
 	simMap.GraphData("sim.txt")
+	*/
 
 	return
 
