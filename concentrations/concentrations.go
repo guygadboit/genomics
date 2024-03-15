@@ -9,7 +9,6 @@ import (
 	"genomics/mutations"
 	"genomics/simulation"
 	"math/rand"
-	"slices"
 )
 
 /*
@@ -73,8 +72,8 @@ func (t Transition) CanonicalOrder() Transition {
 }
 
 type TransitionMap struct {
-	Forwards    map[string]int			// Counts by ANts
-	Backwards   map[string]int			// Counts by BNts
+	Forwards  map[string]int // Counts by ANts
+	Backwards map[string]int // Counts by BNts
 
 	// Counts by all nts involved, regardless of direction
 	Bidirection map[Transition]int
@@ -90,48 +89,6 @@ func (tm *TransitionMap) Add(t Transition) {
 	tm.Forwards[t.ANts]++
 	tm.Backwards[t.BNts]++
 	tm.Bidirection[t.CanonicalOrder()]++
-}
-
-type Count[T comparable] struct {
-	Key	  T
-	Count int
-}
-
-type CountList[T comparable] []Count[T]
-
-func NewCountList[T comparable](m map[T]int) CountList[T] {
-	ret := make(CountList[T], 0)
-	for k, v := range m {
-		ret = append(ret, Count[T]{k, v})
-	}
-	return ret
-}
-
-func SortCountList[T comparable](cl CountList[T]) {
-	slices.SortFunc(cl, func(a, b Count[T]) int {
-		return b.Count - a.Count
-	})
-}
-
-func SortPrintCountList[T comparable](cl CountList[T]) {
-	SortCountList(cl)
-	for _, c := range cl {
-		fmt.Printf("%s: %d\n", c.Key, c.Count)
-	}
-}
-
-
-// The point of this list is so that you can sort them by Count easily for
-// printing them out etc.
-type TransitionCount struct {
-	Transition
-	Count int
-}
-
-type TransitionList []TransitionCount
-
-func (t *TransitionCount) Print() {
-	fmt.Printf("%s<->%s: %d\n", t.ANts, t.BNts, t.Count)
 }
 
 /*
@@ -337,8 +294,8 @@ func main() {
 	// TODO: Putting them both on the same graph would be nice, and you can use
 	// that for KS testing externally as well. So output 3 columns
 	/*
-	realMap.GraphData("transitions.txt")
-	simMap.GraphData("sim.txt")
+		realMap.GraphData("transitions.txt")
+		simMap.GraphData("sim.txt")
 	*/
 
 	return
