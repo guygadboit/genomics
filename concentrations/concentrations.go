@@ -121,21 +121,6 @@ func (tm *TransitionMap) Combine(other TransitionMap) {
 	}
 }
 
-/*
-func (tm TransitionMap) Sort() TransitionList {
-	ret := make(TransitionList, 0)
-	for k, v := range tm {
-		ret = append(ret, TransitionCount{k, v})
-	}
-
-	slices.SortFunc(ret, func(a, b TransitionCount) int {
-		return b.Count - a.Count
-	})
-
-	return ret
-}
-*/
-
 func (tm TransitionMap) Print() {
 	fmt.Println("Forwards")
 
@@ -154,34 +139,6 @@ func (tm TransitionMap) Print() {
 	fmt.Println()
 }
 
-/*
-func (tm TransitionMap) Total() int {
-	var total int
-	for _, v := range tm {
-		total += v
-	}
-	return total
-}
-
-func (tm TransitionMap) GraphData(fname string) {
-	f, err := os.Create(fname)
-	if err != nil {
-		log.Fatalf("Can't create %s", fname)
-	}
-	defer f.Close()
-
-	fp := bufio.NewWriter(f)
-
-	total := float64(tm.Total())
-	for _, tc := range tm.Sort() {
-		fmt.Fprintf(fp, "%s<->%s %f\n", tc.ANts, tc.BNts,
-			float64(tc.Count)/total)
-	}
-
-	fp.Flush()
-	fmt.Printf("Wrote %s\n", fname)
-}
-
 func CreateHighlights(concentrations []Concentration) []genomes.Highlight {
 	ret := make([]genomes.Highlight, len(concentrations))
 	for i, p := range concentrations {
@@ -189,7 +146,6 @@ func CreateHighlights(concentrations []Concentration) []genomes.Highlight {
 	}
 	return ret
 }
-*/
 
 type MutantFunc func(*genomes.Genomes,
 	int, int, *mutations.NucDistro) (*genomes.Genomes, int)
@@ -221,9 +177,11 @@ func CompareToSim(g *genomes.Genomes, length int, minMuts int,
 		simMap.Combine(CountTransitions(simG, 0, 1, concs))
 		simCount := len(concs)
 
+		/*
 		fmt.Printf("%d.%d %d-%d: %d %d %.2f (%d)\n",
 			length, minMuts, a, b, realCount, simCount,
 			float64(realCount)/float64(simCount), numSilent)
+		*/
 
 		if simCount > 0 && realCount > 0 {
 			simTotal += simCount
@@ -262,13 +220,15 @@ func CompareToSim(g *genomes.Genomes, length int, minMuts int,
 func main() {
 	g := genomes.LoadGenomes("../fasta/SARS2-relatives.fasta",
 		"../fasta/WH1.orfs", false)
+	g.RemoveGaps()
 
 	/*
 		g := genomes.LoadGenomes("../fasta/SARS1-relatives.fasta",
 			"../fasta/SARS1.orfs", false)
 	*/
+
 	f := simulation.MakeSimulatedMutant
-	g = g.Filter(5, 33)
+	g = g.Filter(0, 33)
 
 	/*
 		g = g.Filter(5, 33)
