@@ -174,6 +174,7 @@ func GraphData(fname string, realMap, simMap *TransitionMap) {
 
 	fp := bufio.NewWriter(f)
 
+	// FIXME you're supposed to loop over l here so it's sorted.
 	for _, d := range data {
 		fmt.Fprintf(fp, "%s %.4f %.4f\n", d.Key, d.Real, d.Sim)
 	}
@@ -284,7 +285,7 @@ func main() {
 		g.SaveWithTranslation("output.clu", highlights, 0, 1)
 	*/
 
-	realMap, simMap := CompareToSim(g, 2, 2, true, -1, f)
+	realMap, simMap := CompareToSim(g, 2, 2, true, 100, f)
 	fmt.Println("Real transition map")
 	realMap.Print()
 	fmt.Println()
