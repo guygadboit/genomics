@@ -163,18 +163,18 @@ func FindMutations(g *genomes.Genomes, a, b int) []Mutation {
 	ret := make([]Mutation, 0)
 
 	for i := 0; i < g.Length(); i++ {
-		a := a_nts[i]
-		b := b_nts[i]
+		aNt := a_nts[i]
+		bNt := b_nts[i]
 
-		if a == b {
+		if aNt == bNt {
 			continue
 		}
 
-		if !utils.IsRegularNt(a) || !utils.IsRegularNt(b) {
+		if !utils.IsRegularNt(aNt) || !utils.IsRegularNt(bNt) {
 			continue
 		}
 
-		_, isSilent, _ := genomes.IsSilent(g, i, 1, 0, 1)
+		_, isSilent, _ := genomes.IsSilent(g, i, 1, a, b)
 		ret = append(ret, Mutation{i, isSilent})
 	}
 	return ret
