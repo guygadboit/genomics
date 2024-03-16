@@ -1,9 +1,9 @@
 package main
 
 import (
-	//"bufio"
-	//"log"
-	//"os"
+	"bufio"
+	"log"
+	"os"
 	"fmt"
 	"genomics/genomes"
 	"genomics/mutations"
@@ -139,6 +139,48 @@ func (tm TransitionMap) Print() {
 	fmt.Println()
 }
 
+type GraphDatum struct {
+	Key		string
+	Real	float64
+	Sim		float64
+}
+
+func GraphData(fname string, realMap, simMap *TransitionMap) {
+	f, err := os.Create(fname)
+	if err != nil {
+		log.Fatalf("Can't create file %s\n", fname)
+	}
+	defer f.Close()
+
+	data := make([]GraphDatum, 0)
+
+	l := NewCountList(realMap.Bidirection)
+	for _, c := range l {
+		data = append(data, GraphDatum{c.Key.String(),
+			float64(realMap.Bidirection[c.Key]),
+			float64(simMap.Bidirection[c.Key])})
+	}
+
+	var totalReal, totalSim float64
+	for _, d := range data {
+		totalReal += float64(d.Real)
+		totalSim += float64(d.Sim)
+	}
+
+	for i, _ := range data {
+		data[i].Real /= totalReal
+		data[i].Sim /= totalSim
+	}
+
+	fp := bufio.NewWriter(f)
+
+	for _, d := range data {
+		fmt.Fprintf(fp, "%s %.4f %.4f\n", d.Key, d.Real, d.Sim)
+	}
+
+	fp.Flush()
+}
+
 func CreateHighlights(concentrations []Concentration) []genomes.Highlight {
 	ret := make([]genomes.Highlight, len(concentrations))
 	for i, p := range concentrations {
@@ -228,7 +270,6 @@ func main() {
 	*/
 
 	f := simulation.MakeSimulatedMutant
-	g = g.Filter(0, 33)
 
 	/*
 		g = g.Filter(5, 33)
@@ -251,8 +292,12 @@ func main() {
 	fmt.Println("Sim transition map")
 	simMap.Print()
 
+	GraphData("transitions.txt", &realMap, &simMap)
+
+	/*
 	concs := FindConcentrations(g, 2, 2, true)
 	ShowDirections(g, Transition{"CT", "TC"}, concs)
+	*/
 
 	// TODO: Putting them both on the same graph would be nice, and you can use
 	// that for KS testing externally as well. So output 3 columns
