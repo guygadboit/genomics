@@ -152,13 +152,16 @@ func GraphData(fname string, realMap, simMap *TransitionMap) {
 	}
 	defer f.Close()
 
-	data := make([]GraphDatum, 0)
+	data := make(map[string]GraphDatum)
 
 	l := NewCountList(realMap.Bidirection)
+	SortCountList(l)
+
 	for _, c := range l {
-		data = append(data, GraphDatum{c.Key.String(),
+		k := c.Key.String()
+		data[k] = GraphDatum{k,
 			float64(realMap.Bidirection[c.Key]),
-			float64(simMap.Bidirection[c.Key])})
+			float64(simMap.Bidirection[c.Key])}
 	}
 
 	var totalReal, totalSim float64
@@ -167,15 +170,14 @@ func GraphData(fname string, realMap, simMap *TransitionMap) {
 		totalSim += float64(d.Sim)
 	}
 
-	for i, _ := range data {
-		data[i].Real /= totalReal
-		data[i].Sim /= totalSim
+	for k, v := range data {
+		data[k] = GraphDatum{k, v.Real/totalReal, v.Sim/totalSim}
 	}
 
 	fp := bufio.NewWriter(f)
 
-	// FIXME you're supposed to loop over l here so it's sorted.
-	for _, d := range data {
+	for _, c := range l {
+		d := data[c.Key.String()]
 		fmt.Fprintf(fp, "%s %.4f %.4f\n", d.Key, d.Real, d.Sim)
 	}
 
@@ -263,12 +265,12 @@ func CompareToSim(g *genomes.Genomes, length int, minMuts int,
 func main() {
 	g := genomes.LoadGenomes("../fasta/SARS2-relatives.fasta",
 		"../fasta/WH1.orfs", false)
-	g.RemoveGaps()
 
 	/*
-		g := genomes.LoadGenomes("../fasta/SARS1-relatives.fasta",
-			"../fasta/SARS1.orfs", false)
+	g := genomes.LoadGenomes("../fasta/SARS1-relatives.fasta",
+		"../fasta/SARS1.orfs", false)
 	*/
+	g.RemoveGaps()
 
 	f := simulation.MakeSimulatedMutant
 
