@@ -598,7 +598,7 @@ func main() {
 	rand.Seed(1) // FIXME this ain't working
 	big := true
 	save := false
-	print := false
+	doPrint := false
 
 	var g *genomes.Genomes
 
@@ -643,7 +643,7 @@ func main() {
 			return
 	*/
 
-	if print {
+	if doPrint {
 		for _, tag := range tags {
 			tag.Print()
 		}
