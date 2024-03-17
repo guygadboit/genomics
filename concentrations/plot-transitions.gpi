@@ -3,4 +3,4 @@ set style fill solid
 set boxwidth 0.5
 set xtics rotate by -90
 
-plot "transitions.txt" using 2:xtic(1) title "Real", "" using 3 title "Sim"
+plot "transitions-SARS2.txt" using 2:xtic(1) title "Real", "" using 3 title "Sim"
