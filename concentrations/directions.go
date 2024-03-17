@@ -13,9 +13,9 @@ func ShowDirections(g *genomes.Genomes,
 
 		var direction byte
 		if a == trans.ANts && b == trans.BNts {
-			direction = '|'
+			direction = 'V'
 		} else if a == trans.BNts && b == trans.ANts {
-			direction = '-'
+			direction = '^'
 		} else {
 			continue
 		}

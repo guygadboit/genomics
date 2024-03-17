@@ -2,13 +2,14 @@ package main
 
 import (
 	"bufio"
-	"log"
-	"os"
 	"fmt"
+	"encoding/gob"
 	"genomics/genomes"
 	"genomics/mutations"
 	"genomics/simulation"
+	"log"
 	"math/rand"
+	"os"
 )
 
 /*
@@ -23,7 +24,54 @@ type Concentration struct {
 	Silent  bool
 }
 
-func FindConcentrations(g *genomes.Genomes, length int, minMuts int,
+type Concentrations struct {
+	Genomes *genomes.Genomes
+	Length  int
+	MinMuts int
+	Silent  bool
+	Concs   []Concentration
+}
+
+func (c *Concentrations) Find(g *genomes.Genomes, length int, minMuts int,
+	requireSilent bool) {
+	c.Genomes = g
+	c.Length = length
+	c.MinMuts = minMuts
+	c.Concs = findConcentrations(g, length, minMuts, requireSilent)
+}
+
+func (c *Concentrations) Save(fname string) {
+	fd, err := os.Create(fname)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer fd.Close()
+
+	fp := bufio.NewWriter(fd)
+	enc := gob.NewEncoder(fp)
+	err = enc.Encode(c)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func (c *Concentrations) Load(fname string) {
+	fd, err := os.Open(fname)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer fd.Close()
+
+	fp := bufio.NewReader(fd)
+	dec := gob.NewDecoder(fp)
+	err = dec.Decode(c)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func findConcentrations(g *genomes.Genomes, length int, minMuts int,
 	requireSilent bool) []Concentration {
 	ret := make([]Concentration, 0)
 
@@ -140,9 +188,9 @@ func (tm TransitionMap) Print() {
 }
 
 type GraphDatum struct {
-	Key		string
-	Real	float64
-	Sim		float64
+	Key  string
+	Real float64
+	Sim  float64
 }
 
 func GraphData(fname string, realMap, simMap *TransitionMap) {
@@ -171,7 +219,7 @@ func GraphData(fname string, realMap, simMap *TransitionMap) {
 	}
 
 	for k, v := range data {
-		data[k] = GraphDatum{k, v.Real/totalReal, v.Sim/totalSim}
+		data[k] = GraphDatum{k, v.Real / totalReal, v.Sim / totalSim}
 	}
 
 	fp := bufio.NewWriter(f)
@@ -213,19 +261,19 @@ func CompareToSim(g *genomes.Genomes, length int, minMuts int,
 
 	comparePair := func(a, b int) {
 		g2 := g.Filter(a, b)
-		concs := FindConcentrations(g2, length, minMuts, requireSilent)
+		concs := findConcentrations(g2, length, minMuts, requireSilent)
 		realMap.Combine(CountTransitions(g2, 0, 1, concs))
 		realCount := len(concs)
 
 		simG, numSilent := mutantFunc(g2, 0, 1, nd)
-		concs = FindConcentrations(simG, length, minMuts, requireSilent)
+		concs = findConcentrations(simG, length, minMuts, requireSilent)
 		simMap.Combine(CountTransitions(simG, 0, 1, concs))
 		simCount := len(concs)
 
 		/*
-		fmt.Printf("%d.%d %d-%d: %d %d %.2f (%d)\n",
-			length, minMuts, a, b, realCount, simCount,
-			float64(realCount)/float64(simCount), numSilent)
+			fmt.Printf("%d.%d %d-%d: %d %d %.2f (%d)\n",
+				length, minMuts, a, b, realCount, simCount,
+				float64(realCount)/float64(simCount), numSilent)
 		*/
 
 		if simCount > 0 && realCount > 0 {
@@ -263,14 +311,18 @@ func CompareToSim(g *genomes.Genomes, length int, minMuts int,
 }
 
 func main() {
+	/*
 	g := genomes.LoadGenomes("../fasta/SARS2-relatives.fasta",
 		"../fasta/WH1.orfs", false)
+	*/
 
-	/*
 	g := genomes.LoadGenomes("../fasta/SARS1-relatives.fasta",
 		"../fasta/SARS1.orfs", false)
-	*/
 	g.RemoveGaps()
+
+	var concs Concentrations
+	//concs.Find(g, 2, 2, true)
+	concs.Load("SARS1-Concs.gob")
 
 	f := simulation.MakeSimulatedMutant
 
@@ -287,20 +339,33 @@ func main() {
 		g.SaveWithTranslation("output.clu", highlights, 0, 1)
 	*/
 
-	realMap, simMap := CompareToSim(g, 2, 2, true, 100, f)
-	fmt.Println("Real transition map")
-	realMap.Print()
-	fmt.Println()
-
-	fmt.Println("Sim transition map")
-	simMap.Print()
-
-	GraphData("transitions.txt", &realMap, &simMap)
-
 	/*
-	concs := FindConcentrations(g, 2, 2, true)
-	ShowDirections(g, Transition{"CT", "TC"}, concs)
+		realMap, simMap := CompareToSim(g, 2, 2, true, 100, f)
+		fmt.Println("Real transition map")
+		realMap.Print()
+		fmt.Println()
+
+		fmt.Println("Sim transition map")
+		simMap.Print()
+
+		GraphData("transitions.txt", &realMap, &simMap)
 	*/
+	/*
+	for _, c := range concs.Concs {
+		fmt.Println(c)
+	}
+	*/
+
+	for i := 0; i < g.NumGenomes(); i++ {
+		for j := 0; j < i; j++ {
+			var concs Concentrations
+			g2 := g.Filter(i, j)
+			concs.Find(g2, 2, 2, true)
+			fmt.Printf("%d-%d: ", i, j)
+			ShowDirections(g2, Transition{"CT", "TC"}, concs.Concs)
+		}
+	}
+	return
 
 	// TODO: Putting them both on the same graph would be nice, and you can use
 	// that for KS testing externally as well. So output 3 columns
