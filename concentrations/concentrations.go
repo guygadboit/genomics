@@ -13,6 +13,8 @@ import (
 	"math"
 	"math/rand"
 	"os"
+	"strings"
+	"strconv"
 )
 
 /*
@@ -349,6 +351,7 @@ func main() {
 	var simulateTags bool
 	var inputFile, orfs string
 	var summary bool
+	var outputClu string
 
 	flag.BoolVar(&requireSilent, "silent", false, "Look at silent "+
 		"(rather than all) mutations")
@@ -360,6 +363,8 @@ func main() {
 	flag.StringVar(&orfs, "orfs", "", "ORFS file")
 	flag.BoolVar(&summary, "summary", false,
 		"Just print a summary of the genomes")
+	flag.StringVar(&outputClu, "clu", "", "Output a clu-style file of the "+
+		"genomes specified. Use e.g. 0,1 for the first two")
 
 	flag.BoolVar(&simulateTriples, "triples", false, "Look at triples")
 	flag.BoolVar(&simulateTags, "tags", false, "Look at 6.4 tags")
@@ -377,6 +382,27 @@ func main() {
 		mutations.Summary(g)
 		return
 	}
+
+	if outputClu != "" {
+		fields := strings.Split(outputClu, ",")
+		which := make([]int, len(fields))
+		for i, f := range fields {
+			var err error
+			which[i], err = strconv.Atoi(f)
+			if err != nil {
+				log.Fatalf("Invalid index specification: <%s>\n", outputClu)
+			}
+		}
+		g2 := g.Filter(which...)
+		var concs Concentrations
+		concs.Find(g2, 2, 2, requireSilent)
+
+		highlights := CreateHighlights(concs.Concs)
+		g2.SaveWithTranslation("highlights.clu", highlights, which...)
+		fmt.Printf("Written highlights.clu\n")
+		return
+	}
+
 
 	/*
 		var concs Concentrations
