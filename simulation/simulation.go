@@ -94,6 +94,23 @@ func MakeSimulatedMutant3(g *genomes.Genomes,
 
 func MakeSimulatedMutant4(g *genomes.Genomes,
 	a, b int, nd *mutations.NucDistro) (*genomes.Genomes, int) {
-	// FIXME
-	return g, 0
+	g2 := g.Filter(a, b)
+	sDoubles, nsDoubles := mutations.CountSequentialMutations(g2, 2)
+	sSingles, nsSingles := mutations.CountMutations(g2)
+
+	if nd == nil {
+		nd = mutations.NewNucDistro(g2)
+	}
+
+	ret := g.Filter(a, a)
+	ret.DeepCopy(0)
+
+	mutations.MutateSilent(ret, nd, sDoubles, 2)
+	mutations.MutateNonSilent(ret, nd, nsDoubles, 1)
+
+	mutations.MutateSilent(ret, nd, sSingles, 1)
+	mutations.MutateNonSilent(ret, nd, nsSingles, 1)
+
+	ret.Names[0] = "Simulated Mutant"
+	return ret, sSingles
 }

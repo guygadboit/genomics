@@ -272,7 +272,7 @@ numbers of concentrations in the real and simulated comparisons.
 func CompareToSim(g *genomes.Genomes, length int, minMuts int,
 	requireSilent bool, iterations int,
 	mutantFunc simulation.MutantFunc) (TransitionMap, TransitionMap,
-		stats.ContingencyTable) {
+	stats.ContingencyTable) {
 	var simTotal, realTotal, silentTotal, numComparisons int
 	n := g.NumGenomes()
 	nd := mutations.NewNucDistro(g)
@@ -343,23 +343,27 @@ func CompareToSim(g *genomes.Genomes, length int, minMuts int,
 func main() {
 	var requireSilent bool
 	var iterations int
+	var graphName string
+	var simulateTriples bool
+	var simulateTags bool
+	var inputFile, orfs string
 
-	flag.BoolVar(&requireSilent, "silent", true, "Look at silent "+
+	flag.BoolVar(&requireSilent, "silent", false, "Look at silent "+
 		"(rather than all) mutations")
 	flag.IntVar(&iterations, "its", 100, "Number of iterations")
+	flag.StringVar(&graphName, "graph", "transitions.txt",
+		"graph data filename")
+	flag.StringVar(&inputFile, "input", "../fasta/SARS2-relatives.fasta",
+		"Input file (aligned fasta)")
+	flag.StringVar(&orfs, "orfs", "../fasta/WH1.orfs",
+		"ORFS file, required if you want to look at silent muts ")
+
+	flag.BoolVar(&simulateTriples, "triples", false, "Look at triples")
+	flag.BoolVar(&simulateTags, "tags", false, "Look at 6.4 tags")
+
 	flag.Parse()
 
-	sars1 := false
-	var g *genomes.Genomes
-
-	if sars1 {
-		g = genomes.LoadGenomes("../fasta/SARS1-relatives.fasta",
-			"../fasta/SARS1.orfs", false)
-	} else {
-		g = genomes.LoadGenomes("../fasta/SARS2-relatives.fasta",
-			"../fasta/WH1.orfs", false)
-	}
-
+	g := genomes.LoadGenomes(inputFile, orfs, false)
 	g.RemoveGaps()
 
 	/*
@@ -368,15 +372,16 @@ func main() {
 		concs.Load("SARS1-Concs.gob")
 	*/
 
-	var f simulation.MutantFunc
+	var f1, f2 simulation.MutantFunc
 	if requireSilent {
-		f = simulation.MakeSimulatedMutant
+		f1, f2 = simulation.MakeSimulatedMutant,
+			simulation.MakeSimulatedMutant3
 	} else {
-		f = simulation.MakeSimulatedMutant2
+		f1, f2 = simulation.MakeSimulatedMutant2,
+			simulation.MakeSimulatedMutant4
 	}
 
-	realMap, simMap, ct := CompareToSim(g, 2, 2, true, iterations, f)
-	fmt.Printf("Frequency of doubles: OR=%.4f p=%g\n", ct.OR, ct.P)
+	realMap, simMap, ct := CompareToSim(g, 2, 2, true, iterations, f1)
 
 	fmt.Println("Real transition map")
 	realMap.Print()
@@ -385,7 +390,22 @@ func main() {
 	fmt.Println("Sim transition map")
 	simMap.Print()
 
-	GraphData("transitions.txt", &realMap, &simMap)
+	GraphData(graphName, &realMap, &simMap)
+	fmt.Printf("Graph data written to %s\n", graphName)
+
+	fmt.Printf("Frequency of doubles: OR=%.4f p=%g\n", ct.OR, ct.P)
+
+	if simulateTriples {
+		_, _, ct2 := CompareToSim(g, 3, 3, true, iterations, f2)
+		fmt.Printf("Frequency of triples if you simulate "+
+			"doubles: OR=%.4f p=%g\n", ct2.OR, ct2.P)
+	}
+
+	if simulateTags {
+		_, _, ct3 := CompareToSim(g, 6, 4, true, iterations, f2)
+		fmt.Printf("Frequency of 6.4 tags if you simulate "+
+			"doubles: OR=%.4f p=%g\n", ct3.OR, ct3.P)
+	}
 
 	/*
 		g = g.Filter(5, 33)
@@ -467,7 +487,4 @@ func main() {
 	*/
 
 	return
-
-	CompareToSim(g, 3, 3, true, 100, f)
-	CompareToSim(g, 6, 4, true, 100, f)
 }
