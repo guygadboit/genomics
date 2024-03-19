@@ -216,7 +216,7 @@ func Summary(g *genomes.Genomes) {
 		g2 := g.Filter(0, i)
 		s, ns := CountMutations(g2)
 		ss := float64(n-s-ns) / float64(n)
-		fmt.Printf("<%s> S:%d NS:%d Similarity: %.2f%%\n",
-			g.Names[i], s, ns, ss*100)
+		fmt.Printf("%d. %s| S:%d NS:%d Similarity:%.2f%%\n",
+			i, g.Names[i], s, ns, ss*100)
 	}
 }

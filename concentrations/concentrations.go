@@ -398,17 +398,15 @@ func main() {
 		concs.Find(g2, 2, 2, requireSilent)
 
 		highlights := CreateHighlights(concs.Concs)
-		g2.SaveWithTranslation("highlights.clu", highlights, which...)
+
+		all := make([]int, len(which))
+		for i, _ := range all {
+			all[i] = i
+		}
+		g2.SaveWithTranslation("highlights.clu", highlights, all...)
 		fmt.Printf("Written highlights.clu\n")
 		return
 	}
-
-
-	/*
-		var concs Concentrations
-		//concs.Find(g, 2, 2, true)
-		concs.Load("SARS1-Concs.gob")
-	*/
 
 	var f1, f2 simulation.MutantFunc
 	if requireSilent {
