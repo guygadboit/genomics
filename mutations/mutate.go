@@ -1,6 +1,7 @@
 package mutations
 
 import (
+	"fmt"
 	"genomics/genomes"
 	"genomics/utils"
 	"math/rand"
@@ -125,11 +126,7 @@ outer:
 			}
 		}
 
-		err, isSilent, _ := genomes.IsSilent(g, i, seqLen, 0, 1)
-		if err != nil {
-			// Ignore anything not in an ORF
-			continue
-		}
+		_, isSilent, _ := genomes.IsSilent(g, i, seqLen, 0, 1)
 
 		if isSilent {
 			silent++
@@ -210,4 +207,15 @@ func RevertSilent(g *genomes.Genomes, a, b int) int {
 	}
 	g.Nts[a] = newNts
 	return ret
+}
+
+func Summary(g *genomes.Genomes) {
+	n := g.Length()
+	for i := 0; i < g.NumGenomes(); i++ {
+		g2 := g.Filter(0, i)
+		s, ns := CountMutations(g2)
+		ss := float64(n-s-ns) / float64(n)
+		fmt.Printf("<%s> S:%d NS:%d Similarity: %.2f%%\n",
+			g.Names[i], s, ns, ss*100)
+	}
 }

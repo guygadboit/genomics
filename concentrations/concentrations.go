@@ -102,10 +102,7 @@ positions:
 	for i := 0; i < g.Length()-length; i++ {
 		for j := 0; j < g.NumGenomes(); j++ {
 			for k := 0; k < j; k++ {
-				err, silent, numMuts := genomes.IsSilent(g, i, length, j, k)
-				if err != nil {
-					continue
-				}
+				_, silent, numMuts := genomes.IsSilent(g, i, length, j, k)
 				ok := silent || !requireSilent
 				if ok && numMuts >= minMuts {
 					// fmt.Printf("Found pattern at %d\n", i)
@@ -292,6 +289,8 @@ func CompareToSim(g *genomes.Genomes, length int, minMuts int,
 		simMap.Combine(CountTransitions(simG, 0, 1, concs))
 		simCount := len(concs)
 
+		// fmt.Printf("%d-%d: %d %d\n", a, b, realCount, simCount)
+
 		if simCount > 0 && realCount > 0 {
 			simTotal += simCount
 			realTotal += realCount
@@ -323,12 +322,16 @@ func CompareToSim(g *genomes.Genomes, length int, minMuts int,
 	l := g.Length()
 
 	average := func(count, total int) int {
+		if total == 0 {
+			return 0
+		}
 		return int(math.Round(float64(count) / float64(total)))
 	}
 	realAverage := average(realTotal, numComparisons)
 	simAverage := average(simTotal, numComparisons)
 
 	ct.Init(realAverage, l-realAverage, simAverage, l-simAverage)
+	fmt.Println(ct)
 	ct.FisherExact()
 
 	/*
@@ -347,6 +350,7 @@ func main() {
 	var simulateTriples bool
 	var simulateTags bool
 	var inputFile, orfs string
+	var summary bool
 
 	flag.BoolVar(&requireSilent, "silent", false, "Look at silent "+
 		"(rather than all) mutations")
@@ -355,8 +359,10 @@ func main() {
 		"graph data filename")
 	flag.StringVar(&inputFile, "input", "../fasta/SARS2-relatives.fasta",
 		"Input file (aligned fasta)")
-	flag.StringVar(&orfs, "orfs", "../fasta/WH1.orfs",
-		"ORFS file, required if you want to look at silent muts ")
+	flag.StringVar(&orfs, "orfs", "",
+		"ORFS file, required if you want to look at silent muts")
+	flag.BoolVar(&summary, "summary", false,
+		"Just print a summary of the genomes")
 
 	flag.BoolVar(&simulateTriples, "triples", false, "Look at triples")
 	flag.BoolVar(&simulateTags, "tags", false, "Look at 6.4 tags")
@@ -365,6 +371,11 @@ func main() {
 
 	g := genomes.LoadGenomes(inputFile, orfs, false)
 	g.RemoveGaps()
+
+	if summary {
+		mutations.Summary(g)
+		return
+	}
 
 	/*
 		var concs Concentrations
