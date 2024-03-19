@@ -448,7 +448,7 @@ func (it *CodonIter) Next() (pos int, codon string, aa byte, err error) {
 			it.pos = pos + 3
 			return
 		}
-		it.pos = -1	// Marks that we just moved to a new ORF.
+		it.pos = -1 // Marks that we just moved to a new ORF.
 	}
 	return 0, "", 0, errors.New("No more ORFs")
 }
@@ -532,20 +532,20 @@ pos+length? Return error, silent, and the number of muts
 func IsSilent(g *Genomes, pos int, length int, a, b int) (error, bool, int) {
 	var envA, envB Environment
 
+	numMuts := utils.NumMuts(g.Nts[a][pos:pos+length],
+		g.Nts[b][pos:pos+length])
+
 	err := envA.Init(g, pos, length, a)
 	if err != nil {
-		return err, false, 0
+		return err, false, numMuts
 	}
 
 	err = envB.Init(g, pos, length, b)
 	if err != nil {
-		return err, false, 0
+		return err, false, numMuts
 	}
 
 	silent := reflect.DeepEqual(envA.Protein(), envB.Protein())
-	numMuts := utils.NumMuts(g.Nts[a][pos:pos+length],
-		g.Nts[b][pos:pos+length])
-
 	return nil, silent, numMuts
 }
 

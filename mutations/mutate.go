@@ -18,19 +18,13 @@ func mutate(genome *genomes.Genomes,
 	numMuts := 0
 	alreadyDone := make(map[int]int)
 	nts := genome.Nts[0]
+	maxStart := genome.Length() - numSeq
 
 	// Try to mutate silently (or not silently, as requested) at pos. Return
 	// true if we succeeded.
 	tryMutate := func(pos int) bool {
 		done, _ := alreadyDone[pos]
 		if done != 0 {
-			return false
-		}
-
-		var env genomes.Environment
-		err := env.Init(genome, pos, numSeq, 0)
-		if err != nil {
-			// You get an error if pos is not in an ORF
 			return false
 		}
 
@@ -49,8 +43,15 @@ func mutate(genome *genomes.Genomes,
 			break
 		}
 
+		var env genomes.Environment
+		err := env.Init(genome, pos, numSeq, 0)
+		if err != nil {
+			// You get an error if pos is not in an ORF
+			return false
+		}
 		silent, _ := env.Replace(replacement)
 		success := silent == wantSilent
+
 		if success {
 			copy(nts[pos:pos+numSeq], replacement)
 			for i := pos; i < pos+numSeq; i++ {
@@ -63,9 +64,9 @@ func mutate(genome *genomes.Genomes,
 
 mutations:
 	for i := 0; i < num; {
-		start := rand.Intn(genome.Length())
+		start := rand.Intn(maxStart)
 
-		for j := start; j < genome.Length(); j++ {
+		for j := start; j < maxStart; j++ {
 			if tryMutate(j) {
 				i++
 				continue mutations
@@ -126,12 +127,12 @@ outer:
 			}
 		}
 
-		_, isSilent, _ := genomes.IsSilent(g, i, seqLen, 0, 1)
+		_, isSilent, numMuts := genomes.IsSilent(g, i, seqLen, 0, 1)
 
 		if isSilent {
-			silent++
+			silent += numMuts
 		} else {
-			nonSilent++
+			nonSilent += numMuts
 		}
 	}
 	return silent, nonSilent
