@@ -2,12 +2,15 @@ package main
 
 import (
 	"bufio"
-	"fmt"
 	"encoding/gob"
+	"flag"
+	"fmt"
 	"genomics/genomes"
 	"genomics/mutations"
 	"genomics/simulation"
+	"genomics/stats"
 	"log"
+	"math"
 	"math/rand"
 	"os"
 )
@@ -69,6 +72,26 @@ func (c *Concentrations) Load(fname string) {
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+/*
+Subtract any that are at the same position (they're probably different
+lengths-- you can use this to find the singles that aren't also in doubles)
+*/
+func (c *Concentrations) Subtract(other *Concentrations) {
+	newConcs := make([]Concentration, 0)
+
+	set := make(map[int]bool)
+	for _, conc := range other.Concs {
+		set[conc.Pos] = true
+	}
+
+	for _, conc := range c.Concs {
+		if !set[conc.Pos] {
+			newConcs = append(newConcs, conc)
+		}
+	}
+	c.Concs = newConcs
 }
 
 func findConcentrations(g *genomes.Genomes, length int, minMuts int,
@@ -240,17 +263,16 @@ func CreateHighlights(concentrations []Concentration) []genomes.Highlight {
 	return ret
 }
 
-type MutantFunc func(*genomes.Genomes,
-	int, int, *mutations.NucDistro) (*genomes.Genomes, int)
-
 /*
 Compare counts of concentrations to simulations. If iterations is -1, do an
 exhaustive comparison. Otherwise do a Montecarlo with that many its. Returns
-the real and simulated transition maps.
+the real and simulated transition maps, and a contingency table of the average
+numbers of concentrations in the real and simulated comparisons.
 */
 func CompareToSim(g *genomes.Genomes, length int, minMuts int,
 	requireSilent bool, iterations int,
-	mutantFunc MutantFunc) (TransitionMap, TransitionMap) {
+	mutantFunc simulation.MutantFunc) (TransitionMap, TransitionMap,
+		stats.ContingencyTable) {
 	var simTotal, realTotal, silentTotal, numComparisons int
 	n := g.NumGenomes()
 	nd := mutations.NewNucDistro(g)
@@ -269,12 +291,6 @@ func CompareToSim(g *genomes.Genomes, length int, minMuts int,
 		concs = findConcentrations(simG, length, minMuts, requireSilent)
 		simMap.Combine(CountTransitions(simG, 0, 1, concs))
 		simCount := len(concs)
-
-		/*
-			fmt.Printf("%d.%d %d-%d: %d %d %.2f (%d)\n",
-				length, minMuts, a, b, realCount, simCount,
-				float64(realCount)/float64(simCount), numSilent)
-		*/
 
 		if simCount > 0 && realCount > 0 {
 			simTotal += simCount
@@ -303,28 +319,73 @@ func CompareToSim(g *genomes.Genomes, length int, minMuts int,
 		}
 	}
 
-	fmt.Printf("%d.%d Average ratio: %.4f (%.2f silent muts)\n",
-		length, minMuts, float64(realTotal)/float64(simTotal),
-		float64(silentTotal)/float64(numComparisons))
+	var ct stats.ContingencyTable
+	l := g.Length()
 
-	return realMap, simMap
+	average := func(count, total int) int {
+		return int(math.Round(float64(count) / float64(total)))
+	}
+	realAverage := average(realTotal, numComparisons)
+	simAverage := average(simTotal, numComparisons)
+
+	ct.Init(realAverage, l-realAverage, simAverage, l-simAverage)
+	ct.FisherExact()
+
+	/*
+		fmt.Printf("%d.%d Average ratio: %.4f (%.2f silent muts)\n",
+			length, minMuts, float64(realTotal)/float64(simTotal),
+			float64(silentTotal)/float64(numComparisons))
+	*/
+
+	return realMap, simMap, ct
 }
 
 func main() {
-	/*
-	g := genomes.LoadGenomes("../fasta/SARS2-relatives.fasta",
-		"../fasta/WH1.orfs", false)
-	*/
+	var requireSilent bool
+	var iterations int
 
-	g := genomes.LoadGenomes("../fasta/SARS1-relatives.fasta",
-		"../fasta/SARS1.orfs", false)
+	flag.BoolVar(&requireSilent, "silent", true, "Look at silent "+
+		"(rather than all) mutations")
+	flag.IntVar(&iterations, "its", 100, "Number of iterations")
+	flag.Parse()
+
+	sars1 := false
+	var g *genomes.Genomes
+
+	if sars1 {
+		g = genomes.LoadGenomes("../fasta/SARS1-relatives.fasta",
+			"../fasta/SARS1.orfs", false)
+	} else {
+		g = genomes.LoadGenomes("../fasta/SARS2-relatives.fasta",
+			"../fasta/WH1.orfs", false)
+	}
+
 	g.RemoveGaps()
 
-	var concs Concentrations
-	//concs.Find(g, 2, 2, true)
-	concs.Load("SARS1-Concs.gob")
+	/*
+		var concs Concentrations
+		//concs.Find(g, 2, 2, true)
+		concs.Load("SARS1-Concs.gob")
+	*/
 
-	f := simulation.MakeSimulatedMutant
+	var f simulation.MutantFunc
+	if requireSilent {
+		f = simulation.MakeSimulatedMutant
+	} else {
+		f = simulation.MakeSimulatedMutant2
+	}
+
+	realMap, simMap, ct := CompareToSim(g, 2, 2, true, iterations, f)
+	fmt.Printf("Frequency of doubles: OR=%.4f p=%g\n", ct.OR, ct.P)
+
+	fmt.Println("Real transition map")
+	realMap.Print()
+	fmt.Println()
+
+	fmt.Println("Sim transition map")
+	simMap.Print()
+
+	GraphData("transitions.txt", &realMap, &simMap)
 
 	/*
 		g = g.Filter(5, 33)
@@ -351,20 +412,51 @@ func main() {
 		GraphData("transitions.txt", &realMap, &simMap)
 	*/
 	/*
-	for _, c := range concs.Concs {
-		fmt.Println(c)
-	}
+		for _, c := range concs.Concs {
+			fmt.Println(c)
+		}
 	*/
 
-	for i := 0; i < g.NumGenomes(); i++ {
-		for j := 0; j < i; j++ {
-			var concs Concentrations
-			g2 := g.Filter(i, j)
-			concs.Find(g2, 2, 2, true)
-			fmt.Printf("%d-%d: ", i, j)
-			ShowDirections(g2, Transition{"CT", "TC"}, concs.Concs)
+	/*
+		var count, invertedCount int
+		for i := 0; i < g.NumGenomes(); i++ {
+			for j := 0; j < i; j++ {
+				var singles, doubles Concentrations
+				g2 := g.Filter(i, j)
+				doubles.Find(g2, 2, 2, false)
+				fmt.Printf("%d-%d: ", i, j)
+				x, y := ShowDirections(g2, Transition{"CT", "TC"}, doubles.Concs)
+
+				singles.Find(g2, 1, 1, false)
+				singles.Subtract(&doubles)
+				z, w := ShowDirections(g2, Transition{"C", "T"}, singles.Concs)
+
+				inverted := (x < y) != (z < w)
+				if inverted {
+					fmt.Println("Inverted")
+					invertedCount++
+				}
+				count++
+			}
 		}
-	}
+		fmt.Printf("%d/%d are inverted (%.2f)\n", invertedCount, count,
+			float64(invertedCount)/float64(count))
+	*/
+	/*
+		i := 7
+		for j := 0; j < g.NumGenomes(); j++ {
+			var singles, doubles Concentrations
+			g2 := g.Filter(i, j)
+			doubles.Find(g2, 2, 2, false)
+			fmt.Printf("%d-%d: ", i, j)
+			ShowDirections(g2, Transition{"CT", "TC"}, doubles.Concs)
+
+			singles.Find(g2, 1, 1, false)
+			singles.Subtract(&doubles)
+			ShowDirections(g2, Transition{"C", "T"}, singles.Concs)
+		}
+	*/
+
 	return
 
 	// TODO: Putting them both on the same graph would be nice, and you can use

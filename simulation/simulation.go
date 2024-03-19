@@ -5,6 +5,9 @@ import (
 	"genomics/mutations"
 )
 
+type MutantFunc func(*genomes.Genomes,
+	int, int, *mutations.NucDistro) (*genomes.Genomes, int)
+
 /*
 Given the two genomes a, b in g, count how many silent muts from a to b, and
 return a new alignment of c and a. c is a new simulated mutant with the same
@@ -61,7 +64,7 @@ func MakeSimulatedMutant2(g *genomes.Genomes,
 
 /*
 Redistribute the silent mutations, but find the doubles first, and then put
-them back (evenly) and then the remaining singles
+them back (evenly) and then the remaining singles.
 */
 func MakeSimulatedMutant3(g *genomes.Genomes,
 	a, b int, nd *mutations.NucDistro) (*genomes.Genomes, int) {
@@ -87,4 +90,10 @@ func MakeSimulatedMutant3(g *genomes.Genomes,
 
 	ret.Names[0] = "Simulated Mutant"
 	return ret, sSingles
+}
+
+func MakeSimulatedMutant4(g *genomes.Genomes,
+	a, b int, nd *mutations.NucDistro) (*genomes.Genomes, int) {
+	// FIXME
+	return g, 0
 }

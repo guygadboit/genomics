@@ -6,7 +6,9 @@ import (
 )
 
 func ShowDirections(g *genomes.Genomes,
-	trans Transition, concs []Concentration) {
+	trans Transition, concs []Concentration) (int, int) {
+	var same, diff int
+
 	for _, conc := range concs {
 		a := string(g.Nts[0][conc.Pos:conc.Pos+conc.Length])
 		b := string(g.Nts[1][conc.Pos:conc.Pos+conc.Length])
@@ -14,13 +16,16 @@ func ShowDirections(g *genomes.Genomes,
 		var direction byte
 		if a == trans.ANts && b == trans.BNts {
 			direction = 'V'
+			same++
 		} else if a == trans.BNts && b == trans.ANts {
 			direction = '^'
+			diff++
 		} else {
 			continue
 		}
 
 		fmt.Printf("%c", direction)
 	}
-	fmt.Printf("\n")
+	fmt.Printf(" (%d, %d)\n", same, diff)
+	return same, diff
 }
