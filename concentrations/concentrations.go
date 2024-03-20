@@ -393,8 +393,8 @@ func printMaps(fname string, realMap, simMap *TransitionMap) {
 	fmt.Fprintln(fp, "Sim transition map\n")
 	simMap.Print(fp)
 
+	/*
 	c1, c2 := realMap.Compare(simMap)
-
 	fmt.Fprintln(fp, "\nSignificance of Directional map\n")
 	for k, v := range c1 {
 		fmt.Fprintf(fp, "%s: %.2f %g\n", k, v.OR, v.P)
@@ -404,6 +404,7 @@ func printMaps(fname string, realMap, simMap *TransitionMap) {
 	for k, v := range c2 {
 		fmt.Fprintf(fp, "%s: %.2f %g\n", k, v.OR, v.P)
 	}
+	*/
 
 	fp.Flush()
 	fmt.Printf("Wrote %s\n", fname)
@@ -434,7 +435,8 @@ func main() {
 	var outputClu string
 	var restrict string
 
-	flag.BoolVar(&requireSilent, "silent", false, "Look at silent "+
+	// Use -silent=false to turn off
+	flag.BoolVar(&requireSilent, "silent", true, "Look at silent "+
 		"(rather than all) mutations")
 	flag.IntVar(&iterations, "its", 100, "Number of iterations")
 	flag.StringVar(&graphName, "graph", "trans-graph.txt",
