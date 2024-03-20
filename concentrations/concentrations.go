@@ -118,92 +118,6 @@ positions:
 	return ret
 }
 
-type Transition struct {
-	ANts string
-	BNts string
-}
-
-type BidiTransition Transition
-
-type GenericTransition interface {
-	Transition | BidiTransition
-	String() string
-}
-
-type CTMap map[string]stats.ContingencyTable
-
-func (t Transition) String() string {
-	return fmt.Sprintf("%s->%s", t.ANts, t.BNts)
-}
-
-func (t BidiTransition) String() string {
-	return fmt.Sprintf("%s<->%s", t.ANts, t.BNts)
-}
-
-/*
-Return a copy in a "Canonical Order", so that we can use this as a map key on
-both nt strings regardless of which is A and which is B
-*/
-func (t Transition) CanonicalOrder() BidiTransition {
-	var a, b string
-	if t.ANts < t.BNts {
-		a, b = t.ANts, t.BNts
-	} else {
-		a, b = t.BNts, t.ANts
-	}
-	return BidiTransition{a, b}
-}
-
-type TransitionMap struct {
-	// Counts respecting direction
-	Transitions map[Transition]int
-
-	// Counts ignoring direction
-	Nondirection map[BidiTransition]int
-}
-
-func (tm *TransitionMap) Init() {
-	tm.Transitions = make(map[Transition]int)
-	tm.Nondirection = make(map[BidiTransition]int)
-}
-
-func (tm *TransitionMap) Add(t Transition) {
-	tm.Transitions[t]++
-	tm.Nondirection[t.CanonicalOrder()]++
-}
-
-func compareTransitions[T GenericTransition](
-	a, b map[T]int) CTMap {
-	ret := make(map[string]stats.ContingencyTable)
-	var total, otherTotal int
-	for _, v := range a {
-		total += v
-	}
-	for _, v := range b {
-		otherTotal += v
-	}
-
-	for k, count := range a {
-		otherCount := b[k]
-		var ct stats.ContingencyTable
-		ct.Init(count, total-count, otherCount, otherTotal-otherCount)
-		ct.FisherExact()
-		ret[k.String()] = ct
-	}
-
-	return ret
-}
-
-/*
-Set the ORs and ps for a comparison between a map generated under the null
-hypothesis
-*/
-func (tm *TransitionMap) Compare(
-	other *TransitionMap) (CTMap, CTMap) {
-	return compareTransitions(tm.Transitions, other.Transitions),
-		compareTransitions(tm.Nondirection, other.Nondirection)
-}
-
 /*
 Count which pairs of nts were involved the most often in transitions. Return an
 array sorted by most frequent first.
@@ -216,76 +130,10 @@ func CountTransitions(g *genomes.Genomes,
 	for _, conc := range concentrations {
 		aNts := string(g.Nts[a][conc.Pos : conc.Pos+conc.Length])
 		bNts := string(g.Nts[b][conc.Pos : conc.Pos+conc.Length])
-		ret.Add(Transition{aNts, bNts})
+		ret.Add(aNts, bNts)
 	}
 
 	return ret
-}
-
-func (tm *TransitionMap) Combine(other TransitionMap) {
-	for k, v := range other.Transitions {
-		tm.Transitions[k] += v
-	}
-	for k, v := range other.Nondirection {
-		tm.Nondirection[k] += v
-	}
-}
-
-func (tm TransitionMap) Print(fp *bufio.Writer) {
-	fmt.Fprintln(fp, "With direction")
-	clf := NewCountList(tm.Transitions)
-	SortPrintCountList(fp, clf)
-	fmt.Fprintln(fp)
-
-	fmt.Fprintln(fp, "Without direction")
-	cli := NewCountList(tm.Nondirection)
-	SortPrintCountList(fp, cli)
-	fmt.Fprintln(fp)
-}
-
-type GraphDatum struct {
-	Key  string
-	Real float64
-	Sim  float64
-}
-
-func GraphData(fname string, realMap, simMap *TransitionMap) {
-	f, err := os.Create(fname)
-	if err != nil {
-		log.Fatalf("Can't create file %s\n", fname)
-	}
-	defer f.Close()
-
-	data := make(map[string]GraphDatum)
-
-	l := NewCountList(realMap.Nondirection)
-	SortCountList(l)
-
-	for _, c := range l {
-		k := c.Key.String()
-		data[k] = GraphDatum{k,
-			float64(realMap.Nondirection[c.Key]),
-			float64(simMap.Nondirection[c.Key])}
-	}
-
-	var totalReal, totalSim float64
-	for _, d := range data {
-		totalReal += float64(d.Real)
-		totalSim += float64(d.Sim)
-	}
-
-	for k, v := range data {
-		data[k] = GraphDatum{k, v.Real / totalReal, v.Sim / totalSim}
-	}
-
-	fp := bufio.NewWriter(f)
-
-	for _, c := range l {
-		d := data[c.Key.String()]
-		fmt.Fprintf(fp, "%s %.4f %.4f\n", d.Key, d.Real, d.Sim)
-	}
-
-	fp.Flush()
 }
 
 func CreateHighlights(concentrations []Concentration) []genomes.Highlight {
@@ -317,12 +165,14 @@ func CompareToSim(g *genomes.Genomes, length int, minMuts int,
 	comparePair := func(a, b int) {
 		g2 := g.Filter(a, b)
 		concs := findConcentrations(g2, length, minMuts, requireSilent)
-		realMap.Combine(CountTransitions(g2, 0, 1, concs))
+		tm := CountTransitions(g2, 0, 1, concs)
+		realMap.Combine(&tm)
 		realCount := len(concs)
 
 		simG, numSilent := mutantFunc(g2, 0, 1, nd)
 		concs = findConcentrations(simG, length, minMuts, requireSilent)
-		simMap.Combine(CountTransitions(simG, 0, 1, concs))
+		tm = CountTransitions(simG, 0, 1, concs)
+		simMap.Combine(&tm)
 		simCount := len(concs)
 
 		if simCount > 0 && realCount > 0 {
@@ -365,7 +215,6 @@ func CompareToSim(g *genomes.Genomes, length int, minMuts int,
 	simAverage := average(simTotal, numComparisons)
 
 	ct.Init(realAverage, l-realAverage, simAverage, l-simAverage)
-	fmt.Println(ct)
 	ct.FisherExact()
 
 	/*
@@ -374,6 +223,8 @@ func CompareToSim(g *genomes.Genomes, length int, minMuts int,
 			float64(silentTotal)/float64(numComparisons))
 	*/
 
+	realMap.Finalize()
+	simMap.Finalize()
 	return realMap, simMap, ct
 }
 
@@ -384,30 +235,23 @@ func printMaps(fname string, realMap, simMap *TransitionMap) {
 	}
 	defer f.Close()
 
-	fp := bufio.NewWriter(f)
+	w := bufio.NewWriter(f)
+	CompareTransitionMaps(realMap, simMap, w)
+	w.Flush()
 
-	fmt.Fprintln(fp, "Real transition map\n")
-	realMap.Print(fp)
-	fmt.Fprintln(fp)
-
-	fmt.Fprintln(fp, "Sim transition map\n")
-	simMap.Print(fp)
-
-	/*
-	c1, c2 := realMap.Compare(simMap)
-	fmt.Fprintln(fp, "\nSignificance of Directional map\n")
-	for k, v := range c1 {
-		fmt.Fprintf(fp, "%s: %.2f %g\n", k, v.OR, v.P)
-	}
-
-	fmt.Fprintln(fp, "Significance of Non-Directional map\n")
-	for k, v := range c2 {
-		fmt.Fprintf(fp, "%s: %.2f %g\n", k, v.OR, v.P)
-	}
-	*/
-
-	fp.Flush()
 	fmt.Printf("Wrote %s\n", fname)
+}
+
+func graphMaps(fname string, realMap, simMap *TransitionMap) {
+	f, err := os.Create(fname)
+	if err != nil {
+		log.Fatalf("Can't create file %s\n", fname)
+	}
+	defer f.Close()
+
+	w := bufio.NewWriter(f)
+	GraphData(realMap, simMap, w)
+	w.Flush()
 }
 
 // Parse a , separated list of ints like 0,2,3
@@ -500,7 +344,7 @@ func main() {
 	realMap, simMap, ct := CompareToSim(g, 2, 2, requireSilent, iterations, f1)
 	printMaps("transitions.txt", &realMap, &simMap)
 
-	GraphData(graphName, &realMap, &simMap)
+	graphMaps(graphName, &realMap, &simMap)
 	fmt.Printf("Graph data written to %s\n", graphName)
 
 	fmt.Printf("Frequency of doubles: OR=%.4f p=%g\n", ct.OR, ct.P)
@@ -555,11 +399,11 @@ func main() {
 				g2 := g.Filter(i, j)
 				doubles.Find(g2, 2, 2, false)
 				fmt.Printf("%d-%d: ", i, j)
-				x, y := ShowDirections(g2, Transition{"CT", "TC"}, doubles.Concs)
+				x, y := ShowDirections(g2, OldTransition{"CT", "TC"}, doubles.Concs)
 
 				singles.Find(g2, 1, 1, false)
 				singles.Subtract(&doubles)
-				z, w := ShowDirections(g2, Transition{"C", "T"}, singles.Concs)
+				z, w := ShowDirections(g2, OldTransition{"C", "T"}, singles.Concs)
 
 				inverted := (x < y) != (z < w)
 				if inverted {
@@ -579,11 +423,11 @@ func main() {
 			g2 := g.Filter(i, j)
 			doubles.Find(g2, 2, 2, false)
 			fmt.Printf("%d-%d: ", i, j)
-			ShowDirections(g2, Transition{"CT", "TC"}, doubles.Concs)
+			ShowDirections(g2, OldTransition{"CT", "TC"}, doubles.Concs)
 
 			singles.Find(g2, 1, 1, false)
 			singles.Subtract(&doubles)
-			ShowDirections(g2, Transition{"C", "T"}, singles.Concs)
+			ShowDirections(g2, OldTransition{"C", "T"}, singles.Concs)
 		}
 	*/
 

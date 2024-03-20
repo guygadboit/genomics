@@ -6,7 +6,7 @@ import (
 )
 
 func ShowDirections(g *genomes.Genomes,
-	trans Transition, concs []Concentration) (int, int) {
+	trans UndirectedTransition, concs []Concentration) (int, int) {
 	var same, diff int
 
 	for _, conc := range concs {
