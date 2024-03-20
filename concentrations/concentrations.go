@@ -125,6 +125,13 @@ type Transition struct {
 
 type BidiTransition Transition
 
+type GenericTransition interface {
+	Transition | BidiTransition
+	String() string
+}
+
+type CTMap map[string]stats.ContingencyTable
+
 func (t Transition) String() string {
 	return fmt.Sprintf("%s->%s", t.ANts, t.BNts)
 }
@@ -152,17 +159,49 @@ type TransitionMap struct {
 	Transitions map[Transition]int
 
 	// Counts ignoring direction
-	Bidirection map[BidiTransition]int
+	Nondirection map[BidiTransition]int
 }
 
 func (tm *TransitionMap) Init() {
 	tm.Transitions = make(map[Transition]int)
-	tm.Bidirection = make(map[BidiTransition]int)
+	tm.Nondirection = make(map[BidiTransition]int)
 }
 
 func (tm *TransitionMap) Add(t Transition) {
 	tm.Transitions[t]++
-	tm.Bidirection[t.CanonicalOrder()]++
+	tm.Nondirection[t.CanonicalOrder()]++
+}
+
+func compareTransitions[T GenericTransition](
+	a, b map[T]int) CTMap {
+	ret := make(map[string]stats.ContingencyTable)
+	var total, otherTotal int
+	for _, v := range a {
+		total += v
+	}
+	for _, v := range b {
+		otherTotal += v
+	}
+
+	for k, count := range a {
+		otherCount := b[k]
+		var ct stats.ContingencyTable
+		ct.Init(count, total-count, otherCount, otherTotal-otherCount)
+		ct.FisherExact()
+		ret[k.String()] = ct
+	}
+
+	return ret
+}
+
+/*
+Set the ORs and ps for a comparison between a map generated under the null
+hypothesis
+*/
+func (tm *TransitionMap) Compare(
+	other *TransitionMap) (CTMap, CTMap) {
+	return compareTransitions(tm.Transitions, other.Transitions),
+		compareTransitions(tm.Nondirection, other.Nondirection)
 }
 
 /*
@@ -187,20 +226,19 @@ func (tm *TransitionMap) Combine(other TransitionMap) {
 	for k, v := range other.Transitions {
 		tm.Transitions[k] += v
 	}
-	for k, v := range other.Bidirection {
-		tm.Bidirection[k] += v
+	for k, v := range other.Nondirection {
+		tm.Nondirection[k] += v
 	}
 }
 
 func (tm TransitionMap) Print(fp *bufio.Writer) {
 	fmt.Fprintln(fp, "With direction")
-
 	clf := NewCountList(tm.Transitions)
 	SortPrintCountList(fp, clf)
 	fmt.Fprintln(fp)
 
 	fmt.Fprintln(fp, "Without direction")
-	cli := NewCountList(tm.Bidirection)
+	cli := NewCountList(tm.Nondirection)
 	SortPrintCountList(fp, cli)
 	fmt.Fprintln(fp)
 }
@@ -220,14 +258,14 @@ func GraphData(fname string, realMap, simMap *TransitionMap) {
 
 	data := make(map[string]GraphDatum)
 
-	l := NewCountList(realMap.Bidirection)
+	l := NewCountList(realMap.Nondirection)
 	SortCountList(l)
 
 	for _, c := range l {
 		k := c.Key.String()
 		data[k] = GraphDatum{k,
-			float64(realMap.Bidirection[c.Key]),
-			float64(simMap.Bidirection[c.Key])}
+			float64(realMap.Nondirection[c.Key]),
+			float64(simMap.Nondirection[c.Key])}
 	}
 
 	var totalReal, totalSim float64
@@ -339,7 +377,7 @@ func CompareToSim(g *genomes.Genomes, length int, minMuts int,
 	return realMap, simMap, ct
 }
 
-func printMaps(fname string, realMap, simMap TransitionMap) {
+func printMaps(fname string, realMap, simMap *TransitionMap) {
 	f, err := os.Create(fname)
 	if err != nil {
 		log.Fatal(err)
@@ -354,6 +392,18 @@ func printMaps(fname string, realMap, simMap TransitionMap) {
 
 	fmt.Fprintln(fp, "Sim transition map\n")
 	simMap.Print(fp)
+
+	c1, c2 := realMap.Compare(simMap)
+
+	fmt.Fprintln(fp, "\nSignificance of Directional map\n")
+	for k, v := range c1 {
+		fmt.Fprintf(fp, "%s: %.2f %g\n", k, v.OR, v.P)
+	}
+
+	fmt.Fprintln(fp, "Significance of Non-Directional map\n")
+	for k, v := range c2 {
+		fmt.Fprintf(fp, "%s: %.2f %g\n", k, v.OR, v.P)
+	}
 
 	fp.Flush()
 	fmt.Printf("Wrote %s\n", fname)
@@ -434,7 +484,6 @@ func main() {
 		}
 		g2.SaveWithTranslation("highlights.clu", highlights, all...)
 		fmt.Printf("Written highlights.clu\n")
-		return
 	}
 
 	var f1, f2 simulation.MutantFunc
@@ -447,7 +496,7 @@ func main() {
 	}
 
 	realMap, simMap, ct := CompareToSim(g, 2, 2, requireSilent, iterations, f1)
-	printMaps("transitions.txt", realMap, simMap)
+	printMaps("transitions.txt", &realMap, &simMap)
 
 	GraphData(graphName, &realMap, &simMap)
 	fmt.Printf("Graph data written to %s\n", graphName)
