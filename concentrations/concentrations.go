@@ -356,7 +356,7 @@ func main() {
 	flag.BoolVar(&requireSilent, "silent", false, "Look at silent "+
 		"(rather than all) mutations")
 	flag.IntVar(&iterations, "its", 100, "Number of iterations")
-	flag.StringVar(&graphName, "graph", "transitions.txt",
+	flag.StringVar(&graphName, "graph", "trans-graph.txt",
 		"graph data filename")
 	flag.StringVar(&inputFile, "input", "../fasta/SARS2-relatives.fasta",
 		"Input file (aligned fasta)")
