@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"slices"
+	"bufio"
 )
 
 type Count[T comparable] struct {
@@ -30,9 +31,9 @@ func SortCountList[T comparable](cl CountList[T]) {
 	})
 }
 
-func SortPrintCountList[T comparable](cl CountList[T]) {
+func SortPrintCountList[T comparable](fp *bufio.Writer, cl CountList[T]) {
 	SortCountList(cl)
 	for _, c := range cl {
-		fmt.Printf("%s  %d\n", c.Key, c.Count)
+		fmt.Fprintf(fp, "%s  %d\n", c.Key, c.Count)
 	}
 }

@@ -13,8 +13,8 @@ import (
 	"math"
 	"math/rand"
 	"os"
-	"strings"
 	"strconv"
+	"strings"
 )
 
 /*
@@ -123,7 +123,13 @@ type Transition struct {
 	BNts string
 }
 
+type BidiTransition Transition
+
 func (t Transition) String() string {
+	return fmt.Sprintf("%s->%s", t.ANts, t.BNts)
+}
+
+func (t BidiTransition) String() string {
 	return fmt.Sprintf("%s<->%s", t.ANts, t.BNts)
 }
 
@@ -131,33 +137,31 @@ func (t Transition) String() string {
 Return a copy in a "Canonical Order", so that we can use this as a map key on
 both nt strings regardless of which is A and which is B
 */
-func (t Transition) CanonicalOrder() Transition {
+func (t Transition) CanonicalOrder() BidiTransition {
 	var a, b string
 	if t.ANts < t.BNts {
 		a, b = t.ANts, t.BNts
 	} else {
 		a, b = t.BNts, t.ANts
 	}
-	return Transition{a, b}
+	return BidiTransition{a, b}
 }
 
 type TransitionMap struct {
-	Forwards  map[string]int // Counts by ANts
-	Backwards map[string]int // Counts by BNts
+	// Counts respecting direction
+	Transitions map[Transition]int
 
-	// Counts by all nts involved, regardless of direction
-	Bidirection map[Transition]int
+	// Counts ignoring direction
+	Bidirection map[BidiTransition]int
 }
 
 func (tm *TransitionMap) Init() {
-	tm.Forwards = make(map[string]int)
-	tm.Backwards = make(map[string]int)
-	tm.Bidirection = make(map[Transition]int)
+	tm.Transitions = make(map[Transition]int)
+	tm.Bidirection = make(map[BidiTransition]int)
 }
 
 func (tm *TransitionMap) Add(t Transition) {
-	tm.Forwards[t.ANts]++
-	tm.Backwards[t.BNts]++
+	tm.Transitions[t]++
 	tm.Bidirection[t.CanonicalOrder()]++
 }
 
@@ -180,33 +184,25 @@ func CountTransitions(g *genomes.Genomes,
 }
 
 func (tm *TransitionMap) Combine(other TransitionMap) {
-	for k, v := range other.Forwards {
-		tm.Forwards[k] += v
-	}
-	for k, v := range other.Backwards {
-		tm.Backwards[k] += v
+	for k, v := range other.Transitions {
+		tm.Transitions[k] += v
 	}
 	for k, v := range other.Bidirection {
 		tm.Bidirection[k] += v
 	}
 }
 
-func (tm TransitionMap) Print() {
-	fmt.Println("Forwards")
+func (tm TransitionMap) Print(fp *bufio.Writer) {
+	fmt.Fprintln(fp, "With direction")
 
-	clf := NewCountList(tm.Forwards)
-	SortPrintCountList(clf)
-	fmt.Println()
+	clf := NewCountList(tm.Transitions)
+	SortPrintCountList(fp, clf)
+	fmt.Fprintln(fp)
 
-	fmt.Println("Backwards")
-	clb := NewCountList(tm.Backwards)
-	SortPrintCountList(clb)
-	fmt.Println()
-
-	fmt.Println("Bidirection")
+	fmt.Fprintln(fp, "Without direction")
 	cli := NewCountList(tm.Bidirection)
-	SortPrintCountList(cli)
-	fmt.Println()
+	SortPrintCountList(fp, cli)
+	fmt.Fprintln(fp)
 }
 
 type GraphDatum struct {
@@ -343,6 +339,40 @@ func CompareToSim(g *genomes.Genomes, length int, minMuts int,
 	return realMap, simMap, ct
 }
 
+func printMaps(fname string, realMap, simMap TransitionMap) {
+	f, err := os.Create(fname)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer f.Close()
+
+	fp := bufio.NewWriter(f)
+
+	fmt.Fprintln(fp, "Real transition map\n")
+	realMap.Print(fp)
+	fmt.Fprintln(fp)
+
+	fmt.Fprintln(fp, "Sim transition map\n")
+	simMap.Print(fp)
+
+	fp.Flush()
+	fmt.Printf("Wrote %s\n", fname)
+}
+
+// Parse a , separated list of ints like 0,2,3
+func parseInts(s string) []int {
+	fields := strings.Split(s, ",")
+	ret := make([]int, len(fields))
+	for i, f := range fields {
+		var err error
+		ret[i], err = strconv.Atoi(f)
+		if err != nil {
+			log.Fatalf("Parse error: <%s>\n", s)
+		}
+	}
+	return ret
+}
+
 func main() {
 	var requireSilent bool
 	var iterations int
@@ -352,6 +382,7 @@ func main() {
 	var inputFile, orfs string
 	var summary bool
 	var outputClu string
+	var restrict string
 
 	flag.BoolVar(&requireSilent, "silent", false, "Look at silent "+
 		"(rather than all) mutations")
@@ -365,6 +396,8 @@ func main() {
 		"Just print a summary of the genomes")
 	flag.StringVar(&outputClu, "clu", "", "Output a clu-style file of the "+
 		"genomes specified. Use e.g. 0,1 for the first two")
+	flag.StringVar(&restrict, "restrict", "", "Restrict genomes to "+
+		"those specified. Use e.g. 0,1 for the first two")
 
 	flag.BoolVar(&simulateTriples, "triples", false, "Look at triples")
 	flag.BoolVar(&simulateTags, "tags", false, "Look at 6.4 tags")
@@ -376,6 +409,10 @@ func main() {
 	}
 
 	g := genomes.LoadGenomes(inputFile, orfs, false)
+	if restrict != "" {
+		which := parseInts(restrict)
+		g = g.Filter(which...)
+	}
 	g.RemoveGaps()
 
 	if summary {
@@ -384,15 +421,7 @@ func main() {
 	}
 
 	if outputClu != "" {
-		fields := strings.Split(outputClu, ",")
-		which := make([]int, len(fields))
-		for i, f := range fields {
-			var err error
-			which[i], err = strconv.Atoi(f)
-			if err != nil {
-				log.Fatalf("Invalid index specification: <%s>\n", outputClu)
-			}
-		}
+		which := parseInts(outputClu)
 		g2 := g.Filter(which...)
 		var concs Concentrations
 		concs.Find(g2, 2, 2, requireSilent)
@@ -418,13 +447,7 @@ func main() {
 	}
 
 	realMap, simMap, ct := CompareToSim(g, 2, 2, requireSilent, iterations, f1)
-
-	fmt.Println("Real transition map")
-	realMap.Print()
-	fmt.Println()
-
-	fmt.Println("Sim transition map")
-	simMap.Print()
+	printMaps("transitions.txt", realMap, simMap)
 
 	GraphData(graphName, &realMap, &simMap)
 	fmt.Printf("Graph data written to %s\n", graphName)
