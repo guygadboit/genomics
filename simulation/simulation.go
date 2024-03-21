@@ -58,7 +58,7 @@ func MakeSimulatedMutant2(g *genomes.Genomes,
 	mutations.MutateSilent(ret, nd, silent, 1)
 	mutations.MutateNonSilent(ret, nd, nonSilent, 1)
 
-	ret.Names[0] = "Simulated Mutant"
+	ret.Names[0] = "Type 2 Simulated Mutant"
 	return ret, silent
 }
 
@@ -82,13 +82,13 @@ func MakeSimulatedMutant3(g *genomes.Genomes,
 	ret.DeepCopy(0)
 	mutations.RevertSilent(ret, 0, 1)
 
-	// Now put back in the doubles
+	// Now put back in the right number of doubles
 	mutations.MutateSilent(ret, nd, sDoubles, 2)
 
 	// And then any remaining singles
 	mutations.MutateSilent(ret, nd, sSingles-sDoubles*2, 1)
 
-	ret.Names[0] = "Simulated Mutant"
+	ret.Names[0] = "Type 3 Simulated Mutant"
 	return ret, sSingles
 }
 
@@ -111,6 +111,6 @@ func MakeSimulatedMutant4(g *genomes.Genomes,
 	mutations.MutateSilent(ret, nd, sSingles, 1)
 	mutations.MutateNonSilent(ret, nd, nsSingles, 1)
 
-	ret.Names[0] = "Simulated Mutant"
+	ret.Names[0] = "Type 4 Simulated Mutant"
 	return ret, sSingles
 }

@@ -8,15 +8,15 @@ import (
 )
 
 /*
-if wantSilent, then make the muts silent, otherwise make them non-silent
-(!wantSilent doesn't mean you don't care, it means you actually want num
-non-silent muts) numSeq is 1 if you want single-nt muts. It's 2 if you want
-"SDMs" ("sequential double mutations") etc.
+genome should contain two genomes. We mutate the first one. If wantSilent, we
+make sure the changes are silent relative to the second one. If !wantSilent, we
+make sure they are non-silent. Pass 2 into numSeq if you want to mutate two
+adjacent nts at once.
 */
 func mutate(genome *genomes.Genomes,
 	nucDist *NucDistro, num int, numSeq int, wantSilent bool) int {
 	numMuts := 0
-	alreadyDone := make(map[int]int)
+	alreadyDone := make(map[int]bool)
 	nts := genome.Nts[0]
 	maxStart := genome.Length() - numSeq
 
@@ -24,38 +24,43 @@ func mutate(genome *genomes.Genomes,
 	// true if we succeeded.
 	tryMutate := func(pos int) bool {
 		done, _ := alreadyDone[pos]
-		if done != 0 {
+		if done {
 			return false
 		}
 
 		existing := nts[pos : pos+numSeq]
+		if !utils.IsRegularPattern(existing) {
+			return false
+		}
+
 		replacement := make([]byte, numSeq)
+		other := genome.Nts[1][pos : pos+numSeq]
 
 	findingReplacement:
 		for {
 			nucDist.RandomSequence(replacement)
 			for i := 0; i < len(existing); i++ {
-				if existing[i] == replacement[i] {
-					// It needs to be all different
+				if other[i] == replacement[i] {
+					// It needs to be all different to what's there in the
+					// other genome.
 					continue findingReplacement
 				}
 			}
 			break
 		}
 
-		var env genomes.Environment
-		err := env.Init(genome, pos, numSeq, 0)
+		err, silent, _ := genomes.IsSilentWithReplacement(
+			genome, pos, 0, 1, replacement)
 		if err != nil {
 			// You get an error if pos is not in an ORF
 			return false
 		}
-		silent, _ := env.Replace(replacement)
-		success := silent == wantSilent
 
+		success := silent == wantSilent
 		if success {
 			copy(nts[pos:pos+numSeq], replacement)
 			for i := pos; i < pos+numSeq; i++ {
-				alreadyDone[i] = 1
+				alreadyDone[i] = true
 			}
 			numMuts++
 		}
@@ -128,11 +133,14 @@ outer:
 		}
 
 		_, isSilent, numMuts := genomes.IsSilent(g, i, seqLen, 0, 1)
+		if numMuts == 0 {
+			continue
+		}
 
 		if isSilent {
-			silent += numMuts
+			silent++
 		} else {
-			nonSilent += numMuts
+			nonSilent++
 		}
 	}
 	return silent, nonSilent

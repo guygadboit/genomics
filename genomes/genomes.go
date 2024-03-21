@@ -216,7 +216,7 @@ func (g *Genomes) Slice(which, start, end int) []byte {
 Whereever there is a gap in the first genome of an alignment, just remove that
 column. You will need to do this for comparisons involving translations to work
 as the Orfs don't take into account gaps, and neither do Environment
-operations. Returns how many we dropped
+operations. Returns how many we dropped.
 */
 func (g *Genomes) RemoveGaps() int {
 	var ret int

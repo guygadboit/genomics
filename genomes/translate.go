@@ -176,7 +176,7 @@ func (orfs Orfs) GetCodonOffset(pos int) (int, int, error) {
 // completely contains it.
 type Environment struct {
 	start int // Index into the original genome
-	len   int // How many nts in the subsequence this represents
+	length   int // How many nts in the subsequence this represents
 
 	window  []byte // The whole aligned section
 	offset  int    // The offset to the start of the subsequence
@@ -210,7 +210,7 @@ func TranslateAligned(nts []byte) []byte {
 func (env *Environment) Init(genome *Genomes,
 	pos int, n int, which int) error {
 	env.start = pos
-	env.len = n
+	env.length = n
 
 	windowStart, codonOffset, err := genome.Orfs.GetCodonOffset(pos)
 	if err != nil {
@@ -232,19 +232,41 @@ func (env *Environment) Init(genome *Genomes,
 	return nil
 }
 
+/*
+Actually rewrite the environment with replacement nts. Not to be confused with
+"Replace" which tells you whether it would be silent if you did rewrite it (but
+doesn't actually do so).
+*/
+func (env *Environment) Rewrite(replacement []byte) error {
+    if len(replacement) != env.length {
+        return errors.New("Replacement is the wrong length")
+    }
+	if !utils.IsRegularPattern(replacement) {
+        return errors.New("Non-nt in replacement sequence")
+    }
+
+    newWindow := make([]byte, len(env.window))
+    copy(newWindow, env.window)
+    copy(newWindow[env.offset:env.offset+env.length], replacement)
+
+    env.window = newWindow
+	env.protein = TranslateAligned(env.window)
+	return nil
+}
+
 func (env *Environment) Subsequence() []byte {
-	return env.window[env.offset : env.offset+env.len]
+	return env.window[env.offset : env.offset+env.length]
 }
 
 func (env *Environment) Protein() []byte {
-	return env.protein[env.offset : env.offset+env.len]
+	return env.protein[env.offset : env.offset+env.length]
 }
 
 // The protein in more conventional format, showing each AA one at a time
 // instead of in triplets.
 func (env *Environment) ProteinShort() []byte {
 	ret := make([]byte, 0)
-	for i := env.offset; i < env.offset+env.len; i += 3 {
+	for i := env.offset; i < env.offset+env.length; i += 3 {
 		ret = append(ret, env.protein[i])
 	}
 	return ret
@@ -262,7 +284,7 @@ that be silent, and how many mutations would it contain?
 func (env *Environment) Replace(replacement []byte) (bool, int) {
 	altWindow := make([]byte, len(env.window))
 	copy(altWindow, env.window)
-	copy(altWindow[env.offset:env.offset+env.len], replacement)
+	copy(altWindow[env.offset:env.offset+env.length], replacement)
 
 	protein := env.protein
 	altProtein := TranslateAligned(altWindow)
@@ -277,7 +299,7 @@ func (env *Environment) Replace(replacement []byte) (bool, int) {
 
 	subseq := env.Subsequence()
 	differences := 0
-	for i := 0; i < env.len; i++ {
+	for i := 0; i < env.length; i++ {
 		if replacement[i] != subseq[i] {
 			differences++
 		}
@@ -384,7 +406,7 @@ func (env *Environment) FindAlternatives(maxMuts int) Alternatives {
 	for more := true; more; {
 		var alt []byte
 		alt, more = it.Next()
-		start, end := env.offset, env.offset+env.len
+		start, end := env.offset, env.offset+env.length
 
 		// The alternative is no good if it differs outside the subsequence
 		if !reflect.DeepEqual(alt[:start], env.window[:start]) {
@@ -396,7 +418,7 @@ func (env *Environment) FindAlternatives(maxMuts int) Alternatives {
 		}
 
 		numMuts := 0
-		for i := 0; i < env.len; i++ {
+		for i := 0; i < env.length; i++ {
 			if alt[start+i] != existing[i] {
 				numMuts++
 			}
@@ -536,6 +558,37 @@ func IsSilent(g *Genomes, pos int, length int, a, b int) (error, bool, int) {
 		g.Nts[b][pos:pos+length])
 
 	err := envA.Init(g, pos, length, a)
+	if err != nil {
+		return err, false, numMuts
+	}
+
+	err = envB.Init(g, pos, length, b)
+	if err != nil {
+		return err, false, numMuts
+	}
+
+	silent := reflect.DeepEqual(envA.Protein(), envB.Protein())
+	return nil, silent, numMuts
+}
+
+/*
+If you replaced a with replacement at pos, would it be silent relative to b?
+Returns error, silent and the number of muts
+*/
+func IsSilentWithReplacement(g *Genomes,
+    pos int, a, b int, replacement []byte) (error, bool, int) {
+	var envA, envB Environment
+    length := len(replacement)
+
+	numMuts := utils.NumMuts(g.Nts[a][pos:pos+length],
+		g.Nts[b][pos:pos+length])
+
+	err := envA.Init(g, pos, length, a)
+	if err != nil {
+		return err, false, numMuts
+	}
+
+    err = envA.Rewrite(replacement)
 	if err != nil {
 		return err, false, numMuts
 	}

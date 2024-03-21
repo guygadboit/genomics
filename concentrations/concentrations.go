@@ -190,7 +190,7 @@ func CompareToSim(g *genomes.Genomes, length int, minMuts int,
 	if iterations == -1 {
 		for i := 0; i < n; i++ {
 			for j := 0; j < i; j++ {
-				comparePair(i, j)
+				comparePair(j, i)
 			}
 		}
 	} else {
@@ -220,12 +220,6 @@ func CompareToSim(g *genomes.Genomes, length int, minMuts int,
 
 	ct.Init(realAverage, l-realAverage, simAverage, l-simAverage)
 	ct.FisherExact()
-
-	/*
-		fmt.Printf("%d.%d Average ratio: %.4f (%.2f silent muts)\n",
-			length, minMuts, float64(realTotal)/float64(simTotal),
-			float64(silentTotal)/float64(numComparisons))
-	*/
 
 	realMap.Finalize()
 	simMap.Finalize()
@@ -348,7 +342,7 @@ func main() {
 	}
 
 	if simulateTags {
-		_, _, ct3 := CompareToSim(g, 6, 4, requireSilent, iterations, f2)
+		 _, _, ct3 := CompareToSim(g, 6, 4, requireSilent, iterations, f2)
 		fmt.Printf("CT for tags: %s\n", ct3.String())
 		fmt.Printf("Frequency of 6.4 tags if you simulate "+
 			"doubles: OR=%.4f p=%g\n", ct3.OR, ct3.P)

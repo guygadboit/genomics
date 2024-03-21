@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math/rand"
 	"genomics/genomes"
+	"genomics/utils"
 )
 
 // Counts for each nucleotide in a genome
@@ -16,13 +17,9 @@ func (nd *NucDistro) Count(g *genomes.Genomes) {
 	for i := 0; i < g.NumGenomes(); i++ {
 		for j := 0; j < g.Length(); j++ {
 			nt := g.Nts[i][j]
-
-			switch nt {
-			case 'R':
-				fallthrough
-			case 'Y':
-				continue
-			}
+            if !utils.IsRegularNt(nt) {
+                continue
+            }
 
 			count, _ := nd.nts[nt]
 			nd.nts[nt] = count + 1
