@@ -9,12 +9,11 @@ import (
 	"genomics/mutations"
 	"genomics/simulation"
 	"genomics/stats"
+	"genomics/utils"
 	"log"
 	"math"
 	"math/rand"
 	"os"
-	"strconv"
-	"strings"
 )
 
 /*
@@ -163,6 +162,11 @@ func CompareToSim(g *genomes.Genomes, length int, minMuts int,
 	simMap.Init()
 
 	comparePair := func(a, b int) {
+		/*
+		If there are only two genomes, and lots of iterations, you will keep
+		doing this same real comparison over and over again. We could cache the
+		results. TODO
+		*/
 		g2 := g.Filter(a, b)
 		concs := findConcentrations(g2, length, minMuts, requireSilent)
 		tm := CountTransitions(g2, 0, 1, concs)
@@ -254,27 +258,13 @@ func graphMaps(fname string, realMap, simMap *TransitionMap) {
 	w.Flush()
 }
 
-// Parse a , separated list of ints like 0,2,3
-func parseInts(s string) []int {
-	fields := strings.Split(s, ",")
-	ret := make([]int, len(fields))
-	for i, f := range fields {
-		var err error
-		ret[i], err = strconv.Atoi(f)
-		if err != nil {
-			log.Fatalf("Parse error: <%s>\n", s)
-		}
-	}
-	return ret
-}
-
 func main() {
 	var requireSilent bool
 	var iterations int
 	var graphName string
 	var simulateTriples bool
 	var simulateTags bool
-	var inputFile, orfs string
+	var orfs string
 	var summary bool
 	var outputClu string
 	var restrict string
@@ -282,11 +272,10 @@ func main() {
 	// Use -silent=false to turn off
 	flag.BoolVar(&requireSilent, "silent", true, "Look at silent "+
 		"(rather than all) mutations")
-	flag.IntVar(&iterations, "its", 100, "Number of iterations")
+	flag.IntVar(&iterations, "its", 100,
+		"Number of iterations (-1 for exhaustive)")
 	flag.StringVar(&graphName, "graph", "trans-graph.txt",
 		"graph data filename")
-	flag.StringVar(&inputFile, "input", "../fasta/SARS2-relatives.fasta",
-		"Input file (aligned fasta)")
 	flag.StringVar(&orfs, "orfs", "", "ORFS file")
 	flag.BoolVar(&summary, "summary", false,
 		"Just print a summary of the genomes")
@@ -304,9 +293,9 @@ func main() {
 		log.Fatalf("This requires an ORFs file")
 	}
 
-	g := genomes.LoadGenomes(inputFile, orfs, false)
+	g := genomes.LoadGenomes(flag.Arg(0), orfs, false)
 	if restrict != "" {
-		which := parseInts(restrict)
+		which := utils.ParseInts(restrict)
 		g = g.Filter(which...)
 	}
 	g.RemoveGaps()
@@ -317,11 +306,11 @@ func main() {
 	}
 
 	if outputClu != "" {
-		which := parseInts(outputClu)
+		which := utils.ParseInts(outputClu)
 		g2 := g.Filter(which...)
 		var concs Concentrations
 		concs.Find(g2, 2, 2, requireSilent)
-
+		fmt.Printf("%d doubles found\n", len(concs.Concs))
 		highlights := CreateHighlights(concs.Concs)
 
 		all := make([]int, len(which))
@@ -330,6 +319,7 @@ func main() {
 		}
 		g2.SaveWithTranslation("highlights.clu", highlights, all...)
 		fmt.Printf("Written highlights.clu\n")
+		return
 	}
 
 	var f1, f2 simulation.MutantFunc
@@ -347,16 +337,19 @@ func main() {
 	graphMaps(graphName, &realMap, &simMap)
 	fmt.Printf("Graph data written to %s\n", graphName)
 
+	fmt.Printf("CT for doubles: %s\n", ct.String())
 	fmt.Printf("Frequency of doubles: OR=%.4f p=%g\n", ct.OR, ct.P)
 
 	if simulateTriples {
 		_, _, ct2 := CompareToSim(g, 3, 3, requireSilent, iterations, f2)
+		fmt.Printf("CT for triples: %s\n", ct2.String())
 		fmt.Printf("Frequency of triples if you simulate "+
 			"doubles: OR=%.4f p=%g\n", ct2.OR, ct2.P)
 	}
 
 	if simulateTags {
 		_, _, ct3 := CompareToSim(g, 6, 4, requireSilent, iterations, f2)
+		fmt.Printf("CT for tags: %s\n", ct3.String())
 		fmt.Printf("Frequency of 6.4 tags if you simulate "+
 			"doubles: OR=%.4f p=%g\n", ct3.OR, ct3.P)
 	}
