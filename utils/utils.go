@@ -170,9 +170,9 @@ func ToSet[S comparable](s []S) map[S]bool {
 	return ret
 }
 
-// Parse a , separated list of ints like 0,2,3
-func ParseInts(s string) []int {
-	fields := strings.Split(s, ",")
+// Parse a , etc. separated list of ints like 0,2,3
+func ParseInts(s string, sep string) []int {
+	fields := strings.Split(s, sep)
 	ret := make([]int, len(fields))
 	for i, f := range fields {
 		var err error

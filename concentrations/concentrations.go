@@ -343,7 +343,7 @@ func main() {
 
 	g := genomes.LoadGenomes(flag.Arg(0), orfs, false)
 	if restrict != "" {
-		which := utils.ParseInts(restrict)
+		which := utils.ParseInts(restrict, ",")
 		g = g.Filter(which...)
 	}
 	g.RemoveGaps()
@@ -354,7 +354,7 @@ func main() {
 	}
 
 	if outputClu != "" {
-		which := utils.ParseInts(outputClu)
+		which := utils.ParseInts(outputClu, ",")
 		g2 := g.Filter(which...)
 		var concs Concentrations
 		concs.Find(g2, 2, 2, requireSilent)

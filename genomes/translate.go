@@ -207,6 +207,23 @@ func TranslateAligned(nts []byte) []byte {
 	return ret
 }
 
+/*
+Assume nts are codon aligned and return a translation, with one amino-acid
+letter per aa, so something like LRI
+*/
+func TranslateAlignedShort(nts []byte) []byte {
+	ret := make([]byte, 0)
+
+	for i := 0; i < len(nts); i += 3 {
+		aa, there := CodonTable[string(nts[i:i+3])]
+		if !there {
+			aa = '-'
+		}
+		ret = append(ret, aa)
+	}
+	return ret
+}
+
 func (env *Environment) Init(genome *Genomes,
 	pos int, n int, which int) error {
 	env.start = pos
