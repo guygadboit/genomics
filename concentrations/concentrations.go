@@ -14,6 +14,7 @@ import (
 	"math"
 	"math/rand"
 	"os"
+	"slices"
 )
 
 /*
@@ -143,54 +144,70 @@ func CreateHighlights(concentrations []Concentration) []genomes.Highlight {
 	return ret
 }
 
+type PairTable struct {
+	stats.ContingencyTable
+	a, b int
+}
+
 /*
 Compare counts of concentrations to simulations. If iterations is -1, do an
 exhaustive comparison. Otherwise do a Montecarlo with that many its. Returns
 the real and simulated transition maps, and a contingency table of the average
 numbers of concentrations in the real and simulated comparisons.
+
+Every time we do a simulation we run it for simIts and average them.
 */
 func CompareToSim(g *genomes.Genomes, length int, minMuts int,
-	requireSilent bool, iterations int,
+	requireSilent bool, iterations int, simIts int,
 	mutantFunc simulation.MutantFunc) (TransitionMap, TransitionMap,
-	stats.ContingencyTable) {
-	var simTotal, realTotal, silentTotal, numComparisons int
+	[]PairTable, stats.ContingencyTable) {
+	pairTables := make([]PairTable, 0)
+	var simTotal, realTotal, numComparisons int
 	n := g.NumGenomes()
 	nd := mutations.NewNucDistro(g)
-	var realMap, simMap TransitionMap
+	l := g.Length()
 
+	var realMap, simMap TransitionMap
 	realMap.Init()
 	simMap.Init()
 
-	comparePair := func(a, b int) {
-		/*
-		If there are only two genomes, and lots of iterations, you will keep
-		doing this same real comparison over and over again. We could cache the
-		results. TODO
-		*/
+	comparePair := func(a, b int) PairTable {
 		g2 := g.Filter(a, b)
 		concs := findConcentrations(g2, length, minMuts, requireSilent)
-		tm := CountTransitions(g2, 0, 1, concs)
-		realMap.Combine(&tm)
+		ourRealMap := CountTransitions(g2, 0, 1, concs)
+		realMap.Combine(&ourRealMap)
 		realCount := len(concs)
 
-		simG, numSilent := mutantFunc(g2, 0, 1, nd)
-		concs = findConcentrations(simG, length, minMuts, requireSilent)
-		tm = CountTransitions(simG, 0, 1, concs)
-		simMap.Combine(&tm)
-		simCount := len(concs)
+		var ourSimMap TransitionMap
+		ourSimMap.Init()
+		var simCount int
 
-		if simCount > 0 && realCount > 0 {
-			simTotal += simCount
-			realTotal += realCount
-			silentTotal += numSilent
-			numComparisons++
+		for i := 0; i < simIts; i++ {
+			simG, _ := mutantFunc(g2, 0, 1, nd)
+			concs = findConcentrations(simG, length, minMuts, requireSilent)
+			tm := CountTransitions(simG, 0, 1, concs)
+			ourSimMap.Combine(&tm)
+			simCount += len(concs)
 		}
+		simCount /= simIts
+		ourSimMap.Divide(simIts)
+		simMap.Combine(&ourSimMap)
+
+		simTotal += simCount
+		realTotal += realCount
+		numComparisons++
+
+		var ret PairTable
+		ret.Init(realCount, l-realCount, simCount, l-simCount)
+		ret.a, ret.b = a, b
+		return ret
 	}
 
 	if iterations == -1 {
 		for i := 0; i < n; i++ {
 			for j := 0; j < i; j++ {
-				comparePair(j, i)
+				pt := comparePair(j, i)
+				pairTables = append(pairTables, pt)
 			}
 		}
 	} else {
@@ -202,12 +219,12 @@ func CompareToSim(g *genomes.Genomes, length int, minMuts int,
 					break
 				}
 			}
-			comparePair(a, b)
+			pt := comparePair(a, b)
+			pairTables = append(pairTables, pt)
 		}
 	}
 
 	var ct stats.ContingencyTable
-	l := g.Length()
 
 	average := func(count, total int) int {
 		if total == 0 {
@@ -223,7 +240,7 @@ func CompareToSim(g *genomes.Genomes, length int, minMuts int,
 
 	realMap.Finalize()
 	simMap.Finalize()
-	return realMap, simMap, ct
+	return realMap, simMap, pairTables, ct
 }
 
 func printMaps(fname string, realMap, simMap *TransitionMap) {
@@ -252,9 +269,44 @@ func graphMaps(fname string, realMap, simMap *TransitionMap) {
 	w.Flush()
 }
 
+func printPairTables(fname string, pts []PairTable) {
+	f, err := os.Create(fname)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer f.Close()
+
+	w := bufio.NewWriter(f)
+
+	for i, _ := range pts {
+		pts[i].CalcOR()
+	}
+
+	slices.SortFunc(pts, func(a, b PairTable) int {
+		if a.OR < b.OR {
+			return 1
+		}
+		return -1
+	})
+
+	for i, pt := range pts {
+		fmt.Fprintf(w, "%d-%d %s OR=%.4f", pt.a, pt.b, pt.String(), pt.OR)
+		if i < 6 {
+			pt.FisherExact()
+			fmt.Fprintf(w, " p=%g\n", pt.P)
+		} else {
+			fmt.Fprintf(w, "\n")
+		}
+	}
+
+	w.Flush()
+	fmt.Printf("Wrote %s\n", fname)
+}
+
 func main() {
 	var requireSilent bool
 	var iterations int
+	var simIts int
 	var graphName string
 	var simulateTriples bool
 	var simulateTags bool
@@ -266,8 +318,10 @@ func main() {
 	// Use -silent=false to turn off
 	flag.BoolVar(&requireSilent, "silent", true, "Look at silent "+
 		"(rather than all) mutations")
-	flag.IntVar(&iterations, "its", 100,
+	flag.IntVar(&iterations, "its", -1,
 		"Number of iterations (-1 for exhaustive)")
+	flag.IntVar(&simIts, "simits", 100,
+		"Number of iterations of each sim")
 	flag.StringVar(&graphName, "graph", "trans-graph.txt",
 		"graph data filename")
 	flag.StringVar(&orfs, "orfs", "", "ORFS file")
@@ -325,7 +379,9 @@ func main() {
 			simulation.MakeSimulatedMutant4
 	}
 
-	realMap, simMap, ct := CompareToSim(g, 2, 2, requireSilent, iterations, f1)
+	realMap, simMap, pairTables, ct := CompareToSim(g, 2, 2,
+		requireSilent, iterations, simIts, f1)
+	printPairTables("pair-details.txt", pairTables)
 	printMaps("transitions.txt", &realMap, &simMap)
 
 	graphMaps(graphName, &realMap, &simMap)
@@ -335,14 +391,16 @@ func main() {
 	fmt.Printf("Frequency of doubles: OR=%.4f p=%g\n", ct.OR, ct.P)
 
 	if simulateTriples {
-		_, _, ct2 := CompareToSim(g, 3, 3, requireSilent, iterations, f2)
+		_, _, _, ct2 := CompareToSim(g, 3, 3,
+			requireSilent, iterations, simIts, f2)
 		fmt.Printf("CT for triples: %s\n", ct2.String())
 		fmt.Printf("Frequency of triples if you simulate "+
 			"doubles: OR=%.4f p=%g\n", ct2.OR, ct2.P)
 	}
 
 	if simulateTags {
-		 _, _, ct3 := CompareToSim(g, 6, 4, requireSilent, iterations, f2)
+		_, _, _, ct3 := CompareToSim(g, 6, 4,
+			requireSilent, iterations, simIts, f2)
 		fmt.Printf("CT for tags: %s\n", ct3.String())
 		fmt.Printf("Frequency of 6.4 tags if you simulate "+
 			"doubles: OR=%.4f p=%g\n", ct3.OR, ct3.P)

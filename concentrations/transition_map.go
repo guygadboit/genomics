@@ -105,6 +105,17 @@ func (tm *TransitionMap) Combine(other *TransitionMap) {
 	}
 }
 
+// Divide all the counts by num-- use this if averaging over a number of
+// simulations.
+func (tm *TransitionMap) Divide(num int) {
+	for k, _ := range tm.Directed.Counts {
+		tm.Directed.Counts[k] /= num
+	}
+	for k, _ := range tm.Undirected.Counts {
+		tm.Undirected.Counts[k] /= num
+	}
+}
+
 // Call this when you've finished adding things to the map
 func (tm *TransitionMap) Finalize() {
 	tm.Directed.finalize()
