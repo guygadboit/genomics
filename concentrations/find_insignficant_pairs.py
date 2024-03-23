@@ -19,7 +19,12 @@ def main():
 
 	m = max(significant)
 	everything = set([x for x in range(m+1)])
-	print(everything - significant)
+	print("Insignificant pairs")
+	insignificant = everything - significant
+	print(insignificant)
+
+	print("Significant pairs")
+	print(significant)
 
 if __name__ == "__main__":
 	main()
