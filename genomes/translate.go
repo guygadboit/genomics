@@ -175,8 +175,8 @@ func (orfs Orfs) GetCodonOffset(pos int) (int, int, error) {
 // The "Environment" of a subsequence is the codon-aligned section that
 // completely contains it.
 type Environment struct {
-	start int // Index into the original genome
-	length   int // How many nts in the subsequence this represents
+	start  int // Index into the original genome
+	length int // How many nts in the subsequence this represents
 
 	window  []byte // The whole aligned section
 	offset  int    // The offset to the start of the subsequence
@@ -195,7 +195,7 @@ letter per nt, so something like LLLRRRIII
 func TranslateAligned(nts []byte) []byte {
 	ret := make([]byte, len(nts))
 
-	for i := 0; i < len(nts); i += 3 {
+	for i := 0; i < len(nts)-3+1; i += 3 {
 		aa, there := CodonTable[string(nts[i:i+3])]
 		if !there {
 			aa = '-'
@@ -214,7 +214,7 @@ letter per aa, so something like LRI
 func TranslateAlignedShort(nts []byte) []byte {
 	ret := make([]byte, 0)
 
-	for i := 0; i < len(nts); i += 3 {
+	for i := 0; i < len(nts)-3+1; i += 3 {
 		aa, there := CodonTable[string(nts[i:i+3])]
 		if !there {
 			aa = '-'
@@ -255,18 +255,18 @@ Actually rewrite the environment with replacement nts. Not to be confused with
 doesn't actually do so).
 */
 func (env *Environment) Rewrite(replacement []byte) error {
-    if len(replacement) != env.length {
-        return errors.New("Replacement is the wrong length")
-    }
+	if len(replacement) != env.length {
+		return errors.New("Replacement is the wrong length")
+	}
 	if !utils.IsRegularPattern(replacement) {
-        return errors.New("Non-nt in replacement sequence")
-    }
+		return errors.New("Non-nt in replacement sequence")
+	}
 
-    newWindow := make([]byte, len(env.window))
-    copy(newWindow, env.window)
-    copy(newWindow[env.offset:env.offset+env.length], replacement)
+	newWindow := make([]byte, len(env.window))
+	copy(newWindow, env.window)
+	copy(newWindow[env.offset:env.offset+env.length], replacement)
 
-    env.window = newWindow
+	env.window = newWindow
 	env.protein = TranslateAligned(env.window)
 	return nil
 }
@@ -593,9 +593,9 @@ If you replaced a with replacement at pos, would it be silent relative to b?
 Returns error, silent and the number of muts
 */
 func IsSilentWithReplacement(g *Genomes,
-    pos int, a, b int, replacement []byte) (error, bool, int) {
+	pos int, a, b int, replacement []byte) (error, bool, int) {
 	var envA, envB Environment
-    length := len(replacement)
+	length := len(replacement)
 
 	numMuts := utils.NumMuts(g.Nts[a][pos:pos+length],
 		g.Nts[b][pos:pos+length])
@@ -605,7 +605,7 @@ func IsSilentWithReplacement(g *Genomes,
 		return err, false, numMuts
 	}
 
-    err = envA.Rewrite(replacement)
+	err = envA.Rewrite(replacement)
 	if err != nil {
 		return err, false, numMuts
 	}

@@ -32,7 +32,7 @@ type Insertion struct {
 	inHuman    bool   // Is it in human? Note that most short things will be
 	posInHuman int
 	dirInHuman direction
-	inOrf      bool	  // Is it in an ORF?
+	inOrf      bool // Is it in an ORF?
 }
 
 func (i *Insertion) ToString() string {
@@ -117,7 +117,7 @@ func Summary(insertions []Insertion) {
 }
 
 /*
-	Call cb for every insertion found in nts forwards or backwards
+Call cb for every insertion found in nts forwards or backwards
 */
 func search(insertion *Insertion, genome *genomes.Genomes, which int,
 	tol float64, cb func(*Insertion, int, bool)) {
@@ -192,7 +192,7 @@ func loadHuman() *genomes.Genomes {
 }
 
 /*
-	Mark the ones you find in human, only if they aren't already in WH1
+Mark the ones you find in human, only if they aren't already in WH1
 */
 func findInHuman(insertions []Insertion, minLength int, tol float64) {
 	g := loadHuman()
@@ -231,9 +231,9 @@ func makeIndex(insertions []Insertion) map[int]*Insertion {
 }
 
 /*
-	Marking those that are in human or not is very time-consuming, so reload
-	our saved results from a file. And also load which ones are in orfs while
-	we're at it.
+Marking those that are in human or not is very time-consuming, so reload
+our saved results from a file. And also load which ones are in orfs while
+we're at it.
 */
 func loadInHuman(insertions []Insertion, insMap map[int]*Insertion) {
 	fp := utils.NewFileReader("human.txt")
@@ -330,7 +330,7 @@ func byLocation(insertions []Insertion, minLength int) {
 type filterFlag int
 
 const (
-	ANTHING       filterFlag = 0
+	ANYTHING       filterFlag = 0
 	EXCLUDE_WH1              = 1
 	EXCLUDE_HUMAN            = 1 << 1
 )
@@ -379,8 +379,8 @@ func makeCodonAlignFilter() filterFunc {
 }
 
 /*
-	Call cb on all the insertions that match the filter. This requires that
-	you've already marked which ones are in WH1 with findInVirus.
+Call cb on all the insertions that match the filter. This requires that
+you've already marked which ones are in WH1 with findInVirus.
 */
 func filterInsertions(insertions []Insertion,
 	filters []filterFunc, cb func(*Insertion), verbose bool) {
@@ -406,8 +406,8 @@ insertions:
 }
 
 /*
-	Output them all in one fasta file with NNN between each of them. Useful if
-	you want to look at dinucleotide composition etc.
+Output them all in one fasta file with NNN between each of them. Useful if
+you want to look at dinucleotide composition etc.
 */
 func outputCombinedFasta(fname string, name string,
 	insertions []Insertion,
@@ -437,14 +437,12 @@ func outputCombinedFasta(fname string, name string,
 }
 
 /*
-	Put all the insertions matching the filters into a single fasta file with
-	headers between each one. I think you should then be able to BLAST the
-	whole lot. moreFilters should return true for *including* the insertion.
+Put all the insertions matching the filters into a single fasta file with
+headers between each one. I think you should then be able to BLAST the
+whole lot. moreFilters should return true for *including* the insertion.
 */
-func outputFasta(fname string, name string,
-	insertions []Insertion,
-	filters []filterFunc,
-	verbose bool) {
+func outputFasta(fname string, insertions []Insertion,
+	filters []filterFunc, verbose bool) {
 
 	var orfs genomes.Orfs
 	genomes := genomes.NewGenomes(orfs, 0)
@@ -581,8 +579,8 @@ func appendFCS(insertions []Insertion) []Insertion {
 }
 
 /*
-	Write in-orf.txt which marks which insertions are in ORFs. We will load
-	that back in later. It's a bit slow to keep doing it every time.
+Write in-orf.txt which marks which insertions are in ORFs. We will load
+that back in later. It's a bit slow to keep doing it every time.
 */
 func findOrfs(insertions []Insertion) {
 	orfs := genomes.LoadOrfs("../fasta/WH1.orfs")
@@ -635,7 +633,12 @@ func main() {
 	flag.BoolVar(&verbose, "v", false, "Verbose")
 	flag.Parse()
 
-	insertions := LoadInsertions("insertions.txt", 0, 0)
+	insertions := LoadInsertions("insertions.txt", 6, 2)
+	outputCombinedFasta("Insertions.fasta", "Insertions",
+		insertions, nil, false)
+	outputFasta("SplitInsertions.fasta", insertions, nil, false)
+	return
+
 	/*
 		insertions := LoadInsertions(
 			"../simulated_insertions/fake_human.txt", 6, 0)
@@ -692,13 +695,13 @@ func main() {
 	outputFastq(insertions, filters, GetSources()[2:], "context.fastq")
 
 	/*
-	fmt.Printf("Counting sequences and odds ratios\n")
-	countInGenomes(insertions, filters, true)
+		fmt.Printf("Counting sequences and odds ratios\n")
+		countInGenomes(insertions, filters, true)
 	*/
 
 	/*
-	fmt.Printf("Counting in repeats\n")
-	countSatellites(insertions, filters, false)
+		fmt.Printf("Counting in repeats\n")
+		countSatellites(insertions, filters, false)
 	*/
 
 	/*

@@ -23,18 +23,6 @@ func extractRanges(g *genomes.Genomes, ranges []Range) [][]byte {
 	return ret
 }
 
-func countAlleles(p *genomes.Genomes) map[string]int {
-	ret := make(map[string]int)
-	for i := 0; i < p.NumGenomes(); i++ {
-		k := string(p.Nts[i])
-		ret[k]++
-	}
-	for k, v := range ret {
-		fmt.Println(v, k)
-	}
-	return ret
-}
-
 func main() {
 	var fasta string
 	var outName string
@@ -60,5 +48,4 @@ func main() {
 	p := genomes.Genomes{aas, g.Names, orfs}
 	p.SaveMulti(outName)
 	fmt.Printf("Wrote %s\n", outName)
-	// countAlleles(&p)
 }

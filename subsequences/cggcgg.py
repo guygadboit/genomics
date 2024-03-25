@@ -79,7 +79,7 @@ def count(fname):
 			no += count
 
 	total = yes + no
-# 	print(fname, yes, total, float(yes * 100) / total)
+	print(fname, yes, total, float(yes * 100) / total)
 	return float(yes * 100) / total
 
 
@@ -106,7 +106,7 @@ def main():
 
 	with open("results.dat", "wt") as fp:
 		for fname in fnames:
-			# rank(fname)
+# 			rank(fname)
 			m = re.match(r'^output/(\w+)-.*', fname)
 			name = m.group(1)
 			print(name, count(fname), file=fp)
