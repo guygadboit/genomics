@@ -82,6 +82,11 @@ loop:
 		currentRow = append(currentRow, []byte(line)...)
 	}
 	ret.Nts = append(ret.Nts, currentRow)
+
+	if len(ret.Orfs) == 0 {
+		ret.Orfs = []Orf{{0, ret.Length()}}
+	}
+
 	return ret
 }
 
@@ -351,6 +356,7 @@ type Highlight struct {
 }
 
 // Save in a clu-style format with the translation. Assume a and b are aligned.
+// -1 for which means save everything.
 func (g *Genomes) SaveWithTranslation(fname string, highlights []Highlight,
 	which ...int) error {
 	fd, err := os.Create(fname)
@@ -359,6 +365,13 @@ func (g *Genomes) SaveWithTranslation(fname string, highlights []Highlight,
 	}
 	defer fd.Close()
 	fp := bufio.NewWriter(fd)
+
+	if which[0] == -1 {
+		which = make([]int, g.NumGenomes())
+		for i := 0; i < g.NumGenomes(); i++ {
+			which[i] = i
+		}
+	}
 
 	names := make([]string, len(which))
 	trans := make([]Translation, len(which))
@@ -407,7 +420,9 @@ func (g *Genomes) SaveWithTranslation(fname string, highlights []Highlight,
 			fmt.Fprintf(fp, "%-16s%s\t%d\n", names[j], string(nts), i+n)
 		}
 
-		fmt.Fprintf(fp, "%-16s%s\n", "", g.compare(i, i+n, which...))
+		if len(which) > 1 {
+			fmt.Fprintf(fp, "%-16s%s\n", "", g.compare(i, i+n, which...))
+		}
 
 		for j, _ := range which {
 			var aas []byte
