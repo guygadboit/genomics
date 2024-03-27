@@ -482,7 +482,11 @@ func (it *CodonIter) Next() (pos int, codon string, aa byte, err error) {
 		pos = it.pos
 		if pos+3 <= orf.End {
 			codon = string(genome.Nts[it.which][pos : pos+3])
-			aa = CodonTable[codon]
+			var there bool
+			aa, there = CodonTable[codon]
+			if !there {
+				aa = '-'
+			}
 			err = nil
 			it.pos = pos + 3
 			return
@@ -496,6 +500,16 @@ type Codon struct {
 	Pos int
 	Nts string
 	Aa  byte
+}
+
+// Returns the ORF and the 0-based position in it
+func (c *Codon) OrfRelative(orfs []Orf) (error, int, int) {
+	for i, orf := range orfs {
+		if c.Pos >= orf.Start && c.Pos < orf.End {
+			return nil, i, c.Pos - orf.Start
+		}
+	}
+	return errors.New("Not in ORF"), 0, 0
 }
 
 type Translation []Codon

@@ -34,7 +34,7 @@ func init() {
 		"ORF7a",
 		"ORF7b",
 		"ORF8",
-		"M",
+		"N",
 		"ORF10",
 	}
 
