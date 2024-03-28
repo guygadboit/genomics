@@ -19,12 +19,23 @@ func joinInts(ints []int, sep string) string {
 	return strings.Join(s, sep)
 }
 
+// Counts how many "quirks" (lone differences from the crowd) in each genome
+type QuirkMap map[int]int
+
+func (q QuirkMap) Combine(other QuirkMap) {
+	for k, v := range other {
+		q[k] += v
+	}
+}
+
 // Look for alleles where n viruses share one thing, and everybody else has
 // the same other thing.
 func (a Alleles) checkNearlyUnique(codon genomes.Codon,
-	g *genomes.Genomes, n int) {
+	g *genomes.Genomes, n int) QuirkMap {
+	ret := make(QuirkMap)
+
 	if len(a) != 2 {
-		return
+		return ret
 	}
 
 	var us, them byte
@@ -48,6 +59,18 @@ func (a Alleles) checkNearlyUnique(codon genomes.Codon,
 
 		fmt.Printf("%s:%d: %s got %c, everyone else has %c\n",
 			orfNames[orf], pos/3+1, joinInts(common, ","), us, them)
+
+		for _, v := range common {
+			ret[v] += 1
+		}
+	}
+	return ret
+}
+
+func graphData(qm QuirkMap, g *genomes.Genomes) {
+	for k, v := range qm {
+		ss := g.SequenceSimilarity(0, k)
+		fmt.Println(ss, v)
 	}
 }
 
@@ -61,6 +84,8 @@ func main() {
 	g := genomes.LoadGenomes("../fasta/SARS2-relatives.fasta",
 		"../fasta/WH1.orfs", false)
 	g.RemoveGaps()
+
+	quirks := make(QuirkMap)
 
 	translations := make([]genomes.Translation, g.NumGenomes())
 	for i := 0; i < g.NumGenomes(); i++ {
@@ -81,8 +106,10 @@ func main() {
 			}
 			alleles[aa] = append(alleles[aa], j)
 		}
-		alleles.checkNearlyUnique(translations[0][i], g, numSharers)
+		q := alleles.checkNearlyUnique(translations[0][i], g, numSharers)
+		quirks.Combine(q)
 	}
+	graphData(quirks, g)
 }
 
 func init() {
