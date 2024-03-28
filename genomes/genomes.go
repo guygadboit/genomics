@@ -355,10 +355,8 @@ type Highlight struct {
 	Char  byte
 }
 
-// Save in a clu-style format with the translation. Assume a and b are aligned.
-// -1 for which means save everything.
-func (g *Genomes) SaveWithTranslation(fname string, highlights []Highlight,
-	which ...int) error {
+func (g *Genomes) saveCluStyle(fname string,
+	highlights []Highlight, withTranslation bool, which ...int) error {
 	fd, err := os.Create(fname)
 	if err != nil {
 		return err
@@ -378,7 +376,9 @@ func (g *Genomes) SaveWithTranslation(fname string, highlights []Highlight,
 	var index, nextIndex int
 	for i, w := range which {
 		names[i] = shorten(g.Names[w], 12)
-		trans[i] = Translate(g, w)
+		if withTranslation {
+			trans[i] = Translate(g, w)
+		}
 	}
 
 	slices.SortFunc(highlights, func(a, b Highlight) int {
@@ -424,15 +424,29 @@ func (g *Genomes) SaveWithTranslation(fname string, highlights []Highlight,
 			fmt.Fprintf(fp, "%-16s%s\n", "", g.compare(i, i+n, which...))
 		}
 
-		for j, _ := range which {
-			var aas []byte
-			nextIndex, aas = trans[j].TranslateLong(index, i, i+n)
-			fmt.Fprintf(fp, "%-16s%s\n", names[j], string(aas))
+		if withTranslation {
+			for j, _ := range which {
+				var aas []byte
+				nextIndex, aas = trans[j].TranslateLong(index, i, i+n)
+				fmt.Fprintf(fp, "%-16s%s\n", names[j], string(aas))
+			}
+			fmt.Fprintf(fp, "\n")
 		}
-		fmt.Fprintf(fp, "\n")
 		index = nextIndex
 	}
 
 	fp.Flush()
 	return nil
+}
+
+// Save in a clu-style format with the translation. Assume a and b are aligned.
+// -1 for which means save everything.
+func (g *Genomes) SaveWithTranslation(fname string,
+	highlights []Highlight, which ...int) error {
+	return g.saveCluStyle(fname, highlights, true, which...)
+}
+
+func (g *Genomes) SaveClu(fname string,
+	highlights []Highlight, which ...int) error {
+	return g.saveCluStyle(fname, highlights, false, which...)
 }

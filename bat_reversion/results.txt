@@ -1,0 +1,218 @@
+Only in MG772933.1 Bat SARS-like coronavirus isolate bat-SL-CoVZC45, complete genome: ORF1ab:G14V
+Only in MG772933.1 Bat SARS-like coronavirus isolate bat-SL-CoVZC45, complete genome: ORF1ab:P15Q
+Only in MT072865.1 Pangolin coronavirus isolate PCoV_GX-P3B genomic sequence: ORF1ab:E25D
+Only in MT072865.1 Pangolin coronavirus isolate PCoV_GX-P3B genomic sequence: ORF1ab:L26V
+Only in MN996532.2 Bat coronavirus RaTG13, complete genome: ORF1ab:Y110H
+Only in OR233323.1 Horseshoe bat sarbecovirus isolate Ra22QT135 surface glycoprotein gene, complete cds: ORF1ab:F123L
+Only in MZ937000.1 Bat coronavirus isolate BANAL-20-52/Laos/2020, complete genome: ORF1ab:I170T
+Only in OK287355.1 Sarbecovirus sp. isolate BetaCoV_Yunnan_Rp_JCC9_2020, complete genome: ORF1ab:H182Y
+Only in MG772934.1 Bat SARS-like coronavirus isolate bat-SL-CoVZXC21, complete genome: ORF1ab:N203D
+Only in LC663959.1 Sarbecovirus sp. Rc-mk2 RNA, complete geneome: ORF1ab:N335D
+Only in MG772933.1 Bat SARS-like coronavirus isolate bat-SL-CoVZC45, complete genome: ORF1ab:L368I
+Only in NC_045512.2 Severe acute respiratory syndrome coronavirus 2 isolate Wuhan-Hu-1, complete genome: ORF1ab:S376P
+Only in LC663958.1 Sarbecovirus sp. Rc-os20 RNA, complete geneome: ORF1ab:D390E
+Only in MN996532.2 Bat coronavirus RaTG13, complete genome: ORF1ab:P395T
+Only in MG772933.1 Bat SARS-like coronavirus isolate bat-SL-CoVZC45, complete genome: ORF1ab:I484T
+Only in MT040333.1 Pangolin coronavirus isolate PCoV_GX-P4L, complete genome: ORF1ab:C485S
+Only in MW251308.1 Bat coronavirus RacCS203, complete genome: ORF1ab:A490T
+Only in OQ297706.1 MAG: Severe acute respiratory syndrome-related coronavirus isolate GD/L102.18/2022, partial genome: ORF1ab:N495D
+Only in MT121216.1 Pangolin coronavirus isolate MP789, complete genome: ORF1ab:R822K
+Only in MG772933.1 Bat SARS-like coronavirus isolate bat-SL-CoVZC45, complete genome: ORF1ab:I890L
+Only in MW703458.1 Sarbecovirus sp. isolate PrC31, complete genome: ORF1ab:L892P
+Only in OQ297732.1 MAG: Severe acute respiratory syndrome-related coronavirus isolate GD/L105.18/2022, partial genome: ORF1ab:D899E
+Only in LC663958.1 Sarbecovirus sp. Rc-os20 RNA, complete geneome: ORF1ab:N954D
+Only in LC663958.1 Sarbecovirus sp. Rc-os20 RNA, complete geneome: ORF1ab:F1191L
+Only in OK017806.1 Sarbecovirus sp. isolate YN2021, complete genome: ORF1ab:D1238E
+Only in OQ297706.1 MAG: Severe acute respiratory syndrome-related coronavirus isolate GD/L102.18/2022, partial genome: ORF1ab:E1282D
+Only in OK287355.1 Sarbecovirus sp. isolate BetaCoV_Yunnan_Rp_JCC9_2020, complete genome: ORF1ab:M1286I
+Only in MT084071.1 Pangolin coronavirus isolate MP789 genomic sequence: ORF1ab:L1312M
+Only in MZ937004.1 Bat coronavirus isolate BANAL-20-247/Laos/2020, complete genome: ORF1ab:K1448M
+Only in LC663958.1 Sarbecovirus sp. Rc-os20 RNA, complete geneome: ORF1ab:M1504T
+Only in MZ937002.1 Bat coronavirus isolate BANAL-20-116/Laos/2020, complete genome: ORF1ab:F1510S
+Only in MZ937001.1 Bat coronavirus isolate BANAL-20-103/Laos/2020, complete genome: ORF1ab:T1525I
+Only in OP963576.1 Bat SARS-like virus BtSY2 ORF1ab polyprotein (ORF1ab), ORF1a polyprotein (ORF1ab), surface glycoprotein, ORF3a protein, ORF3b protein, envelope protein, membrane protein M, ORF6 protein, ORF7a protein, ORF7b protein, ORF8 protein, nucleocapsid: ORF1ab:I1588M
+Only in LC663958.1 Sarbecovirus sp. Rc-os20 RNA, complete geneome: ORF1ab:S1596P
+Only in OK017805.1 Sarbecovirus sp. isolate HN2021G, complete genome: ORF1ab:A1622P
+Only in OK017806.1 Sarbecovirus sp. isolate YN2021, complete genome: ORF1ab:E1624D
+Only in MZ081380.1 Betacoronavirus sp. RsYN04 strain bat/Yunnan/RsYN04/2020, complete genome: ORF1ab:C1628R
+Only in LC663959.1 Sarbecovirus sp. Rc-mk2 RNA, complete geneome: ORF1ab:T1667I
+Only in OP963576.1 Bat SARS-like virus BtSY2 ORF1ab polyprotein (ORF1ab), ORF1a polyprotein (ORF1ab), surface glycoprotein, ORF3a protein, ORF3b protein, envelope protein, membrane protein M, ORF6 protein, ORF7a protein, ORF7b protein, ORF8 protein, nucleocapsid: ORF1ab:S1709N
+Only in LC556375.1 Severe acute respiratory syndrome-related coronavirus Rc-o319 RNA, complete genome: ORF1ab:I1713L
+Only in OK017805.1 Sarbecovirus sp. isolate HN2021G, complete genome: ORF1ab:R1719N
+Only in OK287355.1 Sarbecovirus sp. isolate BetaCoV_Yunnan_Rp_JCC9_2020, complete genome: ORF1ab:I1747V
+Only in OQ297732.1 MAG: Severe acute respiratory syndrome-related coronavirus isolate GD/L105.18/2022, partial genome: ORF1ab:I1761T
+Only in NC_045512.2 Severe acute respiratory syndrome coronavirus 2 isolate Wuhan-Hu-1, complete genome: ORF1ab:F1779L
+Only in NC_045512.2 Severe acute respiratory syndrome coronavirus 2 isolate Wuhan-Hu-1, complete genome: ORF1ab:K1795Q
+Only in OK287355.1 Sarbecovirus sp. isolate BetaCoV_Yunnan_Rp_JCC9_2020, complete genome: ORF1ab:I1798V
+Only in OQ297706.1 MAG: Severe acute respiratory syndrome-related coronavirus isolate GD/L102.18/2022, partial genome: ORF1ab:Y1838H
+Only in MN996532.2 Bat coronavirus RaTG13, complete genome: ORF1ab:I1866V
+Only in OP963576.1 Bat SARS-like virus BtSY2 ORF1ab polyprotein (ORF1ab), ORF1a polyprotein (ORF1ab), surface glycoprotein, ORF3a protein, ORF3b protein, envelope protein, membrane protein M, ORF6 protein, ORF7a protein, ORF7b protein, ORF8 protein, nucleocapsid: ORF1ab:T1921P
+Only in MG772934.1 Bat SARS-like coronavirus isolate bat-SL-CoVZXC21, complete genome: ORF1ab:R1929K
+Only in MG772934.1 Bat SARS-like coronavirus isolate bat-SL-CoVZXC21, complete genome: ORF1ab:T2187N
+Only in MZ937004.1 Bat coronavirus isolate BANAL-20-247/Laos/2020, complete genome: ORF1ab:H2195P
+Only in MZ937001.1 Bat coronavirus isolate BANAL-20-103/Laos/2020, complete genome: ORF1ab:T2347M
+Only in MZ937003.2 Bat coronavirus isolate BANAL-20-236/Laos/2020, complete genome: ORF1ab:L2389S
+Only in MZ937003.2 Bat coronavirus isolate BANAL-20-236/Laos/2020, complete genome: ORF1ab:C2397Y
+Only in OP963576.1 Bat SARS-like virus BtSY2 ORF1ab polyprotein (ORF1ab), ORF1a polyprotein (ORF1ab), surface glycoprotein, ORF3a protein, ORF3b protein, envelope protein, membrane protein M, ORF6 protein, ORF7a protein, ORF7b protein, ORF8 protein, nucleocapsid: ORF1ab:F2400V
+Only in OK017806.1 Sarbecovirus sp. isolate YN2021, complete genome: ORF1ab:I2408T
+Only in OP963576.1 Bat SARS-like virus BtSY2 ORF1ab polyprotein (ORF1ab), ORF1a polyprotein (ORF1ab), surface glycoprotein, ORF3a protein, ORF3b protein, envelope protein, membrane protein M, ORF6 protein, ORF7a protein, ORF7b protein, ORF8 protein, nucleocapsid: ORF1ab:S2685P
+Only in MG772934.1 Bat SARS-like coronavirus isolate bat-SL-CoVZXC21, complete genome: ORF1ab:H2702Q
+Only in MZ937003.2 Bat coronavirus isolate BANAL-20-236/Laos/2020, complete genome: ORF1ab:D2752N
+Only in OK017805.1 Sarbecovirus sp. isolate HN2021G, complete genome: ORF1ab:R2840Q
+Only in MT084071.1 Pangolin coronavirus isolate MP789 genomic sequence: ORF1ab:S2882L
+Only in MT084071.1 Pangolin coronavirus isolate MP789 genomic sequence: ORF1ab:G2883H
+Only in MT084071.1 Pangolin coronavirus isolate MP789 genomic sequence: ORF1ab:R2884F
+Only in MT084071.1 Pangolin coronavirus isolate MP789 genomic sequence: ORF1ab:*2885L
+Only in MT084071.1 Pangolin coronavirus isolate MP789 genomic sequence: ORF1ab:I2902L
+Only in MG772934.1 Bat SARS-like coronavirus isolate bat-SL-CoVZXC21, complete genome: ORF1ab:S2925A
+Only in OP963576.1 Bat SARS-like virus BtSY2 ORF1ab polyprotein (ORF1ab), ORF1a polyprotein (ORF1ab), surface glycoprotein, ORF3a protein, ORF3b protein, envelope protein, membrane protein M, ORF6 protein, ORF7a protein, ORF7b protein, ORF8 protein, nucleocapsid: ORF1ab:I2977T
+Only in OK017805.1 Sarbecovirus sp. isolate HN2021G, complete genome: ORF1ab:Y2989C
+Only in OK017806.1 Sarbecovirus sp. isolate YN2021, complete genome: ORF1ab:T3061A
+Only in OP963576.1 Bat SARS-like virus BtSY2 ORF1ab polyprotein (ORF1ab), ORF1a polyprotein (ORF1ab), surface glycoprotein, ORF3a protein, ORF3b protein, envelope protein, membrane protein M, ORF6 protein, ORF7a protein, ORF7b protein, ORF8 protein, nucleocapsid: ORF1ab:N3222D
+Only in MG772933.1 Bat SARS-like coronavirus isolate bat-SL-CoVZC45, complete genome: ORF1ab:I3238L
+Only in OK017806.1 Sarbecovirus sp. isolate YN2021, complete genome: ORF1ab:P3295L
+Only in OK017805.1 Sarbecovirus sp. isolate HN2021G, complete genome: ORF1ab:A3308T
+Only in MG772934.1 Bat SARS-like coronavirus isolate bat-SL-CoVZXC21, complete genome: ORF1ab:S3704G
+Only in OQ297732.1 MAG: Severe acute respiratory syndrome-related coronavirus isolate GD/L105.18/2022, partial genome: ORF1ab:V3758I
+Only in MZ081378.1 Betacoronavirus sp. RmYN08 strain bat/Yunnan/RmYN08/2020, complete genome: ORF1ab:I3782V
+Only in MT072865.1 Pangolin coronavirus isolate PCoV_GX-P3B genomic sequence: ORF1ab:D3783Y
+Only in MT072865.1 Pangolin coronavirus isolate PCoV_GX-P3B genomic sequence: ORF1ab:L3797F
+Only in OK287355.1 Sarbecovirus sp. isolate BetaCoV_Yunnan_Rp_JCC9_2020, complete genome: ORF1ab:R3839K
+Only in MT084071.1 Pangolin coronavirus isolate MP789 genomic sequence: ORF1ab:F3872L
+Only in OQ297706.1 MAG: Severe acute respiratory syndrome-related coronavirus isolate GD/L102.18/2022, partial genome: ORF1ab:N3936D
+Only in OK287355.1 Sarbecovirus sp. isolate BetaCoV_Yunnan_Rp_JCC9_2020, complete genome: ORF1ab:V3939A
+Only in MG772934.1 Bat SARS-like coronavirus isolate bat-SL-CoVZXC21, complete genome: ORF1ab:K3947E
+Only in OK287355.1 Sarbecovirus sp. isolate BetaCoV_Yunnan_Rp_JCC9_2020, complete genome: ORF1ab:A3950S
+Only in OP963576.1 Bat SARS-like virus BtSY2 ORF1ab polyprotein (ORF1ab), ORF1a polyprotein (ORF1ab), surface glycoprotein, ORF3a protein, ORF3b protein, envelope protein, membrane protein M, ORF6 protein, ORF7a protein, ORF7b protein, ORF8 protein, nucleocapsid: ORF1ab:D3965E
+Only in OP963576.1 Bat SARS-like virus BtSY2 ORF1ab polyprotein (ORF1ab), ORF1a polyprotein (ORF1ab), surface glycoprotein, ORF3a protein, ORF3b protein, envelope protein, membrane protein M, ORF6 protein, ORF7a protein, ORF7b protein, ORF8 protein, nucleocapsid: ORF1ab:I3968V
+Only in OK017805.1 Sarbecovirus sp. isolate HN2021G, complete genome: ORF1ab:I3997M
+Only in MG772934.1 Bat SARS-like coronavirus isolate bat-SL-CoVZXC21, complete genome: ORF1ab:T4008A
+Only in MZ937003.2 Bat coronavirus isolate BANAL-20-236/Laos/2020, complete genome: ORF1ab:I4065T
+Only in LC663959.1 Sarbecovirus sp. Rc-mk2 RNA, complete geneome: ORF1ab:S4068A
+Only in LC663959.1 Sarbecovirus sp. Rc-mk2 RNA, complete geneome: ORF1ab:V4136A
+Only in MG772934.1 Bat SARS-like coronavirus isolate bat-SL-CoVZXC21, complete genome: ORF1ab:S4194A
+Only in OP963576.1 Bat SARS-like virus BtSY2 ORF1ab polyprotein (ORF1ab), ORF1a polyprotein (ORF1ab), surface glycoprotein, ORF3a protein, ORF3b protein, envelope protein, membrane protein M, ORF6 protein, ORF7a protein, ORF7b protein, ORF8 protein, nucleocapsid: ORF1ab:I4260V
+Only in OP963576.1 Bat SARS-like virus BtSY2 ORF1ab polyprotein (ORF1ab), ORF1a polyprotein (ORF1ab), surface glycoprotein, ORF3a protein, ORF3b protein, envelope protein, membrane protein M, ORF6 protein, ORF7a protein, ORF7b protein, ORF8 protein, nucleocapsid: ORF1ab:S4331R
+Only in OQ297732.1 MAG: Severe acute respiratory syndrome-related coronavirus isolate GD/L105.18/2022, partial genome: ORF1ab:S4358N
+Only in MZ081378.1 Betacoronavirus sp. RmYN08 strain bat/Yunnan/RmYN08/2020, complete genome: ORF1ab:A4371T
+Only in OP963576.1 Bat SARS-like virus BtSY2 ORF1ab polyprotein (ORF1ab), ORF1a polyprotein (ORF1ab), surface glycoprotein, ORF3a protein, ORF3b protein, envelope protein, membrane protein M, ORF6 protein, ORF7a protein, ORF7b protein, ORF8 protein, nucleocapsid: ORF1ab:L4375M
+Only in OQ297706.1 MAG: Severe acute respiratory syndrome-related coronavirus isolate GD/L102.18/2022, partial genome: ORF1ab:V4396A
+Only in MG772934.1 Bat SARS-like coronavirus isolate bat-SL-CoVZXC21, complete genome: ORF1ab:S15T
+Only in MG772934.1 Bat SARS-like coronavirus isolate bat-SL-CoVZXC21, complete genome: ORF1ab:I17T
+Only in OR233327.1 Horseshoe bat sarbecovirus isolate Rp22DB167 surface glycoprotein gene, complete cds: ORF1ab:N18S
+Only in MN996532.2 Bat coronavirus RaTG13, complete genome: ORF1ab:R134K
+Only in MG772933.1 Bat SARS-like coronavirus isolate bat-SL-CoVZC45, complete genome: ORF1ab:K141N
+Only in OK017806.1 Sarbecovirus sp. isolate YN2021, complete genome: ORF1ab:D147Y
+Only in OK017806.1 Sarbecovirus sp. isolate YN2021, complete genome: ORF1ab:V158E
+Only in MG772933.1 Bat SARS-like coronavirus isolate bat-SL-CoVZC45, complete genome: ORF1ab:V162I
+Only in OR233327.1 Horseshoe bat sarbecovirus isolate Rp22DB167 surface glycoprotein gene, complete cds: ORF1ab:H175Q
+Only in OQ297732.1 MAG: Severe acute respiratory syndrome-related coronavirus isolate GD/L105.18/2022, partial genome: ORF1ab:V176A
+Only in LC556375.1 Severe acute respiratory syndrome-related coronavirus Rc-o319 RNA, complete genome: ORF1ab:I222V
+Only in MG772933.1 Bat SARS-like coronavirus isolate bat-SL-CoVZC45, complete genome: ORF1ab:N354S
+Only in MG772934.1 Bat SARS-like coronavirus isolate bat-SL-CoVZXC21, complete genome: ORF1ab:T458R
+Only in MG772934.1 Bat SARS-like coronavirus isolate bat-SL-CoVZXC21, complete genome: ORF1ab:I464V
+Only in OK017806.1 Sarbecovirus sp. isolate YN2021, complete genome: ORF1ab:T624M
+Only in MT084071.1 Pangolin coronavirus isolate MP789 genomic sequence: ORF1ab:T647A
+Only in MG772934.1 Bat SARS-like coronavirus isolate bat-SL-CoVZXC21, complete genome: ORF1ab:S669G
+Only in MN996532.2 Bat coronavirus RaTG13, complete genome: ORF1ab:H710Y
+Only in MT072865.1 Pangolin coronavirus isolate PCoV_GX-P3B genomic sequence: ORF1ab:L800P
+Only in OK287355.1 Sarbecovirus sp. isolate BetaCoV_Yunnan_Rp_JCC9_2020, complete genome: ORF1ab:E816D
+Only in OP963576.1 Bat SARS-like virus BtSY2 ORF1ab polyprotein (ORF1ab), ORF1a polyprotein (ORF1ab), surface glycoprotein, ORF3a protein, ORF3b protein, envelope protein, membrane protein M, ORF6 protein, ORF7a protein, ORF7b protein, ORF8 protein, nucleocapsid: ORF1ab:P844T
+Only in MW703458.1 Sarbecovirus sp. isolate PrC31, complete genome: ORF1ab:V1040A
+Only in MW703458.1 Sarbecovirus sp. isolate PrC31, complete genome: ORF1ab:S1095P
+Only in MT040334.1 Pangolin coronavirus isolate PCoV_GX-P1E, complete genome: ORF1ab:T1098P
+Only in MZ937003.2 Bat coronavirus isolate BANAL-20-236/Laos/2020, complete genome: ORF1ab:I1173T
+Only in MZ937001.1 Bat coronavirus isolate BANAL-20-103/Laos/2020, complete genome: ORF1ab:D1184E
+Only in MT040336.1 Pangolin coronavirus isolate PCoV_GX-P5E, complete genome: ORF1ab:G1298E
+Only in MZ081381.1 Betacoronavirus sp. RpYN06 strain bat/Yunnan/RpYN06/2020, complete genome: ORF1ab:V1322I
+Only in OQ297706.1 MAG: Severe acute respiratory syndrome-related coronavirus isolate GD/L102.18/2022, partial genome: ORF1ab:I1336T
+Only in MT072865.1 Pangolin coronavirus isolate PCoV_GX-P3B genomic sequence: ORF1ab:E1388K
+Only in LC663959.1 Sarbecovirus sp. Rc-mk2 RNA, complete geneome: ORF1ab:L1427P
+Only in MG772934.1 Bat SARS-like coronavirus isolate bat-SL-CoVZXC21, complete genome: ORF1ab:T1443A
+Only in MW251308.1 Bat coronavirus RacCS203, complete genome: ORF1ab:S1476A
+Only in OQ297706.1 MAG: Severe acute respiratory syndrome-related coronavirus isolate GD/L102.18/2022, partial genome: ORF1ab:I1481V
+Only in OK017805.1 Sarbecovirus sp. isolate HN2021G, complete genome: ORF1ab:G1501D
+Only in MN996532.2 Bat coronavirus RaTG13, complete genome: ORF1ab:V1604I
+Only in MZ081381.1 Betacoronavirus sp. RpYN06 strain bat/Yunnan/RpYN06/2020, complete genome: ORF1ab:S1621T
+Only in MN996532.2 Bat coronavirus RaTG13, complete genome: ORF1ab:I1625V
+Only in MG772934.1 Bat SARS-like coronavirus isolate bat-SL-CoVZXC21, complete genome: ORF1ab:T1643A
+Only in MG772933.1 Bat SARS-like coronavirus isolate bat-SL-CoVZC45, complete genome: ORF1ab:H1653N
+Only in OK017805.1 Sarbecovirus sp. isolate HN2021G, complete genome: ORF1ab:K1674I
+Only in OP963576.1 Bat SARS-like virus BtSY2 ORF1ab polyprotein (ORF1ab), ORF1a polyprotein (ORF1ab), surface glycoprotein, ORF3a protein, ORF3b protein, envelope protein, membrane protein M, ORF6 protein, ORF7a protein, ORF7b protein, ORF8 protein, nucleocapsid: ORF1ab:M1774T
+Only in LC663959.1 Sarbecovirus sp. Rc-mk2 RNA, complete geneome: ORF1ab:G1782D
+Only in LC663793.1 Sarbecovirus sp. Rc-kw8 RNA, complete genome: ORF1ab:F1827L
+Only in MZ937001.1 Bat coronavirus isolate BANAL-20-103/Laos/2020, complete genome: ORF1ab:T1964K
+Only in MW251310.1 Bat coronavirus RacCS253, partial genome: ORF1ab:Y1979H
+Only in MZ937003.2 Bat coronavirus isolate BANAL-20-236/Laos/2020, complete genome: ORF1ab:I2084T
+Only in MG772933.1 Bat SARS-like coronavirus isolate bat-SL-CoVZC45, complete genome: ORF1ab:L2086V
+Only in OP963576.1 Bat SARS-like virus BtSY2 ORF1ab polyprotein (ORF1ab), ORF1a polyprotein (ORF1ab), surface glycoprotein, ORF3a protein, ORF3b protein, envelope protein, membrane protein M, ORF6 protein, ORF7a protein, ORF7b protein, ORF8 protein, nucleocapsid: ORF1ab:I2217T
+Only in MN996532.2 Bat coronavirus RaTG13, complete genome: ORF1ab:L2223V
+Only in OK017805.1 Sarbecovirus sp. isolate HN2021G, complete genome: ORF1ab:G2242E
+Only in LC556375.1 Severe acute respiratory syndrome-related coronavirus Rc-o319 RNA, complete genome: ORF1ab:S2256P
+Only in OQ297700.1 MAG: Pangolin coronavirus isolate GD/M5-9/2019, partial genome: ORF1ab:S2268A
+Only in MZ081381.1 Betacoronavirus sp. RpYN06 strain bat/Yunnan/RpYN06/2020, complete genome: ORF1ab:S2280G
+Only in MZ081381.1 Betacoronavirus sp. RpYN06 strain bat/Yunnan/RpYN06/2020, complete genome: ORF1ab:H2288Y
+Only in MZ937003.2 Bat coronavirus isolate BANAL-20-236/Laos/2020, complete genome: ORF1ab:V2303I
+Only in NC_045512.2 Severe acute respiratory syndrome coronavirus 2 isolate Wuhan-Hu-1, complete genome: ORF1ab:F2309S
+Only in NC_045512.2 Severe acute respiratory syndrome coronavirus 2 isolate Wuhan-Hu-1, complete genome: ORF1ab:F2314L
+Only in OQ297706.1 MAG: Severe acute respiratory syndrome-related coronavirus isolate GD/L102.18/2022, partial genome: ORF1ab:V2331I
+Only in MZ081381.1 Betacoronavirus sp. RpYN06 strain bat/Yunnan/RpYN06/2020, complete genome: ORF1ab:A2338S
+Only in OK017806.1 Sarbecovirus sp. isolate YN2021, complete genome: ORF1ab:F2339S
+Only in MT072865.1 Pangolin coronavirus isolate PCoV_GX-P3B genomic sequence: ORF1ab:E2347D
+Only in MZ937000.1 Bat coronavirus isolate BANAL-20-52/Laos/2020, complete genome: ORF1ab:I2354V
+Only in LC663793.1 Sarbecovirus sp. Rc-kw8 RNA, complete genome: ORF1ab:F2359S
+Only in LC663793.1 Sarbecovirus sp. Rc-kw8 RNA, complete genome: ORF1ab:V2378I
+Only in LC663959.1 Sarbecovirus sp. Rc-mk2 RNA, complete geneome: ORF1ab:R2395K
+Only in OK287355.1 Sarbecovirus sp. isolate BetaCoV_Yunnan_Rp_JCC9_2020, complete genome: ORF1ab:N2399S
+Only in OK287355.1 Sarbecovirus sp. isolate BetaCoV_Yunnan_Rp_JCC9_2020, complete genome: ORF1ab:T2401A
+Only in OR233327.1 Horseshoe bat sarbecovirus isolate Rp22DB167 surface glycoprotein gene, complete cds: ORF1ab:L2409P
+Only in MZ937004.1 Bat coronavirus isolate BANAL-20-247/Laos/2020, complete genome: ORF1ab:D2470G
+Only in MG772933.1 Bat SARS-like coronavirus isolate bat-SL-CoVZC45, complete genome: ORF1ab:H2511D
+Only in LC663959.1 Sarbecovirus sp. Rc-mk2 RNA, complete geneome: ORF1ab:S2585A
+Only in OK287355.1 Sarbecovirus sp. isolate BetaCoV_Yunnan_Rp_JCC9_2020, complete genome: ORF1ab:C2619Y
+Only in LC663958.1 Sarbecovirus sp. Rc-os20 RNA, complete geneome: ORF1ab:I2691V
+Only in NC_045512.2 Severe acute respiratory syndrome coronavirus 2 isolate Wuhan-Hu-1, complete genome: S:S50L
+Only in LC663958.1 Sarbecovirus sp. Rc-os20 RNA, complete geneome: S:Y58F
+Only in MW251310.1 Bat coronavirus RacCS253, partial genome: S:E291C
+Only in MW251310.1 Bat coronavirus RacCS253, partial genome: S:L295P
+Only in MW251309.1 Bat coronavirus RacCS224, partial genome: S:P303L
+Only in LC556375.1 Severe acute respiratory syndrome-related coronavirus Rc-o319 RNA, complete genome: S:R304K
+Only in MT072865.1 Pangolin coronavirus isolate PCoV_GX-P3B genomic sequence: S:G796D
+Only in MT084071.1 Pangolin coronavirus isolate MP789 genomic sequence: ORF3a:A63I
+Only in MT072865.1 Pangolin coronavirus isolate PCoV_GX-P3B genomic sequence: ORF3a:K102E
+Only in MG772934.1 Bat SARS-like coronavirus isolate bat-SL-CoVZXC21, complete genome: ORF3a:V139L
+Only in OK017805.1 Sarbecovirus sp. isolate HN2021G, complete genome: ORF3a:L159P
+Only in OP963576.1 Bat SARS-like virus BtSY2 ORF1ab polyprotein (ORF1ab), ORF1a polyprotein (ORF1ab), surface glycoprotein, ORF3a protein, ORF3b protein, envelope protein, membrane protein M, ORF6 protein, ORF7a protein, ORF7b protein, ORF8 protein, nucleocapsid: ORF3a:Y250D
+Only in OP963576.1 Bat SARS-like virus BtSY2 ORF1ab polyprotein (ORF1ab), ORF1a polyprotein (ORF1ab), surface glycoprotein, ORF3a protein, ORF3b protein, envelope protein, membrane protein M, ORF6 protein, ORF7a protein, ORF7b protein, ORF8 protein, nucleocapsid: ORF3a:R251G
+Only in OP963576.1 Bat SARS-like virus BtSY2 ORF1ab polyprotein (ORF1ab), ORF1a polyprotein (ORF1ab), surface glycoprotein, ORF3a protein, ORF3b protein, envelope protein, membrane protein M, ORF6 protein, ORF7a protein, ORF7b protein, ORF8 protein, nucleocapsid: ORF3a:F255V
+Only in OK017806.1 Sarbecovirus sp. isolate YN2021, complete genome: E:L24V
+Only in OP963576.1 Bat SARS-like virus BtSY2 ORF1ab polyprotein (ORF1ab), ORF1a polyprotein (ORF1ab), surface glycoprotein, ORF3a protein, ORF3b protein, envelope protein, membrane protein M, ORF6 protein, ORF7a protein, ORF7b protein, ORF8 protein, nucleocapsid: E:L58V
+Only in OQ297706.1 MAG: Severe acute respiratory syndrome-related coronavirus isolate GD/L102.18/2022, partial genome: M:F67L
+Only in MT072865.1 Pangolin coronavirus isolate PCoV_GX-P3B genomic sequence: M:L80I
+Only in MT072865.1 Pangolin coronavirus isolate PCoV_GX-P3B genomic sequence: M:L158R
+Only in MZ937002.1 Bat coronavirus isolate BANAL-20-116/Laos/2020, complete genome: ORF6:R3H
+Only in OK017805.1 Sarbecovirus sp. isolate HN2021G, complete genome: ORF6:M14I
+Only in OP963576.1 Bat SARS-like virus BtSY2 ORF1ab polyprotein (ORF1ab), ORF1a polyprotein (ORF1ab), surface glycoprotein, ORF3a protein, ORF3b protein, envelope protein, membrane protein M, ORF6 protein, ORF7a protein, ORF7b protein, ORF8 protein, nucleocapsid: ORF6:L22F
+Only in MZ937003.2 Bat coronavirus isolate BANAL-20-236/Laos/2020, complete genome: ORF6:F29L
+Only in OK017806.1 Sarbecovirus sp. isolate YN2021, complete genome: ORF6:I45T
+Only in MZ937003.2 Bat coronavirus isolate BANAL-20-236/Laos/2020, complete genome: ORF6:H51Q
+Only in MG772933.1 Bat SARS-like coronavirus isolate bat-SL-CoVZC45, complete genome: N:K28Q
+Only in LC556375.1 Severe acute respiratory syndrome-related coronavirus Rc-o319 RNA, complete genome: N:L40R
+Only in MT040336.1 Pangolin coronavirus isolate PCoV_GX-P5E, complete genome: N:S48N
+Only in MZ937004.1 Bat coronavirus isolate BANAL-20-247/Laos/2020, complete genome: N:G81D
+Only in LC663793.1 Sarbecovirus sp. Rc-kw8 RNA, complete genome: N:K89R
+Only in LC663958.1 Sarbecovirus sp. Rc-os20 RNA, complete geneome: N:F161L
+Only in MZ937001.1 Bat coronavirus isolate BANAL-20-103/Laos/2020, complete genome: N:N201S
+Only in MN996532.2 Bat coronavirus RaTG13, complete genome: N:S215G
+Only in OQ297732.1 MAG: Severe acute respiratory syndrome-related coronavirus isolate GD/L105.18/2022, partial genome: N:R237K
+Only in MT040336.1 Pangolin coronavirus isolate PCoV_GX-P5E, complete genome: N:K289Q
+Only in OK287355.1 Sarbecovirus sp. isolate BetaCoV_Yunnan_Rp_JCC9_2020, complete genome: N:H343D
+Only in LC663959.1 Sarbecovirus sp. Rc-mk2 RNA, complete geneome: N:I362T
+Only in MT084071.1 Pangolin coronavirus isolate MP789 genomic sequence: N:L397A
+Only in MT084071.1 Pangolin coronavirus isolate MP789 genomic sequence: N:P398A
+Only in MT084071.1 Pangolin coronavirus isolate MP789 genomic sequence: N:N399D
+Only in MT040333.1 Pangolin coronavirus isolate PCoV_GX-P4L, complete genome: ORF10:F19C
+Only in MT040333.1 Pangolin coronavirus isolate PCoV_GX-P4L, complete genome: ORF10:K29Q
+Only in MT040333.1 Pangolin coronavirus isolate PCoV_GX-P4L, complete genome: ORF10:L30V
+Only in MN996532.2 Bat coronavirus RaTG13, complete genome: ORF10:L35F
+Only in MT040333.1 Pangolin coronavirus isolate PCoV_GX-P4L, complete genome: ORF10:I36N

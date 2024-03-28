@@ -25,10 +25,11 @@ func extractRanges(g *genomes.Genomes, ranges []Range) [][]byte {
 
 func main() {
 	var fasta string
-	var outName string
+	var outName, format string
 
 	flag.StringVar(&fasta, "fasta", "", "fasta file (nucleotides)")
 	flag.StringVar(&outName, "o", "output.fasta", "output file")
+	flag.StringVar(&format, "format", "fasta", "output format")
 	flag.Parse()
 
 	ranges := make([]Range, 0)
@@ -46,6 +47,15 @@ func main() {
 
 	var orfs genomes.Orfs
 	p := genomes.Genomes{aas, g.Names, orfs}
-	p.SaveMulti(outName)
+
+	switch format {
+	case "fasta":
+		p.SaveMulti(outName)
+	case "clu":
+		p.SaveClu(outName, nil, -1)
+	default:
+		log.Fatalf("Invalid format: <%s>", format)
+	}
+
 	fmt.Printf("Wrote %s\n", outName)
 }
