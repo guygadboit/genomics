@@ -1,51 +1,63 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"genomics/genomes"
+	"strings"
 )
 
-func checkUnique(alleles map[byte][]int,
-	codon genomes.Codon, g *genomes.Genomes) {
-	orfs := g.Orfs
-	names := []string{
-		"ORF1ab",
-		"ORF1ab",
-		"S",
-		"ORF3a",
-		"E",
-		"M",
-		"ORF6",
-		"ORF7a",
-		"ORF7b",
-		"ORF8",
-		"N",
-		"ORF10",
+var orfNames []string
+
+type Alleles map[byte][]int
+
+func joinInts(ints []int, sep string) string {
+	s := make([]string, len(ints))
+	for i, v := range ints {
+		s[i] = fmt.Sprintf("%d", v)
+	}
+	return strings.Join(s, sep)
+}
+
+// Look for alleles where n viruses share one thing, and everybody else has
+// the same other thing.
+func (a Alleles) checkNearlyUnique(codon genomes.Codon,
+	g *genomes.Genomes, n int) {
+	if len(a) != 2 {
+		return
 	}
 
-	for k, v := range alleles {
-		if len(v) == 1 && len(alleles) == 2 {
-			var other byte
-			for k, v := range alleles {
-				if len(v) != 1 {
-					other = k
-					break
-				}
-			}
+	var us, them byte
+	common := make([]int, n)
 
-			// Don't show indels
-			if k == '-' || other == '-' {
-				continue
-			}
-
-			_, orf, pos := codon.OrfRelative(orfs)
-			fmt.Printf("Only in %s: %s:%c%d%c\n",
-				g.Names[v[0]], names[orf], k, pos/3+1, other)
+	for k, v := range a {
+		if k == '-' {
+			continue
 		}
+		if len(v) == n {
+			us = k
+			copy(common, v)
+		} else {
+			them = k
+		}
+	}
+
+	if us != 0 && them != 0 {
+		orfs := g.Orfs
+		_, orf, pos := codon.OrfRelative(orfs)
+
+		fmt.Printf("%s:%d: %s got %c, everyone else has %c\n",
+			orfNames[orf], pos/3+1, joinInts(common, ","), us, them)
 	}
 }
 
 func main() {
+	var numSharers int
+
+	flag.IntVar(&numSharers, "n", 1,
+		"Number of genomes sharing same unusual thing")
+	flag.Parse()
+
 	g := genomes.LoadGenomes("../fasta/SARS2-relatives.fasta",
 		"../fasta/WH1.orfs", false)
 	g.RemoveGaps()
@@ -56,7 +68,7 @@ func main() {
 	}
 
 	for i := 0; i < len(translations[0]); i++ {
-		alleles := make(map[byte][]int)
+		alleles := make(Alleles)
 		for j := 0; j < g.NumGenomes(); j++ {
 			if i >= len(translations[j]) {
 				continue
@@ -69,6 +81,23 @@ func main() {
 			}
 			alleles[aa] = append(alleles[aa], j)
 		}
-		checkUnique(alleles, translations[0][i], g)
+		alleles.checkNearlyUnique(translations[0][i], g, numSharers)
+	}
+}
+
+func init() {
+	orfNames = []string{
+		"ORF1ab",
+		"ORF1ab",
+		"S",
+		"ORF3a",
+		"E",
+		"M",
+		"ORF6",
+		"ORF7a",
+		"ORF7b",
+		"ORF8",
+		"N",
+		"ORF10",
 	}
 }
