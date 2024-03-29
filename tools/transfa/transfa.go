@@ -32,6 +32,9 @@ func writeFile(fname string, g *genomes.Genomes,
 
 func translate(g *genomes.Genomes, w *bufio.Writer) {
 	for i := 0; i < g.NumGenomes(); i++ {
+		if len(g.Nts[i]) < 3 {
+			continue
+		}
 		fmt.Fprintf(w, ">%s\n", g.Names[i])
 		t := genomes.Translate(g, i)
 		aas := make([]byte, len(t))
