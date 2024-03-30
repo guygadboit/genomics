@@ -107,6 +107,7 @@ var ReverseCodonTable map[byte][]string
 
 type Orf struct {
 	Start, End int
+	Name       string
 }
 
 type Orfs []Orf
@@ -150,7 +151,12 @@ loop:
 			log.Fatal("Parse error in ORFs")
 		}
 
-		ret = append(ret, Orf{start, end})
+		var name string
+		if len(fields) == 3 {
+			name = fields[2]
+		}
+
+		ret = append(ret, Orf{start, end, name})
 	}
 
 	return ret
@@ -170,6 +176,19 @@ func (orfs Orfs) GetCodonOffset(pos int) (int, int, error) {
 		}
 	}
 	return 0, 0, errors.New("Not in ORF")
+}
+
+/*
+Convert a position into an ORF relative one. Return the index of the ORF and
+the position in it.
+*/
+func (orfs Orfs) GetOrfRelative(pos int) (int, int, error) {
+	for i, orf := range orfs {
+		if pos >= orf.Start && pos < orf.End {
+			return i, pos - orf.Start, nil
+		}
+	}
+	return 0, 0, nil
 }
 
 // The "Environment" of a subsequence is the codon-aligned section that
@@ -502,14 +521,15 @@ type Codon struct {
 	Aa  byte
 }
 
-// Returns the ORF and the 0-based position in it
-func (c *Codon) OrfRelative(orfs []Orf) (error, int, int) {
-	for i, orf := range orfs {
-		if c.Pos >= orf.Start && c.Pos < orf.End {
-			return nil, i, c.Pos - orf.Start
-		}
+func (c *Codon) Init(pos int, nts string) {
+	c.Pos = pos
+	c.Nts = nts
+
+	aa, there := CodonTable[c.Nts]
+	if !there {
+		aa = '-'
 	}
-	return errors.New("Not in ORF"), 0, 0
+	c.Aa = aa
 }
 
 type Translation []Codon

@@ -84,7 +84,7 @@ loop:
 	ret.Nts = append(ret.Nts, currentRow)
 
 	if len(ret.Orfs) == 0 {
-		ret.Orfs = []Orf{{0, ret.Length()}}
+		ret.Orfs = []Orf{{0, ret.Length(), ""}}
 	}
 
 	return ret

@@ -55,7 +55,7 @@ func (a Alleles) checkNearlyUnique(codon genomes.Codon,
 
 	if us != 0 && them != 0 {
 		orfs := g.Orfs
-		_, orf, pos := codon.OrfRelative(orfs)
+		orf, pos, _ := orfs.GetOrfRelative(codon.Pos)
 
 		fmt.Printf("%s:%d: %s got %c, everyone else has %c\n",
 			orfNames[orf], pos/3+1, joinInts(common, ","), us, them)
