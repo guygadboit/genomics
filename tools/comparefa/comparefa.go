@@ -3,9 +3,9 @@ package main
 import (
 	"flag"
 	"fmt"
-	"log"
 	"genomics/genomes"
 	"genomics/utils"
+	"log"
 )
 
 // Represents an AA change
@@ -26,17 +26,17 @@ func (m Mut) ToString(orfs genomes.Orfs) string {
 		return fmt.Sprintf("Not in ORF")
 	}
 	name := orfs[orfI].Name
-	return fmt.Sprintf("%s\t\t%c%d%c", name, m.A, oPos/3+1, m.B)
+	return fmt.Sprintf("%s:%c%d%c", name, m.A, oPos/3+1, m.B)
 }
 
 func (m NtMut) ToString() string {
 	var silence string
 	if m.Silent {
-		silence = "S"
+		silence = "*"
 	} else {
-		silence = "NS"
+		silence = ""
 	}
-	return fmt.Sprintf("%c%d%c %s", m.A, m.Pos+1, m.B, silence)
+	return fmt.Sprintf("%c%d%c%s", m.A, m.Pos+1, m.B, silence)
 }
 
 type Comparison struct {
@@ -44,43 +44,70 @@ type Comparison struct {
 	NtMuts     []NtMut
 	Insertions []int
 	Deletions  []int
-	Orfs       genomes.Orfs
+	Genomes    *genomes.Genomes
+	A, B       int
 }
 
-func (c *Comparison) Init(orfs genomes.Orfs) {
+// Returns silent and non-silent
+func (c *Comparison) SilentCount() (S int, NS int) {
+	for _, mut := range c.NtMuts {
+		if mut.Silent {
+			S++
+		} else {
+			NS++
+		}
+	}
+	return
+}
+
+func (c *Comparison) Init(g *genomes.Genomes, a, b int) {
 	c.Muts = make([]Mut, 0)
 	c.NtMuts = make([]NtMut, 0)
 	c.Insertions = make([]int, 0)
 	c.Deletions = make([]int, 0)
-	c.Orfs = orfs
+	c.Genomes = g
+	c.A, c.B = a, b
 }
 
-func (c Comparison) Summary() {
+func (c *Comparison) Summary() {
+	g := c.Genomes
+	fmt.Printf("%d (%s) vs %d (%s)\n", c.A, g.Names[c.A], c.B, g.Names[c.B])
 	fmt.Println("Amino acid changes")
 
 	for _, mut := range c.Muts {
-		fmt.Println(mut.ToString(c.Orfs))
+		fmt.Println(mut.ToString(c.Genomes.Orfs))
 	}
 	fmt.Printf("%d amino acids changed\n", len(c.Muts))
 
-	var S, N int
 	fmt.Println("\nNucleotide changes")
 	for _, mut := range c.NtMuts {
 		fmt.Println(mut.ToString())
-		if mut.Silent {
-			S++
-		} else {
-			N++
-		}
 	}
+
+	S, N := c.SilentCount()
 	fmt.Printf("Silent: %d Non-Silent: %d Total: %d\n", S, N, S+N)
 	fmt.Printf("Insertions: %d Deletions: %d\n",
 		len(c.Insertions), len(c.Deletions))
 }
 
+func (c *Comparison) OneLineSummary() {
+	g := c.Genomes
+	fmt.Printf("%d-%d %s: ", c.A, c.B, g.Names[c.B])
+
+	for _, mut := range c.Muts {
+		fmt.Printf("%s ", mut.ToString(c.Genomes.Orfs))
+	}
+
+	for _, mut := range c.NtMuts {
+		fmt.Printf("%s ", mut.ToString())
+	}
+	S, N := c.SilentCount()
+	fmt.Printf("Silent: %d Non-Silent: %d Total: %d", S, N, S+N)
+}
+
 func compare(g *genomes.Genomes, a, b int) Comparison {
 	var ret Comparison
-	ret.Init(g.Orfs)
+	ret.Init(g, a, b)
 
 	for _, aCodon := range genomes.Translate(g, a) {
 		pos := aCodon.Pos
@@ -132,10 +159,12 @@ func main() {
 	var orfName string
 	var include string
 	var saveTrans string
+	var oneLine bool
 
 	flag.StringVar(&orfName, "orfs", "", "ORFs")
 	flag.StringVar(&include, "i", "", "Genomes to include (unset means all)")
 	flag.StringVar(&saveTrans, "s", "", "Save Translation to file")
+	flag.BoolVar(&oneLine, "1", false, "One line output")
 	flag.Parse()
 
 	var g *genomes.Genomes
@@ -146,7 +175,7 @@ func main() {
 			g2 := genomes.LoadGenomes(fname, orfName, false)
 			err := g.AlignCombine(g2)
 			if err != nil {
-				log.Fatal(err)
+				log.Print(err)
 			}
 		}
 	}
@@ -163,10 +192,11 @@ func main() {
 
 	for _, w := range which[1:] {
 		c := compare(g, which[0], w)
-		fmt.Printf("%d (%s) vs %d (%s)\n",
-			which[0], g.Names[which[0]],
-			which[1], g.Names[w])
-		c.Summary()
+		if oneLine {
+			c.OneLineSummary()
+		} else {
+			c.Summary()
+		}
 		fmt.Println()
 	}
 

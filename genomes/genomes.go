@@ -199,21 +199,75 @@ func (g *Genomes) Combine(other *Genomes) error {
 	return nil
 }
 
+// Insert '-' into a where necessary to bring it up to the length of ref and
+// maintaining a good alignment.
+func handleDeletions(a []byte, ref []byte) {
+	needed := len(ref) - len(a)
+
+	// Would putting a gap this long in at pos be a good idea?
+	tryGap := func(pos, length int) bool {
+		overflow := pos+length+10 - len(a)
+		if overflow > 0 {
+			length -= overflow
+		}
+
+		var good int
+		for i := pos; i < pos+10; i++ {
+			if a[i] == ref[i+length] {
+				good++
+			}
+		}
+
+		return good >= 8
+	}
+
+	// Actually put a gap in
+	insertGap := func(pos, length int) {
+		// Weird Go idiom for inserting 
+		a = append(a[:pos], append(make([]byte, length), a[pos:]...)...)
+		for i := pos; i < pos+length; i++ {
+			a[i] = '-'
+		}
+		fmt.Printf("Inserted %d at %d\n", length, pos)
+	}
+
+	for i := 0; i < len(ref); i++ {
+		if i < len(a) {
+			if a[i] == ref[i] {
+				continue
+			}
+			for j := 1; j < needed; j++ {
+				if tryGap(i, j) {
+					insertGap(i, j)
+					needed -= j
+					i += j
+					break
+				}
+			}
+		}
+	}
+
+	for i := 0; i < needed; i++ {
+		a = append(a, '-')
+	}
+}
+
 /*
 Quick and dirty alignment. We aren't sure yet what we actually need here so
-we'll just start with padding
+we'll just start with padding.
 */
 func (g *Genomes) AlignCombine(other *Genomes) error {
 	for i := 0; i < other.NumGenomes(); i++ {
 		n := len(other.Nts[i])
 
-		// If the other one is shorter pad it out
-		for j := n; j < len(g.Nts[0]); j++ {
-			other.Nts[i] = append(other.Nts[i], 'N')
-		}
-
-		if len(other.Nts[i]) != len(g.Nts[0]) {
-			return errors.New("Genomes aren't the same length")
+		// The other genome contains an insertion. For now just skip it, so we
+		// can see how many there are.
+		if n > len(g.Nts[0]) {
+			log.Printf("%d contains %d insertions\n",
+				i, len(other.Nts[i]) - len(g.Nts[0]))
+			continue
+		} else {
+			handleDeletions(other.Nts[i], g.Nts[0])
 		}
 
 		g.Nts = append(g.Nts, other.Nts[i])
