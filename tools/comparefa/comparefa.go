@@ -144,7 +144,7 @@ func main() {
 			g = genomes.LoadGenomes(fname, orfName, false)
 		} else {
 			g2 := genomes.LoadGenomes(fname, orfName, false)
-			err := g.Combine(g2)
+			err := g.AlignCombine(g2)
 			if err != nil {
 				log.Fatal(err)
 			}

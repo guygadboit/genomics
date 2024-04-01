@@ -200,6 +200,29 @@ func (g *Genomes) Combine(other *Genomes) error {
 }
 
 /*
+Quick and dirty alignment. We aren't sure yet what we actually need here so
+we'll just start with padding
+*/
+func (g *Genomes) AlignCombine(other *Genomes) error {
+	for i := 0; i < other.NumGenomes(); i++ {
+		n := len(other.Nts[i])
+
+		// If the other one is shorter pad it out
+		for j := n; j < len(g.Nts[0]); j++ {
+			other.Nts[i] = append(other.Nts[i], 'N')
+		}
+
+		if len(other.Nts[i]) != len(g.Nts[0]) {
+			return errors.New("Genomes aren't the same length")
+		}
+
+		g.Nts = append(g.Nts, other.Nts[i])
+	}
+	g.Names = append(g.Names, other.Names...)
+	return nil
+}
+
+/*
 These little functions make it a bit easier not to get confused about
 which dimension is which.
 */
