@@ -3,9 +3,9 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
 	"genomics/genomes"
 	"genomics/utils"
-	"log"
 )
 
 // Represents an AA change
@@ -40,11 +40,11 @@ func (m NtMut) ToString() string {
 }
 
 type Comparison struct {
-	Muts     []Mut
-	NtMuts   []NtMut
-	Insertions	[]int
-	Deletions	[]int
-	Orfs     genomes.Orfs
+	Muts       []Mut
+	NtMuts     []NtMut
+	Insertions []int
+	Deletions  []int
+	Orfs       genomes.Orfs
 }
 
 func (c *Comparison) Init(orfs genomes.Orfs) {
@@ -56,7 +56,7 @@ func (c *Comparison) Init(orfs genomes.Orfs) {
 }
 
 func (c Comparison) Summary() {
-	fmt.Println("Amino acid Changes")
+	fmt.Println("Amino acid changes")
 
 	for _, mut := range c.Muts {
 		fmt.Println(mut.ToString(c.Orfs))
@@ -64,7 +64,7 @@ func (c Comparison) Summary() {
 	fmt.Printf("%d amino acids changed\n", len(c.Muts))
 
 	var S, N int
-	fmt.Println("\nNucleotide Changes")
+	fmt.Println("\nNucleotide changes")
 	for _, mut := range c.NtMuts {
 		fmt.Println(mut.ToString())
 		if mut.Silent {
@@ -84,6 +84,9 @@ func compare(g *genomes.Genomes, a, b int) Comparison {
 
 	for _, aCodon := range genomes.Translate(g, a) {
 		pos := aCodon.Pos
+		if pos+3 >= len(g.Nts[b]) {
+			break
+		}
 		bNts := string(g.Nts[b][pos : pos+3])
 
 		if aCodon.Nts == bNts {
@@ -131,25 +134,43 @@ func main() {
 	var saveTrans string
 
 	flag.StringVar(&orfName, "orfs", "", "ORFs")
-	flag.StringVar(&include, "i", "", "Genomes to include")
-	flag.StringVar(&saveTrans, "save", "", "Save Translation to file")
+	flag.StringVar(&include, "i", "", "Genomes to include (unset means all)")
+	flag.StringVar(&saveTrans, "s", "", "Save Translation to file")
 	flag.Parse()
+
+	var g *genomes.Genomes
+	for i, fname := range flag.Args() {
+		if i == 0 {
+			g = genomes.LoadGenomes(fname, orfName, false)
+		} else {
+			g2 := genomes.LoadGenomes(fname, orfName, false)
+			err := g.Combine(g2)
+			if err != nil {
+				log.Fatal(err)
+			}
+		}
+	}
 
 	var which []int
 	if include != "" {
 		which = utils.ParseInts(include, ",")
-		if len(which) != 2 {
-			log.Fatal("Only two genomes for now")
-		}
 	} else {
-		which = []int{0, 1}
+		which = make([]int, g.NumGenomes())
+		for i := 0; i < g.NumGenomes(); i++ {
+			which[i] = i
+		}
 	}
 
-	g := genomes.LoadGenomes(flag.Arg(0), orfName, false)
-	c := compare(g, which[0], which[1])
-	c.Summary()
+	for _, w := range which[1:] {
+		c := compare(g, which[0], w)
+		fmt.Printf("%d (%s) vs %d (%s)\n",
+			which[0], g.Names[which[0]],
+			which[1], g.Names[w])
+		c.Summary()
+		fmt.Println()
+	}
 
-	if saveTrans != "" {
+	if len(which) == 2 && saveTrans != "" {
 		g.SaveWithTranslation(saveTrans, nil, which[0], which[1])
 		fmt.Printf("Wrote %s\n", saveTrans)
 	}

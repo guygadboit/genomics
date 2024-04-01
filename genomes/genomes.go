@@ -9,6 +9,7 @@ import (
 	"os"
 	"slices"
 	"strings"
+	"errors"
 )
 
 /*
@@ -187,10 +188,15 @@ func (g *Genomes) DeepCopy(which ...int) {
 Assuming align is aligned with g, add it to g's own nts array, just doing a
 shallow copy
 */
-func (g *Genomes) Combine(other *Genomes) {
+func (g *Genomes) Combine(other *Genomes) error {
 	for i := 0; i < other.NumGenomes(); i++ {
+		if len(other.Nts[i]) != len(g.Nts[0]) {
+			return errors.New("Genomes aren't the same length")
+		}
 		g.Nts = append(g.Nts, other.Nts[i])
 	}
+	g.Names = append(g.Names, other.Names...)
+	return nil
 }
 
 /*
