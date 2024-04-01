@@ -1,23 +1,23 @@
 package main
 
 import (
-	"fmt"
-	"log"
 	"flag"
-	"genomics/utils"
+	"fmt"
 	"genomics/genomes"
+	"genomics/utils"
+	"log"
 )
 
 // Represents an AA change
 type Mut struct {
-	A, B	byte
-	Pos		int
+	A, B byte
+	Pos  int
 }
 
-// Represents a NT change
+// Represents a nt change
 type NtMut struct {
 	Mut
-	Silent	bool
+	Silent bool
 }
 
 func (m Mut) ToString(orfs genomes.Orfs) string {
@@ -26,28 +26,32 @@ func (m Mut) ToString(orfs genomes.Orfs) string {
 		return fmt.Sprintf("Not in ORF")
 	}
 	name := orfs[orfI].Name
-	return fmt.Sprintf("%s:%c%d%c", name, m.A, oPos/3+1, m.B)
+	return fmt.Sprintf("%s\t\t%c%d%c", name, m.A, oPos/3+1, m.B)
 }
 
 func (m NtMut) ToString() string {
-	var silence byte
+	var silence string
 	if m.Silent {
-		silence = 'S'
+		silence = "S"
 	} else {
-		silence = 'N'
+		silence = "NS"
 	}
-	return fmt.Sprintf("%c%d%c %c", m.A, m.Pos+1, m.B, silence)
+	return fmt.Sprintf("%c%d%c %s", m.A, m.Pos+1, m.B, silence)
 }
 
 type Comparison struct {
-	Muts	[]Mut
-	NtMuts	[]NtMut
-	Orfs	genomes.Orfs
+	Muts     []Mut
+	NtMuts   []NtMut
+	Insertions	[]int
+	Deletions	[]int
+	Orfs     genomes.Orfs
 }
 
 func (c *Comparison) Init(orfs genomes.Orfs) {
 	c.Muts = make([]Mut, 0)
 	c.NtMuts = make([]NtMut, 0)
+	c.Insertions = make([]int, 0)
+	c.Deletions = make([]int, 0)
 	c.Orfs = orfs
 }
 
@@ -70,6 +74,8 @@ func (c Comparison) Summary() {
 		}
 	}
 	fmt.Printf("Silent: %d Non-Silent: %d Total: %d\n", S, N, S+N)
+	fmt.Printf("Insertions: %d Deletions: %d\n",
+		len(c.Insertions), len(c.Deletions))
 }
 
 func compare(g *genomes.Genomes, a, b int) Comparison {
@@ -78,7 +84,7 @@ func compare(g *genomes.Genomes, a, b int) Comparison {
 
 	for _, aCodon := range genomes.Translate(g, a) {
 		pos := aCodon.Pos
-		bNts := string(g.Nts[b][pos:pos+3])
+		bNts := string(g.Nts[b][pos : pos+3])
 
 		if aCodon.Nts == bNts {
 			continue
@@ -86,17 +92,33 @@ func compare(g *genomes.Genomes, a, b int) Comparison {
 
 		var bCodon genomes.Codon
 		bCodon.Init(pos, bNts)
-		silent := aCodon.Aa == bCodon.Aa
+		var silent bool
+		var isMut bool
+
+		isMut = aCodon.Aa != '-' && bCodon.Aa != '-'
+		silent = isMut && aCodon.Aa == bCodon.Aa
 
 		for j, aNt := range []byte(aCodon.Nts) {
 			bNt := bCodon.Nts[j]
-			if aNt != bNt {
+			if aNt == bNt {
+				continue
+			}
+
+			if aNt == 'N' || bNt == 'N' {
+				continue
+			}
+
+			if aNt == '-' {
+				ret.Insertions = append(ret.Insertions, pos)
+			} else if bNt == '-' {
+				ret.Deletions = append(ret.Deletions, pos)
+			} else {
 				ret.NtMuts = append(ret.NtMuts,
-					NtMut{Mut{aNt, bNt, pos+j}, silent})
+					NtMut{Mut{aNt, bNt, pos + j}, silent})
 			}
 		}
 
-		if !silent {
+		if isMut && !silent {
 			ret.Muts = append(ret.Muts, Mut{aCodon.Aa, bCodon.Aa, pos})
 		}
 	}
