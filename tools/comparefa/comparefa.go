@@ -171,6 +171,7 @@ func main() {
 	for i, fname := range flag.Args() {
 		if i == 0 {
 			g = genomes.LoadGenomes(fname, orfName, false)
+			g.RemoveGaps()
 		} else {
 			g2 := genomes.LoadGenomes(fname, orfName, false)
 			err := g.AlignCombine(g2)

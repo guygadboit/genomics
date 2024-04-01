@@ -199,96 +199,104 @@ func (g *Genomes) Combine(other *Genomes) error {
 	return nil
 }
 
-// Insert '-' into a where necessary to bring it up to the length of ref and
-// maintaining a good alignment.
-func handleDeletions(a []byte, ref []byte) []byte {
+func Min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
+
+/*
+How many differences are there looking at length bytes from pos in a and
+comparing them to length bytes from pos+offset in b?
+*/
+func countDifferences(a []byte, b []byte, pos, offset, length int) int {
+	var ret int
+
+	aSpace := len(a) - (pos + length)
+	bSpace := len(b) - (pos + offset + length)
+	space := Min(aSpace, bSpace)
+	if space < 0 {
+		length += space
+	}
+
+	for i := 0; i < length; i++ {
+		if a[pos+i] != b[pos+offset+i] {
+			ret++
+		}
+	}
+
+	return ret
+}
+
+// Insert '-' into other, or cut pieces out of other, to make it match ref
+func align(ref []byte, other []byte) []byte {
 	// Assuming things don't match up at pos, would it help to put a gap into a
 	// here?
 	needGap := func(pos int) bool {
-		// Look ahead a bit and see if things are back on track. If they are
-		// then a gap won't help
-		end := pos + 40
-		if end > len(a) {
-			end = len(a)
-		}
-
-		var good int
-		for i := end - 20; i < end; i++ {
-			if a[i] == ref[i] {
-				good++
-			}
-		}
-
-		return good < 18
+		// We need a gap if things aren't already back on track a little down
+		// the road.
+		return countDifferences(other, ref, pos+20, 0, 20) > 2
 	}
 
-	// Would putting a gap this long in at pos be a good idea?
-	tryGap := func(pos, length int) bool {
-		overflow := pos + length + 20 - len(a)
-		if overflow > 0 {
-			length -= overflow
-		}
-
-		var good int
-		for i := pos; i < pos+20; i++ {
-			if a[i] == ref[i+length] {
-				good++
-			}
-		}
-
-		return good >= 18
+	// Would putting a gap this long in to a at pos be a good idea?
+	tryGap := func(pos, length int, a, b []byte) bool {
+		return countDifferences(a, b, pos+20, length, 20) <= 2
 	}
 
 	// Actually put a gap in
 	insertGap := func(pos, length int) {
-		a = append(a[:pos], append(make([]byte, length), a[pos:]...)...)
+		other = append(other[:pos],
+			append(make([]byte, length), other[pos:]...)...)
 		for i := pos; i < pos+length; i++ {
-			a[i] = '-'
-		}
-		fmt.Printf("Inserted %d at %d\n", length, pos)
-	}
-
-	for i := 0; i < len(ref); i++ {
-		if i < len(a) {
-			if a[i] == ref[i] {
-				continue
-			}
-
-			if !needGap(i) {
-				continue
-			}
-
-			for j := 1; j < 1000; j++ {
-				if tryGap(i, j) {
-					insertGap(i, j)
-					i += j
-					break
-				}
-			}
+			other[i] = '-'
 		}
 	}
 
-	return a
+	removeSection := func(pos, length int) {
+		other = append(other[:pos], other[pos+length:]...)
+	}
+
+	for i := 0; ; i++ {
+		if i >= len(ref) || i >= len(other) {
+			break
+		}
+		if other[i] == ref[i] {
+			continue
+		}
+		if !needGap(i) {
+			continue
+		}
+
+		for j := 1; j < 1000; j++ {
+			if tryGap(i, j, other, ref) {
+				insertGap(i, j)
+				i += j
+				break
+			}
+			if tryGap(i, j, ref, other) {
+				removeSection(i, j)
+				i += j
+				break
+			}
+		}
+	}
+	return other
 }
 
-/*
-Quick and dirty alignment. We aren't sure yet what we actually need here so
-we'll just start with padding.
-*/
 func (g *Genomes) AlignCombine(other *Genomes) error {
 	for i := 0; i < other.NumGenomes(); i++ {
 
-		other.Nts[i] = handleDeletions(other.Nts[i], g.Nts[0])
+		other.Nts[i] = align(g.Nts[0], other.Nts[i])
 		n := len(other.Nts[i])
 
-		// The other genome contains an insertion. For now just skip it, so we
-		// can see how many there are.
+		// If other is too long at this point, just skip it. We'll see how
+		// often this happens.
 		if n > len(g.Nts[0]) {
-			log.Printf("%d contains %d insertions\n",
-				i, len(other.Nts[i])-len(g.Nts[0]))
+			log.Printf("Alignment of %d failed.\n", i)
 			continue
 		} else {
-			for i := 0; i < len(g.Nts[0]) - n; i++ {
+			for j := 0; j < len(g.Nts[0])-n; j++ {
 				other.Nts[i] = append(other.Nts[i], '-')
 			}
 		}
