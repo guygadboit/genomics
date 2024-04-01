@@ -2,6 +2,7 @@ package genomes
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"genomics/utils"
 	"io"
@@ -9,7 +10,6 @@ import (
 	"os"
 	"slices"
 	"strings"
-	"errors"
 )
 
 /*
@@ -201,29 +201,46 @@ func (g *Genomes) Combine(other *Genomes) error {
 
 // Insert '-' into a where necessary to bring it up to the length of ref and
 // maintaining a good alignment.
-func handleDeletions(a []byte, ref []byte) {
-	needed := len(ref) - len(a)
+func handleDeletions(a []byte, ref []byte) []byte {
+	// Assuming things don't match up at pos, would it help to put a gap into a
+	// here?
+	needGap := func(pos int) bool {
+		// Look ahead a bit and see if things are back on track. If they are
+		// then a gap won't help
+		end := pos + 40
+		if end > len(a) {
+			end = len(a)
+		}
+
+		var good int
+		for i := end - 20; i < end; i++ {
+			if a[i] == ref[i] {
+				good++
+			}
+		}
+
+		return good < 18
+	}
 
 	// Would putting a gap this long in at pos be a good idea?
 	tryGap := func(pos, length int) bool {
-		overflow := pos+length+10 - len(a)
+		overflow := pos + length + 20 - len(a)
 		if overflow > 0 {
 			length -= overflow
 		}
 
 		var good int
-		for i := pos; i < pos+10; i++ {
+		for i := pos; i < pos+20; i++ {
 			if a[i] == ref[i+length] {
 				good++
 			}
 		}
 
-		return good >= 8
+		return good >= 18
 	}
 
 	// Actually put a gap in
 	insertGap := func(pos, length int) {
-		// Weird Go idiom for inserting 
 		a = append(a[:pos], append(make([]byte, length), a[pos:]...)...)
 		for i := pos; i < pos+length; i++ {
 			a[i] = '-'
@@ -236,10 +253,14 @@ func handleDeletions(a []byte, ref []byte) {
 			if a[i] == ref[i] {
 				continue
 			}
-			for j := 1; j < needed; j++ {
+
+			if !needGap(i) {
+				continue
+			}
+
+			for j := 1; j < 1000; j++ {
 				if tryGap(i, j) {
 					insertGap(i, j)
-					needed -= j
 					i += j
 					break
 				}
@@ -247,9 +268,7 @@ func handleDeletions(a []byte, ref []byte) {
 		}
 	}
 
-	for i := 0; i < needed; i++ {
-		a = append(a, '-')
-	}
+	return a
 }
 
 /*
@@ -258,16 +277,20 @@ we'll just start with padding.
 */
 func (g *Genomes) AlignCombine(other *Genomes) error {
 	for i := 0; i < other.NumGenomes(); i++ {
+
+		other.Nts[i] = handleDeletions(other.Nts[i], g.Nts[0])
 		n := len(other.Nts[i])
 
 		// The other genome contains an insertion. For now just skip it, so we
 		// can see how many there are.
 		if n > len(g.Nts[0]) {
 			log.Printf("%d contains %d insertions\n",
-				i, len(other.Nts[i]) - len(g.Nts[0]))
+				i, len(other.Nts[i])-len(g.Nts[0]))
 			continue
 		} else {
-			handleDeletions(other.Nts[i], g.Nts[0])
+			for i := 0; i < len(g.Nts[0]) - n; i++ {
+				other.Nts[i] = append(other.Nts[i], '-')
+			}
 		}
 
 		g.Nts = append(g.Nts, other.Nts[i])
