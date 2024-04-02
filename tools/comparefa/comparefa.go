@@ -75,7 +75,7 @@ func (c *Comparison) Summary() {
 	fmt.Println("Amino acid changes")
 
 	for _, mut := range c.Muts {
-		fmt.Println(mut.ToString(c.Genomes.Orfs))
+		fmt.Printf("%s (%d)\n", mut.ToString(c.Genomes.Orfs), mut.Pos)
 	}
 	fmt.Printf("%d amino acids changed\n", len(c.Muts))
 

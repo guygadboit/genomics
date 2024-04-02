@@ -57,7 +57,7 @@ func (a Alleles) checkNearlyUnique(codon genomes.Codon,
 		orf, pos, _ := orfs.GetOrfRelative(codon.Pos)
 
 		fmt.Printf("%s:%d: %s got %c, everyone else has %c\n",
-			orfs[orf].Name, pos/3+1, joinInts(common, ","), us, them)
+		orfs[orf].Name, pos/3+1, joinInts(common, ","), us, them)
 
 		for _, v := range common {
 			ret[v] += 1
@@ -84,9 +84,8 @@ func (a Alleles) checkUnique2(codon genomes.Codon,
 	}
 
 	orf, pos, _ := orfs.GetOrfRelative(codon.Pos)
-
-	fmt.Printf("%s:%d: %d got %c, everyone else something else\n",
-		orfs[orf].Name, pos/3+1, which, us)
+	fmt.Printf("%d has %s:%d%c, everyone else something else\n",
+		which, orfs[orf].Name, pos/3+1, us)
 }
 
 func graphData(qm QuirkMap, g *genomes.Genomes) {
@@ -98,11 +97,11 @@ func graphData(qm QuirkMap, g *genomes.Genomes) {
 
 func main() {
 	var numSharers int
-	var unique bool
+	var unique int
 
 	flag.IntVar(&numSharers, "n", 1,
 		"Number of genomes sharing same unusual thing")
-	flag.BoolVar(&unique, "u", false,
+	flag.IntVar(&unique, "u", -1,
 		"Just check for unique whatever the others have")
 	flag.Parse()
 
@@ -134,8 +133,8 @@ func main() {
 		// q := alleles.checkNearlyUnique(translations[0][i], g, numSharers)
 		// quirks.Combine(q)
 
-		if unique {
-			alleles.checkUnique2(translations[0][i], g, 0)
+		if unique != -1 {
+			alleles.checkUnique2(translations[0][i], g, unique)
 		} else {
 			alleles.checkNearlyUnique(translations[0][i], g, numSharers)
 		}
