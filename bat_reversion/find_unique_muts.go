@@ -7,8 +7,6 @@ import (
 	"strings"
 )
 
-var orfNames []string
-
 type Alleles map[byte][]int
 
 func joinInts(ints []int, sep string) string {
@@ -19,7 +17,8 @@ func joinInts(ints []int, sep string) string {
 	return strings.Join(s, sep)
 }
 
-// Counts how many "quirks" (lone differences from the crowd) in each genome
+// Counts how many "quirks" (lone differences from the crowd) in each genome.
+// Maps a genome index to a count
 type QuirkMap map[int]int
 
 func (q QuirkMap) Combine(other QuirkMap) {
@@ -45,7 +44,7 @@ func (a Alleles) checkNearlyUnique(codon genomes.Codon,
 		if k == '-' {
 			continue
 		}
-		if len(v) == n {
+		if len(v) <= n {
 			us = k
 			copy(common, v)
 		} else {
@@ -58,13 +57,36 @@ func (a Alleles) checkNearlyUnique(codon genomes.Codon,
 		orf, pos, _ := orfs.GetOrfRelative(codon.Pos)
 
 		fmt.Printf("%s:%d: %s got %c, everyone else has %c\n",
-			orfNames[orf], pos/3+1, joinInts(common, ","), us, them)
+			orfs[orf].Name, pos/3+1, joinInts(common, ","), us, them)
 
 		for _, v := range common {
 			ret[v] += 1
 		}
 	}
 	return ret
+}
+
+// Look for alleles unique to which, but not caring whether the others all have
+// the same thing there or are variously different.
+func (a Alleles) checkUnique2(codon genomes.Codon,
+	g *genomes.Genomes, which int) {
+	orfs := g.Orfs
+
+	var us byte
+	for k, v := range a {
+		if len(v) == 1 && v[0] == which {
+			us = k
+			break
+		}
+	}
+	if us == 0 {
+		return
+	}
+
+	orf, pos, _ := orfs.GetOrfRelative(codon.Pos)
+
+	fmt.Printf("%s:%d: %d got %c, everyone else something else\n",
+		orfs[orf].Name, pos/3+1, which, us)
 }
 
 func graphData(qm QuirkMap, g *genomes.Genomes) {
@@ -76,16 +98,19 @@ func graphData(qm QuirkMap, g *genomes.Genomes) {
 
 func main() {
 	var numSharers int
+	var unique bool
 
 	flag.IntVar(&numSharers, "n", 1,
 		"Number of genomes sharing same unusual thing")
+	flag.BoolVar(&unique, "u", false,
+		"Just check for unique whatever the others have")
 	flag.Parse()
 
 	g := genomes.LoadGenomes("../fasta/SARS2-relatives.fasta",
 		"../fasta/WH1.orfs", false)
 	g.RemoveGaps()
 
-	quirks := make(QuirkMap)
+	// quirks := make(QuirkMap)
 
 	translations := make([]genomes.Translation, g.NumGenomes())
 	for i := 0; i < g.NumGenomes(); i++ {
@@ -106,25 +131,14 @@ func main() {
 			}
 			alleles[aa] = append(alleles[aa], j)
 		}
-		q := alleles.checkNearlyUnique(translations[0][i], g, numSharers)
-		quirks.Combine(q)
-	}
-	graphData(quirks, g)
-}
+		// q := alleles.checkNearlyUnique(translations[0][i], g, numSharers)
+		// quirks.Combine(q)
 
-func init() {
-	orfNames = []string{
-		"ORF1ab",
-		"ORF1ab",
-		"S",
-		"ORF3a",
-		"E",
-		"M",
-		"ORF6",
-		"ORF7a",
-		"ORF7b",
-		"ORF8",
-		"N",
-		"ORF10",
+		if unique {
+			alleles.checkUnique2(translations[0][i], g, 0)
+		} else {
+			alleles.checkNearlyUnique(translations[0][i], g, numSharers)
+		}
 	}
+	// graphData(quirks, g)
 }
