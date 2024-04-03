@@ -23,6 +23,15 @@ func extractRanges(g *genomes.Genomes, ranges []Range) [][]byte {
 	return ret
 }
 
+func checkRanges(g *genomes.Genomes, ranges []Range) {
+	for _, r := range ranges {
+		if r.start < 0 || r.end >= g.Length() {
+			log.Fatalf("Invalid range %d:%d (length is %d)",
+				r.start+1, r.end, g.Length())
+		}
+	}
+}
+
 func main() {
 	var fasta string
 	var outName, format string
@@ -43,6 +52,8 @@ func main() {
 	}
 
 	g := genomes.LoadGenomes(fasta, "", false)
+
+	checkRanges(g, ranges)
 	aas := extractRanges(g, ranges)
 
 	var orfs genomes.Orfs

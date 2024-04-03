@@ -14,10 +14,18 @@ type Mut struct {
 	Pos  int
 }
 
+type Silence int
+
+const (
+	SILENT Silence = iota
+	NON_SILENT
+	NOT_IN_ORF
+)
+
 // Represents a nt change
 type NtMut struct {
 	Mut
-	Silent bool
+	Silence Silence
 }
 
 func (m Mut) ToString(orfs genomes.Orfs) string {
@@ -31,11 +39,16 @@ func (m Mut) ToString(orfs genomes.Orfs) string {
 
 func (m NtMut) ToString() string {
 	var silence string
-	if m.Silent {
+
+	switch m.Silence {
+	case SILENT:
 		silence = "*"
-	} else {
+	case NON_SILENT:
 		silence = ""
+	case NOT_IN_ORF:
+		silence = "@"
 	}
+
 	return fmt.Sprintf("%c%d%c%s", m.A, m.Pos+1, m.B, silence)
 }
 
@@ -48,13 +61,16 @@ type Comparison struct {
 	A, B       int
 }
 
-// Returns silent and non-silent
-func (c *Comparison) SilentCount() (S int, NS int) {
+// Returns silent, non-silent and non-orf
+func (c *Comparison) SilentCount() (S int, NS int, NO int) {
 	for _, mut := range c.NtMuts {
-		if mut.Silent {
+		switch mut.Silence {
+		case SILENT:
 			S++
-		} else {
+		case NON_SILENT:
 			NS++
+		case NOT_IN_ORF:
+			NO++
 		}
 	}
 	return
@@ -84,8 +100,9 @@ func (c *Comparison) Summary() {
 		fmt.Println(mut.ToString())
 	}
 
-	S, N := c.SilentCount()
-	fmt.Printf("Silent: %d Non-Silent: %d Total: %d\n", S, N, S+N)
+	S, N, NO := c.SilentCount()
+	fmt.Printf("Silent: %d Non-Silent: %d Non-Orf: %d Total: %d\n",
+		S, N, NO, S+N+NO)
 	fmt.Printf("Insertions: %d Deletions: %d\n",
 		len(c.Insertions), len(c.Deletions))
 }
@@ -101,14 +118,34 @@ func (c *Comparison) OneLineSummary() {
 	for _, mut := range c.NtMuts {
 		fmt.Printf("%s ", mut.ToString())
 	}
-	S, N := c.SilentCount()
-	fmt.Printf("Silent: %d Non-Silent: %d Total: %d", S, N, S+N)
+	S, N, NO := c.SilentCount()
+	fmt.Printf("Silent: %d Non-Silent: %d Non-Orf: %d Total: %d\n",
+		S, N, NO, S+N+NO)
 }
 
 func compare(g *genomes.Genomes, a, b int) Comparison {
 	var ret Comparison
 	ret.Init(g, a, b)
 
+	handleNtMut := func(aNt, bNt byte, silence Silence, pos int) bool {
+		if aNt == bNt {
+			return false
+		}
+		if aNt == 'N' || bNt == 'N' {
+			return false
+		}
+		if aNt == '-' {
+			ret.Insertions = append(ret.Insertions, pos)
+		} else if bNt == '-' {
+			ret.Deletions = append(ret.Deletions, pos)
+		} else {
+			ret.NtMuts = append(ret.NtMuts,
+			NtMut{Mut{aNt, bNt, pos}, silence})
+		}
+		return true
+	}
+
+	// First find the mutations in ORFs
 	for _, aCodon := range genomes.Translate(g, a) {
 		pos := aCodon.Pos
 		if pos+3 >= len(g.Nts[b]) {
@@ -122,36 +159,42 @@ func compare(g *genomes.Genomes, a, b int) Comparison {
 
 		var bCodon genomes.Codon
 		bCodon.Init(pos, bNts)
-		var silent bool
+		var silence Silence
 		var isMut bool
 
 		isMut = aCodon.Aa != '-' && bCodon.Aa != '-'
-		silent = isMut && aCodon.Aa == bCodon.Aa
+		if isMut {
+			if aCodon.Aa == bCodon.Aa {
+				silence = SILENT
+			} else {
+				silence = NON_SILENT
+			}
+		}
 
 		for j, aNt := range []byte(aCodon.Nts) {
 			bNt := bCodon.Nts[j]
-			if aNt == bNt {
-				continue
-			}
 
-			if aNt == 'N' || bNt == 'N' {
+			if !handleNtMut(aNt, bNt, silence, pos+j) {
 				continue
-			}
-
-			if aNt == '-' {
-				ret.Insertions = append(ret.Insertions, pos)
-			} else if bNt == '-' {
-				ret.Deletions = append(ret.Deletions, pos)
-			} else {
-				ret.NtMuts = append(ret.NtMuts,
-					NtMut{Mut{aNt, bNt, pos + j}, silent})
 			}
 		}
 
-		if isMut && !silent {
+		if isMut && silence == NON_SILENT {
 			ret.Muts = append(ret.Muts, Mut{aCodon.Aa, bCodon.Aa, pos})
 		}
 	}
+
+	// And now any outside them.
+	start := 0
+	for _, orf := range g.Orfs {
+		for i := start; i < orf.Start; i++ {
+			aNt, bNt := g.Nts[a][i], g.Nts[b][i]
+			handleNtMut(aNt, bNt, NOT_IN_ORF, i)
+
+		}
+		start = orf.End
+	}
+
 	return ret
 }
 
@@ -171,7 +214,6 @@ func main() {
 	for i, fname := range flag.Args() {
 		if i == 0 {
 			g = genomes.LoadGenomes(fname, orfName, false)
-			g.RemoveGaps()
 		} else {
 			g2 := genomes.LoadGenomes(fname, orfName, false)
 			err := g.AlignCombine(g2)
