@@ -203,17 +203,22 @@ func main() {
 	var include string
 	var saveTrans string
 	var oneLine bool
+	var keepGaps bool
 
 	flag.StringVar(&orfName, "orfs", "", "ORFs")
 	flag.StringVar(&include, "i", "", "Genomes to include (unset means all)")
-	flag.StringVar(&saveTrans, "s", "", "Save Translation to file")
+	flag.StringVar(&saveTrans, "s", "", "Save translation to file")
 	flag.BoolVar(&oneLine, "1", false, "One line output")
+	flag.BoolVar(&keepGaps, "gaps", false, "Keep gaps in first genome")
 	flag.Parse()
 
 	var g *genomes.Genomes
 	for i, fname := range flag.Args() {
 		if i == 0 {
 			g = genomes.LoadGenomes(fname, orfName, false)
+			if !keepGaps {
+				g.RemoveGaps()
+			}
 		} else {
 			g2 := genomes.LoadGenomes(fname, orfName, false)
 			err := g.AlignCombine(g2)
