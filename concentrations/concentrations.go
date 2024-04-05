@@ -361,11 +361,7 @@ func main() {
 		fmt.Printf("%d doubles found\n", len(concs.Concs))
 		highlights := CreateHighlights(concs.Concs)
 
-		all := make([]int, len(which))
-		for i, _ := range all {
-			all[i] = i
-		}
-		g2.SaveWithTranslation("highlights.clu", highlights, all...)
+		g2.SaveWithTranslation("highlights.clu", highlights)
 		fmt.Printf("Written highlights.clu\n")
 		return
 	}

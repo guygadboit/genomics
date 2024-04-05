@@ -478,7 +478,7 @@ func (g *Genomes) saveCluStyle(fname string,
 	defer fd.Close()
 	fp := bufio.NewWriter(fd)
 
-	if which[0] == -1 {
+	if len(which) == 0 {
 		which = make([]int, g.NumGenomes())
 		for i := 0; i < g.NumGenomes(); i++ {
 			which[i] = i
@@ -554,7 +554,7 @@ func (g *Genomes) saveCluStyle(fname string,
 }
 
 // Save in a clu-style format with the translation. Assume a and b are aligned.
-// -1 for which means save everything.
+// Nothing for which means save everything
 func (g *Genomes) SaveWithTranslation(fname string,
 	highlights []Highlight, which ...int) error {
 	return g.saveCluStyle(fname, highlights, true, which...)

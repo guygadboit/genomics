@@ -77,7 +77,7 @@ func main() {
 
 	switch mode {
 	case SIDE_BY_SIDE:
-		g.SaveWithTranslation(outName, nil, -1)
+		g.SaveWithTranslation(outName, nil)
 	case TRANSLATE:
 		writeFile(outName, g, translate)
 	case CODONS:

@@ -46,11 +46,6 @@ func main() {
 				which = append(which, i)
 			}
 		}
-	} else {
-		which = make([]int, g.NumGenomes())
-		for i := 0; i < g.NumGenomes(); i++ {
-			which[i] = i
-		}
 	}
 
 	g.SaveClu(outName, nil, which...)

@@ -63,7 +63,7 @@ func main() {
 	case "fasta":
 		p.SaveMulti(outName)
 	case "clu":
-		p.SaveClu(outName, nil, -1)
+		p.SaveClu(outName, nil)
 	default:
 		log.Fatalf("Invalid format: <%s>", format)
 	}
