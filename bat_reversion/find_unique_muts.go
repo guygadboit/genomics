@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"genomics/genomes"
+	"math/rand"
 	"strings"
 )
 
@@ -57,7 +58,7 @@ func (a Alleles) checkNearlyUnique(codon genomes.Codon,
 		orf, pos, _ := orfs.GetOrfRelative(codon.Pos)
 
 		fmt.Printf("%s:%d: %s got %c, everyone else has %c\n",
-		orfs[orf].Name, pos/3+1, joinInts(common, ","), us, them)
+			orfs[orf].Name, pos/3+1, joinInts(common, ","), us, them)
 
 		for _, v := range common {
 			ret[v] += 1
@@ -66,26 +67,103 @@ func (a Alleles) checkNearlyUnique(codon genomes.Codon,
 	return ret
 }
 
-// Look for alleles unique to which, but not caring whether the others all have
-// the same thing there or are variously different.
-func (a Alleles) checkUnique2(codon genomes.Codon,
-	g *genomes.Genomes, which int) {
+// Look for alleles unique to something, but not caring whether the others all
+// have the same thing there as each other or are variously different.
+func (a Alleles) checkUnique2(codon genomes.Codon, g *genomes.Genomes) {
 	orfs := g.Orfs
 
-	var us byte
 	for k, v := range a {
-		if len(v) == 1 && v[0] == which {
-			us = k
-			break
+		if k == '-' {
+			continue
+		}
+		if len(v) == 1 {
+			orf, pos, _ := orfs.GetOrfRelative(codon.Pos)
+			fmt.Printf("%d got %s:%d%c, everyone else something else\n",
+				v[0], orfs[orf].Name, pos/3+1, k)
 		}
 	}
-	if us == 0 {
-		return
-	}
+}
 
-	orf, pos, _ := orfs.GetOrfRelative(codon.Pos)
-	fmt.Printf("%d has %s:%d%c, everyone else something else\n",
-		which, orfs[orf].Name, pos/3+1, us)
+func minSimilarity(g *genomes.Genomes, which ...int) float64 {
+	ret := 1.0
+	for _, i := range which {
+		for _, j := range which {
+			if i == j {
+				continue
+			}
+			ss := g.SequenceSimilarity(i, j)
+			if ss < ret {
+				ret = ss
+			}
+		}
+	}
+	return ret
+}
+
+// Look for alleles that the pangolin CoVs all share which the bat ones don't.
+// Return the number that share the same thing under that criterion, and the
+// min SS
+func (a Alleles) checkPangolin(codon genomes.Codon,
+	g *genomes.Genomes) (int, float64) {
+	orfs := g.Orfs
+
+outer:
+	for k, v := range a {
+		if k == '-' {
+			continue
+		}
+		for _, index := range v {
+			if !strings.Contains(g.Names[index], "Pangolin") {
+				continue outer
+			}
+		}
+		minSS := minSimilarity(g, v...)
+		if len(v) >= 5 {
+			orf, pos, _ := orfs.GetOrfRelative(codon.Pos)
+			fmt.Printf("%d Pangolins minSS: %.2f got "+
+				"%s:%d%c, bats something else\n",
+				len(v), minSS, orfs[orf].Name, pos/3+1, k)
+		}
+		return len(v), minSS
+	}
+	return 0, 1.0
+}
+
+func contains(haystack []int, needle int) bool {
+	for _, v := range haystack {
+		if v == needle {
+			return true
+		}
+	}
+	return false
+}
+
+// Look for alleles that 12 CoVs picked at random share which the others don't
+func (a Alleles) checkPangolinControl(codon genomes.Codon,
+	g *genomes.Genomes, controls []int) (int, float64) {
+	// orfs := g.Orfs
+
+outer:
+	for k, v := range a {
+		if k == '-' {
+			continue
+		}
+		for _, index := range v {
+			if !contains(controls, index) {
+				continue outer
+			}
+		}
+
+		minSS := minSimilarity(g, v...)
+		/*
+			orf, pos, _ := orfs.GetOrfRelative(codon.Pos)
+			fmt.Printf("%d controls minSS: %.2f got %s:%d%c, "+
+				"others something else\n",
+				len(v), minSS, orfs[orf].Name, pos/3+1, k)
+		*/
+		return len(v), minSS
+	}
+	return 0, 1.0
 }
 
 func graphData(qm QuirkMap, g *genomes.Genomes) {
@@ -95,18 +173,52 @@ func graphData(qm QuirkMap, g *genomes.Genomes) {
 	}
 }
 
+func randomControls(n int) []int {
+	ret := make([]int, 12)
+	for i, _ := range ret {
+		ret[i] = rand.Intn(n)
+	}
+	return ret
+}
+
+func pangolinControls(codon genomes.Codon,
+	alleles Alleles, g *genomes.Genomes) {
+	var numMatched int
+	var total, count float64
+
+	for i := 0; i < 1000; i++ {
+		matched, minSS := alleles.checkPangolinControl(codon, g,
+			randomControls(g.NumGenomes()))
+		if matched >= 5 {
+			numMatched++
+			total += minSS
+			count++
+		}
+	}
+	if numMatched > 0 {
+		fmt.Printf("Matched %d/1000 minSS %f\n", numMatched, total/count)
+	}
+}
+
 func main() {
 	var numSharers int
-	var unique int
+	var unique bool
+	var fasta, orfs string
+	var pangolins, controls bool
 
 	flag.IntVar(&numSharers, "n", 1,
 		"Number of genomes sharing same unusual thing")
-	flag.IntVar(&unique, "u", -1,
+	flag.BoolVar(&unique, "u", false,
 		"Just check for unique whatever the others have")
+	flag.StringVar(&fasta, "fasta", "../fasta/SARS2-relatives.fasta",
+		"Fasta file to use")
+	flag.StringVar(&orfs, "orfs", "../fasta/WH1.orfs",
+		"ORFs file to use")
+	flag.BoolVar(&pangolins, "pangolin", false, "Pangolin special")
+	flag.BoolVar(&controls, "control", false, "Pangolin controls")
 	flag.Parse()
 
-	g := genomes.LoadGenomes("../fasta/SARS2-relatives.fasta",
-		"../fasta/WH1.orfs", false)
+	g := genomes.LoadGenomes(fasta, orfs, false)
 	g.RemoveGaps()
 
 	// quirks := make(QuirkMap)
@@ -130,13 +242,19 @@ func main() {
 			}
 			alleles[aa] = append(alleles[aa], j)
 		}
+
 		// q := alleles.checkNearlyUnique(translations[0][i], g, numSharers)
 		// quirks.Combine(q)
 
-		if unique != -1 {
-			alleles.checkUnique2(translations[0][i], g, unique)
+		ref := translations[0][i]
+		if pangolins {
+			alleles.checkPangolin(ref, g)
+		} else if controls {
+			pangolinControls(ref, alleles, g)
+		} else if unique {
+			alleles.checkUnique2(ref, g)
 		} else {
-			alleles.checkNearlyUnique(translations[0][i], g, numSharers)
+			alleles.checkNearlyUnique(ref, g, numSharers)
 		}
 	}
 	// graphData(quirks, g)
