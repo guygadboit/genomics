@@ -6,6 +6,8 @@ import (
 	"genomics/genomes"
 	"genomics/utils"
 	"log"
+	"os"
+	"bufio"
 )
 
 // Represents an AA change
@@ -123,6 +125,48 @@ func (c *Comparison) OneLineSummary() {
 		S, N, NO, S+N+NO)
 }
 
+type PosSet map[int]bool
+
+func (c *Comparison) GraphData(fname string) {
+	f, err := os.Create(fname)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer f.Close()
+	w := bufio.NewWriter(f)
+
+	silent := make(PosSet)
+	nonSilent := make(PosSet)
+	for _, m := range c.NtMuts {
+		if m.Silence == NON_SILENT {
+			nonSilent[m.Pos] = true
+		} else {
+			silent[m.Pos] = true
+		}
+	}
+
+	insertions := utils.ToSet(c.Insertions)
+	deletions := utils.ToSet(c.Deletions)
+
+	g := c.Genomes
+
+	var s, ns, ins, del int
+	for i := 0; i < g.Length(); i++ {
+		if silent[i] {
+			s++
+		} else if nonSilent[i] {
+			ns++
+		} else if insertions[i] {
+			ins++
+		} else if deletions[i] {
+			del++
+		}
+		fmt.Fprintf(w, "%d %d %d %d\n", s, ns, ins, del)
+	}
+
+	w.Flush()
+}
+
 func compare(g *genomes.Genomes, a, b int) Comparison {
 	var ret Comparison
 	ret.Init(g, a, b)
@@ -204,12 +248,14 @@ func main() {
 	var saveTrans string
 	var oneLine bool
 	var keepGaps bool
+	var graphData bool
 
 	flag.StringVar(&orfName, "orfs", "", "ORFs")
 	flag.StringVar(&include, "i", "", "Genomes to include (unset means all)")
 	flag.StringVar(&saveTrans, "s", "", "Save translation to file")
 	flag.BoolVar(&oneLine, "1", false, "One line output")
 	flag.BoolVar(&keepGaps, "gaps", false, "Keep gaps in first genome")
+	flag.BoolVar(&graphData, "g", false, "Graph data")
 	flag.Parse()
 
 	var g *genomes.Genomes
@@ -244,6 +290,10 @@ func main() {
 			c.OneLineSummary()
 		} else {
 			c.Summary()
+		}
+		if len(which) == 2 && graphData {
+			c.GraphData("cumulative-muts.txt")
+			fmt.Printf("Wrote cumulative-muts.txt")
 		}
 		fmt.Println()
 	}
