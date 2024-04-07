@@ -1,10 +1,13 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
 	"genomics/genomes"
+	"log"
 	"math/rand"
+	"os"
 	"strings"
 )
 
@@ -18,8 +21,8 @@ func joinInts(ints []int, sep string) string {
 	return strings.Join(s, sep)
 }
 
-// Counts how many "quirks" (lone differences from the crowd) in each genome.
-// Maps a genome index to a count
+// Counts how many "quirks" (differences from the others) in each genome. Maps
+// a genome index to a count
 type QuirkMap map[int]int
 
 func (q QuirkMap) Combine(other QuirkMap) {
@@ -69,7 +72,9 @@ func (a Alleles) checkNearlyUnique(codon genomes.Codon,
 
 // Look for alleles unique to something, but not caring whether the others all
 // have the same thing there as each other or are variously different.
-func (a Alleles) checkUnique2(codon genomes.Codon, g *genomes.Genomes) {
+func (a Alleles) checkUnique2(codon genomes.Codon,
+	g *genomes.Genomes) QuirkMap {
+	ret := make(QuirkMap)
 	orfs := g.Orfs
 
 	for k, v := range a {
@@ -80,8 +85,10 @@ func (a Alleles) checkUnique2(codon genomes.Codon, g *genomes.Genomes) {
 			orf, pos, _ := orfs.GetOrfRelative(codon.Pos)
 			fmt.Printf("%d got %s:%d%c, everyone else something else\n",
 				v[0], orfs[orf].Name, pos/3+1, k)
+			ret[v[0]] += 1
 		}
 	}
+	return ret
 }
 
 func minSimilarity(g *genomes.Genomes, which ...int) float64 {
@@ -167,10 +174,21 @@ outer:
 }
 
 func graphData(qm QuirkMap, g *genomes.Genomes) {
+	f, err := os.Create("graph-data.txt")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer f.Close()
+
+	w := bufio.NewWriter(f)
+
 	for k, v := range qm {
 		ss := g.SequenceSimilarity(0, k)
-		fmt.Println(ss, v)
+		fmt.Fprintln(w, v, ss)
 	}
+
+	w.Flush()
+	fmt.Println("Wrote graph-data.txt")
 }
 
 func randomControls(n int) []int {
@@ -221,7 +239,7 @@ func main() {
 	g := genomes.LoadGenomes(fasta, orfs, false)
 	g.RemoveGaps()
 
-	// quirks := make(QuirkMap)
+	quirks := make(QuirkMap)
 
 	translations := make([]genomes.Translation, g.NumGenomes())
 	for i := 0; i < g.NumGenomes(); i++ {
@@ -243,19 +261,21 @@ func main() {
 			alleles[aa] = append(alleles[aa], j)
 		}
 
-		// q := alleles.checkNearlyUnique(translations[0][i], g, numSharers)
-		// quirks.Combine(q)
-
 		ref := translations[0][i]
 		if pangolins {
 			alleles.checkPangolin(ref, g)
 		} else if controls {
 			pangolinControls(ref, alleles, g)
 		} else if unique {
-			alleles.checkUnique2(ref, g)
+			q := alleles.checkUnique2(ref, g)
+			quirks.Combine(q)
 		} else {
-			alleles.checkNearlyUnique(ref, g, numSharers)
+			q := alleles.checkNearlyUnique(ref, g, numSharers)
+			quirks.Combine(q)
 		}
 	}
-	// graphData(quirks, g)
+
+	if len(quirks) > 0 {
+		graphData(quirks, g)
+	}
 }
