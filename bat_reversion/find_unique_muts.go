@@ -192,10 +192,18 @@ func graphData(qm QuirkMap, g *genomes.Genomes) {
 }
 
 func randomControls(n int) []int {
+	values := make(map[int]bool)
 	ret := make([]int, 12)
-	for i, _ := range ret {
-		ret[i] = rand.Intn(n)
+
+	for i := 0; i < 12; {
+		v := rand.Intn(n)
+		if !values[v] {
+			ret[i] = v
+			i++
+			values[v] = true
+		}
 	}
+
 	return ret
 }
 
@@ -203,6 +211,14 @@ func pangolinControls(codon genomes.Codon,
 	alleles Alleles, g *genomes.Genomes) {
 	var numMatched int
 	var total, count float64
+
+	/*
+	pangolins := []int{30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41}
+	pMatched, pMinSS := alleles.checkPangolinControl(codon, g, pangolins)
+	if pMatched > 0 {
+		fmt.Printf("Matched %d %f for real pangolins\n", pMatched, pMinSS)
+	}
+	*/
 
 	for i := 0; i < 1000; i++ {
 		matched, minSS := alleles.checkPangolinControl(codon, g,
