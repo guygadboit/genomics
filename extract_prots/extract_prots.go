@@ -35,10 +35,12 @@ func checkRanges(g *genomes.Genomes, ranges []Range) {
 func main() {
 	var fasta string
 	var outName, format string
+	var removeGaps bool
 
 	flag.StringVar(&fasta, "fasta", "", "fasta file (nucleotides)")
 	flag.StringVar(&outName, "o", "output.fasta", "output file")
 	flag.StringVar(&format, "format", "fasta", "output format")
+	flag.BoolVar(&removeGaps, "g", false, "remove gaps")
 	flag.Parse()
 
 	ranges := make([]Range, 0)
@@ -52,6 +54,9 @@ func main() {
 	}
 
 	g := genomes.LoadGenomes(fasta, "", false)
+	if removeGaps {
+		g.RemoveGaps()
+	}
 
 	checkRanges(g, ranges)
 	aas := extractRanges(g, ranges)
