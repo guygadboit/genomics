@@ -277,6 +277,11 @@ func main() {
 	var which []int
 	if include != "" {
 		which = utils.ParseInts(include, ",")
+		for _, v := range which {
+			if v < 0 || v > g.NumGenomes()-1 {
+				log.Fatalf("Invalid index %d", v)
+			}
+		}
 	} else {
 		which = make([]int, g.NumGenomes())
 		for i := 0; i < g.NumGenomes(); i++ {
@@ -292,8 +297,9 @@ func main() {
 			c.Summary()
 		}
 		if len(which) == 2 && graphData {
-			c.GraphData("cumulative-muts.txt")
-			fmt.Printf("Wrote cumulative-muts.txt")
+			fname := "cumulative-muts.txt"
+			c.GraphData(fname)
+			fmt.Printf("Wrote %s\n", fname)
 		}
 		fmt.Println()
 	}
