@@ -1,13 +1,13 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
 	"genomics/genomes"
 	"genomics/utils"
 	"log"
 	"os"
-	"bufio"
 )
 
 // Represents an AA change
@@ -85,6 +85,14 @@ func (c *Comparison) Init(g *genomes.Genomes, a, b int) {
 	c.Deletions = make([]int, 0)
 	c.Genomes = g
 	c.A, c.B = a, b
+}
+
+func (c *Comparison) SilentSummary() {
+	for _, mut := range c.NtMuts {
+		if mut.Silence == SILENT {
+			fmt.Println(mut.ToString())
+		}
+	}
 }
 
 func (c *Comparison) Summary() {
@@ -184,7 +192,7 @@ func compare(g *genomes.Genomes, a, b int) Comparison {
 			ret.Deletions = append(ret.Deletions, pos)
 		} else {
 			ret.NtMuts = append(ret.NtMuts,
-			NtMut{Mut{aNt, bNt, pos}, silence})
+				NtMut{Mut{aNt, bNt, pos}, silence})
 		}
 		return true
 	}
@@ -249,6 +257,7 @@ func main() {
 	var oneLine bool
 	var keepGaps bool
 	var graphData bool
+	var silentOnly bool
 
 	flag.StringVar(&orfName, "orfs", "", "ORFs")
 	flag.StringVar(&include, "i", "", "Genomes to include (unset means all)")
@@ -256,6 +265,7 @@ func main() {
 	flag.BoolVar(&oneLine, "1", false, "One line output")
 	flag.BoolVar(&keepGaps, "gaps", false, "Keep gaps in first genome")
 	flag.BoolVar(&graphData, "g", false, "Graph data")
+	flag.BoolVar(&silentOnly, "silent", false, "Silent only")
 	flag.Parse()
 
 	var g *genomes.Genomes
@@ -293,6 +303,8 @@ func main() {
 		c := compare(g, which[0], w)
 		if oneLine {
 			c.OneLineSummary()
+		} else if silentOnly {
+			c.SilentSummary()
 		} else {
 			c.Summary()
 		}
@@ -301,7 +313,6 @@ func main() {
 			c.GraphData(fname)
 			fmt.Printf("Wrote %s\n", fname)
 		}
-		fmt.Println()
 	}
 
 	if len(which) == 2 && saveTrans != "" {
