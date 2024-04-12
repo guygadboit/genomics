@@ -40,18 +40,14 @@ func main() {
 		log.Fatalf("Specify either include or exclude, not both")
 	}
 
-	which := make([]int, 0)
+	var which []int
 
 	if include != "" {
-		inc := utils.ToSet(utils.ParseInts(include, ","))
-		for i := 0; i < g.NumGenomes(); i++ {
-			if inc[i] {
-				which = append(which, i)
-			}
-		}
+		which = utils.ParseInts(include, ",")
 	}
 
 	if exclude != "" {
+		which = make([]int, 0)
 		exc := utils.ToSet(utils.ParseInts(exclude, ","))
 		for i := 0; i < g.NumGenomes(); i++ {
 			if !exc[i] {
