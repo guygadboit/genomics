@@ -13,14 +13,14 @@ import (
 )
 
 /*
-Represents a collection of aligned genomes (usually two) with one genome
-per row. The orfs "belong" to the first one in the set. We also use this
-for a single genome.
+Represents a collection of aligned genomes (often two) with one genome per row.
+The orfs "belong" to the first one in the set. We also use this for a single
+genome, and sometimes for a protein
 */
 type Genomes struct {
-	Nts   [][]byte
-	Names []string
-	Orfs  Orfs
+	Nts       [][]byte
+	Names     []string
+	Orfs      Orfs
 }
 
 func NewGenomes(orfs Orfs, numGenomes int) *Genomes {
@@ -392,6 +392,39 @@ func (g *Genomes) SequenceSimilarity(a, b int) float64 {
 		}
 	}
 	return float64(same) / float64(total)
+}
+
+func (g *Genomes) ToVector(which int) []float64 {
+	ret := make([]float64, g.Length())
+	for i := 0; i < g.Length(); i++ {
+		switch g.Nts[which][i] {
+		case 'A':
+			ret[i] = 1.0
+		case 'G':
+			ret[i] = 2.0
+		case 'T':
+			ret[i] = 3.0
+		case 'C':
+			ret[i] = 4.0
+		}
+	}
+	return ret
+}
+
+/*
+If each genome was a vector, where -, A, G, T, C == 0, 1, 2, 4, 5 return the
+position of the centroid
+*/
+func (g *Genomes) Centroid() []float64 {
+	ret := make([]float64, g.Length())
+	for i := 0; i < g.NumGenomes(); i++ {
+		utils.VecAdd(ret, g.ToVector(i))
+	}
+	n := float64(g.NumGenomes())
+	for i := 0; i < g.Length(); i++ {
+		ret[i] /= n
+	}
+	return ret
 }
 
 /*

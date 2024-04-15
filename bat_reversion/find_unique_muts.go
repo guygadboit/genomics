@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"genomics/genomes"
+	"genomics/utils"
 	"log"
 	"math/rand"
 	"os"
@@ -85,7 +86,10 @@ func (a Alleles) checkUnique2(codon genomes.Codon,
 			orf, pos, _ := orfs.GetOrfRelative(codon.Pos)
 			fmt.Printf("%d got %s:%d%c, everyone else something else\n",
 				v[0], orfs[orf].Name, pos/3+1, k)
-			ret[v[0]] += 1
+
+			if orfs[orf].Name == "S" {
+				ret[v[0]] += 1
+			}
 		}
 	}
 	return ret
@@ -174,6 +178,8 @@ outer:
 }
 
 func graphData(qm QuirkMap, g *genomes.Genomes) {
+	centroid := g.Centroid()
+
 	f, err := os.Create("graph-data.txt")
 	if err != nil {
 		log.Fatal(err)
@@ -183,8 +189,9 @@ func graphData(qm QuirkMap, g *genomes.Genomes) {
 	w := bufio.NewWriter(f)
 
 	for k, v := range qm {
-		ss := g.SequenceSimilarity(0, k)
-		fmt.Fprintln(w, v, ss)
+		vec := g.ToVector(k)
+		d := utils.VecDistance(vec, centroid)
+		fmt.Fprintln(w, v, d, k)
 	}
 
 	w.Flush()
@@ -213,11 +220,11 @@ func pangolinControls(codon genomes.Codon,
 	var total, count float64
 
 	/*
-	pangolins := []int{30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41}
-	pMatched, pMinSS := alleles.checkPangolinControl(codon, g, pangolins)
-	if pMatched > 0 {
-		fmt.Printf("Matched %d %f for real pangolins\n", pMatched, pMinSS)
-	}
+		pangolins := []int{30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41}
+		pMatched, pMinSS := alleles.checkPangolinControl(codon, g, pangolins)
+		if pMatched > 0 {
+			fmt.Printf("Matched %d %f for real pangolins\n", pMatched, pMinSS)
+		}
 	*/
 
 	for i := 0; i < 1000; i++ {

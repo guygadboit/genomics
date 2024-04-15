@@ -61,6 +61,7 @@ type Comparison struct {
 	Deletions  []int
 	Genomes    *genomes.Genomes
 	A, B       int
+	IsProtein  bool
 }
 
 // Returns silent, non-silent and non-orf
@@ -78,13 +79,14 @@ func (c *Comparison) SilentCount() (S int, NS int, NO int) {
 	return
 }
 
-func (c *Comparison) Init(g *genomes.Genomes, a, b int) {
+func (c *Comparison) Init(g *genomes.Genomes, a, b int, protein bool) {
 	c.Muts = make([]Mut, 0)
 	c.NtMuts = make([]NtMut, 0)
 	c.Insertions = make([]int, 0)
 	c.Deletions = make([]int, 0)
 	c.Genomes = g
 	c.A, c.B = a, b
+	c.IsProtein = protein
 }
 
 func (c *Comparison) SilentSummary() {
@@ -95,7 +97,26 @@ func (c *Comparison) SilentSummary() {
 	}
 }
 
+func (c *Comparison) proteinSummary() {
+	g := c.Genomes
+	fmt.Printf("%d (%s) vs %d (%s)\n", c.A, g.Names[c.A], c.B, g.Names[c.B])
+	fmt.Println("Amino acid changes")
+
+	for _, mut := range c.Muts {
+		fmt.Printf("%c%d%c\n", mut.A, mut.Pos, mut.B)
+	}
+	fmt.Printf("%d amino acids changed\n", len(c.Muts))
+
+	numMuts := float64(len(c.Muts))
+	total := float64(g.Length())
+	fmt.Printf("AA similarity: %.2f%%\n", ((total-numMuts)*100)/total)
+}
+
 func (c *Comparison) Summary() {
+	if c.IsProtein {
+		c.proteinSummary()
+		return
+	}
 	g := c.Genomes
 	fmt.Printf("%d (%s) vs %d (%s)\n", c.A, g.Names[c.A], c.B, g.Names[c.B])
 	fmt.Println("Amino acid changes")
@@ -115,6 +136,10 @@ func (c *Comparison) Summary() {
 		S, N, NO, S+N+NO)
 	fmt.Printf("Insertions: %d Deletions: %d\n",
 		len(c.Insertions), len(c.Deletions))
+
+	numMuts := float64(len(c.NtMuts))
+	total := float64(g.Length())
+	fmt.Printf("Nucleotide similarity: %.2f%%\n", ((total-numMuts)*100)/total)
 }
 
 func (c *Comparison) OneLineSummary() {
@@ -177,7 +202,7 @@ func (c *Comparison) GraphData(fname string) {
 
 func compare(g *genomes.Genomes, a, b int) Comparison {
 	var ret Comparison
-	ret.Init(g, a, b)
+	ret.Init(g, a, b, false)
 
 	handleNtMut := func(aNt, bNt byte, silence Silence, pos int) bool {
 		if aNt == bNt {
@@ -250,6 +275,29 @@ func compare(g *genomes.Genomes, a, b int) Comparison {
 	return ret
 }
 
+// Use this when the genomes are already translated
+func compareProtein(g *genomes.Genomes, a, b int) Comparison {
+	var ret Comparison
+	ret.Init(g, a, b, true)
+
+	aAas, bAas := g.Nts[a], g.Nts[b]
+
+	for i := 0; i < g.Length(); i++ {
+		aAa, bAa := aAas[i], bAas[i]
+		if aAa == bAa {
+			continue
+		}
+		if aAa == '-' {
+			ret.Insertions = append(ret.Insertions, i)
+		} else if bAa == '-' {
+			ret.Deletions = append(ret.Deletions, i)
+		} else {
+			ret.Muts = append(ret.Muts, Mut{aAa, bAa, i})
+		}
+	}
+	return ret
+}
+
 func main() {
 	var orfName string
 	var include string
@@ -258,6 +306,7 @@ func main() {
 	var keepGaps bool
 	var graphData bool
 	var silentOnly bool
+	var protein bool
 
 	flag.StringVar(&orfName, "orfs", "", "ORFs")
 	flag.StringVar(&include, "i", "", "Genomes to include (unset means all)")
@@ -266,6 +315,7 @@ func main() {
 	flag.BoolVar(&keepGaps, "gaps", false, "Keep gaps in first genome")
 	flag.BoolVar(&graphData, "g", false, "Graph data")
 	flag.BoolVar(&silentOnly, "silent", false, "Silent only")
+	flag.BoolVar(&protein, "p", false, "input is already translated")
 	flag.Parse()
 
 	var g *genomes.Genomes
@@ -300,7 +350,12 @@ func main() {
 	}
 
 	for _, w := range which[1:] {
-		c := compare(g, which[0], w)
+		var c Comparison
+		if protein {
+			c = compareProtein(g, which[0], w)
+		} else {
+			c = compare(g, which[0], w)
+		}
 		if oneLine {
 			c.OneLineSummary()
 		} else if silentOnly {
