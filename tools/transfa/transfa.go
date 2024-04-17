@@ -20,11 +20,19 @@ const (
 
 func writeFile(fname string, g *genomes.Genomes,
 	cb func(*genomes.Genomes, *bufio.Writer)) {
-	f, err := os.Create(fname)
-	if err != nil {
-		log.Fatal(err)
+	var f *os.File
+	var err error
+
+	if fname == "" {
+		f = os.Stdout
+	} else {
+		f, err = os.Create(fname)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer f.Close()
 	}
-	defer f.Close()
+
 	w := bufio.NewWriter(f)
 	cb(g, w)
 	w.Flush()
@@ -66,7 +74,7 @@ func main() {
 
 	flag.StringVar(&modeName, "mode", "translate", "Translation mode")
 	flag.StringVar(&orfs, "orfs", "", "ORFs file")
-	flag.StringVar(&outName, "o", "translation", "Output filename")
+	flag.StringVar(&outName, "o", "", "Output filename")
 	flag.Parse()
 
 	g := genomes.LoadGenomes(flag.Arg(0), orfs, false)
@@ -84,5 +92,7 @@ func main() {
 		writeFile(outName, g, showCodons)
 	}
 
-	fmt.Printf("Wrote %s\n", outName)
+	if outName != "" {
+		fmt.Printf("Wrote %s\n", outName)
+	}
 }
