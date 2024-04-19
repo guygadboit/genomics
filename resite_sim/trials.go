@@ -85,6 +85,11 @@ func main() {
 		return
 	}
 
+	var c Classifier
+	c.Init()
+	c.Trial(100)
+	return
+
 	fnames := []string{
 		"RpYN06",
 		"BtSY2",

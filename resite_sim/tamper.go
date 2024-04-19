@@ -36,7 +36,8 @@ func AddSite(genome *genomes.Genomes, sites []ReSite,
 	}
 
 	start := rand.Intn(genome.Length())
-	for i := start; i < genome.Length(); i++ {
+	// -9 to leave room for an environment around a pattern right at the end
+	for i := start; i < genome.Length() - 9; i++ {
 		if tryAdd(i) {
 			return i, nil
 		}
