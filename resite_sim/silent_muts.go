@@ -99,7 +99,7 @@ func CountSilentInSitesReference(name string, sites []ReSite,
 	// ORFS
 	baseName := fmt.Sprintf("WH1-%s", name)
 	fname := fmt.Sprintf("%s.fasta", baseName)
-	g := genomes.LoadGenomes(fname, "WH1.orfs", false)
+	g := genomes.LoadGenomes(fname, "../fasta/WH1.orfs", false)
 
 	var result TamperTrialResult
 	result.SilentInSites = CountSilentInSites(g, RE_SITES, false)

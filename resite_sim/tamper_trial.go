@@ -43,8 +43,9 @@ func TamperTrials(genome *genomes.Genomes, nd *mutations.NucDistro,
 	}
 
 	for i := 0; i < numTrials; i++ {
-		mutant := genome.Clone()
-		mutations.MutateSilent(mutant, nd, 1, numMuts)
+		mutant := genome.Filter(0, 0)
+		mutant.DeepCopy(0)
+		mutations.MutateSilent(mutant, nd, numMuts, 1)
 
 		tampered := rand.Intn(2) == 1
 		if tampered {
