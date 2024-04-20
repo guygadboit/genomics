@@ -23,13 +23,13 @@ func (c *Classifier) Init() {
 			"../fasta/WH1.orfs", false)
 	*/
 
-	c.relatives = genomes.LoadGenomes("../fasta/CloseRelatives.fasta",
-		"../fasta/WH1.orfs", false)
+		c.relatives = genomes.LoadGenomes("../fasta/CloseRelatives.fasta",
+			"../fasta/WH1.orfs", false)
 
-	/*
-		c.relatives = genomes.LoadGenomes("../fasta/ACCRealigned.fasta",
+			/*
+	c.relatives = genomes.LoadGenomes("../fasta/ACCRealigned.fasta",
 		"../fasta/WH1.orfs", false)
-	*/
+		*/
 	c.relatives.RemoveGaps()
 
 	sites := make(map[int]bool)
@@ -44,6 +44,8 @@ func (c *Classifier) Init() {
 		c.sites = append(c.sites, k)
 	}
 	sort.Ints(c.sites)
+
+	fmt.Println("Places where sites appear in any of the set:")
 	fmt.Println(c.sites)
 }
 
@@ -139,16 +141,15 @@ func (c *Classifier) OneTrial(reference int, numTrials int) TestResult {
 
 	original := c.relatives.Filter(reference)
 
+	count := c.CountShared(original, reference)
+	fmt.Printf("%s %d/%d shared. Benchmark %d. Tampered: %t\n",
+		c.relatives.Names[reference],
+		count, len(c.sites), benchmark, count < benchmark)
+
 	if isTampered(original) {
 		ret.FalsePositives++
-		if reference == 0 {
-			fmt.Println("0th genome reported as tampered")
-		}
 	} else {
 		ret.TrueNegatives++
-		if reference == 0 {
-			fmt.Println("0th genome reported as legit")
-		}
 	}
 
 	for i := 0; i < numTrials; i++ {

@@ -4,12 +4,12 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
+	"genomics/genomes"
+	"genomics/mutations"
 	"io"
 	"log"
 	"os"
 	"sync"
-	"genomics/genomes"
-	"genomics/mutations"
 )
 
 type TrialResult interface {
@@ -66,11 +66,36 @@ func writeParams(w io.Writer, nTrials, nMuts, nEdits int) {
 		nTrials, nMuts, nEdits)
 }
 
+func showOrgMaps(genomes []*genomes.Genomes) {
+	f, err := os.Create("restriction_maps.txt")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer f.Close()
+
+	w := bufio.NewWriter(f)
+	for _, g := range genomes {
+		_, _, _, _, sites := FindRestrictionMap(g)
+		fmt.Fprintf(w, "%s: [", g.Names[0])
+		for i, site := range sites {
+			fmt.Fprintf(w, "%d", site)
+			if i < len(sites) -1 {
+				fmt.Fprintf(w, ",")
+			} else {
+				fmt.Fprintf(w, "]\n")
+			}
+		}
+	}
+	w.Flush()
+	fmt.Println("Wrote restriction_maps.txt")
+}
+
 func main() {
 	var nTrials, nMuts, nThreads, nEdits int
 	var test, countSites bool
 	var trialType string
 	var testRecombo bool
+	var orgMaps bool
 
 	flag.IntVar(&nTrials, "n", 10000, "Number of trials")
 	flag.IntVar(&nMuts, "m", 0, "Number of mutations (0 means auto)")
@@ -81,6 +106,8 @@ func main() {
 	flag.IntVar(&nEdits, "edits", 3, "Number of sites to move")
 	flag.BoolVar(&testRecombo, "recombo", false, "Try to detect "+
 		"tampering based on recombination")
+	flag.BoolVar(&orgMaps, "maps", false, "Show restriction maps before "+
+		"any simulated mutation")
 	flag.Parse()
 
 	if test {
@@ -106,6 +133,12 @@ func main() {
 	}
 
 	g := loadGenomes(fnames)
+
+	if orgMaps {
+		showOrgMaps(g)
+		return
+	}
+
 	nd := findNucDistro(g)
 	nd.Show()
 

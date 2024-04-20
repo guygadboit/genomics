@@ -92,8 +92,12 @@ def rates(results, max_count=None,
 			total, float(good * 100) / total))
 
 
+def parse_positions(s):
+	return [int(x) for x in s.strip('[]').split(',')]
+
+
 def normalized_positions(result):
-	positions = [float(x) for x in result.positions.strip('[]').split(',')]
+	positions = [float(x) for x in parse_positions(result.positions)]
 	return [x / float(result.genome_len) for x in positions]
 
 
@@ -147,6 +151,39 @@ def added_removed(results):
 	print()
 
 
+def parse_originals():
+	ret = {}
+	with open("restriction_maps.txt") as fp:
+		for line in fp:
+			line = line.strip()
+			name, sites = line.split()
+			name = name[:-1]	# get rid of the colon
+			sites = parse_positions(sites)
+			ret[name] = sites
+	return ret
+
+
+def extra_sites_in_special(results):
+	# The 11 places where sites appear in SC2 and its close relatives. Note
+	# this is wrong though, because those positions have moved-- we aren't
+	# using aligned genomes!
+	special = set([2192, 9750, 10443, 11647,
+				17328, 17971, 22921, 22922, 23291, 24101, 24508])
+	originals = parse_originals()
+	total, count = 0, 0
+
+	for k, result_list in results.items():
+		existing = set(originals[k])
+		for result in result_list:
+			positions = set(parse_positions(result.positions))
+			added = positions - existing
+			outside = added - special
+			total += len(outside)
+			count += 1
+		print("{}: {:.2f} sites added on average outside the "
+			"11 locations".format(k, float(total)/count))
+
+
 def main():
 	ap = ArgumentParser()
 	ap.add_argument("fname", nargs=1)
@@ -156,9 +193,13 @@ def main():
 	ap.add_argument("-m", "--max-count", type=int)
 	ap.add_argument("-e", "--exact-count", type=int)
 	ap.add_argument("-i", "--require-not-interleaved", action="store_true")
+	ap.add_argument("-x", "--extras", action="store_true")
 
 	args = ap.parse_args()
 	results = parse_all_results(args.fname[0])
+
+	if args.extras:
+		extra_sites_in_special(results)
 
 	if args.silent_counts:
 		silent_counts(results)
