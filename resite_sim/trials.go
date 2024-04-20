@@ -70,6 +70,7 @@ func main() {
 	var nTrials, nMuts, nThreads, nEdits int
 	var test, countSites bool
 	var trialType string
+	var testRecombo bool
 
 	flag.IntVar(&nTrials, "n", 10000, "Number of trials")
 	flag.IntVar(&nMuts, "m", 0, "Number of mutations (0 means auto)")
@@ -78,6 +79,8 @@ func main() {
 	flag.BoolVar(&countSites, "c", false, "Count mutations per site etc.")
 	flag.StringVar(&trialType, "trial", "spacing", "Which trials to run")
 	flag.IntVar(&nEdits, "edits", 3, "Number of sites to move")
+	flag.BoolVar(&testRecombo, "recombo", false, "Try to detect "+
+		"tampering based on recombination")
 	flag.Parse()
 
 	if test {
@@ -85,10 +88,12 @@ func main() {
 		return
 	}
 
-	var c Classifier
-	c.Init()
-	c.Trial(100)
-	return
+	if testRecombo {
+		var c Classifier
+		c.Init()
+		c.Trial(100)
+		return
+	}
 
 	fnames := []string{
 		"RpYN06",
