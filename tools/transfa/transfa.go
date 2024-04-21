@@ -85,6 +85,9 @@ func main() {
 
 	switch mode {
 	case SIDE_BY_SIDE:
+		if outName == "" {
+			log.Fatal("Output filename required for ss mode")
+		}
 		g.SaveWithTranslation(outName, nil)
 	case TRANSLATE:
 		writeFile(outName, g, translate)

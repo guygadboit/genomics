@@ -631,8 +631,7 @@ func IsSilentWithReplacement(g *Genomes,
 	var envA, envB Environment
 	length := len(replacement)
 
-	numMuts := utils.NumMuts(g.Nts[a][pos:pos+length],
-		g.Nts[b][pos:pos+length])
+	numMuts := utils.NumMuts(g.Nts[a][pos:pos+length], replacement)
 
 	err := envA.Init(g, pos, length, a)
 	if err != nil {

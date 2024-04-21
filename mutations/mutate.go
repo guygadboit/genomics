@@ -93,19 +93,29 @@ mutations:
 	return numMuts
 }
 
+// If g has only one genome in it, double it up (so we just mutate it relative
+// to itself, which is what the caller intended)
+func double(g *genomes.Genomes) *genomes.Genomes {
+	if g.NumGenomes() == 1 {
+		return g.Filter(0, 0)
+	}
+	return g
+}
+
 /*
 Introduce num silent mutations into genome (the first one), selecting nts
-randomly from nucDist. Return the number of mutations
+randomly from nucDist. Return the number of mutations. If there's only one
+genome, just mutate that relative to itself
 */
 func MutateSilent(genome *genomes.Genomes,
 	nucDist *NucDistro, num int, numSeq int) int {
-	return mutate(genome, nucDist, num, numSeq, true)
+	return mutate(double(genome), nucDist, num, numSeq, true)
 }
 
 // The same as MutateSilent but make sure the muts are non-silent
 func MutateNonSilent(genome *genomes.Genomes,
 	nucDist *NucDistro, num int, numSeq int) int {
-	return mutate(genome, nucDist, num, numSeq, false)
+	return mutate(double(genome), nucDist, num, numSeq, false)
 }
 
 /*

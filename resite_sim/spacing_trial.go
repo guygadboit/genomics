@@ -101,10 +101,9 @@ func SpacingTrials(genome *genomes.Genomes, nd *mutations.NucDistro,
 	}
 
 	for i := 0; i < numTrials; i++ {
-		mutant := genome.Filter(0, 0)
-		mutant.DeepCopy(0)
-
+		mutant := genome.Clone()
 		mutations.MutateSilent(mutant, nd, numMuts, 1)
+
 		count, maxLength, unique, interleaved, positions =
 			FindRestrictionMap(mutant)
 
