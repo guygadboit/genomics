@@ -27,7 +27,7 @@ func (t *SpacingTrial) WriteHeadings(w io.Writer) {
 
 type SpacingTrialResult struct {
 	name         string // genome name
-	count        int    // number of sites
+	count        int    // number of segments
 	maxLength    int    // length of longest segment
 	unique       bool   // unique sticky ends?
 	acceptable   bool   // longest segment < 8kb and unique sticky?

@@ -118,7 +118,8 @@ func main() {
 	if testRecombo {
 		var c Classifier
 		c.Init()
-		c.Trial(100)
+		c.ExploreNeighbours()
+		// c.Trial(100)
 		return
 	}
 

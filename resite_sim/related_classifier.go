@@ -6,6 +6,7 @@ import (
 	"math"
 	"reflect"
 	"sort"
+	"strings"
 )
 
 type Classifier struct {
@@ -23,13 +24,13 @@ func (c *Classifier) Init() {
 			"../fasta/WH1.orfs", false)
 	*/
 
+	/*
 		c.relatives = genomes.LoadGenomes("../fasta/CloseRelatives.fasta",
 			"../fasta/WH1.orfs", false)
-
-			/*
+	*/
 	c.relatives = genomes.LoadGenomes("../fasta/ACCRealigned.fasta",
 		"../fasta/WH1.orfs", false)
-		*/
+
 	c.relatives.RemoveGaps()
 
 	sites := make(map[int]bool)
@@ -45,8 +46,10 @@ func (c *Classifier) Init() {
 	}
 	sort.Ints(c.sites)
 
+	/*
 	fmt.Println("Places where sites appear in any of the set:")
 	fmt.Println(c.sites)
+	*/
 }
 
 /*
@@ -176,4 +179,56 @@ func (c *Classifier) Trial(numTrials int) TestResult {
 	fmt.Println("Overall result:")
 	ret.Show()
 	return ret
+}
+
+type Matches map[int][]int
+
+func (c *Classifier) ShowMatches(locations []int) Matches {
+	ret := make(Matches)
+	g := c.relatives
+	for _, loc := range locations {
+		matched := make([]string, 0)
+		ret[loc] = make([]int, 0)
+		for i := 1; i < g.NumGenomes(); i++ {
+			if reflect.DeepEqual(g.Nts[0][loc:loc+6],
+				g.Nts[i][loc:loc+6]) {
+				matched = append(matched, fmt.Sprintf("%d", i))
+				ret[loc] = append(ret[loc], i)
+			}
+		}
+
+		fmt.Printf("%5d: WH1 matches %s\n", loc, strings.Join(matched, ","))
+	}
+	return ret
+}
+
+func (c *Classifier) ExploreNeighbours() {
+	// These are the 11 places where either SC2 or a close neighbour has a site
+	special := []int{2192, 9750, 10443, 11647, 17328,
+		17971, 22921, 22922, 23291, 24101, 24508}
+
+	fmt.Println("The 11 special locations:")
+	c.ShowMatches(special)
+
+	before := make([]int, len(special))
+	for i, v := range special {
+		before[i] = v-6
+	}
+	fmt.Println("The locations just before them:")
+	c.ShowMatches(before)
+
+	after := make([]int, len(special))
+	for i, v := range special {
+		after[i] = v+6
+	}
+	fmt.Println("The locations just after them:")
+	c.ShowMatches(after)
+
+	highlights := make([]genomes.Highlight, len(special))
+	for i, s := range special {
+		highlights[i] = genomes.Highlight{s, s+6, 'v'}
+	}
+
+	c.relatives.SaveClu("alignment.clu", highlights)
+	fmt.Println("Wrote alignment.clu")
 }
