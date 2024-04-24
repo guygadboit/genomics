@@ -232,3 +232,33 @@ func (c *Classifier) ExploreNeighbours() {
 	c.relatives.SaveClu("alignment.clu", highlights)
 	fmt.Println("Wrote alignment.clu")
 }
+
+func (c *Classifier) ExploreMissingSites() {
+	// The places where one of the close relatives has a site and we don't
+	missing := []int{10443, 11647, 22921, 22922, 23291, 24508}
+	g := c.relatives
+
+	countWithPat := func(location int, pat []byte) int {
+		count := 0
+		for i := 1; i < g.NumGenomes(); i++ {
+			if reflect.DeepEqual(g.Nts[i][location:location+6], pat) {
+				count++
+			}
+		}
+		return count
+	}
+
+	for _, location := range missing {
+		var env genomes.Environment
+		env.Init(g, location, 6, 0)
+		have := g.Nts[0][location:location+6]
+		alternatives := env.FindAlternatives(1)
+		s := countWithPat(location, have)
+		fmt.Printf("Location %d have %s shared by %d\n",
+			location, string(have), s)
+
+		for _, alt := range alternatives {
+			fmt.Println(string(alt.Nts), countWithPat(location, alt.Nts))
+		}
+	}
+}

@@ -119,6 +119,7 @@ func main() {
 		var c Classifier
 		c.Init()
 		c.ExploreNeighbours()
+		c.ExploreMissingSites()
 		// c.Trial(100)
 		return
 	}
