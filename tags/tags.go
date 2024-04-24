@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"genomics/genomes"
 	"genomics/mutations"
-	"genomics/utils"
 	"genomics/simulation"
+	"genomics/utils"
 	"log"
 	"math/rand"
 	"os"
@@ -136,7 +136,10 @@ positions:
 				}
 				ok := silent || !requireSilent
 				if ok && numMuts >= minMuts {
-					// fmt.Printf("Found pattern at %d\n", i)
+					fmt.Printf("Found pattern at %d\n", i)
+					fmt.Printf("%s (%d) vs %s\n", string(g.Nts[j][i:i+length]),
+						j,
+						string(g.Nts[k][i:i+length]))
 					ret = append(ret, Pattern{j, i, g.Nts[j][i : i+length]})
 					continue positions
 				}
@@ -414,7 +417,7 @@ func Simulate(g *genomes.Genomes, a, b int,
 	var numSilent int
 
 	var makeMutant func(*genomes.Genomes, int, int,
-        *mutations.NucDistro) (*genomes.Genomes, int)
+		*mutations.NucDistro) (*genomes.Genomes, int)
 	if requireSilent {
 		makeMutant = simulation.MakeSimulatedMutant
 	} else {
@@ -606,15 +609,15 @@ func main() {
 		g = genomes.LoadGenomes("../fasta/SARS2-relatives.fasta",
 			"../fasta/WH1.orfs", false)
 
-			/*
-		g = genomes.LoadGenomes("../fasta/SARS1-relatives.fasta",
-			"../fasta/SARS1.orfs", false)
-			*/
+		/*
+			g = genomes.LoadGenomes("../fasta/SARS1-relatives.fasta",
+				"../fasta/SARS1.orfs", false)
+		*/
 
-			/*
-		g = genomes.LoadGenomes("../fasta/more_relatives.fasta",
-			"../fasta/WH1.orfs", false)
-			*/
+		/*
+			g = genomes.LoadGenomes("../fasta/more_relatives.fasta",
+				"../fasta/WH1.orfs", false)
+		*/
 	} else {
 		g = genomes.LoadGenomes("../fasta/relatives.fasta",
 			"../fasta/WH1.orfs", false)
@@ -650,8 +653,8 @@ func main() {
 	}
 
 	/*
-	Kstest(g, 10)
-	return
+		Kstest(g, 10)
+		return
 	*/
 
 	/*
@@ -662,28 +665,33 @@ func main() {
 	// SelfRecombination(g, 1000)
 
 	/*
-	   for i := 0; i < g.NumGenomes(); i++ {
-	       n, ss := CountTags(g, 7, i)
-	       fmt.Printf("7 vs %d (%s): %d tags %.2f%% ss\n", i, g.Names[i], n, ss)
-	   }
+		for i := 0; i < g.NumGenomes(); i++ {
+			n, ss := CountTags(g, 7, i, 6, 4, false)
+			fmt.Printf("7 vs %d (%s): %d tags %.2f%% ss\n",
+				i, g.Names[i], n, ss * 100)
+		}
 	*/
+	g2 := g.Filter(7, 10)
+	patterns := FindPatterns(g2, 6, 4, true)
+	highlights := CreateHighlights(patterns)
+	g2.SaveWithTranslation("output.clu", highlights, 0, 1)
+	return
 
-	g2 := g.Filter(5, 33)
-	patterns := FindPatterns(g2, 2, 2, true)
+	g2 = g.Filter(5, 33)
+	patterns = FindPatterns(g2, 2, 2, true)
 	tags = CreateTags(g2, patterns)
 	/*
-	for _, t := range tags {
-		t.Print()
-	}
+		for _, t := range tags {
+			t.Print()
+		}
 	*/
-	highlights := CreateHighlights(patterns)
+	highlights = CreateHighlights(patterns)
 	g2.SaveWithTranslation("output.clu", highlights, 0, 1)
 
 	/*
-	muts := mutations.FindMutations(g2, 0, 1)
-	ShowSequentialMuts(muts, 3, true, "0-1")
+		muts := mutations.FindMutations(g2, 0, 1)
+		ShowSequentialMuts(muts, 3, true, "0-1")
 	*/
-
 
 	/*
 	   var count int
@@ -714,14 +722,14 @@ func main() {
 	*/
 
 	/*
-	for i := 0; i < 500; {
-		n := g.NumGenomes()
-		a, b := rand.Intn(n), rand.Intn(n)
-		if a == b {
-			continue
+		for i := 0; i < 500; {
+			n := g.NumGenomes()
+			a, b := rand.Intn(n), rand.Intn(n)
+			if a == b {
+				continue
+			}
+			i += Simulate(g, a, b, 1, 2, 2, false)
 		}
-		i += Simulate(g, a, b, 1, 2, 2, false)
-	}
 	*/
 	// MontecarloDoubles(g, 1000)
 	// SimulateDoubles(g, -1)
