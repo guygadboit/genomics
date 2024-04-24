@@ -1,0 +1,96 @@
+Location 336 Wuhan-Hu-1 has GCGACG shared by 20
+GCGATG 0 
+GTGACG 6 
+GAGACG 4 *
+GGGACG 0 
+Location 4665 Wuhan-Hu-1 has GATCTC shared by 12
+GATCCC 2 
+GATCGC 0 
+GGTCTC 3 *
+GATCAC 5 
+Location 4772 Wuhan-Hu-1 has GAAACC shared by 22
+GAAACA 3 
+GAAACT 0 
+GAGACC 0 *
+GAAACG 0 
+Location 6403 Wuhan-Hu-1 has AGTCTC shared by 13
+GGTCTC 0 *
+CGTCTC 3 *
+TGTCTC 1 
+AGTATC 0 
+AGTGTC 0 
+AGTTTC 0 
+Location 7699 Wuhan-Hu-1 has AAGACC shared by 18
+ACGACC 0 
+AAGGCC 0 
+GAGACC 9 *
+Location 10444 Wuhan-Hu-1 has GAGGCC shared by 1
+GCGGCC 0 
+GAGACC 26 *
+Location 11064 Wuhan-Hu-1 has GGTCTT shared by 25
+GGTCCT 0 
+GGTCGT 0 
+GGTCAT 0 
+GGTCTC 1 *
+Location 11648 Wuhan-Hu-1 has GGCCTC shared by 11
+GGCCTA 1 
+GGTCTC 10 *
+GGGCTC 0 
+GGACTC 0 
+GGCCTT 1 
+GGCCTG 0 
+Location 12423 Wuhan-Hu-1 has GAGATG shared by 14
+GGGATG 2 
+GAGACG 5 *
+Location 15644 Wuhan-Hu-1 has GAGATG shared by 21
+GGGATG 4 
+GAGACG 4 *
+Location 15752 Wuhan-Hu-1 has CATCTC shared by 11
+CATCCC 0 
+CATCGC 0 
+CGTCTC 6 *
+CTTCTC 0 
+CCTCTC 0 
+CATCAC 6 
+Location 15844 Wuhan-Hu-1 has GAGACT shared by 29
+GAGACA 0 
+GAAACT 0 
+GAGACC 1 *
+GAGACG 0 *
+Location 16299 Wuhan-Hu-1 has TAGACC shared by 16
+TCGACC 0 
+TAGGCC 0 
+AAGACC 1 
+CAGACC 6 
+GAGACC 7 *
+Location 16663 Wuhan-Hu-1 has GAGACA shared by 13
+GAAACA 9 
+GAGACT 0 
+GAGACC 8 *
+GAGACG 0 *
+Location 18467 Wuhan-Hu-1 has GAGATC shared by 13
+GCGATC 0 
+GTGATC 3 
+GGGATC 0 
+GAGACC 4 *
+Location 19889 Wuhan-Hu-1 has GAGATG shared by 9
+GGGATG 0 
+GAGACG 3 *
+Location 20967 Wuhan-Hu-1 has TGTCTC shared by 11
+CGTCTC 10 *
+TGTATC 0 
+TGTGTC 0 
+TGTTTC 9 
+Location 24509 Wuhan-Hu-1 has CGTCTT shared by 12
+CGTCTA 3 
+CGTCTC 3 *
+CGACTT 3 
+CGCCTT 4 
+CGGCTT 0 
+CGTCTG 0 
+Location 29098 Wuhan-Hu-1 has CAGACG shared by 20
+CCGACG 0 
+CAGGCG 0 
+TAGACG 0 
+GAGACG 6 *
+AAGACG 1 

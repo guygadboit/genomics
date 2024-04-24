@@ -118,9 +118,9 @@ func main() {
 	if testRecombo {
 		var c Classifier
 		c.Init()
-		c.ExploreNeighbours()
-		c.ExploreMissingSites()
+		// c.ExploreNeighbours()
 		// c.Trial(100)
+		c.ExploreMissingSites()
 		return
 	}
 

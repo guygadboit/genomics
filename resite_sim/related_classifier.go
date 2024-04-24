@@ -33,6 +33,7 @@ func (c *Classifier) Init() {
 
 	c.relatives.RemoveGaps()
 
+	// Find the places where any of them have a site
 	sites := make(map[int]bool)
 	for i := 0; i < c.relatives.NumGenomes(); i++ {
 		_, _, _, _, s := FindRestrictionMap(c.relatives.Filter(i))
@@ -233,9 +234,18 @@ func (c *Classifier) ExploreNeighbours() {
 	fmt.Println("Wrote alignment.clu")
 }
 
+func isReSite(pattern []byte) bool {
+	for _, site := range RE_SITES {
+		if reflect.DeepEqual(pattern, site.pattern) {
+			return true
+		}
+	}
+	return false
+}
+
 func (c *Classifier) ExploreMissingSites() {
 	// The places where one of the close relatives has a site and we don't
-	missing := []int{10443, 11647, 22921, 22922, 23291, 24508}
+	// missing := []int{10443, 11647, 22921, 22922, 23291, 24508}
 	g := c.relatives
 
 	countWithPat := func(location int, pat []byte) int {
@@ -248,17 +258,45 @@ func (c *Classifier) ExploreMissingSites() {
 		return count
 	}
 
-	for _, location := range missing {
+	for _, location := range c.sites {
+		have := g.Nts[0][location:location+6]
+
+		// We're interested in the missing ones, where SC2 does not have a
+		// site, but somebody else does.
+		if isReSite(have) {
+			continue
+		}
+
 		var env genomes.Environment
 		env.Init(g, location, 6, 0)
-		have := g.Nts[0][location:location+6]
 		alternatives := env.FindAlternatives(1)
+
+		// We're also only interested in places where SC2 differs silently from
+		// a site.
+		good := false
+		for _, alt := range alternatives {
+			if isReSite(alt.Nts) {
+				good = true
+				break
+			}
+		}
+		if !good {
+			continue
+		}
+
 		s := countWithPat(location, have)
+
 		fmt.Printf("Location %d have %s shared by %d\n",
-			location, string(have), s)
+			location+1, string(have), s)
 
 		for _, alt := range alternatives {
-			fmt.Println(string(alt.Nts), countWithPat(location, alt.Nts))
+			var isSite string
+			if isReSite(alt.Nts) {
+				isSite = "*"
+				good = true
+			}
+			count := countWithPat(location, alt.Nts)
+			fmt.Printf("%s %d %s\n", string(alt.Nts), count, isSite)
 		}
 	}
 }
