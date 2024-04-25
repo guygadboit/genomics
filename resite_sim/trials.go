@@ -96,6 +96,7 @@ func main() {
 	var trialType string
 	var testRecombo bool
 	var orgMaps bool
+	var resultsName string
 
 	flag.IntVar(&nTrials, "n", 10000, "Number of trials")
 	flag.IntVar(&nMuts, "m", 0, "Number of mutations (0 means auto)")
@@ -108,6 +109,7 @@ func main() {
 		"tampering based on recombination")
 	flag.BoolVar(&orgMaps, "maps", false, "Show restriction maps before "+
 		"any simulated mutation")
+	flag.StringVar(&resultsName, "o", "results.txt", "Output filename")
 	flag.Parse()
 
 	if test {
@@ -168,7 +170,7 @@ func main() {
 
 	trial := trials[trialType]
 
-	fd, err := os.Create("results.txt")
+	fd, err := os.Create(resultsName)
 	if err != nil {
 		log.Fatal("Can't create results file")
 	}
@@ -219,7 +221,7 @@ func main() {
 			}
 		}
 		resultsWriter.Flush()
-		fmt.Println("Wrote results.txt")
+		fmt.Printf("Wrote %s\n", resultsName)
 	}(stop)
 
 	wg.Wait()
