@@ -16,6 +16,7 @@ const (
 	TRANSLATE Mode = iota
 	CODONS
 	SIDE_BY_SIDE
+	DONT
 )
 
 func writeFile(fname string, g *genomes.Genomes,
@@ -69,6 +70,7 @@ func main() {
 		"translate": TRANSLATE,
 		"codons":    CODONS,
 		"ss":        SIDE_BY_SIDE,
+		"dont":		 DONT,
 	}
 	var modeName, orfs, outName string
 
@@ -85,14 +87,22 @@ func main() {
 
 	switch mode {
 	case SIDE_BY_SIDE:
+		fallthrough
+	case DONT:
 		if outName == "" {
 			log.Fatal("Output filename required for ss mode")
 		}
+	}
+
+	switch mode {
+	case SIDE_BY_SIDE:
 		g.SaveWithTranslation(outName, nil)
 	case TRANSLATE:
 		writeFile(outName, g, translate)
 	case CODONS:
 		writeFile(outName, g, showCodons)
+	case DONT:
+		g.SaveClu(outName, nil)
 	}
 
 	if outName != "" {

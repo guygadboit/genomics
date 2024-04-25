@@ -258,6 +258,7 @@ func (c *Classifier) ExploreMissingSites() {
 		return count
 	}
 
+	// for _, location := range missing {
 	for _, location := range c.sites {
 		have := g.Nts[0][location:location+6]
 

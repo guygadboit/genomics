@@ -136,18 +136,20 @@ def check_results(results, test, ref_positions):
 
 
 def added_removed(results):
-	print("Average numbers of sites added and removed")
+	print("Average numbers of sites and averages added and removed")
 	for k, v in results.items():
-		total_added, total_removed = 0, 0
+		total_added, total_removed, total_count = 0, 0, 0
 		for result in v:
 			total_added += result.added
 			total_removed += result.removed
+			total_count += result.count
 
 		n = len(v)
 		added = total_added / n
 		removed = total_removed / n
-		print("{}: {} muts {:.2f} added {:.2f} removed".format(k,
-		   v[0].num_muts, added, removed))
+		count = total_count / n
+		print("{}: {} muts {:.2f} sites {:.2f} added {:.2f} removed".format(k,
+		   v[0].num_muts, count, added, removed))
 	print()
 
 
