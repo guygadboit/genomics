@@ -297,7 +297,8 @@ func (c *Classifier) ExploreMissingSites() {
 				good = true
 			}
 			count := countWithPat(location, alt.Nts)
-			fmt.Printf("%s %d %s\n", string(alt.Nts), count, isSite)
+			fmt.Printf("%s %d [%d] %s\n",
+				string(alt.Nts), count, alt.CodonPos, isSite)
 		}
 	}
 }

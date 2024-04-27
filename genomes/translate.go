@@ -348,6 +348,10 @@ func (env *Environment) Replace(replacement []byte) (bool, int) {
 type Alternative struct {
 	NumMuts int
 	Nts     []byte
+
+	// In the case where NumMuts is 1, are we changing the 1st, 2nd or 3rd nt
+	// of a codon? We use 1,2,3 so that 0 can mean "don't know"
+	CodonPos int
 }
 
 type Alternatives []Alternative
@@ -453,16 +457,21 @@ func (env *Environment) FindAlternatives(maxMuts int) Alternatives {
 			continue
 		}
 
-		numMuts := 0
+		numMuts, codonPos := 0, 0
 		for i := 0; i < env.length; i++ {
 			if alt[start+i] != existing[i] {
 				numMuts++
+				codonPos = (env.offset + i) % 3 + 1
 			}
+		}
+
+		if numMuts != 1 {
+			codonPos = 0	// meaningless in this case
 		}
 
 		if numMuts > 0 && numMuts <= maxMuts {
 			ret = append(ret, Alternative{numMuts,
-				alt[start:end]})
+				alt[start:end], codonPos})
 		}
 
 		if !more {
