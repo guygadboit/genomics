@@ -287,8 +287,8 @@ func (c *Classifier) ExploreMissingSites() {
 
 		s := countWithPat(location, have)
 
-		fmt.Printf("Location %d have %s shared by %d\n",
-			location+1, string(have), s)
+		fmt.Printf("Location %d have %s shared by %d (%s)\n",
+			location+1, string(have), s, string(env.Protein()))
 
 		for _, alt := range alternatives {
 			var isSite string
