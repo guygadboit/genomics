@@ -24,12 +24,12 @@ func (c *Classifier) Init() {
 			"../fasta/WH1.orfs", false)
 	*/
 
+	c.relatives = genomes.LoadGenomes("../fasta/CloseRelatives.fasta",
+		"../fasta/WH1.orfs", false)
 	/*
-		c.relatives = genomes.LoadGenomes("../fasta/CloseRelatives.fasta",
+		c.relatives = genomes.LoadGenomes("../fasta/ACCRealigned.fasta",
 			"../fasta/WH1.orfs", false)
 	*/
-	c.relatives = genomes.LoadGenomes("../fasta/ACCRealigned.fasta",
-		"../fasta/WH1.orfs", false)
 
 	c.relatives.RemoveGaps()
 
@@ -48,8 +48,8 @@ func (c *Classifier) Init() {
 	sort.Ints(c.sites)
 
 	/*
-	fmt.Println("Places where sites appear in any of the set:")
-	fmt.Println(c.sites)
+		fmt.Println("Places where sites appear in any of the set:")
+		fmt.Println(c.sites)
 	*/
 }
 
@@ -80,10 +80,18 @@ func (c *Classifier) CountShared(g *genomes.Genomes, exclude ...int) int {
 }
 
 /*
+What is the actual number of shared sites between reference and the rest?
+*/
+func (c *Classifier) findBenchmark(reference int) int {
+	mutant := c.relatives.Filter(reference)
+	return c.CountShared(mutant, reference)
+}
+
+/*
 What is the minimum number of shared sites between the set of genomes,
 excluding reference?
 */
-func (c *Classifier) findBenchmark(reference int) int {
+func (c *Classifier) findBenchmark2(reference int) int {
 	ret := math.MaxInt
 	for i := 0; i < c.relatives.NumGenomes(); i++ {
 		if i == reference {
@@ -213,21 +221,21 @@ func (c *Classifier) ExploreNeighbours() {
 
 	before := make([]int, len(special))
 	for i, v := range special {
-		before[i] = v-6
+		before[i] = v - 6
 	}
 	fmt.Println("The locations just before them:")
 	c.ShowMatches(before)
 
 	after := make([]int, len(special))
 	for i, v := range special {
-		after[i] = v+6
+		after[i] = v + 6
 	}
 	fmt.Println("The locations just after them:")
 	c.ShowMatches(after)
 
 	highlights := make([]genomes.Highlight, len(special))
 	for i, s := range special {
-		highlights[i] = genomes.Highlight{s, s+6, 'v'}
+		highlights[i] = genomes.Highlight{s, s + 6, 'v'}
 	}
 
 	c.relatives.SaveClu("alignment.clu", highlights)
@@ -260,7 +268,7 @@ func (c *Classifier) ExploreMissingSites() {
 
 	// for _, location := range missing {
 	for _, location := range c.sites {
-		have := g.Nts[0][location:location+6]
+		have := g.Nts[0][location : location+6]
 
 		// We're interested in the missing ones, where SC2 does not have a
 		// site, but somebody else does.
