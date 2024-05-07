@@ -24,12 +24,13 @@ func (c *Classifier) Init() {
 			"../fasta/WH1.orfs", false)
 	*/
 
-	c.relatives = genomes.LoadGenomes("../fasta/CloseRelatives.fasta",
-		"../fasta/WH1.orfs", false)
 	/*
-		c.relatives = genomes.LoadGenomes("../fasta/ACCRealigned.fasta",
+		c.relatives = genomes.LoadGenomes("../fasta/CloseRelatives.fasta",
 			"../fasta/WH1.orfs", false)
 	*/
+
+	c.relatives = genomes.LoadGenomes("../fasta/ACCRealigned.fasta",
+		"../fasta/WH1.orfs", false)
 
 	c.relatives.RemoveGaps()
 
