@@ -3,6 +3,7 @@ package main
 import (
 	"genomics/utils"
 	"strings"
+	"fmt"
 )
 
 type Record struct {
@@ -15,7 +16,7 @@ type Pileup []Record
 
 type Counter map[byte]int
 
-func (c Counter) findMax() (byte, int) {
+func (c Counter) findMax() (byte, int, int) {
 	var bestByte byte
 	var bestCount int
 
@@ -25,10 +26,18 @@ func (c Counter) findMax() (byte, int) {
 			bestCount = v
 		}
 	}
-	return bestByte, bestCount
+
+	var numTie int
+	for _, v := range c {
+		if v == bestCount {
+			numTie++
+		}
+	}
+
+	return bestByte, bestCount, numTie
 }
 
-func parseReadBases(s string) (byte, int) {
+func parseReadBases(s string) (byte, int, int) {
 	s = strings.ToUpper(s)
 	counts := make(Counter)
 	for _, c := range []byte(s) {
@@ -58,11 +67,14 @@ func Parse(fname string) (Pileup, error) {
 		fields := strings.Split(line, "\t")
 
 		pos := utils.Atoi(fields[1]) - 1
-		nt, depth := parseReadBases(fields[4])
+		nt, depth, numTie := parseReadBases(fields[4])
 
 		if nt != 0 {
 			record := Record{pos, nt, depth}
 			ret = append(ret, record)
+			if numTie > 1 {
+				fmt.Printf("%d-way ambiguity at %d\n", numTie, pos+1)
+			}
 		}
 		return true
 	})
