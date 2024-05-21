@@ -98,6 +98,29 @@ func (f *FileReader) Close() {
 	f.fd.Close()
 }
 
+type LineFun func(string, error) bool
+func Lines(fname string, fun LineFun) {
+	fp := NewFileReader(fname)
+	defer fp.Close()
+
+loop:
+	for {
+		line, err := fp.ReadString('\n')
+		switch err {
+		case io.EOF:
+			break loop
+		case nil:
+			line = strings.TrimRight(line, "\n")
+			if !fun(line, nil) {
+				break
+			}
+		default:
+			fun("", err)
+			break
+		}
+	}
+}
+
 func Atoi(s string) int {
 	ret, err := strconv.Atoi(s)
 	if err != nil {
