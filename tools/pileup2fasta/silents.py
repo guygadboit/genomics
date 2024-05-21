@@ -20,7 +20,7 @@ def load():
 
 def scan(silents):
 	driver = webdriver.Chrome()
-	for combo in itertools.combinations(silents, 2):
+	for combo in itertools.combinations(silents, 3):
 		combo_name = ",".join(combo)
 		query = "%2C".join(combo)
 		url = ROOT+query
@@ -45,7 +45,8 @@ def show(combos):
 
 def main():
 	silents = load()
-	# scan(silents)
+	scan(silents)
+	return
 
 	# The only pairs we found together-- all late and nowhwere near Brazil.
 	show((("A5827C", "T14295A"),
