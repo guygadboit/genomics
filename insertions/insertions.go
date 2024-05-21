@@ -634,10 +634,11 @@ func main() {
 	flag.Parse()
 
 	insertions := LoadInsertions("insertions.txt", 6, 2)
+	/*
 	outputCombinedFasta("Insertions.fasta", "Insertions",
 		insertions, nil, false)
 	outputFasta("SplitInsertions.fasta", insertions, nil, false)
-	return
+	*/
 
 	/*
 		insertions := LoadInsertions(
@@ -677,27 +678,29 @@ func main() {
 
 	*/
 
+	/*
 	f := makeCodonAlignFilter()
 	notAligned := func(ins *Insertion) bool {
 		return !f(ins)
 	}
+	*/
 
 	filters := []filterFunc{
 		makeMinLengthFilter(6),
 		makeMaxLengthFilter(50),
 		// makeMinSeqsFilter(2),
 		// makeCodonAlignFilter(),
-		notAligned,
-		makeFlagFilter(EXCLUDE_WH1 | EXCLUDE_HUMAN),
+		// notAligned,
+		// makeFlagFilter(EXCLUDE_WH1 | EXCLUDE_HUMAN),
 	}
 
+	/*
 	fmt.Printf("Writing context.fastq\n")
 	outputFastq(insertions, filters, GetSources()[2:], "context.fastq")
-
-	/*
-		fmt.Printf("Counting sequences and odds ratios\n")
-		countInGenomes(insertions, filters, true)
 	*/
+
+	fmt.Printf("Counting sequences and odds ratios\n")
+	countInGenomes(insertions, filters, true)
 
 	/*
 		fmt.Printf("Counting in repeats\n")

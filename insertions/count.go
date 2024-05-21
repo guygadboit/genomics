@@ -69,6 +69,8 @@ func GetSources() []Source {
 		"PA", "Listeria", "Streptomyces",
 		"StrepPyogenes", "StrepPneum", "Mycoplasma",
 		"Brucella", "OT", "RP",
+		"Treponema", "Porphyromonas", "AActinom",
+		"TForsyth",
 	}
 
 	for i := 0; i < len(bacteria); i++ {
@@ -121,7 +123,6 @@ func countInGenomes(insertions []Insertion,
 	filters []filterFunc, verbose bool) {
 	seen := make(map[string]bool)
 	sources := GetSources()[2:]
-	// sources := GetSources()
 	var numProcessed int
 
 	fd, err := os.Create("or-results.txt")
