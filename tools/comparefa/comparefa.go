@@ -334,6 +334,12 @@ func main() {
 		}
 	}
 
+	err := g.CheckOrfs()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Maybe need -gaps?")
+		log.Fatal(err)
+	}
+
 	var which []int
 	if include != "" {
 		which = utils.ParseInts(include, ",")

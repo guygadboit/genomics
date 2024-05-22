@@ -24,6 +24,7 @@ func main() {
 	g := genomes.LoadGenomes(flag.Arg(0), "", false)
 
 	if summary {
+		fmt.Printf("%d nucleotides\n", g.Length())
 		g.PrintSummary()
 		return
 	}

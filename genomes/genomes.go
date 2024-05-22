@@ -91,6 +91,24 @@ loop:
 	return ret
 }
 
+func (g *Genomes) CheckOrfs() error {
+	var bad bool
+	for _, orf := range g.Orfs {
+		if orf.Start < 0 || orf.Start >= g.Length() {
+			bad = true
+			break
+		}
+		if orf.End < 0 || orf.End >= g.Length() {
+			bad = true
+			break
+		}
+	}
+	if bad {
+		return errors.New("Genome is too short for ORFs")
+	}
+	return nil
+}
+
 func (g *Genomes) PrintSummary() {
 	for i, n := range g.Names {
 		fmt.Printf("%d: %s\n", i, n)
