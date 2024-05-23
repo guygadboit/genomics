@@ -16,7 +16,7 @@ def main():
 			line = line.strip()
 			fields = line.split()
 			mapq = fields[6]
-			print("{} {:.2f}".format(line, average_mapq(mapq)))
+			print("{}\t{:.2f}".format(line, average_mapq(mapq)))
 
 
 if __name__ == "__main__":
