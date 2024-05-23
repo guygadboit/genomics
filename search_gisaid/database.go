@@ -3,7 +3,10 @@ package main
 import (
 	"fmt"
 	"genomics/utils"
+	"encoding/gob"
+	"bufio"
 	"io"
+	"os"
 	"log"
 	"strings"
 )
@@ -192,6 +195,36 @@ func (d *Database) Search(muts []Mutation) Set {
 	return candidates
 }
 
+func (d *Database) Save(fname string) {
+	fd, err := os.Create(fname)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer fd.Close()
+
+	fp := bufio.NewWriter(fd)
+	enc := gob.NewEncoder(fp)
+	err = enc.Encode(d)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func (d *Database) Load(fname string) {
+	fd, err := os.Open(fname)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer fd.Close()
+
+	fp := bufio.NewReader(fd)
+	dec := gob.NewDecoder(fp)
+	err = dec.Decode(d)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
 func Parse(fname string) Database {
 	var ret Database
 	ret.Init()
@@ -224,11 +257,18 @@ loop:
 }
 
 func main() {
+	/*
 	database := Parse("/fs/h/genomes/GISAID/gisaid2020.tsv")
 	fmt.Printf("Parsed %d records\n", len(database.Records))
 	database.BuildMutationIndex()
 	fmt.Printf("Built index\n")
-	// FIXME you could gob it now
+	database.Save("db.gob")
+	return
+	*/
+
+	var database Database
+	database.Load("db.gob")
+	fmt.Printf("loaded\n")
 
 	muts := ParseMutations("A5706G,C14408T")
 	matches := database.Search(muts)
