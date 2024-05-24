@@ -1,9 +1,8 @@
-package main
+package database
 
 import (
 	"bufio"
 	"encoding/gob"
-	"flag"
 	"fmt"
 	"genomics/utils"
 	"io"
@@ -330,57 +329,4 @@ func NewDatabase() *Database {
 	var ret Database
 	ret.Load(GOB_NAME)
 	return &ret
-}
-
-func SantaCatarina(db Database) {
-	// muts := ParseMutations("A5706G,C14408T")
-	muts := ParseMutations("A5706G")
-	matches := db.Search(muts)
-
-	for k, _ := range matches {
-		r := db.Records[k]
-		fmt.Printf("%s %s %s %s\n",
-			r.Country, r.Region, r.City, r.CollectionDate.ToString())
-	}
-
-	/*
-	// The only two of these that ever crop up in GISAID SC samples are A5706G
-	// and C14408T
-	interesting := ParseMutations(
-		"A5706G,C14408T,G3392C,A8576C,T8601C,C14422T,T14895G,A15106C,T15132A,"+
-		"G22773A")
-	*/
-
-	interesting := ParseMutations(
-		"A5706G,A5706C,A5706T")
-
-	for _, r := range db.Records {
-		if r.Region == "Santa Catarina" {
-			got := r.HasMuts(interesting)
-			fmt.Println(r.ToString(), got.ToString())
-		}
-	}
-}
-
-func main() {
-	var save bool
-
-	flag.BoolVar(&save, "s", false, "Parse and save to gob")
-	flag.Parse()
-
-	var database Database
-
-	if save {
-		database.Parse(ROOT + "gisaid2020.tsv.gz")
-		fmt.Printf("Parsed %d records\n", len(database.Records))
-		fmt.Printf("Built index\n")
-		database.Save(GOB_NAME)
-		return
-	}
-
-	database.Load(GOB_NAME)
-	fmt.Printf("Loaded\n")
-
-	// Get rid of this later if you want to make this more generic
-	SantaCatarina(database)
 }
