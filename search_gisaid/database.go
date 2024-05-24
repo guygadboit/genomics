@@ -1,13 +1,14 @@
 package main
 
 import (
+	"bufio"
+	"encoding/gob"
+	"flag"
 	"fmt"
 	"genomics/utils"
-	"encoding/gob"
-	"bufio"
 	"io"
-	"os"
 	"log"
+	"os"
 	"strings"
 )
 
@@ -75,41 +76,75 @@ func ParseAAMutations(s string) []AAMutation {
 	return ret
 }
 
-func ParseInts(s string) []int {
-	ret := make([]int, 0)
+type Range struct {
+	Start, End int
+}
+
+func ParseRanges(s string) []Range {
+	ret := make([]Range, 0)
+	if s == "" {
+		return ret
+	}
 	fields := strings.Split(s, ",")
 	for _, f := range fields {
-		ret = append(ret, utils.Atoi(f))
+		subFields := strings.Split(f, "-")
+
+		start := utils.Atoi(subFields[0])
+		var end int
+
+		switch len(subFields) {
+		case 1:
+			end = start
+		case 2:
+			end = utils.Atoi(subFields[1])
+		default:
+			log.Fatalf("Invalid range %s\n", f)
+		}
+		ret = append(ret, Range{start, end})
+	}
+	return ret
+}
+
+type Insertion struct {
+	Pos      int
+	Sequence []byte
+}
+
+func ParseInsertions(s string) []Insertion {
+	ret := make([]Insertion, 0)
+	if s == "" {
+		return ret
+	}
+	fields := strings.Split(s, ",")
+	for _, f := range fields {
+		subFields := strings.Split(f, ":")
+		pos := utils.Atoi(subFields[0])
+		seq := []byte(subFields[1])
+		ret = append(ret, Insertion{pos, seq})
 	}
 	return ret
 }
 
 type Record struct {
-	GisaidAccession   string     // 0
-	Isolate           string     // 1
-	SubmissionDate    Date       // 2
-	CollectionDate    Date       // 3
-	PangolinLineage   string     // 4
-	Country           string     // 5
-	Region            string     // 6
-	City              string     // 7
-	Length            int        // 8
-	Host              string     // 9
-	Divergence        int        // 10
-	NucleotideChanges []Mutation // 11
-
-	// These seem to be ranges or something, not just lists. So let's just keep
-	// them as strings for now.
-	// Deletions         []int        // 12
-	// Insertions        []int        // 13
-	Deletions  string // 12
-	Insertions string // 13
-
-	AAChanges       []AAMutation // 14
-	WhoClade        string       // 15
-	NextstrainClade string       // 16
-	Continent       string       // 17
-	ToBeExcluded    int          // 18
+	GisaidAccession   string       // 0
+	Isolate           string       // 1
+	SubmissionDate    Date         // 2
+	CollectionDate    Date         // 3
+	PangolinLineage   string       // 4
+	Country           string       // 5
+	Region            string       // 6
+	City              string       // 7
+	Length            int          // 8
+	Host              string       // 9
+	Divergence        int          // 10
+	NucleotideChanges []Mutation   // 11
+	Deletions         []Range      // 12
+	Insertions        []Insertion  // 13
+	AAChanges         []AAMutation // 14
+	WhoClade          string       // 15
+	NextstrainClade   string       // 16
+	Continent         string       // 17
+	ToBeExcluded      int          // 18
 }
 
 func Atoi(s string) int {
@@ -133,10 +168,8 @@ func (r *Record) Parse(line string) {
 	r.Host = fields[9]
 	r.Divergence = Atoi(fields[10])
 	r.NucleotideChanges = ParseMutations(fields[11])
-	// r.Deletions = ParseInts(fields[12])
-	r.Deletions = fields[12]
-	// r.Insertions = ParseInts(fields[13])
-	r.Insertions = fields[13]
+	r.Deletions = ParseRanges(fields[12])
+	r.Insertions = ParseInsertions(fields[13])
 	r.AAChanges = ParseAAMutations(fields[14])
 	r.WhoClade = fields[15]
 	r.NextstrainClade = fields[16]
@@ -145,8 +178,8 @@ func (r *Record) Parse(line string) {
 }
 
 type Database struct {
-	Records	[]Record
-	MutationIndex	map[int][]int
+	Records       []Record
+	MutationIndex map[int][]int
 }
 
 func (d *Database) Init() {
@@ -257,18 +290,24 @@ loop:
 }
 
 func main() {
-	/*
-	database := Parse("/fs/h/genomes/GISAID/gisaid2020.tsv")
-	fmt.Printf("Parsed %d records\n", len(database.Records))
-	database.BuildMutationIndex()
-	fmt.Printf("Built index\n")
-	database.Save("db.gob")
-	return
-	*/
+	var save bool
+
+	flag.BoolVar(&save, "s", false, "Parse and save to gob")
+	flag.Parse()
 
 	var database Database
+
+	if save {
+		database = Parse("/fs/h/genomes/GISAID/gisaid2020.tsv")
+		fmt.Printf("Parsed %d records\n", len(database.Records))
+		database.BuildMutationIndex()
+		fmt.Printf("Built index\n")
+		database.Save("db.gob")
+		return
+	}
+
 	database.Load("db.gob")
-	fmt.Printf("loaded\n")
+	fmt.Printf("Loaded\n")
 
 	muts := ParseMutations("A5706G,C14408T")
 	matches := database.Search(muts)
