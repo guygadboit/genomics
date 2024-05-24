@@ -278,9 +278,8 @@ func (d *Database) Load(fname string) {
 	}
 }
 
-func Parse(fname string) Database {
-	var ret Database
-	ret.Init()
+func (d *Database) Parse(fname string) {
+	d.Init()
 	fp := utils.NewFileReader(fname)
 	defer fp.Close()
 
@@ -304,9 +303,9 @@ loop:
 
 		var record Record
 		record.Parse(line)
-		ret.Add(&record)
+		d.Add(&record)
 	}
-	return ret
+	d.BuildMutationIndex()
 }
 
 // Return whichever muts in muts this record has
@@ -361,9 +360,8 @@ func main() {
 	var database Database
 
 	if save {
-		database = Parse("/fs/h/genomes/GISAID/gisaid2020.tsv")
+		database.Parse("/fs/h/genomes/GISAID/gisaid2020.tsv")
 		fmt.Printf("Parsed %d records\n", len(database.Records))
-		database.BuildMutationIndex()
 		fmt.Printf("Built index\n")
 		database.Save("db.gob")
 		return
