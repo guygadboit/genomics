@@ -15,8 +15,10 @@ def main():
 		for line in fp:
 			line = line.strip()
 			fields = line.split()
+			baseq = fields[5]
 			mapq = fields[6]
-			print("{}\t{:.2f}".format(line, average_mapq(mapq)))
+			print("{}\t{}\t{:.2f}\t{:.2f}".format(line,
+					 len(fields[5]), average_mapq(baseq), average_mapq(mapq)))
 
 
 if __name__ == "__main__":

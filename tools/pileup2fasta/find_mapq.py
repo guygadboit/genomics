@@ -26,8 +26,10 @@ def parse_pileup(fp):
 		line = line.strip()
 		fields = line.split()
 		pos = int(fields[1])
+		depth = len(fields[5])
+		baseq = average_mapq(fields[5])
 		mapq = average_mapq(fields[6])
-		ret[pos] = mapq
+		ret[pos] = (depth, baseq, mapq)
 	return ret
 
 

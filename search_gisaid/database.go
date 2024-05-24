@@ -10,6 +10,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"reflect"
 )
 
 type Date struct {
@@ -36,6 +37,20 @@ type Mutation struct {
 	Pos  int
 	From byte
 	To   byte
+}
+
+type Mutations []Mutation
+
+func (m *Mutation) ToString() string {
+	return fmt.Sprintf("%c%d%c", m.From, m.Pos, m.To)
+}
+
+func (muts Mutations) ToString() string {
+	s := make([]string, len(muts))
+	for i, m := range muts {
+		s[i] = m.ToString()
+	}
+	return strings.Join(s, ",")
 }
 
 type AAMutation struct {
@@ -294,8 +309,22 @@ loop:
 	return ret
 }
 
+// Return whichever muts in muts this record has
+func (r *Record) HasMuts(muts Mutations) Mutations {
+	ret := make([]Mutation, 0)
+	for _, s := range muts {
+		for _, m := range r.NucleotideChanges {
+			if reflect.DeepEqual(s, m) {
+				ret = append(ret, m)
+			}
+		}
+	}
+	return ret
+}
+
 func SantaCatarina(db Database) {
-	muts := ParseMutations("A5706G,C14408T")
+	// muts := ParseMutations("A5706G,C14408T")
+	muts := ParseMutations("A5706G")
 	matches := db.Search(muts)
 
 	for k, _ := range matches {
@@ -304,9 +333,21 @@ func SantaCatarina(db Database) {
 			r.Country, r.Region, r.City, r.CollectionDate.ToString())
 	}
 
+	/*
+	// The only two of these that ever crop up in GISAID SC samples are A5706G
+	// and C14408T
+	interesting := ParseMutations(
+		"A5706G,C14408T,G3392C,A8576C,T8601C,C14422T,T14895G,A15106C,T15132A,"+
+		"G22773A")
+	*/
+
+	interesting := ParseMutations(
+		"A5706G,A5706C,A5706T")
+
 	for _, r := range db.Records {
 		if r.Region == "Santa Catarina" {
-			fmt.Println(r.ToString())
+			got := r.HasMuts(interesting)
+			fmt.Println(r.ToString(), got.ToString())
 		}
 	}
 }
