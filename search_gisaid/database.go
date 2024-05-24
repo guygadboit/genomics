@@ -147,6 +147,11 @@ type Record struct {
 	ToBeExcluded      int          // 18
 }
 
+func (r *Record) ToString() string {
+	return fmt.Sprintf("%s %s %s %s %s", r.GisaidAccession,
+		r.CollectionDate.ToString(), r.Country, r.Region, r.City)
+}
+
 func Atoi(s string) int {
 	if s == "" {
 		return 0
@@ -289,6 +294,23 @@ loop:
 	return ret
 }
 
+func SantaCatarina(db Database) {
+	muts := ParseMutations("A5706G,C14408T")
+	matches := db.Search(muts)
+
+	for k, _ := range matches {
+		r := db.Records[k]
+		fmt.Printf("%s %s %s %s\n",
+			r.Country, r.Region, r.City, r.CollectionDate.ToString())
+	}
+
+	for _, r := range db.Records {
+		if r.Region == "Santa Catarina" {
+			fmt.Println(r.ToString())
+		}
+	}
+}
+
 func main() {
 	var save bool
 
@@ -309,12 +331,6 @@ func main() {
 	database.Load("db.gob")
 	fmt.Printf("Loaded\n")
 
-	muts := ParseMutations("A5706G,C14408T")
-	matches := database.Search(muts)
-
-	for k, _ := range matches {
-		r := database.Records[k]
-		fmt.Printf("%s %s %s %s\n",
-			r.Country, r.Region, r.City, r.CollectionDate.ToString())
-	}
+	// Get rid of this later if you want to make this more generic
+	SantaCatarina(database)
 }
