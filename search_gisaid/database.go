@@ -13,6 +13,11 @@ import (
 	"reflect"
 )
 
+const (
+	ROOT = "/fs/f/genomes/GISAID/"
+	GOB_NAME = ROOT + "gisaid2020.gob"
+)
+
 type Date struct {
 	Y, M, D int
 }
@@ -321,6 +326,12 @@ func (r *Record) HasMuts(muts Mutations) Mutations {
 	return ret
 }
 
+func NewDatabase() *Database {
+	var ret Database
+	ret.Load(GOB_NAME)
+	return &ret
+}
+
 func SantaCatarina(db Database) {
 	// muts := ParseMutations("A5706G,C14408T")
 	muts := ParseMutations("A5706G")
@@ -360,14 +371,14 @@ func main() {
 	var database Database
 
 	if save {
-		database.Parse("/fs/h/genomes/GISAID/gisaid2020.tsv")
+		database.Parse(ROOT + "gisaid2020.tsv.gz")
 		fmt.Printf("Parsed %d records\n", len(database.Records))
 		fmt.Printf("Built index\n")
-		database.Save("db.gob")
+		database.Save(GOB_NAME)
 		return
 	}
 
-	database.Load("db.gob")
+	database.Load(GOB_NAME)
 	fmt.Printf("Loaded\n")
 
 	// Get rid of this later if you want to make this more generic
