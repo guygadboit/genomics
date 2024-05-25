@@ -8,13 +8,13 @@ import (
 	"io"
 	"log"
 	"os"
-	"strings"
 	"reflect"
 	"slices"
+	"strings"
 )
 
 const (
-	ROOT = "/fs/f/genomes/GISAID/"
+	ROOT     = "/fs/f/genomes/GISAID/"
 	GOB_NAME = ROOT + "gisaid2020.gob"
 )
 
@@ -40,8 +40,8 @@ func (d *Date) ToString() string {
 
 func (d *Date) Compare(other *Date) int {
 	// Convert them roughly into days
-	a := d.D + d.M * 31 + d.Y * 365
-	b := other.D + other.M * 31 + other.Y * 365
+	a := d.D + d.M*31 + d.Y*365
+	b := other.D + other.M*31 + other.Y*365
 	if a < b {
 		return -1
 	}
@@ -159,7 +159,7 @@ func ParseInsertions(s string) []Insertion {
 }
 
 type Record struct {
-	Id				  int
+	Id                int
 	GisaidAccession   string       // 0
 	Isolate           string       // 1
 	SubmissionDate    Date         // 2
@@ -342,19 +342,28 @@ func (r *Record) HasMuts(muts Mutations) Mutations {
 }
 
 type Key int
+
 const (
 	COLLECTION_DATE Key = iota
 	COUNTRY
 	REGION
 )
 
-func SortRecords(records []Record, key Key) {
+func (d *Database) Sort(ids []int, key Key) {
+	var cmp func(a, b *Record) int
+
 	switch key {
 	case COLLECTION_DATE:
-		slices.SortFunc(records, func(a, b Record) int {
+		cmp = func(a, b *Record) int {
 			return a.CollectionDate.Compare(&b.CollectionDate)
-		})
+		}
+	default:
+		log.Fatal("Sort key not implemented")
 	}
+
+	slices.SortFunc(ids, func(a, b int) int {
+		return cmp(&d.Records[a], &d.Records[b])
+	})
 }
 
 func NewDatabase() *Database {
