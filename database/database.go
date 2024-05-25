@@ -10,6 +10,7 @@ import (
 	"os"
 	"strings"
 	"reflect"
+	"slices"
 )
 
 const (
@@ -35,6 +36,19 @@ func (d *Date) Parse(s string) {
 
 func (d *Date) ToString() string {
 	return fmt.Sprintf("%d-%02d-%02d", d.Y, d.M, d.D)
+}
+
+func (d *Date) Compare(other *Date) int {
+	// Convert them roughly into days
+	a := d.D + d.M * 31 + d.Y * 365
+	b := other.D + other.M * 31 + other.Y * 365
+	if a < b {
+		return -1
+	}
+	if a > b {
+		return 1
+	}
+	return 0
 }
 
 type Mutation struct {
@@ -145,6 +159,7 @@ func ParseInsertions(s string) []Insertion {
 }
 
 type Record struct {
+	Id				  int
 	GisaidAccession   string       // 0
 	Isolate           string       // 1
 	SubmissionDate    Date         // 2
@@ -211,6 +226,7 @@ func (d *Database) Init() {
 }
 
 func (d *Database) Add(r *Record) {
+	r.Id = len(d.Records)
 	d.Records = append(d.Records, *r)
 }
 
@@ -323,6 +339,22 @@ func (r *Record) HasMuts(muts Mutations) Mutations {
 		}
 	}
 	return ret
+}
+
+type Key int
+const (
+	COLLECTION_DATE Key = iota
+	COUNTRY
+	REGION
+)
+
+func SortRecords(records []Record, key Key) {
+	switch key {
+	case COLLECTION_DATE:
+		slices.SortFunc(records, func(a, b Record) int {
+			return a.CollectionDate.Compare(&b.CollectionDate)
+		})
+	}
 }
 
 func NewDatabase() *Database {
