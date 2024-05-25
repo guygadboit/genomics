@@ -341,6 +341,20 @@ func (r *Record) HasMuts(muts Mutations) Mutations {
 	return ret
 }
 
+// You could use generics for this
+func (r *Record) HasAAMuts(muts []AAMutation) []AAMutation {
+	ret := make([]AAMutation, 0)
+	for _, s := range muts {
+		for _, m := range r.AAChanges {
+			if reflect.DeepEqual(s, m) {
+				ret = append(ret, m)
+			}
+		}
+	}
+	return ret
+}
+
+
 type Key int
 
 const (

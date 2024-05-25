@@ -53,7 +53,7 @@ def find_better(wh1, p2s, output):
 	for k, v in sam1_reads.items():
 		other = sam2_reads.get(k)
 
-		if v.score > other.score:
+		if other and v.score > other.score:
 			ret.append((v.score, other.score, v.line))
 			out(v.line)
 
