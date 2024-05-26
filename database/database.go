@@ -58,6 +58,7 @@ type Mutation struct {
 }
 
 type Mutations []Mutation
+type AAMutations []AAMutation
 
 func (m *Mutation) ToString() string {
 	return fmt.Sprintf("%c%d%c", m.From, m.Pos, m.To)
@@ -160,25 +161,25 @@ func ParseInsertions(s string) []Insertion {
 
 type Record struct {
 	Id                int
-	GisaidAccession   string       // 0
-	Isolate           string       // 1
-	SubmissionDate    Date         // 2
-	CollectionDate    Date         // 3
-	PangolinLineage   string       // 4
-	Country           string       // 5
-	Region            string       // 6
-	City              string       // 7
-	Length            int          // 8
-	Host              string       // 9
-	Divergence        int          // 10
-	NucleotideChanges []Mutation   // 11
-	Deletions         []Range      // 12
-	Insertions        []Insertion  // 13
-	AAChanges         []AAMutation // 14
-	WhoClade          string       // 15
-	NextstrainClade   string       // 16
-	Continent         string       // 17
-	ToBeExcluded      int          // 18
+	GisaidAccession   string      // 0
+	Isolate           string      // 1
+	SubmissionDate    Date        // 2
+	CollectionDate    Date        // 3
+	PangolinLineage   string      // 4
+	Country           string      // 5
+	Region            string      // 6
+	City              string      // 7
+	Length            int         // 8
+	Host              string      // 9
+	Divergence        int         // 10
+	NucleotideChanges Mutations   // 11
+	Deletions         []Range     // 12
+	Insertions        []Insertion // 13
+	AAChanges         AAMutations // 14
+	WhoClade          string      // 15
+	NextstrainClade   string      // 16
+	Continent         string      // 17
+	ToBeExcluded      int         // 18
 }
 
 func (r *Record) ToString() string {
@@ -342,7 +343,7 @@ func (r *Record) HasMuts(muts Mutations) Mutations {
 }
 
 // You could use generics for this
-func (r *Record) HasAAMuts(muts []AAMutation) []AAMutation {
+func (r *Record) HasAAMuts(muts AAMutations) AAMutations {
 	ret := make([]AAMutation, 0)
 	for _, s := range muts {
 		for _, m := range r.AAChanges {
@@ -353,7 +354,6 @@ func (r *Record) HasAAMuts(muts []AAMutation) []AAMutation {
 	}
 	return ret
 }
-
 
 type Key int
 
