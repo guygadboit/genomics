@@ -53,12 +53,10 @@ func ShowOutgroupMatches(g *genomes.Genomes) {
 	muts := database.ParseMutations("T5929G,T8601C,A8651C,G16206A,T19218G")
 	// muts := database.ParseMutations("T5929G,A8651C,G16206A")
 
-	for i := 42; i < 44; i++ {
-	// for i := 1; i < g.NumGenomes(); i++ {
+	for i := 1; i < g.NumGenomes(); i++ {
 		count := 0
 		for _, m := range muts {
 			if g.Nts[i][m.Pos-1] == m.To {
-				fmt.Printf("Have %s\n", m.ToString())
 				count++
 			}
 		}

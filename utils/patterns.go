@@ -1,24 +1,24 @@
 package utils
 
 type PatternIterator struct {
-	limit		int		// the limit of each counter (we go < limit)
-	counters	[]int	// the "digits" on the "odometer"
+	Limit		int		// the limit of each counter (we go < limit)
+	Counters	[]int	// the "digits" on the "odometer"
 	atEnd		bool
 }
 
 func (p *PatternIterator) Init(limit, numCounters int) {
-	p.limit = limit
-	p.counters = make([]int, numCounters)
+	p.Limit = limit
+	p.Counters = make([]int, numCounters)
 }
 
 func (p *PatternIterator) Next() {
-	for i, _ := range p.counters {
-		p.counters[i] += 1
-		if p.counters[i] < p.limit {
+	for i, _ := range p.Counters {
+		p.Counters[i] += 1
+		if p.Counters[i] < p.Limit {
 			return
 		}
 		for j := 0; j <= i; j++ {
-			p.counters[i] = 0
+			p.Counters[i] = 0
 		}
 	}
 	p.atEnd = true
@@ -39,8 +39,8 @@ func (ni *NtIterator) Init(length int) {
 }
 
 func (ni *NtIterator) Get() []byte {
-	ret := make([]byte, len(ni.counters))
-	for i, v := range ni.counters {
+	ret := make([]byte, len(ni.Counters))
+	for i, v := range ni.Counters {
 		ret[i] = nts[v]
 	}
 	return ret
