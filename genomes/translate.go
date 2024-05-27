@@ -661,6 +661,31 @@ func IsSilentWithReplacement(g *Genomes,
 	return nil, silent, numMuts
 }
 
+// Returns whether this was silent and the old and new proteins at that location
+func ProteinChange(g *Genomes,
+	pos int, a, b int, replacement []byte) (error, bool, []byte, []byte) {
+	var envA, envB Environment
+	length := len(replacement)
+
+	err := envA.Init(g, pos, length, a)
+	if err != nil {
+		return err, false, nil, nil
+	}
+
+	err = envA.Rewrite(replacement)
+	if err != nil {
+		return err, false, nil, nil
+	}
+
+	err = envB.Init(g, pos, length, b)
+	if err != nil {
+		return err, false, nil, nil
+	}
+
+	silent := reflect.DeepEqual(envA.Protein(), envB.Protein())
+	return nil, silent, envB.Protein(), envA.Protein()
+}
+
 func init() {
 	ReverseCodonTable = make(map[byte][]string)
 	for k := range CodonTable {
