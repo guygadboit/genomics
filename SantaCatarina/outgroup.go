@@ -49,19 +49,19 @@ func OutgroupMontcarlo(g *genomes.Genomes, its int, numMuts int) {
 		passes, its, float64(passes)/float64(its))
 }
 
-func ShowOutgroupMatches(g *genomes.Genomes) {
-	muts := database.ParseMutations("T5929G,T8601C,A8651C,G16206A,T19218G")
-	// muts := database.ParseMutations("T5929G,A8651C,G16206A")
-
+func ShowOutgroupMatches(g *genomes.Genomes, muts database.Mutations) {
 	for i := 1; i < g.NumGenomes(); i++ {
 		count := 0
 		for _, m := range muts {
 			if g.Nts[i][m.Pos-1] == m.To {
+				fmt.Printf("%s shared by %s\n", m.ToString(), g.Names[i])
 				count++
 			}
 		}
+		/*
 		if count > 0 {
 			fmt.Printf("%d %s has %d\n", i, g.Names[i], count)
 		}
+		*/
 	}
 }

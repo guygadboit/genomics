@@ -49,7 +49,7 @@ func mutate(genome *genomes.Genomes,
 			break
 		}
 
-		err, silent, _ := genomes.IsSilentWithReplacement(
+		silent, _, err := genomes.IsSilentWithReplacement(
 			genome, pos, 0, 1, replacement)
 		if err != nil {
 			// You get an error if pos is not in an ORF
@@ -142,7 +142,7 @@ outer:
 			}
 		}
 
-		_, isSilent, numMuts := genomes.IsSilent(g, i, seqLen, 0, 1)
+		isSilent, numMuts, _ := genomes.IsSilent(g, i, seqLen, 0, 1)
 		if numMuts == 0 {
 			continue
 		}
@@ -190,7 +190,7 @@ func FindMutations(g *genomes.Genomes, a, b int) []Mutation {
 			continue
 		}
 
-		_, isSilent, _ := genomes.IsSilent(g, i, 1, a, b)
+		isSilent, _, _ := genomes.IsSilent(g, i, 1, a, b)
 		ret = append(ret, Mutation{i, isSilent})
 	}
 	return ret
@@ -214,7 +214,7 @@ func RevertSilent(g *genomes.Genomes, a, b int) int {
 			continue
 		}
 
-		err, silent, _ := genomes.IsSilent(g, i, 1, a, b)
+		silent, _, err := genomes.IsSilent(g, i, 1, a, b)
 		if err != nil {
 			continue
 		}

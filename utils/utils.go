@@ -193,6 +193,32 @@ func ToSet[S comparable](s []S) map[S]bool {
 	return ret
 }
 
+func FromSet[T comparable](s map[T]bool) []T {
+	ret := make([]T, 0, len(s))
+	for k, _ := range s {
+		ret = append(ret, k)
+	}
+	return ret
+}
+
+// a gets b unioned in with it
+func Union[T comparable](a map[T]bool, b map[T]bool) {
+	for k, _ := range b {
+		a[k] = true
+	}
+}
+
+// Intersection of two sets.
+func Intersection[T comparable](a map[T]bool, b map[T]bool) map[T]bool {
+	ret := make(map[T]bool)
+	for k, _ := range a {
+		if b[k] {
+			ret[k] = true
+		}
+	}
+	return ret
+}
+
 // Parse a , etc. separated list of ints like 0,2,3
 func ParseInts(s string, sep string) []int {
 	fields := strings.Split(s, sep)
@@ -205,4 +231,13 @@ func ParseInts(s string, sep string) []int {
 		}
 	}
 	return ret
+}
+
+/*
+Make room in a slice for count new items starting at pos. This is a weird "Go
+Idiom". Makes sense when you think about it but too weird to remember so let's
+make a function for it.
+*/
+func Insert[T any](s []T, pos, count int) []T {
+	return append(s[:pos], append(make([]T, count), s[pos:]...)...)
 }

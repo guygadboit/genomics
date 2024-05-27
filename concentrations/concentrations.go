@@ -104,7 +104,7 @@ positions:
 	for i := 0; i < g.Length()-length; i++ {
 		for j := 0; j < g.NumGenomes(); j++ {
 			for k := 0; k < j; k++ {
-				_, silent, numMuts := genomes.IsSilent(g, i, length, j, k)
+				silent, numMuts, _ := genomes.IsSilent(g, i, length, j, k)
 				ok := silent || !requireSilent
 				if ok && numMuts >= minMuts {
 					// fmt.Printf("Found pattern at %d\n", i)

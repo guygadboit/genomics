@@ -20,7 +20,7 @@ func main() {
 	var fasta string
 	var orfs string
 
-	flag.StringVar(&fasta, "f", "", "Fasta file")
+	flag.StringVar(&fasta, "fasta", "", "Fasta file")
 	flag.StringVar(&orfs, "orfs", "", "ORFs file")
 	flag.Parse()
 
@@ -33,7 +33,7 @@ func main() {
 			fmt.Fprintf(os.Stderr, "%s is invalid\n", mut)
 			continue
 		}
-		err, silent, before, after := genomes.ProteinChange(g, pos,
+		silent, before, after, err := genomes.ProteinChange(g, pos,
 			0, 0, []byte{b})
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)

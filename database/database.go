@@ -22,6 +22,8 @@ type Date struct {
 	Y, M, D int
 }
 
+type Id int
+
 func (d *Date) Parse(s string) {
 	fields := strings.Split(s, "-")
 	d.Y = utils.Atoi(fields[0])
@@ -39,20 +41,30 @@ func (d *Date) ToString() string {
 }
 
 func (d *Date) Compare(other *Date) int {
-	// Convert them roughly into days
-	a := d.D + d.M*31 + d.Y*365
-	b := other.D + other.M*31 + other.Y*365
-	if a < b {
+	// Negative when d < other
+	if d.Y < other.Y {
 		return -1
-	}
-	if a > b {
+	} else if d.Y > other.Y {
 		return 1
 	}
+
+	if d.M < other.M {
+		return -1
+	} else if d.M > other.M {
+		return 1
+	}
+
+	if d.D < other.D {
+		return -1
+	} else if d.D > other.D {
+		return 1
+	}
+
 	return 0
 }
 
 type Mutation struct {
-	Pos  int
+	Pos  int // 1-based
 	From byte
 	To   byte
 }
@@ -160,7 +172,7 @@ func ParseInsertions(s string) []Insertion {
 }
 
 type Record struct {
-	Id                int
+	Id                Id
 	GisaidAccession   string      // 0
 	Isolate           string      // 1
 	SubmissionDate    Date        // 2
@@ -218,8 +230,9 @@ func (r *Record) Parse(line string) {
 }
 
 type Database struct {
-	Records       []Record
-	MutationIndex map[int][]int
+	Records        []Record
+	MutationIndex  map[int]IdSet
+	AccessionIndex map[string]Id
 }
 
 func (d *Database) Init() {
@@ -227,46 +240,67 @@ func (d *Database) Init() {
 }
 
 func (d *Database) Add(r *Record) {
-	r.Id = len(d.Records)
+	r.Id = Id(len(d.Records))
 	d.Records = append(d.Records, *r)
 }
 
 func (d *Database) BuildMutationIndex() {
-	d.MutationIndex = make(map[int][]int)
+	d.MutationIndex = make(map[int]IdSet)
 
 	for i, r := range d.Records {
 		for _, mut := range r.NucleotideChanges {
-			d.MutationIndex[mut.Pos] = append(d.MutationIndex[mut.Pos], i)
+			if d.MutationIndex[mut.Pos] == nil {
+				d.MutationIndex[mut.Pos] = make(IdSet)
+			}
+			d.MutationIndex[mut.Pos][Id(i)] = true
 		}
 	}
 }
 
-type Set map[int]bool
+func (d *Database) BuildAccessionIndex() {
+	d.AccessionIndex = make(map[string]Id)
 
-func Intersection(a, b Set) Set {
-	ret := make(Set)
-	for k, _ := range a {
-		if b[k] {
-			ret[k] = true
-		}
+	for i, r := range d.Records {
+		d.AccessionIndex[r.GisaidAccession] = Id(i)
 	}
-	return ret
 }
 
-func (d *Database) Search(muts []Mutation) Set {
-	var candidates Set
+type IdSet map[Id]bool
+
+// minMatches is the minimum number of matches-- so 1 for "Any" or len(muts)
+// for "All"
+func (d *Database) SearchByMuts(muts []Mutation, minMatches int) IdSet {
+	matches := make(map[Id]int) // How many matches for each record?
+
 	for _, mut := range muts {
 		found, there := d.MutationIndex[mut.Pos]
 		if there {
-			s := utils.ToSet(found)
-			if candidates == nil {
-				candidates = s
-			} else {
-				candidates = Intersection(candidates, s)
+			for k, _ := range found {
+				matches[k]++
 			}
 		}
 	}
-	return candidates
+
+	if minMatches > len(muts) {
+		minMatches = len(muts)
+	}
+
+	ret := make(IdSet)
+	for k, v := range matches {
+		if v >= minMatches {
+			ret[k] = true
+		}
+	}
+
+	return ret
+}
+
+func (d *Database) GetByAccession(accNum string) Id {
+	ret, there := d.AccessionIndex[accNum]
+	if !there {
+		return -1
+	}
+	return ret
 }
 
 func (d *Database) Save(fname string) {
@@ -327,6 +361,7 @@ loop:
 		d.Add(&record)
 	}
 	d.BuildMutationIndex()
+	d.BuildAccessionIndex()
 }
 
 // Return whichever muts in muts this record has
@@ -363,7 +398,7 @@ const (
 	REGION
 )
 
-func (d *Database) Sort(ids []int, key Key) {
+func (d *Database) Sort(ids []Id, key Key) {
 	var cmp func(a, b *Record) int
 
 	switch key {
@@ -375,9 +410,29 @@ func (d *Database) Sort(ids []int, key Key) {
 		log.Fatal("Sort key not implemented")
 	}
 
-	slices.SortFunc(ids, func(a, b int) int {
+	slices.SortFunc(ids, func(a, b Id) int {
 		return cmp(&d.Records[a], &d.Records[b])
 	})
+}
+
+// nil for ids means everything
+func (d *Database) Filter(ids IdSet, fun func(r *Record) bool) IdSet {
+	ret := make(IdSet)
+
+	if ids == nil {
+		for _, r := range d.Records {
+			if fun(&r) {
+				ret[r.Id] = true
+			}
+		}
+	} else {
+		for id, _ := range ids {
+			if fun(&d.Records[id]) {
+				ret[id] = true
+			}
+		}
+	}
+	return ret
 }
 
 func NewDatabase() *Database {

@@ -609,9 +609,9 @@ func (t Translation) TranslateLong(index, start, end int) (int, []byte) {
 
 /*
 Do genomes a and b in an alignment code for the same thing between pos and
-pos+length? Return error, silent, and the number of muts
+pos+length? Return silent, and the number of muts
 */
-func IsSilent(g *Genomes, pos int, length int, a, b int) (error, bool, int) {
+func IsSilent(g *Genomes, pos int, length int, a, b int) (bool, int, error) {
 	var envA, envB Environment
 
 	numMuts := utils.NumMuts(g.Nts[a][pos:pos+length],
@@ -619,24 +619,24 @@ func IsSilent(g *Genomes, pos int, length int, a, b int) (error, bool, int) {
 
 	err := envA.Init(g, pos, length, a)
 	if err != nil {
-		return err, false, numMuts
+		return false, numMuts, err
 	}
 
 	err = envB.Init(g, pos, length, b)
 	if err != nil {
-		return err, false, numMuts
+		return false, numMuts, err
 	}
 
 	silent := reflect.DeepEqual(envA.Protein(), envB.Protein())
-	return nil, silent, numMuts
+	return silent, numMuts, nil
 }
 
 /*
 If you replaced a with replacement at pos, would it be silent relative to b?
-Returns error, silent and the number of muts
+Returns silent and the number of muts
 */
 func IsSilentWithReplacement(g *Genomes,
-	pos int, a, b int, replacement []byte) (error, bool, int) {
+	pos int, a, b int, replacement []byte) (bool, int, error) {
 	var envA, envB Environment
 	length := len(replacement)
 
@@ -644,46 +644,46 @@ func IsSilentWithReplacement(g *Genomes,
 
 	err := envA.Init(g, pos, length, a)
 	if err != nil {
-		return err, false, numMuts
+		return false, numMuts, err
 	}
 
 	err = envA.Rewrite(replacement)
 	if err != nil {
-		return err, false, numMuts
+		return false, numMuts, err
 	}
 
 	err = envB.Init(g, pos, length, b)
 	if err != nil {
-		return err, false, numMuts
+		return false, numMuts, err
 	}
 
 	silent := reflect.DeepEqual(envA.Protein(), envB.Protein())
-	return nil, silent, numMuts
+	return silent, numMuts, nil
 }
 
 // Returns whether this was silent and the old and new proteins at that location
 func ProteinChange(g *Genomes,
-	pos int, a, b int, replacement []byte) (error, bool, []byte, []byte) {
+	pos int, a, b int, replacement []byte) (bool, []byte, []byte, error) {
 	var envA, envB Environment
 	length := len(replacement)
 
 	err := envA.Init(g, pos, length, a)
 	if err != nil {
-		return err, false, nil, nil
+		return false, nil, nil, err
 	}
 
 	err = envA.Rewrite(replacement)
 	if err != nil {
-		return err, false, nil, nil
+		return false, nil, nil, err
 	}
 
 	err = envB.Init(g, pos, length, b)
 	if err != nil {
-		return err, false, nil, nil
+		return false, nil, nil, err
 	}
 
 	silent := reflect.DeepEqual(envA.Protein(), envB.Protein())
-	return nil, silent, envB.Protein(), envA.Protein()
+	return silent, envB.Protein(), envA.Protein(), nil
 }
 
 func init() {
