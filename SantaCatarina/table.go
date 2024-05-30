@@ -7,6 +7,7 @@ import (
 	"genomics/genomes"
 	"genomics/utils"
 	"slices"
+	"time"
 )
 
 // Find all the muts present in any of the records here, as a sorted list of
@@ -111,7 +112,7 @@ func MakeTable(db *database.Database,
 		fmt.Fprintf(w, "<tr>")
 		r := &db.Records[id]
 		fmt.Fprintf(w, "<td>%s</td>", r.GisaidAccession)
-		fmt.Fprintf(w, "<td>%s</td>", r.CollectionDate.ToString())
+		fmt.Fprintf(w, "<td>%s</td>", r.CollectionDate.Format(time.DateOnly))
 		fmt.Fprintf(w, "<td>%s</td>", r.Region)
 		fmt.Fprintf(w, "<td>%s</td>", r.City)
 		fmt.Fprintf(w, "<td>%s</td>", r.Country)

@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 )
 
 /*
@@ -240,4 +241,8 @@ make a function for it.
 */
 func Insert[T any](s []T, pos, count int) []T {
 	return append(s[:pos], append(make([]T, count), s[pos:]...)...)
+}
+
+func Date(year int, month time.Month, day int) time.Time {
+	return time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
 }

@@ -11,6 +11,7 @@ import (
 	"reflect"
 	"slices"
 	"strings"
+	"time"
 )
 
 const (
@@ -18,50 +19,7 @@ const (
 	GOB_NAME = ROOT + "gisaid2020.gob"
 )
 
-type Date struct {
-	Y, M, D int
-}
-
 type Id int
-
-func (d *Date) Parse(s string) {
-	fields := strings.Split(s, "-")
-	d.Y = utils.Atoi(fields[0])
-
-	if len(fields) >= 2 {
-		d.M = utils.Atoi(fields[1])
-	}
-	if len(fields) == 3 {
-		d.D = utils.Atoi(fields[2])
-	}
-}
-
-func (d *Date) ToString() string {
-	return fmt.Sprintf("%d-%02d-%02d", d.Y, d.M, d.D)
-}
-
-func (d *Date) Compare(other *Date) int {
-	// Negative when d < other
-	if d.Y < other.Y {
-		return -1
-	} else if d.Y > other.Y {
-		return 1
-	}
-
-	if d.M < other.M {
-		return -1
-	} else if d.M > other.M {
-		return 1
-	}
-
-	if d.D < other.D {
-		return -1
-	} else if d.D > other.D {
-		return 1
-	}
-
-	return 0
-}
 
 type Mutation struct {
 	Pos  int // 1-based
@@ -175,8 +133,8 @@ type Record struct {
 	Id                Id
 	GisaidAccession   string      // 0
 	Isolate           string      // 1
-	SubmissionDate    Date        // 2
-	CollectionDate    Date        // 3
+	SubmissionDate    time.Time   // 2
+	CollectionDate    time.Time   // 3
 	PangolinLineage   string      // 4
 	Country           string      // 5
 	Region            string      // 6
@@ -196,7 +154,7 @@ type Record struct {
 
 func (r *Record) ToString() string {
 	return fmt.Sprintf("%s %s %s %s %s", r.GisaidAccession,
-		r.CollectionDate.ToString(), r.Country, r.Region, r.City)
+		r.CollectionDate.Format(time.DateOnly), r.Country, r.Region, r.City)
 }
 
 func Atoi(s string) int {
@@ -210,8 +168,8 @@ func (r *Record) Parse(line string) {
 	fields := strings.Split(line, "\t")
 	r.GisaidAccession = fields[0]
 	r.Isolate = fields[1]
-	r.SubmissionDate.Parse(fields[2])
-	r.CollectionDate.Parse(fields[3])
+	r.SubmissionDate, _ = time.Parse(time.DateOnly, fields[2])
+	r.CollectionDate, _ = time.Parse(time.DateOnly, fields[3])
 	r.PangolinLineage = fields[4]
 	r.Country = fields[5]
 	r.Region = fields[6]
@@ -404,7 +362,7 @@ func (d *Database) Sort(ids []Id, key Key) {
 	switch key {
 	case COLLECTION_DATE:
 		cmp = func(a, b *Record) int {
-			return a.CollectionDate.Compare(&b.CollectionDate)
+			return a.CollectionDate.Compare(b.CollectionDate)
 		}
 	default:
 		log.Fatal("Sort key not implemented")
