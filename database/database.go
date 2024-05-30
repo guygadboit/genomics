@@ -253,10 +253,14 @@ func (d *Database) SearchByMuts(muts []Mutation, minMatches int) IdSet {
 	return ret
 }
 
-func (d *Database) GetByAccession(accNum string) Id {
-	ret, there := d.AccessionIndex[accNum]
-	if !there {
-		return -1
+func (d *Database) GetByAccession(accNum ...string) []Id {
+	ret := make([]Id, 0)
+
+	for _, an := range accNum {
+		id, there := d.AccessionIndex[an]
+		if there {
+			ret = append(ret, id)
+		}
 	}
 	return ret
 }
