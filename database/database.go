@@ -3,7 +3,9 @@ package database
 import (
 	"bufio"
 	"encoding/gob"
+	"errors"
 	"fmt"
+	"genomics/genomes"
 	"genomics/utils"
 	"io"
 	"log"
@@ -45,6 +47,18 @@ func (muts Mutations) ToString() string {
 type AAMutation struct {
 	Mutation
 	Gene string
+}
+
+func (m *AAMutation) ToString() string {
+	return fmt.Sprintf("%s:%c%d%c", m.Gene, m.From, m.Pos, m.To)
+}
+
+func (muts AAMutations) ToString() string {
+	s := make([]string, len(muts))
+	for i, m := range muts {
+		s[i] = m.ToString()
+	}
+	return strings.Join(s, ",")
 }
 
 func ParseMutations(s string) []Mutation {
@@ -395,6 +409,50 @@ func (d *Database) Filter(ids IdSet, fun func(r *Record) bool) IdSet {
 		}
 	}
 	return ret
+}
+
+/*
+Use the first genome in reference, and output it and the second one in an
+alignment.
+*/
+func (d *Database) Reconstruct(id Id,
+	reference *genomes.Genomes) (*genomes.Genomes, error) {
+
+	ret := reference.Filter(0, 0)
+	ret.DeepCopy(1)
+	record := &d.Records[id]
+
+	for _, mut := range record.NucleotideChanges {
+		pos := mut.Pos - 1
+		if ret.Nts[1][pos] != mut.From {
+			return nil, errors.New("Wrong reference")
+		}
+
+		ret.Nts[1][pos] = mut.To
+	}
+
+	for _, ins := range record.Insertions {
+		pos := ins.Pos - 1
+		n := len(ins.Sequence)
+		fmt.Printf("Insertion at %d length %d\n", pos, n)
+
+		ret.Nts[0] = utils.Insert(ret.Nts[0], pos, n)
+		ret.Nts[1] = utils.Insert(ret.Nts[1], pos, n)
+
+		copy(ret.Nts[1][pos:pos+n], ins.Sequence)
+		for i := pos; i < pos+n; i++ {
+			ret.Nts[0][i] = '-'
+		}
+	}
+
+	for _, del := range record.Deletions {
+		fmt.Printf("Deletion at %d-%d\n", del.Start-1, del.End)
+		for i := del.Start - 1; i < del.End; i++ {
+			ret.Nts[1][i] = '-'
+		}
+	}
+
+	return ret, nil
 }
 
 func NewDatabase() *Database {

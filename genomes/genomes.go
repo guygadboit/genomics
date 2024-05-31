@@ -595,8 +595,8 @@ func (g *Genomes) saveCluStyle(fname string,
 				nextIndex, aas = trans[j].TranslateLong(index, i, i+n)
 				fmt.Fprintf(fp, "%-16s%s\n", names[j], string(aas))
 			}
-			fmt.Fprintf(fp, "\n")
 		}
+		fmt.Fprintf(fp, "\n")
 		index = nextIndex
 	}
 
