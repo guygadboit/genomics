@@ -171,6 +171,20 @@ func (r *Record) ToString() string {
 		r.CollectionDate.Format(time.DateOnly), r.Country, r.Region, r.City)
 }
 
+// A more detailed summary
+func (r *Record) Summary() string {
+	return fmt.Sprintf("%s %s %s %s %s: %s %s; %d %d",
+	r.GisaidAccession,
+	r.CollectionDate.Format(time.DateOnly),
+	r.Country,
+	r.Region,
+	r.City,
+	r.NucleotideChanges.ToString(),
+	r.AAChanges.ToString(),
+	len(r.Insertions),
+	len(r.Deletions))
+}
+
 func Atoi(s string) int {
 	if s == "" {
 		return 0

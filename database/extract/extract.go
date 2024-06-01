@@ -6,7 +6,6 @@ import (
 	"genomics/database"
 	"genomics/genomes"
 	"os"
-	"time"
 )
 
 const ROOT = "/fs/f/genomes/viruses/SARS2/"
@@ -50,16 +49,7 @@ func main() {
 		id := ids[0]
 		r := db.Records[id]
 
-		fmt.Printf("%s %s %s %s %s: %s %s; %d %d\n",
-			r.GisaidAccession,
-			r.CollectionDate.Format(time.DateOnly),
-			r.Country,
-			r.Region,
-			r.City,
-			r.NucleotideChanges.ToString(),
-			r.AAChanges.ToString(),
-			len(r.Insertions),
-			len(r.Deletions))
+		fmt.Println(r.Summary())
 
 		if reconstruct {
 			rg, err := db.Reconstruct(id, g)
