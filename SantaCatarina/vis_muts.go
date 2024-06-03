@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"genomics/database"
 	"genomics/utils"
-	"slices"
 	"reflect"
+	"slices"
 )
 
 // Represents a single mutation with a short string code
@@ -26,7 +26,7 @@ func initPatternIterator(pi *utils.PatternIterator) {
 func encodePattern(pi utils.PatternIterator) MutCode {
 	var ret MutCode = "A"
 
-	for started, i := false, len(pi.Counters) - 1; i >= 0; i-- {
+	for started, i := false, len(pi.Counters)-1; i >= 0; i-- {
 		d := pi.Counters[i]
 
 		// Don't bother encoding insignificant zeros-- so any "leading" ones

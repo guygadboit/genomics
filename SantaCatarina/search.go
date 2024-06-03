@@ -84,35 +84,52 @@ func showEarly(db *database.Database) {
 	v.Show()
 }
 
-func CountOutgroupMatches(db *database.Database,
-	nd *mutations.NucDistro, g *genomes.Genomes, numBats int) {
-	hits, its := OutgroupMontecarlo(g, nd, 1000)
+func CountOutgroupMatches(db *database.Database, nd *mutations.NucDistro,
+	bats *genomes.Genomes,
+	pangolins *genomes.Genomes,
+	from time.Time, to time.Time) {
+
+	its := 1000
+	batHits := OutgroupMontecarlo(bats, nd, its)
+	pangHits := OutgroupMontecarlo(pangolins, nd, its)
+
 	matches := db.Filter(nil, func(r *database.Record) bool {
-		cutoff := utils.Date(2020, 3, 1)
 		if r.Host != "Human" {
 			return false
 		}
-		return r.CollectionDate.Compare(cutoff) <= 0
+		coll := r.CollectionDate
+		return coll.Compare(from) >= 0 && coll.Compare(to) <= 0
 	})
 
-	// fmt.Printf("Found %d sequences\n", len(matches))
 	ids := utils.FromSet(matches)
 	db.Sort(ids, database.COLLECTION_DATE)
 
+	checkMatches := func(r *database.Record, matches Matches, hits int) {
+		if len(matches) == 0 {
+			return
+		}
+		var ct stats.ContingencyTable
+		n := len(matches)
+		ct.Init(n, len(r.NucleotideChanges)-n, hits, its-hits)
+		OR, p := ct.FisherExact()
+
+		if p < 1e-2 {
+			fmt.Printf("%s: %d/%d: %s %f %.4g\n", r.ToString(),
+				n, len(r.NucleotideChanges), matches.ToString(),
+				OR, p)
+		}
+	}
+
 	for _, id := range ids {
 		r := &db.Records[id]
-		matches := OutgroupMatches(g, r.NucleotideChanges, numBats, false)
-		if len(matches) >= 4 {
-			var ct stats.ContingencyTable
-			ct.Init(len(matches), len(r.NucleotideChanges), hits, its)
-			OR, p := ct.FisherExact()
 
-			if p < 1e-4 {
-				fmt.Printf("%s: %d/%d: %s %f %.4g\n", r.ToString(),
-					len(matches), len(r.NucleotideChanges), matches.ToString(),
-					OR, p)
-			}
-		}
+		batMatches := OutgroupMatches(bats,
+			r.NucleotideChanges, "b", false, nil)
+		pangMatches := OutgroupMatches(pangolins,
+			r.NucleotideChanges, "p", false, batMatches)
+
+		checkMatches(r, batMatches, batHits)
+		checkMatches(r, pangMatches, pangHits)
 	}
 }
 
@@ -150,23 +167,21 @@ func main() {
 	*/
 
 	db := database.NewDatabase()
-
 	nd := mutations.NewNucDistro(g)
 
-	/*
 	pangolins := g.Filter(0, 35, 36, 37, 38, 39, 40, 41)
-	fmt.Println("Pangolins")
-	CountOutgroupMatches(db, nd, pangolins, 0)
+	bats := g.Filter(0, 8, 5, 6, 7, 10, 11)
 
-	fmt.Println("Close Bats")
-	closeBats := g.Filter(0, 8, 5, 6, 7, 10, 11)
-	CountOutgroupMatches(db, nd, closeBats, 6)
-	*/
-
-	fmt.Println("Both")
-	both := g.Filter(0, 8, 5, 6, 7, 10, 11, 35, 36, 37, 38, 39, 40, 41)
-	CountOutgroupMatches(db, nd, both, 6)
+	fmt.Println("Before 2020-03-01")
+	CountOutgroupMatches(db, nd, bats, pangolins,
+		utils.Date(2020, 1, 1),
+		utils.Date(2020, 3, 1))
 	return
+
+	fmt.Println("After 2020-09-01")
+	CountOutgroupMatches(db, nd, bats, pangolins,
+		utils.Date(2020, 12, 1),
+		utils.Date(2020, 12, 31))
 
 	/*
 		mutsDates(db)
