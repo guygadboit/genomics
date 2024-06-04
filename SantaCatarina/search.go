@@ -100,11 +100,13 @@ func CountOutgroupMatches(db *database.Database, nd *mutations.NucDistro,
 		coll := r.CollectionDate
 		return coll.Compare(from) >= 0 && coll.Compare(to) <= 0
 	})
+	fmt.Printf("Considering %d sequences\n", len(matches))
 
 	ids := utils.FromSet(matches)
 	db.Sort(ids, database.COLLECTION_DATE)
 
-	checkMatches := func(r *database.Record, matches Matches, hits int) {
+	checkMatches := func(r *database.Record,
+		matches Matches, hits int, tag string) {
 		if len(matches) == 0 {
 			return
 		}
@@ -113,9 +115,9 @@ func CountOutgroupMatches(db *database.Database, nd *mutations.NucDistro,
 		ct.Init(n, len(r.NucleotideChanges)-n, hits, its-hits)
 		OR, p := ct.FisherExact()
 
-		if p < 1e-2 {
-			fmt.Printf("%s: %d/%d: %s %f %.4g\n", r.ToString(),
-				n, len(r.NucleotideChanges), matches.ToString(),
+		if p < 1e-3 {
+			fmt.Printf("%s %d/%d match %s: %s OR=%f p=%.4g\n", r.ToString(),
+				n, len(r.NucleotideChanges), tag, matches.ToString(false),
 				OR, p)
 		}
 	}
@@ -124,12 +126,14 @@ func CountOutgroupMatches(db *database.Database, nd *mutations.NucDistro,
 		r := &db.Records[id]
 
 		batMatches := OutgroupMatches(bats,
-			r.NucleotideChanges, "b", false, nil)
+			r.NucleotideChanges, "b", false)
 		pangMatches := OutgroupMatches(pangolins,
-			r.NucleotideChanges, "p", false, batMatches)
+			r.NucleotideChanges, "p", false)
 
-		checkMatches(r, batMatches, batHits)
-		checkMatches(r, pangMatches, pangHits)
+		batMatches, pangMatches = RemoveIntersection(batMatches, pangMatches)
+
+		checkMatches(r, batMatches, batHits, "Bat")
+		checkMatches(r, pangMatches, pangHits, "Pangolin")
 	}
 }
 
@@ -176,12 +180,12 @@ func main() {
 	CountOutgroupMatches(db, nd, bats, pangolins,
 		utils.Date(2020, 1, 1),
 		utils.Date(2020, 3, 1))
-	return
 
 	fmt.Println("After 2020-09-01")
 	CountOutgroupMatches(db, nd, bats, pangolins,
 		utils.Date(2020, 12, 1),
 		utils.Date(2020, 12, 31))
+	return
 
 	/*
 		mutsDates(db)

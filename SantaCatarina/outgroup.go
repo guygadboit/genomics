@@ -44,11 +44,15 @@ type Match struct {
 
 type Matches []Match
 
-func (m Matches) ToString() string {
+func (m Matches) ToString(showTag bool) string {
 	s := make([]string, len(m))
 	for i, match := range m {
+		var tag string
+		if showTag {
+			tag = match.tag
+		}
 		s[i] = fmt.Sprintf("%c%d%c%s", match.From,
-			match.Pos, match.To, match.tag)
+			match.Pos, match.To, tag)
 	}
 	return strings.Join(s, ",")
 }
@@ -63,7 +67,7 @@ func (m Matches) Contains(mut database.Mutation) bool {
 }
 
 func OutgroupMatches(g *genomes.Genomes,
-	muts database.Mutations, tag string, show bool, exclude Matches) Matches {
+	muts database.Mutations, tag string, show bool) Matches {
 	ret := make(Matches, 0)
 	for _, m := range muts {
 		found := false
@@ -76,9 +80,6 @@ func OutgroupMatches(g *genomes.Genomes,
 			}
 		}
 		if found {
-			if exclude != nil && exclude.Contains(m) {
-				continue
-			}
 			ret = append(ret, Match{m, tag})
 		}
 	}
@@ -86,5 +87,30 @@ func OutgroupMatches(g *genomes.Genomes,
 }
 
 func ShowOutgroupMatches(g *genomes.Genomes, muts database.Mutations) {
-	OutgroupMatches(g, muts, "", true, nil)
+	OutgroupMatches(g, muts, "", true)
+}
+
+func RemoveIntersection(matchesA, matchesB Matches) (Matches, Matches) {
+	excludeA, excludeB := make(map[int]bool), make(map[int]bool)
+
+	for i, a := range matchesA {
+		for j, b := range matchesB {
+			if a.Mutation == b.Mutation {
+				excludeA[i] = true
+				excludeB[j] = true
+			}
+		}
+	}
+
+	filter := func(matches Matches, exclude map[int]bool) Matches {
+		ret := make(Matches, 0)
+		for i, m := range matches {
+			if !exclude[i] {
+				ret = append(ret, m)
+			}
+		}
+		return ret
+	}
+
+	return filter(matchesA, excludeA), filter(matchesB, excludeB)
 }
