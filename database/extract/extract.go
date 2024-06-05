@@ -52,7 +52,7 @@ func main() {
 		fmt.Println(r.Summary())
 
 		if reconstruct {
-			rg, err := db.Reconstruct(id, g)
+			rg, err := db.Reconstruct(id, g, accNum)
 			if err != nil {
 				fmt.Fprintln(os.Stderr, err)
 				continue

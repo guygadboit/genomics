@@ -10,6 +10,7 @@ import (
 	"genomics/utils"
 	"log"
 	"os"
+	"slices"
 	"time"
 )
 
@@ -84,14 +85,27 @@ func showEarly(db *database.Database) {
 	v.Show()
 }
 
+// All the places where we found matches
+type LocationSet map[int]bool
+
+func (ls LocationSet) Print() {
+	locations := utils.FromSet(ls)
+	slices.Sort(locations)
+	for _, pos := range locations {
+		fmt.Println(pos)
+	}
+}
+
 func CountOutgroupMatches(db *database.Database, nd *mutations.NucDistro,
 	bats *genomes.Genomes,
 	pangolins *genomes.Genomes,
-	from time.Time, to time.Time) {
+	from time.Time, to time.Time) LocationSet {
 
 	its := 1000
 	batHits := OutgroupMontecarlo(bats, nd, its)
 	pangHits := OutgroupMontecarlo(pangolins, nd, its)
+
+	ret := make(LocationSet)
 
 	matches := db.Filter(nil, func(r *database.Record) bool {
 		if r.Host != "Human" {
@@ -115,10 +129,18 @@ func CountOutgroupMatches(db *database.Database, nd *mutations.NucDistro,
 		ct.Init(n, len(r.NucleotideChanges)-n, hits, its-hits)
 		OR, p := ct.FisherExact()
 
-		if p < 1e-3 {
+		// If you make the cutoff 1e-4 you get lots of Pangolin matches, using
+		// 33 and 35
+		if p < 1e-4 {
 			fmt.Printf("%s %d/%d match %s: %s OR=%f p=%.4g\n", r.ToString(),
 				n, len(r.NucleotideChanges), tag, matches.ToString(false),
 				OR, p)
+
+			if tag == "Pangolin" {
+				for _, m := range matches {
+					ret[m.Pos] = true
+				}
+			}
 		}
 	}
 
@@ -130,11 +152,13 @@ func CountOutgroupMatches(db *database.Database, nd *mutations.NucDistro,
 		pangMatches := OutgroupMatches(pangolins,
 			r.NucleotideChanges, "p", false)
 
-		batMatches, pangMatches = RemoveIntersection(batMatches, pangMatches)
+		batMatches, pangMatches = RemoveIntersection(batMatches,
+			pangMatches, false)
 
 		checkMatches(r, batMatches, batHits, "Bat")
 		checkMatches(r, pangMatches, pangHits, "Pangolin")
 	}
+	return ret
 }
 
 func mutsDates(db *database.Database) {
@@ -173,13 +197,20 @@ func main() {
 	db := database.NewDatabase()
 	nd := mutations.NewNucDistro(g)
 
-	pangolins := g.Filter(0, 35, 36, 37, 38, 39, 40, 41)
-	bats := g.Filter(0, 8, 5, 6, 7, 10, 11)
+	// pangolins := g.Filter(0, 35, 36, 37, 38, 39, 40, 41)
+	// Controls:
+	pangolins := g.Filter(0, 33, 35)
+	// controls := g.Filter(0, 28, 29)
+	bats := g.Filter(0, 5, 6, 7, 8)
+	// bats := g.Filter(0, 8, 5, 6, 7, 10, 11)
 
-	fmt.Println("Before 2020-03-01")
-	CountOutgroupMatches(db, nd, bats, pangolins,
+	fmt.Println("Before 2020-04-01")
+	locations := CountOutgroupMatches(db, nd, bats, pangolins,
 		utils.Date(2020, 1, 1),
-		utils.Date(2020, 3, 1))
+		utils.Date(2020, 4, 1))
+
+	locations.Print()
+	return
 
 	fmt.Println("After 2020-09-01")
 	CountOutgroupMatches(db, nd, bats, pangolins,

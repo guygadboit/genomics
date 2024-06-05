@@ -90,12 +90,32 @@ func ShowOutgroupMatches(g *genomes.Genomes, muts database.Mutations) {
 	OutgroupMatches(g, muts, "", true)
 }
 
-func RemoveIntersection(matchesA, matchesB Matches) (Matches, Matches) {
+/*
+If not strict, consider mutations to be "the same" if they're just in the same
+place, even if they mutate to different things
+*/
+func RemoveIntersection(matchesA, matchesB Matches,
+	strict bool) (Matches, Matches) {
 	excludeA, excludeB := make(map[int]bool), make(map[int]bool)
+
+	areSameStrict := func(a, b database.Mutation) bool {
+		return a == b
+	}
+
+	areSameLoose := func(a, b database.Mutation) bool {
+		return a.Pos == b.Pos
+	}
+
+	var areSame func(a, b database.Mutation) bool
+	if strict {
+		areSame = areSameStrict
+	} else {
+		areSame = areSameLoose
+	}
 
 	for i, a := range matchesA {
 		for j, b := range matchesB {
-			if a.Mutation == b.Mutation {
+			if areSame(a.Mutation, b.Mutation) {
 				excludeA[i] = true
 				excludeB[j] = true
 			}

@@ -430,7 +430,7 @@ Use the first genome in reference, and output it and the second one in an
 alignment.
 */
 func (d *Database) Reconstruct(id Id,
-	reference *genomes.Genomes) (*genomes.Genomes, error) {
+	reference *genomes.Genomes, name string) (*genomes.Genomes, error) {
 
 	ret := reference.Filter(0, 0)
 	ret.DeepCopy(1)
@@ -466,6 +466,7 @@ func (d *Database) Reconstruct(id Id,
 		}
 	}
 
+	ret.Names[1] = name
 	return ret, nil
 }
 
