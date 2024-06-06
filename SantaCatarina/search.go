@@ -99,13 +99,14 @@ func (ls LocationSet) Print() {
 func CountOutgroupMatches(db *database.Database, nd *mutations.NucDistro,
 	bats *genomes.Genomes,
 	pangolins *genomes.Genomes,
-	from time.Time, to time.Time) LocationSet {
+	from time.Time, to time.Time) (LocationSet, *TransitionCounter) {
 
-	its := 1000
+	its := 10000
 	batHits := OutgroupMontecarlo(bats, nd, its)
 	pangHits := OutgroupMontecarlo(pangolins, nd, its)
 
-	ret := make(LocationSet)
+	locations := make(LocationSet)
+	transitions := NewTransitionCounter()
 
 	matches := db.Filter(nil, func(r *database.Record) bool {
 		if r.Host != "Human" {
@@ -138,7 +139,8 @@ func CountOutgroupMatches(db *database.Database, nd *mutations.NucDistro,
 
 			if tag == "Pangolin" {
 				for _, m := range matches {
-					ret[m.Pos] = true
+					locations[m.Pos] = true
+					transitions.Add(m.Mutation)
 				}
 			}
 		}
@@ -158,7 +160,7 @@ func CountOutgroupMatches(db *database.Database, nd *mutations.NucDistro,
 		checkMatches(r, batMatches, batHits, "Bat")
 		checkMatches(r, pangMatches, pangHits, "Pangolin")
 	}
-	return ret
+	return locations, transitions
 }
 
 func mutsDates(db *database.Database) {
@@ -177,6 +179,29 @@ func mutsDates(db *database.Database) {
 
 	w.Flush()
 	fmt.Println("Wrote muts-dates.txt")
+}
+
+func TotalSpectrum(db *database.Database) *TransitionCounter {
+	ret := NewTransitionCounter()
+	from := utils.Date(2020, 1, 1)
+	to := utils.Date(2020, 12, 31)
+
+	matches := db.Filter(nil, func(r *database.Record) bool {
+		if r.Host != "Human" {
+			return false
+		}
+		coll := r.CollectionDate
+		return coll.Compare(from) >= 0 && coll.Compare(to) <= 0
+	})
+
+	for match, _ := range matches {
+		r := db.Records[match]
+		for _, mut := range r.NucleotideChanges {
+			ret.Add(mut)
+		}
+	}
+
+	return ret
 }
 
 func main() {
@@ -204,12 +229,17 @@ func main() {
 	bats := g.Filter(0, 5, 6, 7, 8)
 	// bats := g.Filter(0, 8, 5, 6, 7, 10, 11)
 
+	ts := TotalSpectrum(db)
+	ts.Print()
+	return
+
 	fmt.Println("Before 2020-04-01")
-	locations := CountOutgroupMatches(db, nd, bats, pangolins,
+	locations, spectrum := CountOutgroupMatches(db, nd, bats, pangolins,
 		utils.Date(2020, 1, 1),
-		utils.Date(2020, 4, 1))
+		utils.Date(2020, 12, 31))
 
 	locations.Print()
+	spectrum.Print()
 	return
 
 	fmt.Println("After 2020-09-01")
