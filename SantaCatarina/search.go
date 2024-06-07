@@ -207,6 +207,9 @@ func TotalSpectrum(db *database.Database) *TransitionCounter {
 func main() {
 	g := genomes.LoadGenomes("../fasta/SARS2-relatives.fasta",
 		"../fasta/WH1.orfs", false)
+		/*
+	g := genomes.LoadGenomes("../fasta/all.fasta", "../fasta/WH1.orfs", false)
+	*/
 	/*
 		// OutgroupMontcarlo(g, 1000, 17)
 		ShowOutgroupMatches(g)
@@ -222,6 +225,25 @@ func main() {
 	db := database.NewDatabase()
 	nd := mutations.NewNucDistro(g)
 
+	expected := GetExpected(g, nd)
+
+	ids := db.Filter(nil, func(r *database.Record) bool {
+		return r.Host == "Human"
+	})
+
+	individuals := CountSignificant(db, ids, g, expected, 60)
+	f, _ := os.Create("individuals.txt")
+	defer f.Close()
+	w := bufio.NewWriter(f)
+	for i, r := range individuals {
+		fmt.Fprintln(w, i, r)
+	}
+	w.Flush()
+	fmt.Println("Wrote individuals.txt")
+
+	return
+
+
 	// pangolins := g.Filter(0, 35, 36, 37, 38, 39, 40, 41)
 	// Controls:
 	pangolins := g.Filter(0, 33, 35)
@@ -229,9 +251,11 @@ func main() {
 	bats := g.Filter(0, 5, 6, 7, 8)
 	// bats := g.Filter(0, 8, 5, 6, 7, 10, 11)
 
+	/*
 	ts := TotalSpectrum(db)
 	ts.Print()
 	return
+	*/
 
 	fmt.Println("Before 2020-04-01")
 	locations, spectrum := CountOutgroupMatches(db, nd, bats, pangolins,
@@ -290,7 +314,7 @@ func main() {
 	}
 	defer f.Close()
 
-	w := bufio.NewWriter(f)
+	w = bufio.NewWriter(f)
 	MakeTable(db, g, records, sc1.NucleotideChanges, w)
 	w.Flush()
 	fmt.Printf("Wrote table.html\n")

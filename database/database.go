@@ -306,6 +306,7 @@ func (d *Database) Save(fname string) {
 	if err != nil {
 		log.Fatal(err)
 	}
+	fp.Flush()
 }
 
 func (d *Database) Load(fname string) {
