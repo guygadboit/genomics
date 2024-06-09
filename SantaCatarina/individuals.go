@@ -1,22 +1,22 @@
 package main
 
 import (
+	"bufio"
+	"encoding/gob"
+	"fmt"
+	"genomics/database"
 	"genomics/genomes"
 	"genomics/mutations"
-	"genomics/database"
 	"genomics/stats"
-	"encoding/gob"
 	"log"
 	"os"
-	"bufio"
-	"fmt"
 )
 
 const FNAME = "expected-hits.gob"
 
 type ExpectedHits struct {
-	Its	int
-	Hits	[]int
+	Its  int
+	Hits []int
 }
 
 func (e *ExpectedHits) Init(its int, numGenomes int) {
@@ -89,7 +89,8 @@ func CountSignificant(
 	db *database.Database, ids database.IdSet,
 	g *genomes.Genomes,
 	expectedHits *ExpectedHits,
-	minOR float64) []int {
+	minOR float64,
+	maxP float64) []int {
 	ret := make([]int, g.NumGenomes())
 
 	total := len(ids)
@@ -110,12 +111,15 @@ func CountSignificant(
 			ct.Init(n, len(r.NucleotideChanges)-n, hits, expectedHits.Its-hits)
 			OR := ct.CalcOR()
 			if OR > minOR {
-				ret[i]++
+				_, p := ct.FisherExact()
+				if p < maxP {
+					ret[i]++
+				}
 			}
 		}
 		count++
-		if count % 100000 == 0 {
-			fmt.Printf("%.0f%% done\n", float64(count * 100) / float64(total))
+		if count%100000 == 0 {
+			fmt.Printf("%.0f%% done\n", float64(count*100)/float64(total))
 		}
 	}
 

@@ -12,6 +12,7 @@ import (
 	"os"
 	"slices"
 	"time"
+	"strings"
 )
 
 func SearchDB(db *database.Database) {
@@ -204,6 +205,16 @@ func TotalSpectrum(db *database.Database) *TransitionCounter {
 	return ret
 }
 
+func LoadShortNames() []string {
+	ret := make([]string, 0)
+	utils.Lines("../fasta/short_names.txt", func(line string, err error) bool {
+		fields := strings.Split(line, " ")
+		ret = append(ret, fields[1])
+		return true
+	})
+	return ret
+}
+
 func main() {
 	g := genomes.LoadGenomes("../fasta/SARS2-relatives.fasta",
 		"../fasta/WH1.orfs", false)
@@ -227,16 +238,24 @@ func main() {
 
 	expected := GetExpected(g, nd)
 
+	cutoff := utils.Date(2020, 4, 1)
 	ids := db.Filter(nil, func(r *database.Record) bool {
-		return r.Host == "Human"
+		if r.Host != "Human" {
+			return false
+		}
+		return r.CollectionDate.Compare(cutoff) < 0
 	})
 
-	individuals := CountSignificant(db, ids, g, expected, 60)
+	shortNames := LoadShortNames()
+	individuals := CountSignificant(db, ids, g, expected, 30, 1e-4)
 	f, _ := os.Create("individuals.txt")
 	defer f.Close()
 	w := bufio.NewWriter(f)
 	for i, r := range individuals {
-		fmt.Fprintln(w, i, r)
+		if i == 0 {
+			continue
+		}
+		fmt.Fprintln(w, shortNames[i], r)
 	}
 	w.Flush()
 	fmt.Println("Wrote individuals.txt")

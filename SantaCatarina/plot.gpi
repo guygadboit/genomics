@@ -1,0 +1,7 @@
+set title "No of GISAID sequences whose muts match each genome with OR > 30 and p < 1e-4"
+
+set style fill solid
+set boxwidth 0.5
+set xtics rotate by -90
+
+plot "individuals.txt" using 2:xtic(1) with boxes notitle
