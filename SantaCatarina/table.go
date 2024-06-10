@@ -76,9 +76,9 @@ func MakeTable(db *database.Database,
 	}
 
 	muts = insertMuts(muts,
-		database.Mutation{8782, 'C', 'T'},
-		database.Mutation{28144, 'T', 'C'},
-		database.Mutation{18060, 'C', 'T'},
+		database.Mutation{8782, 'C', 'T', database.UNKNOWN},
+		database.Mutation{28144, 'T', 'C', database.UNKNOWN},
+		database.Mutation{18060, 'C', 'T', database.UNKNOWN},
 	)
 
 	fmt.Fprintf(w, "<tr id=\"headings\">")

@@ -23,10 +23,20 @@ const (
 
 type Id int
 
+type Silence int
+
+const (
+	UNKNOWN Silence = iota
+	SILENT
+	NON_SILENT
+	NOT_IN_ORF
+)
+
 type Mutation struct {
-	Pos  int // 1-based
-	From byte
-	To   byte
+	Pos     int // 1-based
+	From    byte
+	To      byte
+	Silence Silence
 }
 
 type Mutations []Mutation
@@ -69,7 +79,7 @@ func ParseMutations(s string) []Mutation {
 	fields := strings.Split(s, ",")
 	for _, f := range fields {
 		n := len(f)
-		mut := Mutation{utils.Atoi(f[1 : n-1]), f[0], f[n-1]}
+		mut := Mutation{utils.Atoi(f[1 : n-1]), f[0], f[n-1], UNKNOWN}
 		ret = append(ret, mut)
 	}
 	return ret
@@ -88,7 +98,7 @@ func ParseAAMutations(s string) []AAMutation {
 		f := subFields[1]
 		n := len(f)
 		mut := AAMutation{Mutation{utils.Atoi(f[1 : n-1]),
-			f[0], f[n-1]}, gene}
+			f[0], f[n-1], UNKNOWN}, gene}
 		ret = append(ret, mut)
 	}
 	return ret
@@ -174,15 +184,15 @@ func (r *Record) ToString() string {
 // A more detailed summary
 func (r *Record) Summary() string {
 	return fmt.Sprintf("%s %s %s %s %s: %s %s; %d %d",
-	r.GisaidAccession,
-	r.CollectionDate.Format(time.DateOnly),
-	r.Country,
-	r.Region,
-	r.City,
-	r.NucleotideChanges.ToString(),
-	r.AAChanges.ToString(),
-	len(r.Insertions),
-	len(r.Deletions))
+		r.GisaidAccession,
+		r.CollectionDate.Format(time.DateOnly),
+		r.Country,
+		r.Region,
+		r.City,
+		r.NucleotideChanges.ToString(),
+		r.AAChanges.ToString(),
+		len(r.Insertions),
+		len(r.Deletions))
 }
 
 func Atoi(s string) int {
@@ -424,6 +434,31 @@ func (d *Database) Filter(ids IdSet, fun func(r *Record) bool) IdSet {
 		}
 	}
 	return ret
+}
+
+func (d *Database) DetermineSilence(reference *genomes.Genomes) {
+	cache := make(map[Mutation]Silence)
+
+	determine := func(mut Mutation) Silence {
+		silence, there := cache[mut]
+		if !there {
+			isSilent, _, err := genomes.IsSilentWithReplacement(reference,
+				mut.Pos-1, 0, 0, []byte{mut.To})
+			if err != nil {
+				silence = NOT_IN_ORF
+			} else if isSilent {
+				silence = SILENT
+			}
+			cache[mut] = silence
+		}
+		return silence
+	}
+
+	for i, r := range d.Records {
+		for j, mut := range r.NucleotideChanges {
+			d.Records[i].NucleotideChanges[j].Silence = determine(mut)
+		}
+	}
 }
 
 /*
