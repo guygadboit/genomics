@@ -238,7 +238,7 @@ func main() {
 
 	expected := GetExpected(g, nd)
 
-	cutoff := utils.Date(2020, 4, 1)
+	cutoff := utils.Date(2020, 12, 31)
 	ids := db.Filter(nil, func(r *database.Record) bool {
 		if r.Host != "Human" {
 			return false
@@ -247,13 +247,16 @@ func main() {
 	})
 
 	shortNames := LoadShortNames()
-	individuals := CountSignificant(db, ids, g, expected, 10, 1e-3, true,
-		[]int{5, 6, 7, 8, 10, 11})
+	mask := []int{5, 6, 7, 8, 10, 11}
+	individuals := CountSignificant(db, ids,
+		g, expected, 30, 1e-4, false, mask)
 	f, _ := os.Create("individuals.txt")
 	defer f.Close()
+
 	w := bufio.NewWriter(f)
+	maskSet := utils.ToSet(mask)
 	for i, r := range individuals {
-		if i == 0 {
+		if i == 0 || maskSet[i] {
 			continue
 		}
 		fmt.Fprintln(w, shortNames[i], r)

@@ -1,4 +1,4 @@
-set title "No of GISAID sequences whose muts match each genome with OR > 30 and p < 1e-4"
+set title "No of 2020 GISAID sequences whose muts are found in each genome shown with OR > 30 and p < 1e-4"
 
 set style fill solid
 set boxwidth 0.5

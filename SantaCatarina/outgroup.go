@@ -46,15 +46,23 @@ type Matches []Match
 
 func (m Matches) ToString(showTag bool) string {
 	s := make([]string, len(m))
+	silent, nonSilent := 0, 0
 	for i, match := range m {
 		var tag string
 		if showTag {
 			tag = match.tag
 		}
-		s[i] = fmt.Sprintf("%c%d%c%s", match.From,
-			match.Pos, match.To, tag)
+		var silence string
+		if match.Silence == database.SILENT {
+			silence = "*"
+			silent++
+		} else {
+			nonSilent++
+		}
+		s[i] = fmt.Sprintf("%c%d%c%s%s", match.From,
+			match.Pos, match.To, silence, tag)
 	}
-	return strings.Join(s, ",")
+	return strings.Join(s, ",") + fmt.Sprintf(" S:NS=%d:%d", silent, nonSilent)
 }
 
 func (m Matches) Contains(mut database.Mutation) bool {
