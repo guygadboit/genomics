@@ -66,10 +66,19 @@ func (m Matches) Contains(mut database.Mutation) bool {
 	return false
 }
 
+// If silent consider only muts that are SILENT or NOT_IN_ORF
 func OutgroupMatches(g *genomes.Genomes,
-	muts database.Mutations, tag string, show bool) Matches {
+	muts database.Mutations, tag string, show bool, silent bool) Matches {
 	ret := make(Matches, 0)
 	for _, m := range muts {
+		if silent {
+			switch m.Silence {
+			case database.NON_SILENT:
+				fallthrough
+			case database.UNKNOWN:
+				continue
+			}
+		}
 		found := false
 		for i := 1; i < g.NumGenomes(); i++ {
 			if g.Nts[i][m.Pos-1] == m.To {
@@ -87,7 +96,7 @@ func OutgroupMatches(g *genomes.Genomes,
 }
 
 func ShowOutgroupMatches(g *genomes.Genomes, muts database.Mutations) {
-	OutgroupMatches(g, muts, "", true)
+	OutgroupMatches(g, muts, "", true, false)
 }
 
 /*

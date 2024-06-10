@@ -11,8 +11,8 @@ import (
 	"log"
 	"os"
 	"slices"
-	"time"
 	"strings"
+	"time"
 )
 
 func SearchDB(db *database.Database) {
@@ -151,9 +151,9 @@ func CountOutgroupMatches(db *database.Database, nd *mutations.NucDistro,
 		r := &db.Records[id]
 
 		batMatches := OutgroupMatches(bats,
-			r.NucleotideChanges, "b", false)
+			r.NucleotideChanges, "b", false, false)
 		pangMatches := OutgroupMatches(pangolins,
-			r.NucleotideChanges, "p", false)
+			r.NucleotideChanges, "p", false, false)
 
 		batMatches, pangMatches = RemoveIntersection(batMatches,
 			pangMatches, false)
@@ -218,8 +218,8 @@ func LoadShortNames() []string {
 func main() {
 	g := genomes.LoadGenomes("../fasta/SARS2-relatives.fasta",
 		"../fasta/WH1.orfs", false)
-		/*
-	g := genomes.LoadGenomes("../fasta/all.fasta", "../fasta/WH1.orfs", false)
+	/*
+		g := genomes.LoadGenomes("../fasta/all.fasta", "../fasta/WH1.orfs", false)
 	*/
 	/*
 		// OutgroupMontcarlo(g, 1000, 17)
@@ -247,7 +247,7 @@ func main() {
 	})
 
 	shortNames := LoadShortNames()
-	individuals := CountSignificant(db, ids, g, expected, 30, 1e-4)
+	individuals := CountSignificant(db, ids, g, expected, 30, 1e-4, true)
 	f, _ := os.Create("individuals.txt")
 	defer f.Close()
 	w := bufio.NewWriter(f)
@@ -262,7 +262,6 @@ func main() {
 
 	return
 
-
 	// pangolins := g.Filter(0, 35, 36, 37, 38, 39, 40, 41)
 	// Controls:
 	pangolins := g.Filter(0, 33, 35)
@@ -271,9 +270,9 @@ func main() {
 	// bats := g.Filter(0, 8, 5, 6, 7, 10, 11)
 
 	/*
-	ts := TotalSpectrum(db)
-	ts.Print()
-	return
+		ts := TotalSpectrum(db)
+		ts.Print()
+		return
 	*/
 
 	fmt.Println("Before 2020-04-01")

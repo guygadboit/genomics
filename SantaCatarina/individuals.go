@@ -90,7 +90,8 @@ func CountSignificant(
 	g *genomes.Genomes,
 	expectedHits *ExpectedHits,
 	minOR float64,
-	maxP float64) []int {
+	maxP float64,
+	silent bool) []int {
 	ret := make([]int, g.NumGenomes())
 
 	total := len(ids)
@@ -101,7 +102,8 @@ func CountSignificant(
 		r := &db.Records[id]
 		for i := 0; i < g.NumGenomes(); i++ {
 			g2 := g.Filter(0, i)
-			matches := OutgroupMatches(g2, r.NucleotideChanges, "", false)
+			matches := OutgroupMatches(g2,
+				r.NucleotideChanges, "", false, silent)
 			n := len(matches)
 			if n == 0 {
 				continue
