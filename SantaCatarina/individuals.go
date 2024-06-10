@@ -148,3 +148,68 @@ func CountSignificant(
 
 	return ret
 }
+
+// Get all the unique mutations in these ids
+func GetAllMutations(db *database.Database,
+	ids database.IdSet) database.Mutations {
+	muts := make(map[database.Mutation]bool)
+	for id, _ := range ids {
+		r := &db.Records[id]
+		utils.Union(muts, utils.ToSet(r.NucleotideChanges))
+	}
+	return utils.FromSet(muts)
+}
+
+// Like CountSignificant, except look at individual muts rather than whole
+// genomes
+func CountSignificantMuts(
+	db *database.Database, ids database.IdSet,
+	g *genomes.Genomes,
+	expectedHits *ExpectedHits,
+	minOR float64,
+	maxP float64,
+	mask []int) []int {
+	ret := make([]int, g.NumGenomes())
+
+	total := len(ids)
+	fmt.Printf("Looking at %d sequences\n", total)
+
+	maskGenomes := g.Filter(mask...)
+	maskSet := utils.ToSet(mask)
+	muts := GetAllMutations(db, ids)
+
+	for i := 1; i < g.NumGenomes(); i++ {
+		if maskSet[i] {
+			continue
+		}
+		g2 := g.Filter(0, i)
+
+		// How many of the muts match this genome, without matching any of the
+		// ones we're masking out?
+		n := 0
+		for j, _ := range muts {
+			matches := OutgroupMatches(g2, muts[j:j+1], "", false, false)
+			exclude := OutgroupMatches(maskGenomes,
+				muts[j:j+1], "", false, false)
+			matches, _ = RemoveIntersection(matches, exclude, true)
+			n += len(matches)
+		}
+		if n == 0 {
+			continue
+		}
+
+		var ct stats.ContingencyTable
+		hits := expectedHits.Hits[i]
+		ct.Init(n, len(muts)-n, hits, expectedHits.Its-hits)
+		OR := ct.CalcOR()
+		fmt.Println(i, n, len(muts), OR)
+		if OR > minOR {
+			_, p := ct.FisherExact()
+			if p < maxP {
+				ret[i]++
+			}
+		}
+	}
+
+	return ret
+}

@@ -250,6 +250,10 @@ func main() {
 	mask := []int{5, 6, 7, 8, 10, 11}
 	individuals := CountSignificant(db, ids,
 		g, expected, 30, 1e-4, false, mask)
+	/*
+	individuals := CountSignificantMuts(db, ids,
+		g, expected, 30, 1e-4, mask)
+	*/
 	f, _ := os.Create("individuals.txt")
 	defer f.Close()
 
