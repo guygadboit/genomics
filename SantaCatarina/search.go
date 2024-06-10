@@ -247,7 +247,8 @@ func main() {
 	})
 
 	shortNames := LoadShortNames()
-	individuals := CountSignificant(db, ids, g, expected, 30, 1e-4, true)
+	individuals := CountSignificant(db, ids, g, expected, 10, 1e-3, true,
+		[]int{5, 6, 7, 8, 10, 11})
 	f, _ := os.Create("individuals.txt")
 	defer f.Close()
 	w := bufio.NewWriter(f)

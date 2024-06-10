@@ -8,6 +8,7 @@ import (
 	"genomics/genomes"
 	"genomics/mutations"
 	"genomics/stats"
+	"genomics/utils"
 	"log"
 	"os"
 )
@@ -84,26 +85,45 @@ func GetExpected(g *genomes.Genomes, nd *mutations.NucDistro) *ExpectedHits {
 	return FindExpected(g, nd)
 }
 
-// For each genome, how many sequences match it above some threshold?
+/*
+For each genome, how many sequences match it above some threshold? Mask are the
+ids to mask out: exclude those and any muts matching those from the analysis.
+The idea is that we exclude the very close relatives to see what *other*
+matches exist not explained by similarity to them
+*/
 func CountSignificant(
 	db *database.Database, ids database.IdSet,
 	g *genomes.Genomes,
 	expectedHits *ExpectedHits,
 	minOR float64,
 	maxP float64,
-	silent bool) []int {
+	silent bool,
+	mask []int) []int {
 	ret := make([]int, g.NumGenomes())
 
 	total := len(ids)
 	count := 0
 	fmt.Printf("Looking at %d sequences\n", total)
 
+	maskGenomes := g.Filter(mask...)
+	maskSet := utils.ToSet(mask)
+
 	for id, _ := range ids {
 		r := &db.Records[id]
 		for i := 0; i < g.NumGenomes(); i++ {
+			if maskSet[i] {
+				continue
+			}
 			g2 := g.Filter(0, i)
+
 			matches := OutgroupMatches(g2,
 				r.NucleotideChanges, "", false, silent)
+
+			exclude := OutgroupMatches(maskGenomes,
+				r.NucleotideChanges, "", false, silent)
+
+			matches, _ = RemoveIntersection(matches, exclude, true)
+
 			n := len(matches)
 			if n == 0 {
 				continue
