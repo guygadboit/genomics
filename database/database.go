@@ -448,6 +448,8 @@ func (d *Database) DetermineSilence(reference *genomes.Genomes) {
 				silence = NOT_IN_ORF
 			} else if isSilent {
 				silence = SILENT
+			} else {
+				silence = NON_SILENT
 			}
 			cache[mut] = silence
 		}

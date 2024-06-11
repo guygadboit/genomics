@@ -135,7 +135,9 @@ func CountSignificant(
 			if OR > minOR {
 				_, p := ct.FisherExact()
 				if p < maxP {
-					fmt.Printf("%s: %s\n", g.Names[i], matches.ToString(false))
+					fmt.Printf("%s %s: %s OR=%.2f p=%.4g\n",
+						r.ToString(), g.Names[i],
+						matches.ToString(false), OR, p)
 					ret[i]++
 				}
 			}

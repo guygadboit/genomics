@@ -53,11 +53,11 @@ func (m Matches) ToString(showTag bool) string {
 			tag = match.tag
 		}
 		var silence string
-		if match.Silence == database.SILENT {
+		if match.Silence == database.NON_SILENT {
+			nonSilent++
+		} else {
 			silence = "*"
 			silent++
-		} else {
-			nonSilent++
 		}
 		s[i] = fmt.Sprintf("%c%d%c%s%s", match.From,
 			match.Pos, match.To, silence, tag)
