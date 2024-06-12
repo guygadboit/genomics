@@ -16,13 +16,15 @@ import (
 const FNAME = "expected-hits.gob"
 
 type ExpectedHits struct {
-	Its  int
-	Hits []int
+	Its        int
+	Hits       []int
+	SilentHits []int
 }
 
 func (e *ExpectedHits) Init(its int, numGenomes int) {
 	e.Its = its
 	e.Hits = make([]int, numGenomes)
+	e.SilentHits = make([]int, numGenomes)
 }
 
 func (e *ExpectedHits) Save() {
@@ -63,15 +65,16 @@ complete set of relatives.
 */
 func FindExpected(g *genomes.Genomes, nd *mutations.NucDistro) *ExpectedHits {
 	fmt.Println("Doing montecarlo to find expected hits...")
-	its := 1000000
+	its := 10000
 	var ret ExpectedHits
 	ret.Init(its, g.NumGenomes())
 	ret.Hits[0] = 0
 
 	for i := 1; i < g.NumGenomes(); i++ {
 		g2 := g.Filter(0, i)
-		ret.Hits[i] = OutgroupMontecarlo(g2, nd, its, true)
-		fmt.Println(i, ret.Hits[i])
+		ret.Hits[i] = OutgroupMontecarlo(g2, nd, its, false)
+		ret.SilentHits[i] = OutgroupMontecarlo(g2, nd, its, true)
+		fmt.Println(i, ret.Hits[i], ret.SilentHits[i])
 	}
 	ret.Save()
 	return &ret
@@ -104,7 +107,7 @@ func CountSignificant(
 
 	total := len(ids)
 	count := 0
-	fmt.Printf("Looking at %d sequences\n", total)
+	fmt.Printf("Looking at %d sequences. Silent: %t.\n", total, silent)
 
 	maskGenomes := g.Filter(mask...)
 	maskSet := utils.ToSet(mask)
@@ -130,8 +133,18 @@ func CountSignificant(
 				continue
 			}
 			var ct stats.ContingencyTable
-			hits := expectedHits.Hits[i]
-			ct.Init(n, len(r.NucleotideChanges)-n, hits, expectedHits.Its-hits)
+
+			var hits, total int
+			if silent {
+				hits = expectedHits.Hits[i]
+				total = r.SilentNucleotideChanges()
+			} else {
+				hits = expectedHits.SilentHits[i]
+				total = len(r.NucleotideChanges)
+			}
+
+			ct.Init(n, total-n, hits, expectedHits.Its-hits)
+
 			OR := ct.CalcOR()
 			if OR > minOR {
 				_, p := ct.FisherExact()
@@ -139,7 +152,7 @@ func CountSignificant(
 					fmt.Printf("%s %s: %s %d/%d OR=%.2f p=%.4g\n",
 						r.ToString(), g.Names[i],
 						matches.ToString(false),
-						len(matches), len(r.NucleotideChanges), OR, p)
+						n, total, OR, p)
 					ret[i]++
 				}
 			}

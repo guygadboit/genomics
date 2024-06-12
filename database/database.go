@@ -181,6 +181,19 @@ func (r *Record) ToString() string {
 		r.CollectionDate.Format(time.DateOnly), r.Country, r.Region, r.City)
 }
 
+func (r *Record) SilentNucleotideChanges() int {
+	var ret int
+	for _, c := range r.NucleotideChanges {
+		switch c.Silence {
+		case NOT_IN_ORF:
+			fallthrough
+		case SILENT:
+			ret++
+		}
+	}
+	return ret
+}
+
 // A more detailed summary
 func (r *Record) Summary() string {
 	return fmt.Sprintf("%s %s %s %s %s: %s %s; %d %d",

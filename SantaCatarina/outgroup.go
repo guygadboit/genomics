@@ -15,23 +15,32 @@ func OutgroupMontecarlo(g *genomes.Genomes,
 	nd *mutations.NucDistro, its int, silent bool) int {
 	hits := 0
 
-	for i := 0; i < its; i++ {
-		var newNt byte
-		var pos int
-		for {
-			pos = rand.Intn(g.Length())
+	type mutation struct {
+		pos   int
+		newNt byte
+	}
+	seen := make(map[mutation]bool)
 
-			existing := g.Nts[0][pos]
+	for i := 0; i < its; i++ {
+		var mut mutation
+		for {
+			mut.pos = rand.Intn(g.Length())
+			existing := g.Nts[0][mut.pos]
 			for {
-				newNt = nd.Random()
-				if newNt != existing {
+				mut.newNt = nd.Random()
+				if mut.newNt != existing {
 					break
 				}
 			}
 
+			if seen[mut] {
+				continue
+			}
+			seen[mut] = true
+
 			if silent {
 				isSilent, _, _ := genomes.IsSilentWithReplacement(g,
-				pos, 0, 0, []byte{newNt})
+					mut.pos, 0, 0, []byte{mut.newNt})
 				if !isSilent {
 					continue
 				}
@@ -40,7 +49,7 @@ func OutgroupMontecarlo(g *genomes.Genomes,
 		}
 
 		for k := 1; k < g.NumGenomes(); k++ {
-			if g.Nts[k][pos] == newNt {
+			if g.Nts[k][mut.pos] == mut.newNt {
 				hits++
 				break
 			}

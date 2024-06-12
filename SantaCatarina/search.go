@@ -253,13 +253,14 @@ func main() {
 		if r.Host != "Human" {
 			return false
 		}
+		// return r.GisaidAccession == "EPI_ISL_1373206"
 		return r.CollectionDate.Compare(cutoff) < 0
 	})
 
 	shortNames := LoadShortNames()
 	mask := []int{5, 6, 7, 8, 10, 11}
 	individuals := CountSignificant(db, ids,
-		g, expected, 2, 1e-4, true, mask)
+		g, expected, 10, 1e-7, true, mask)
 	/*
 	individuals := CountSignificantMuts(db, ids,
 		g, expected, 30, 1e-4, mask)
