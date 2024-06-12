@@ -63,14 +63,15 @@ complete set of relatives.
 */
 func FindExpected(g *genomes.Genomes, nd *mutations.NucDistro) *ExpectedHits {
 	fmt.Println("Doing montecarlo to find expected hits...")
-	its := 10000
+	its := 1000000
 	var ret ExpectedHits
 	ret.Init(its, g.NumGenomes())
 	ret.Hits[0] = 0
 
 	for i := 1; i < g.NumGenomes(); i++ {
 		g2 := g.Filter(0, i)
-		ret.Hits[i] = OutgroupMontecarlo(g2, nd, its)
+		ret.Hits[i] = OutgroupMontecarlo(g2, nd, its, true)
+		fmt.Println(i, ret.Hits[i])
 	}
 	ret.Save()
 	return &ret
@@ -135,9 +136,10 @@ func CountSignificant(
 			if OR > minOR {
 				_, p := ct.FisherExact()
 				if p < maxP {
-					fmt.Printf("%s %s: %s OR=%.2f p=%.4g\n",
+					fmt.Printf("%s %s: %s %d/%d OR=%.2f p=%.4g\n",
 						r.ToString(), g.Names[i],
-						matches.ToString(false), OR, p)
+						matches.ToString(false),
+						len(matches), len(r.NucleotideChanges), OR, p)
 					ret[i]++
 				}
 			}

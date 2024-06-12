@@ -11,10 +11,10 @@ import (
 genome should contain two genomes. We mutate the first one. If wantSilent, we
 make sure the changes are silent relative to the second one. If !wantSilent, we
 make sure they are non-silent. Pass 2 into numSeq if you want to mutate two
-adjacent nts at once.
+adjacent nts at once. Returns the positions of the mutations.
 */
 func mutate(genome *genomes.Genomes,
-	nucDist *NucDistro, num int, numSeq int, wantSilent bool) int {
+	nucDist *NucDistro, num int, numSeq int, wantSilent bool) []int {
 	numMuts := 0
 	alreadyDone := make(map[int]bool)
 	nts := genome.Nts[0]
@@ -90,7 +90,7 @@ mutations:
 		// ever happen.
 		break
 	}
-	return numMuts
+	return utils.FromSet(alreadyDone)
 }
 
 // If g has only one genome in it, double it up (so we just mutate it relative
@@ -108,13 +108,13 @@ randomly from nucDist. Return the number of mutations. If there's only one
 genome, just mutate that relative to itself
 */
 func MutateSilent(genome *genomes.Genomes,
-	nucDist *NucDistro, num int, numSeq int) int {
+	nucDist *NucDistro, num int, numSeq int) []int {
 	return mutate(double(genome), nucDist, num, numSeq, true)
 }
 
 // The same as MutateSilent but make sure the muts are non-silent
 func MutateNonSilent(genome *genomes.Genomes,
-	nucDist *NucDistro, num int, numSeq int) int {
+	nucDist *NucDistro, num int, numSeq int) []int {
 	return mutate(double(genome), nucDist, num, numSeq, false)
 }
 

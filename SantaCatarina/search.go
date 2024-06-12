@@ -103,8 +103,8 @@ func CountOutgroupMatches(db *database.Database, nd *mutations.NucDistro,
 	from time.Time, to time.Time) (LocationSet, *TransitionCounter) {
 
 	its := 10000
-	batHits := OutgroupMontecarlo(bats, nd, its)
-	pangHits := OutgroupMontecarlo(pangolins, nd, its)
+	batHits := OutgroupMontecarlo(bats, nd, its, false)
+	pangHits := OutgroupMontecarlo(pangolins, nd, its, false)
 
 	locations := make(LocationSet)
 	transitions := NewTransitionCounter()
@@ -215,6 +215,11 @@ func LoadShortNames() []string {
 	return ret
 }
 
+func runSimulation(g *genomes.Genomes, nd *mutations.NucDistro) {
+	g2 := g.Filter(0, 23)
+	Simulate(g2, nd, 4, 7, 1e9)
+}
+
 func main() {
 	g := genomes.LoadGenomes("../fasta/SARS2-relatives.fasta",
 		"../fasta/WH1.orfs", false)
@@ -236,6 +241,11 @@ func main() {
 	db := database.NewDatabase()
 	nd := mutations.NewNucDistro(g)
 
+	/*
+	runSimulation(g, nd)
+	return
+	*/
+
 	expected := GetExpected(g, nd)
 
 	cutoff := utils.Date(2020, 12, 31)
@@ -249,7 +259,7 @@ func main() {
 	shortNames := LoadShortNames()
 	mask := []int{5, 6, 7, 8, 10, 11}
 	individuals := CountSignificant(db, ids,
-		g, expected, 30, 1e-4, false, mask)
+		g, expected, 2, 1e-4, true, mask)
 	/*
 	individuals := CountSignificantMuts(db, ids,
 		g, expected, 30, 1e-4, mask)
