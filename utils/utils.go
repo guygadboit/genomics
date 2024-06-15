@@ -220,6 +220,26 @@ func Intersection[T comparable](a map[T]bool, b map[T]bool) map[T]bool {
 	return ret
 }
 
+func Shuffle[T any](s []T) {
+	rand.Shuffle(len(s), func(i, j int) {
+		s[i], s[j] = s[j], s[i]
+	})
+}
+
+/*
+Take a random subset of a slice, but in such a way that if you used the same
+random seed you get the same result.
+*/
+func Sample[T comparable](s []T, count int) []T {
+	if count > len(s) {
+		return s
+	}
+	rand.Shuffle(len(s), func(i, j int) {
+		s[i], s[j] = s[j], s[i]
+	})
+	return s[:count]
+}
+
 // Parse a , etc. separated list of ints like 0,2,3
 func ParseInts(s string, sep string) []int {
 	fields := strings.Split(s, sep)

@@ -39,8 +39,13 @@ func OutgroupMontecarlo(g *genomes.Genomes,
 			seen[mut] = true
 
 			if silent {
-				isSilent, _, _ := genomes.IsSilentWithReplacement(g,
+				isSilent, _, err := genomes.IsSilentWithReplacement(g,
 					mut.pos, 0, 0, []byte{mut.newNt})
+				if err != nil && err.Error() == "Not in ORF" {
+					// We are calling these silent (they don't change the
+					// protein) in OutgroupMatches etc.
+					isSilent = true
+				}
 				if !isSilent {
 					continue
 				}

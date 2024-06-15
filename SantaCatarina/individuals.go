@@ -74,7 +74,7 @@ func FindExpected(g *genomes.Genomes, nd *mutations.NucDistro) *ExpectedHits {
 		g2 := g.Filter(0, i)
 		ret.Hits[i] = OutgroupMontecarlo(g2, nd, its, false)
 		ret.SilentHits[i] = OutgroupMontecarlo(g2, nd, its, true)
-		fmt.Println(i, ret.Hits[i], ret.SilentHits[i])
+		fmt.Println(i, g.Names[i], ret.Hits[i], ret.SilentHits[i])
 	}
 	ret.Save()
 	return &ret
@@ -96,7 +96,7 @@ The idea is that we exclude the very close relatives to see what *other*
 matches exist not explained by similarity to them
 */
 func CountSignificant(
-	db *database.Database, ids database.IdSet,
+	db *database.Database, ids []database.Id,
 	g *genomes.Genomes,
 	expectedHits *ExpectedHits,
 	minOR float64,
@@ -109,10 +109,13 @@ func CountSignificant(
 	count := 0
 	fmt.Printf("Looking at %d sequences. Silent: %t.\n", total, silent)
 
+	if mask == nil {
+		mask = []int{}
+	}
 	maskGenomes := g.Filter(mask...)
 	maskSet := utils.ToSet(mask)
 
-	for id, _ := range ids {
+	for _, id := range ids {
 		r := &db.Records[id]
 		for i := 0; i < g.NumGenomes(); i++ {
 			if maskSet[i] {

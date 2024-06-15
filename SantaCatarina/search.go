@@ -13,6 +13,7 @@ import (
 	"slices"
 	"strings"
 	"time"
+	"math/rand"
 )
 
 func SearchDB(db *database.Database) {
@@ -217,10 +218,47 @@ func LoadShortNames() []string {
 
 func runSimulation(g *genomes.Genomes, nd *mutations.NucDistro) {
 	g2 := g.Filter(0, 23)
-	Simulate(g2, nd, 4, 7, 1e9)
+	mask := g.Filter(5, 6, 7, 8, 10, 11)
+	Simulate(g2, mask, nd, 4, 7, 1e9)
+}
+
+func PlotSignificant(
+	db *database.Database, ids []database.Id,
+	g *genomes.Genomes, nd *mutations.NucDistro,
+	minOR float64,
+	maxP float64,
+	silent bool,
+	fname string,
+	notes string,
+	mask []int) {
+
+	f, _ := os.Create(fname)
+	defer f.Close()
+	w := bufio.NewWriter(f)
+
+	fmt.Fprintf(f, "%s. minOR=%.0f maxP=%g mask: %t silent: %t\n",
+		notes, minOR, maxP, mask != nil, silent)
+
+	expected := GetExpected(g, nd)
+	individuals := CountSignificant(db, ids,
+		g, expected, minOR, maxP, silent, mask)
+
+	shortNames := LoadShortNames()
+	maskSet := utils.ToSet(mask)
+	for i, r := range individuals {
+		if i == 0 || maskSet[i] {
+			continue
+		}
+		fmt.Fprintln(w, shortNames[i], r)
+	}
+	w.Flush()
+	fmt.Printf("Wrote %s\n", fname)
 }
 
 func main() {
+	rand.Seed(9879)
+
+	/*
 	g := genomes.LoadGenomes("../fasta/SARS2-relatives.fasta",
 		"../fasta/WH1.orfs", false)
 	/*
@@ -246,39 +284,27 @@ func main() {
 	return
 	*/
 
-	expected := GetExpected(g, nd)
-
 	cutoff := utils.Date(2020, 12, 31)
 	ids := db.Filter(nil, func(r *database.Record) bool {
 		if r.Host != "Human" {
+			return false
+		}
+		if r.Country != "Egypt" {
 			return false
 		}
 		// return r.GisaidAccession == "EPI_ISL_1373206"
 		return r.CollectionDate.Compare(cutoff) < 0
 	})
 
-	shortNames := LoadShortNames()
-	mask := []int{5, 6, 7, 8, 10, 11}
-	individuals := CountSignificant(db, ids,
-		g, expected, 10, 1e-7, true, mask)
-	/*
-	individuals := CountSignificantMuts(db, ids,
-		g, expected, 30, 1e-4, mask)
-	*/
-	f, _ := os.Create("individuals.txt")
-	defer f.Close()
+	idSlice := utils.FromSet(ids)
+	slices.Sort(idSlice)
+	idSlice = utils.Sample(idSlice, 1000)
 
-	w := bufio.NewWriter(f)
-	maskSet := utils.ToSet(mask)
-	for i, r := range individuals {
-		if i == 0 || maskSet[i] {
-			continue
-		}
-		fmt.Fprintln(w, shortNames[i], r)
-	}
-	w.Flush()
-	fmt.Println("Wrote individuals.txt")
-
+	// mask := []int{5, 6, 7, 8, 10, 11}
+	PlotSignificant(db, idSlice, g, nd, 10, 1e-8, true,
+		"egypt-unmasked.txt",
+		"Egypt",
+		nil)
 	return
 
 	// pangolins := g.Filter(0, 35, 36, 37, 38, 39, 40, 41)
@@ -351,7 +377,7 @@ func main() {
 	}
 	defer f.Close()
 
-	w = bufio.NewWriter(f)
+	w := bufio.NewWriter(f)
 	MakeTable(db, g, records, sc1.NucleotideChanges, w)
 	w.Flush()
 	fmt.Printf("Wrote table.html\n")

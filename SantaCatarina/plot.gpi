@@ -1,7 +1,9 @@
-set title "No of 2020 GISAID sequences whose muts are found in each genome shown with OR > 10 and p < 1e-7"
+
+set title "Egypt. minOR=2 maxP=1e-08 mask: false silent: true"
 
 set style fill solid
 set boxwidth 0.5
 set xtics rotate by -90
 
-plot "individuals.txt" using 2:xtic(1) with boxes notitle
+plot "temp.dat" using 2:xtic(1) with boxes notitle
+
