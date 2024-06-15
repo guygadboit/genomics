@@ -208,7 +208,7 @@ func TotalSpectrum(db *database.Database) *TransitionCounter {
 
 func LoadShortNames() []string {
 	ret := make([]string, 0)
-	utils.Lines("../fasta/short_names.txt", func(line string, err error) bool {
+	utils.Lines("./short_names.txt", func(line string, err error) bool {
 		fields := strings.Split(line, " ")
 		ret = append(ret, fields[1])
 		return true
@@ -261,6 +261,9 @@ func main() {
 	/*
 	g := genomes.LoadGenomes("../fasta/SARS2-relatives.fasta",
 		"../fasta/WH1.orfs", false)
+	*/
+	g := genomes.LoadGenomes("RelativesPlusKhosta.fasta",
+		"../fasta/WH1.orfs", false)
 	/*
 		g := genomes.LoadGenomes("../fasta/all.fasta", "../fasta/WH1.orfs", false)
 	*/
@@ -301,7 +304,7 @@ func main() {
 	idSlice = utils.Sample(idSlice, 1000)
 
 	// mask := []int{5, 6, 7, 8, 10, 11}
-	PlotSignificant(db, idSlice, g, nd, 10, 1e-8, true,
+	PlotSignificant(db, idSlice, g, nd, 2, 1e-8, true,
 		"egypt-unmasked.txt",
 		"Egypt",
 		nil)
