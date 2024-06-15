@@ -22,18 +22,8 @@ func main() {
 
 	db := database.NewDatabase()
 
-	// Find something with some insertions and deletions
-	/*
-		for _, r := range db.Records {
-			if len(r.Insertions) > 0 &&
-				len(r.Deletions) > 0 &&
-				len(r.NucleotideChanges) > 0 {
-				fmt.Println(r.GisaidAccession, len(r.Insertions), len(r.Deletions))
-			}
-		}
-		return
-	*/
-	// EPI_ISL_861438
+	// EPI_ISL_861438 is an example with some insertions and deletions you can
+	// test on.
 
 	var g *genomes.Genomes
 	if reconstruct {

@@ -43,7 +43,14 @@ type Mutations []Mutation
 type AAMutations []AAMutation
 
 func (m *Mutation) ToString() string {
-	return fmt.Sprintf("%c%d%c", m.From, m.Pos, m.To)
+	var silence string
+	switch m.Silence {
+	case SILENT:
+		silence = "*"
+	case NOT_IN_ORF:
+		silence = "@"
+	}
+	return fmt.Sprintf("%c%d%c%s", m.From, m.Pos, m.To, silence)
 }
 
 func (muts Mutations) ToString() string {
