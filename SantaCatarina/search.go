@@ -295,6 +295,10 @@ func main() {
 		if r.Country != "Egypt" {
 			return false
 		}
+		if r.GisaidAccession != "EPI_ISL_8193636" {
+			return false
+		}
+
 		// return r.GisaidAccession == "EPI_ISL_1373206"
 		return r.CollectionDate.Compare(cutoff) < 0
 	})
@@ -304,7 +308,7 @@ func main() {
 	idSlice = utils.Sample(idSlice, 1000)
 
 	// mask := []int{5, 6, 7, 8, 10, 11}
-	PlotSignificant(db, idSlice, g, nd, 2, 1e-8, true,
+	PlotSignificant(db, idSlice, g, nd, 0, 10, true,
 		"egypt-unmasked.txt",
 		"Egypt",
 		nil)
