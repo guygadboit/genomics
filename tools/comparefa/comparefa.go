@@ -307,6 +307,7 @@ func main() {
 	var graphData bool
 	var silentOnly bool
 	var protein bool
+	var highlightString string
 
 	flag.StringVar(&orfName, "orfs", "", "ORFs")
 	flag.StringVar(&include, "i", "", "Genomes to include (unset means all)")
@@ -316,6 +317,8 @@ func main() {
 	flag.BoolVar(&graphData, "g", false, "Graph data")
 	flag.BoolVar(&silentOnly, "silent", false, "Silent only")
 	flag.BoolVar(&protein, "p", false, "input is already translated")
+	flag.StringVar(&highlightString, "highlights",
+		"", "1-based positions to highlight separated with ,")
 	flag.Parse()
 
 	var g *genomes.Genomes
@@ -377,7 +380,8 @@ func main() {
 	}
 
 	if len(which) == 2 && saveTrans != "" {
-		g.SaveWithTranslation(saveTrans, nil, which[0], which[1])
+		highlights := genomes.ParseHighlights(highlightString, ",", true, 'v')
+		g.SaveWithTranslation(saveTrans, highlights, which[0], which[1])
 		fmt.Printf("Wrote %s\n", saveTrans)
 	}
 }

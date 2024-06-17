@@ -104,8 +104,8 @@ func CountOutgroupMatches(db *database.Database, nd *mutations.NucDistro,
 	from time.Time, to time.Time) (LocationSet, *TransitionCounter) {
 
 	its := 10000
-	batHits := OutgroupMontecarlo(bats, nd, its, false)
-	pangHits := OutgroupMontecarlo(pangolins, nd, its, false)
+	batHits := OutgroupMontecarlo(bats, nil, nd, its, false)
+	pangHits := OutgroupMontecarlo(pangolins, nil, nd, its, false)
 
 	locations := make(LocationSet)
 	transitions := NewTransitionCounter()
@@ -219,7 +219,7 @@ func LoadShortNames() []string {
 func runSimulation(g *genomes.Genomes, nd *mutations.NucDistro) {
 	g2 := g.Filter(0, 23)
 	mask := g.Filter(5, 6, 7, 8, 10, 11)
-	Simulate(g2, mask, nd, 4, 7, 1e9)
+	Simulate(g2, mask, nd, 6, 7, 1e9)
 }
 
 func PlotSignificant(
@@ -239,7 +239,8 @@ func PlotSignificant(
 	fmt.Fprintf(f, "%s. minOR=%.0f maxP=%g mask: %t silent: %t\n",
 		notes, minOR, maxP, mask != nil, silent)
 
-	expected := GetExpected(g, nd)
+	expected := GetExpected(g, nd, mask)
+	expected.Print()
 	individuals := CountSignificant(db, ids,
 		g, expected, minOR, maxP, silent, mask)
 
@@ -292,26 +293,28 @@ func main() {
 		if r.Host != "Human" {
 			return false
 		}
+		/*
 		if r.Country != "Egypt" {
 			return false
 		}
-		if r.GisaidAccession != "EPI_ISL_8193636" {
+		*/
+		/*
+		if r.GisaidAccession != "EPI_ISL_582787" {
 			return false
 		}
-
-		// return r.GisaidAccession == "EPI_ISL_1373206"
+		*/
 		return r.CollectionDate.Compare(cutoff) < 0
 	})
 
 	idSlice := utils.FromSet(ids)
 	slices.Sort(idSlice)
-	idSlice = utils.Sample(idSlice, 1000)
+	// idSlice = utils.Sample(idSlice, 1000)
 
-	// mask := []int{5, 6, 7, 8, 10, 11}
-	PlotSignificant(db, idSlice, g, nd, 0, 10, true,
-		"egypt-unmasked.txt",
-		"Egypt",
-		nil)
+	mask := []int{5, 6, 7, 8, 10, 11}
+	PlotSignificant(db, idSlice, g, nd, 10, 1e-4, true,
+		"individuals.txt",
+		"All",
+		mask)
 	return
 
 	// pangolins := g.Filter(0, 35, 36, 37, 38, 39, 40, 41)

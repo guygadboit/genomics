@@ -18,9 +18,9 @@ The orfs "belong" to the first one in the set. We also use this for a single
 genome, and sometimes for a protein
 */
 type Genomes struct {
-	Nts       [][]byte
-	Names     []string
-	Orfs      Orfs
+	Nts   [][]byte
+	Names []string
+	Orfs  Orfs
 }
 
 func NewGenomes(orfs Orfs, numGenomes int) *Genomes {
@@ -518,6 +518,22 @@ type Highlight struct {
 	Start int
 	End   int
 	Char  byte
+}
+
+func ParseHighlights(s string, sep string,
+	oneBased bool, hChar byte) []Highlight {
+	if s == "" {
+		return nil
+	}
+	positions := utils.ParseInts(s, sep)
+	ret := make([]Highlight, len(positions))
+	for i, pos := range positions {
+		if oneBased {
+			pos -= 1
+		}
+		ret[i] = Highlight{pos, pos + 1, hChar}
+	}
+	return ret
 }
 
 func (g *Genomes) saveCluStyle(fname string,

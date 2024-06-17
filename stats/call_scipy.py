@@ -27,7 +27,8 @@ class Handler(socketserver.StreamRequestHandler):
 
 			a, b, c, d = [int(x) for x in m.groups()]
 			contingency_table = np.array([[a, b], [c, d]], dtype=float)
-			OR, p = fisher_exact(contingency_table)
+
+			OR, p = fisher_exact(contingency_table, alternative="greater")
 			self.wfile.write(bytes("{} {}\n".format(OR, p), 'ascii'))
 
 

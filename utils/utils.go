@@ -100,6 +100,7 @@ func (f *FileReader) Close() {
 }
 
 type LineFun func(string, error) bool
+
 func Lines(fname string, fun LineFun) {
 	fp := NewFileReader(fname)
 	defer fp.Close()

@@ -9,9 +9,11 @@ import (
 	"strings"
 )
 
-// What are the odds of finding a single random mut in the genomes in g (from
-// 1 thru the end)?
-func OutgroupMontecarlo(g *genomes.Genomes,
+// What are the odds of finding a single random mut that matches the genomes in
+// g (from 1 thru the end), but that doesn't match any in mask? Return the
+// number of hits over its iterations. If silent, only look for silent
+// mutations.
+func OutgroupMontecarlo(g *genomes.Genomes, mask *genomes.Genomes,
 	nd *mutations.NucDistro, its int, silent bool) int {
 	hits := 0
 
@@ -53,8 +55,17 @@ func OutgroupMontecarlo(g *genomes.Genomes,
 			break
 		}
 
+		// Now see if we match something in g, but not in mask
+	genomes:
 		for k := 1; k < g.NumGenomes(); k++ {
 			if g.Nts[k][mut.pos] == mut.newNt {
+				if mask != nil {
+					for m := 0; m < mask.NumGenomes(); m++ {
+						if mask.Nts[m][mut.pos] == mut.newNt {
+							continue genomes
+						}
+					}
+				}
 				hits++
 				break
 			}

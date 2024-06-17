@@ -10,11 +10,14 @@ import (
 func main() {
 	var include, exclude, outName string
 	var subSeq string
+	var highlightString string
 
 	flag.StringVar(&include, "i", "", "Genomes to include")
 	flag.StringVar(&exclude, "e", "", "Genomes to exclude")
 	flag.StringVar(&outName, "o", "output.clu", "Output filename")
 	flag.StringVar(&subSeq, "r", "", "range")
+	flag.StringVar(&highlightString, "highlights",
+		"", "1-based positions to highlight separated with ,")
 	flag.Parse()
 
 	g := genomes.LoadGenomes(flag.Arg(0), "", false)
@@ -48,6 +51,7 @@ func main() {
 		}
 	}
 
-	g.SaveClu(outName, nil, which...)
+	highlights := genomes.ParseHighlights(highlightString, ",", true, 'v')
+	g.SaveClu(outName, highlights, which...)
 	fmt.Printf("Wrote %s\n", outName)
 }

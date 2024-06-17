@@ -59,34 +59,48 @@ func (e *ExpectedHits) Load() error {
 	return nil
 }
 
+func (e *ExpectedHits) Print() {
+	for i, h := range e.Hits {
+		fmt.Printf("%d: %d/%d, %d/%d silent\n",
+			i, h, e.Its, e.SilentHits[i], e.Its)
+	}
+}
+
 /*
 Find the expected number of "outgroup" hits for each genome. g should be the
 complete set of relatives.
 */
-func FindExpected(g *genomes.Genomes, nd *mutations.NucDistro) *ExpectedHits {
+func FindExpected(g *genomes.Genomes,
+	nd *mutations.NucDistro, mask []int) *ExpectedHits {
 	fmt.Println("Doing montecarlo to find expected hits...")
 	its := 10000
 	var ret ExpectedHits
 	ret.Init(its, g.NumGenomes())
 	ret.Hits[0] = 0
 
+	var maskG *genomes.Genomes
+	if mask != nil {
+		maskG = g.Filter(mask...)
+	}
+
 	for i := 1; i < g.NumGenomes(); i++ {
 		g2 := g.Filter(0, i)
-		ret.Hits[i] = OutgroupMontecarlo(g2, nd, its, false)
-		ret.SilentHits[i] = OutgroupMontecarlo(g2, nd, its, true)
+		ret.Hits[i] = OutgroupMontecarlo(g2, maskG, nd, its, false)
+		ret.SilentHits[i] = OutgroupMontecarlo(g2, maskG, nd, its, true)
 		fmt.Println(i, g.Names[i], ret.Hits[i], ret.SilentHits[i])
 	}
 	ret.Save()
 	return &ret
 }
 
-func GetExpected(g *genomes.Genomes, nd *mutations.NucDistro) *ExpectedHits {
+func GetExpected(g *genomes.Genomes,
+	nd *mutations.NucDistro, mask []int) *ExpectedHits {
 	var e ExpectedHits
 	err := e.Load()
 	if err == nil {
 		return &e
 	}
-	return FindExpected(g, nd)
+	return FindExpected(g, nd, mask)
 }
 
 /*
@@ -139,10 +153,10 @@ func CountSignificant(
 
 			var hits, total int
 			if silent {
-				hits = expectedHits.Hits[i]
+				hits = expectedHits.SilentHits[i]
 				total = r.SilentNucleotideChanges()
 			} else {
-				hits = expectedHits.SilentHits[i]
+				hits = expectedHits.Hits[i]
 				total = len(r.NucleotideChanges)
 			}
 
