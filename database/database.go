@@ -188,14 +188,13 @@ func (r *Record) ToString() string {
 		r.CollectionDate.Format(time.DateOnly), r.Country, r.Region, r.City)
 }
 
-func (r *Record) SilentNucleotideChanges() int {
-	var ret int
+func (r *Record) FilterNucleotideChanges(silence ...Silence) Mutations {
+	ret := make(Mutations, 0)
 	for _, c := range r.NucleotideChanges {
-		switch c.Silence {
-		case NOT_IN_ORF:
-			fallthrough
-		case SILENT:
-			ret++
+		for _, s := range silence {
+			if c.Silence == s {
+				ret = append(ret, c)
+			}
 		}
 	}
 	return ret

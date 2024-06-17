@@ -9,11 +9,11 @@ import (
 	"genomics/stats"
 	"genomics/utils"
 	"log"
+	"math/rand"
 	"os"
 	"slices"
 	"strings"
 	"time"
-	"math/rand"
 )
 
 func SearchDB(db *database.Database) {
@@ -217,20 +217,15 @@ func LoadShortNames() []string {
 }
 
 func runSimulation(g *genomes.Genomes, nd *mutations.NucDistro) {
-	g2 := g.Filter(0, 23)
+	g2 := g.Filter(0, 43)
 	mask := g.Filter(5, 6, 7, 8, 10, 11)
-	Simulate(g2, mask, nd, 6, 7, 1e9)
+	Simulate(g2, mask, nd, 6, 7, 1e7)
 }
 
 func PlotSignificant(
-	db *database.Database, ids []database.Id,
-	g *genomes.Genomes, nd *mutations.NucDistro,
-	minOR float64,
-	maxP float64,
-	silent bool,
-	fname string,
-	notes string,
-	mask []int) {
+	db *database.Database, ids []database.Id, g *genomes.Genomes,
+	minOR float64, maxP float64, silent bool,
+	fname string, notes string, mask []int, expected []MatchOdds) {
 
 	f, _ := os.Create(fname)
 	defer f.Close()
@@ -239,8 +234,6 @@ func PlotSignificant(
 	fmt.Fprintf(f, "%s. minOR=%.0f maxP=%g mask: %t silent: %t\n",
 		notes, minOR, maxP, mask != nil, silent)
 
-	expected := GetExpected(g, nd, mask)
-	expected.Print()
 	individuals := CountSignificant(db, ids,
 		g, expected, minOR, maxP, silent, mask)
 
@@ -260,8 +253,8 @@ func main() {
 	rand.Seed(9879)
 
 	/*
-	g := genomes.LoadGenomes("../fasta/SARS2-relatives.fasta",
-		"../fasta/WH1.orfs", false)
+		g := genomes.LoadGenomes("../fasta/SARS2-relatives.fasta",
+			"../fasta/WH1.orfs", false)
 	*/
 	g := genomes.LoadGenomes("RelativesPlusKhosta.fasta",
 		"../fasta/WH1.orfs", false)
@@ -280,13 +273,13 @@ func main() {
 		return
 	*/
 
+	mask := []int{5, 6, 7, 8, 10, 11}
+
 	db := database.NewDatabase()
 	nd := mutations.NewNucDistro(g)
 
-	/*
 	runSimulation(g, nd)
 	return
-	*/
 
 	cutoff := utils.Date(2020, 12, 31)
 	ids := db.Filter(nil, func(r *database.Record) bool {
@@ -294,9 +287,9 @@ func main() {
 			return false
 		}
 		/*
-		if r.Country != "Egypt" {
-			return false
-		}
+			if r.Country != "Egypt" {
+				return false
+			}
 		*/
 		/*
 		if r.GisaidAccession != "EPI_ISL_582787" {
@@ -310,11 +303,11 @@ func main() {
 	slices.Sort(idSlice)
 	// idSlice = utils.Sample(idSlice, 1000)
 
-	mask := []int{5, 6, 7, 8, 10, 11}
-	PlotSignificant(db, idSlice, g, nd, 10, 1e-4, true,
+	expected := FindAllOdds(g, mask)
+	PlotSignificant(db, idSlice, g, 2, 1e-4, false,
 		"individuals.txt",
 		"All",
-		mask)
+		mask, expected)
 	return
 
 	// pangolins := g.Filter(0, 35, 36, 37, 38, 39, 40, 41)

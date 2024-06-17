@@ -1,5 +1,5 @@
 
-set title "All. minOR=10 maxP=0.0001 mask: true silent: true"
+set title "All. minOR=2 maxP=0.0001 mask: true silent: true"
 
 set style fill solid
 set boxwidth 0.5

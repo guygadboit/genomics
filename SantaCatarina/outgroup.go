@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"genomics/database"
 	"genomics/genomes"
 	"genomics/mutations"
@@ -120,6 +121,8 @@ func OutgroupMatches(g *genomes.Genomes,
 			switch m.Silence {
 			case database.NON_SILENT:
 				fallthrough
+			case database.NOT_IN_ORF:
+				fallthrough
 			case database.UNKNOWN:
 				continue
 			}
@@ -187,4 +190,77 @@ func RemoveIntersection(matchesA, matchesB Matches,
 	}
 
 	return filter(matchesA, excludeA), filter(matchesB, excludeB)
+}
+
+type Odds struct {
+	Matches    int
+	NonMatches int
+}
+
+type MatchOdds struct {
+	Silent Odds
+	All    Odds
+}
+
+/*
+What are the odds of a mutation in genome 0 in g matching one of the others in
+g, while not matching any in mask? Compute odds independently for silent and
+non-silent matches
+*/
+func OutgroupOdds(g *genomes.Genomes, mask *genomes.Genomes) MatchOdds {
+	var ret MatchOdds
+
+	matchAny := func(nt byte, where *genomes.Genomes, from int, pos int) bool {
+		for i := from; i < where.NumGenomes(); i++ {
+			if where.Nts[i][pos] == nt {
+				return true
+			}
+		}
+		return false
+	}
+
+	for pos := 0; pos < g.Length(); pos++ {
+		// Only consider mutations in coding sequences, as it's not clear how
+		// often mutations outside coding sequences break things, or therefore
+		// what their probabilities are. So we just skip them.
+		_, _, err := g.Orfs.GetCodonOffset(pos)
+		if err != nil {
+			continue
+		}
+
+		// Now try all three possible mutations in this position
+		for _, nt := range []byte{'G', 'C', 'A', 'T'} {
+			if nt == g.Nts[0][pos] {
+				// Not a mutation, so doesn't count as a match or non-match.
+				// Just skip it.
+				continue
+			}
+
+			// Does it match anything in g[1:] (the outgroup we're interested
+			// in), while also not matching anything in the mask (the close
+			// relatives we're masking out)?
+			good := matchAny(nt, g, 1, pos) && !matchAny(nt, mask, 0, pos)
+
+			if good {
+				ret.All.Matches++
+			} else {
+				ret.All.NonMatches++
+			}
+
+			isSilent, _, err := genomes.IsSilentWithReplacement(g,
+				pos, 0, 0, []byte{nt})
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			if isSilent {
+				if good {
+					ret.Silent.Matches++
+				} else {
+					ret.Silent.NonMatches++
+				}
+			}
+		}
+	}
+	return ret
 }

@@ -17,27 +17,31 @@ func Simulate(g *genomes.Genomes,
 	matches int, total int, its int) int {
 	var ret int
 
-iterations:
 	for i := 0; i < its; i++ {
 		mutant := g.Filter(0)
 		mutant.DeepCopy(0)
 		mutPositions := mutations.MutateSilent(mutant, nd, total, 1)
+		good := 0
 
+	positions:
 		for _, pos := range mutPositions {
 			if mutant.Nts[0][pos] != g.Nts[1][pos] {
-				continue iterations
+				continue
 			}
 
 			if mask != nil {
 				for i := 0; i < mask.NumGenomes(); i++ {
 					if mutant.Nts[0][pos] == mask.Nts[i][pos] {
-						continue iterations
+						continue positions
 					}
 				}
 			}
+			good++
 		}
 
-		ret++
+		if good >= matches {
+			ret++
+		}
 		fmt.Printf("Found %d/%d %g\n", ret, i+1, float64(ret)/float64(i+1))
 	}
 	return ret

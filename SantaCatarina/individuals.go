@@ -110,13 +110,9 @@ The idea is that we exclude the very close relatives to see what *other*
 matches exist not explained by similarity to them
 */
 func CountSignificant(
-	db *database.Database, ids []database.Id,
-	g *genomes.Genomes,
-	expectedHits *ExpectedHits,
-	minOR float64,
-	maxP float64,
-	silent bool,
-	mask []int) []int {
+	db *database.Database, ids []database.Id, g *genomes.Genomes,
+	expected []MatchOdds, minOR float64, maxP float64,
+	silent bool, mask []int) []int {
 	ret := make([]int, g.NumGenomes())
 
 	total := len(ids)
@@ -137,11 +133,19 @@ func CountSignificant(
 			}
 			g2 := g.Filter(0, i)
 
-			matches := OutgroupMatches(g2,
-				r.NucleotideChanges, "", false, silent)
+			var nucChanges database.Mutations
 
+			if silent {
+				nucChanges = r.FilterNucleotideChanges(database.SILENT)
+			} else {
+				// Silent and non-silent, but we ignore NOT_IN_ORF
+				nucChanges = r.FilterNucleotideChanges(database.SILENT,
+					database.NON_SILENT)
+			}
+
+			matches := OutgroupMatches(g2, nucChanges, "", false, silent)
 			exclude := OutgroupMatches(maskGenomes,
-				r.NucleotideChanges, "", false, silent)
+				nucChanges, "", false, silent)
 
 			matches, _ = RemoveIntersection(matches, exclude, true)
 
@@ -149,18 +153,19 @@ func CountSignificant(
 			if n == 0 {
 				continue
 			}
-			var ct stats.ContingencyTable
 
-			var hits, total int
+			var ct stats.ContingencyTable
+			var expectedOdds Odds
+
 			if silent {
-				hits = expectedHits.SilentHits[i]
-				total = r.SilentNucleotideChanges()
+				expectedOdds = expected[i].Silent
 			} else {
-				hits = expectedHits.Hits[i]
-				total = len(r.NucleotideChanges)
+				expectedOdds = expected[i].All
 			}
 
-			ct.Init(n, total-n, hits, expectedHits.Its-hits)
+			total := len(nucChanges)
+			ct.Init(n, total-n,
+				expectedOdds.Matches, expectedOdds.NonMatches)
 
 			OR := ct.CalcOR()
 			if OR > minOR {
@@ -245,5 +250,16 @@ func CountSignificantMuts(
 		}
 	}
 
+	return ret
+}
+
+func FindAllOdds(g *genomes.Genomes, mask []int) []MatchOdds {
+	ret := make([]MatchOdds, g.NumGenomes())
+	maskGenomes := g.Filter(mask...)
+	for i := 1; i < g.NumGenomes(); i++ {
+		g2 := g.Filter(0, i)
+		ret[i] = OutgroupOdds(g2, maskGenomes)
+		fmt.Println(g.Names[i], ret[i])
+	}
 	return ret
 }
