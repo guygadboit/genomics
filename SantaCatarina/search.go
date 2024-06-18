@@ -278,8 +278,10 @@ func main() {
 	db := database.NewDatabase()
 	nd := mutations.NewNucDistro(g)
 
+	/*
 	runSimulation(g, nd)
 	return
+	*/
 
 	cutoff := utils.Date(2020, 12, 31)
 	ids := db.Filter(nil, func(r *database.Record) bool {

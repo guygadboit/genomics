@@ -190,9 +190,9 @@ func CountSignificant(
 
 // Get all the unique mutations in these ids
 func GetAllMutations(db *database.Database,
-	ids database.IdSet) database.Mutations {
+	ids []database.Id) database.Mutations {
 	muts := make(map[database.Mutation]bool)
-	for id, _ := range ids {
+	for _, id := range ids {
 		r := &db.Records[id]
 		utils.Union(muts, utils.ToSet(r.NucleotideChanges))
 	}
@@ -202,12 +202,8 @@ func GetAllMutations(db *database.Database,
 // Like CountSignificant, except look at individual muts rather than whole
 // genomes
 func CountSignificantMuts(
-	db *database.Database, ids database.IdSet,
-	g *genomes.Genomes,
-	expectedHits *ExpectedHits,
-	minOR float64,
-	maxP float64,
-	mask []int) []int {
+	db *database.Database, ids []database.Id, g *genomes.Genomes,
+	minOR float64, maxP float64, mask []int, expected []MatchOdds) []int {
 	ret := make([]int, g.NumGenomes())
 
 	total := len(ids)
@@ -238,8 +234,9 @@ func CountSignificantMuts(
 		}
 
 		var ct stats.ContingencyTable
-		hits := expectedHits.Hits[i]
-		ct.Init(n, len(muts)-n, hits, expectedHits.Its-hits)
+		expectedOdds := expected[i].All
+
+		ct.Init(n, len(muts)-n, expectedOdds.Matches, expectedOdds.NonMatches)
 		OR := ct.CalcOR()
 		fmt.Println(i, n, len(muts), OR)
 		if OR > minOR {
