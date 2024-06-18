@@ -15,9 +15,15 @@ def read(fname):
 
 
 def main():
+	combined_p = 0
+	count = 0
+	total_p = 0
 	data = read(sys.argv[1])
-	for _, line in data:
+	for p, line in data:
 		print(line)
+		total_p += p
+		count += 1
+	print(total_p, count, total_p / count)
 
 
 if __name__ == "__main__":

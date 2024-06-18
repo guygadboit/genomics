@@ -104,6 +104,57 @@ func GetExpected(g *genomes.Genomes,
 }
 
 /*
+Return a contingency table for how well a particular set of mutations matches
+g[1:] while not matching mask
+*/
+func CheckRecord(r *database.Record,
+	g *genomes.Genomes, mask *genomes.Genomes, expected MatchOdds,
+	silent bool) (stats.ContingencyTable, database.Mutations) {
+	var muts database.Mutations
+	if silent {
+		muts = r.FilterNucleotideChanges(database.SILENT)
+	} else {
+		// Silent and non-silent, but we ignore NOT_IN_ORF
+		muts = r.FilterNucleotideChanges(database.SILENT, database.NON_SILENT)
+	}
+
+	matches := OutgroupMatches(g, 1, muts)
+	exclude := OutgroupMatches(mask, 0, muts)
+	matches, _ = RemoveIntersection(matches, exclude, true)
+	n := len(matches)
+
+	var ct stats.ContingencyTable
+	var expectedOdds Odds
+
+	if silent {
+		expectedOdds = expected.Silent
+	} else {
+		expectedOdds = expected.All
+	}
+
+	ct.Init(n, len(muts)-n, expectedOdds.Matches, expectedOdds.NonMatches)
+	ct.CalcOR()
+	return ct, matches
+}
+
+func CheckCT(ct stats.ContingencyTable,
+	r *database.Record, matches database.Mutations,
+	name string, minOR, maxP float64) bool {
+	OR := ct.OR
+	if OR > minOR {
+		_, p := ct.FisherExact()
+		if p < maxP {
+			fmt.Printf("%s %s: %s %d/%d OR=%.2f p=%.4g\n",
+				r.ToString(), name,
+				matches.ToString(),
+				ct.A, ct.A+ct.B, OR, p)
+			return true
+		}
+	}
+	return false
+}
+
+/*
 For each genome, how many sequences match it above some threshold? Mask are the
 ids to mask out: exclude those and any muts matching those from the analysis.
 The idea is that we exclude the very close relatives to see what *other*
@@ -111,8 +162,8 @@ matches exist not explained by similarity to them
 */
 func CountSignificant(
 	db *database.Database, ids []database.Id, g *genomes.Genomes,
-	expected []MatchOdds, minOR float64, maxP float64,
-	silent bool, mask []int) []int {
+	minOR float64, maxP float64, silent bool,
+	mask []int, expected []MatchOdds) []int {
 	ret := make([]int, g.NumGenomes())
 
 	total := len(ids)
@@ -127,56 +178,15 @@ func CountSignificant(
 
 	for _, id := range ids {
 		r := &db.Records[id]
-		for i := 0; i < g.NumGenomes(); i++ {
+		for i := 1; i < g.NumGenomes(); i++ {
 			if maskSet[i] {
 				continue
 			}
+
 			g2 := g.Filter(0, i)
-
-			var nucChanges database.Mutations
-
-			if silent {
-				nucChanges = r.FilterNucleotideChanges(database.SILENT)
-			} else {
-				// Silent and non-silent, but we ignore NOT_IN_ORF
-				nucChanges = r.FilterNucleotideChanges(database.SILENT,
-					database.NON_SILENT)
-			}
-
-			matches := OutgroupMatches(g2, nucChanges, "", false, silent)
-			exclude := OutgroupMatches(maskGenomes,
-				nucChanges, "", false, silent)
-
-			matches, _ = RemoveIntersection(matches, exclude, true)
-
-			n := len(matches)
-			if n == 0 {
-				continue
-			}
-
-			var ct stats.ContingencyTable
-			var expectedOdds Odds
-
-			if silent {
-				expectedOdds = expected[i].Silent
-			} else {
-				expectedOdds = expected[i].All
-			}
-
-			total := len(nucChanges)
-			ct.Init(n, total-n,
-				expectedOdds.Matches, expectedOdds.NonMatches)
-
-			OR := ct.CalcOR()
-			if OR > minOR {
-				_, p := ct.FisherExact()
-				if p < maxP {
-					fmt.Printf("%s %s: %s %d/%d OR=%.2f p=%.4g\n",
-						r.ToString(), g.Names[i],
-						matches.ToString(false),
-						n, total, OR, p)
-					ret[i]++
-				}
+			ct, matches := CheckRecord(r, g2, maskGenomes, expected[i], silent)
+			if CheckCT(ct, r, matches, g.Names[i], minOR, maxP) {
+				ret[i]++
 			}
 		}
 		count++
@@ -201,6 +211,7 @@ func GetAllMutations(db *database.Database,
 
 // Like CountSignificant, except look at individual muts rather than whole
 // genomes
+/*
 func CountSignificantMuts(
 	db *database.Database, ids []database.Id, g *genomes.Genomes,
 	minOR float64, maxP float64, mask []int, expected []MatchOdds) []int {
@@ -249,6 +260,7 @@ func CountSignificantMuts(
 
 	return ret
 }
+*/
 
 func FindAllOdds(g *genomes.Genomes, mask []int) []MatchOdds {
 	ret := make([]MatchOdds, g.NumGenomes())
