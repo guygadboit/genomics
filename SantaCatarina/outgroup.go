@@ -6,6 +6,7 @@ import (
 	"genomics/mutations"
 	"log"
 	"math/rand"
+	"fmt"
 )
 
 // What are the odds of finding a single random mut that matches the genomes in
@@ -208,4 +209,23 @@ func OutgroupOdds(g *genomes.Genomes, mask *genomes.Genomes) MatchOdds {
 		}
 	}
 	return ret
+}
+
+func ShowAllPossibleSilentMuts(g *genomes.Genomes) {
+	for pos := 0; pos < g.Length(); pos++ {
+		nt := g.Nts[0][pos]
+		for _, replacement := range []byte{'G', 'A', 'C', 'T'} {
+			if replacement == nt {
+				continue
+			}
+			silent, _, err := genomes.IsSilentWithReplacement(g, pos, 0, 0,
+				[]byte{replacement})
+			if err != nil {
+				continue
+			}
+			if silent {
+				fmt.Printf("%c%d%c\n", nt, pos+1, replacement)
+			}
+		}
+	}
 }
