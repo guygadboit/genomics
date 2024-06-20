@@ -23,8 +23,7 @@ func mutate(genome *genomes.Genomes,
 	// Try to mutate silently (or not silently, as requested) at pos. Return
 	// true if we succeeded.
 	tryMutate := func(pos int) bool {
-		done, _ := alreadyDone[pos]
-		if done {
+		if alreadyDone[pos] {
 			return false
 		}
 
