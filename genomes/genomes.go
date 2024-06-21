@@ -9,6 +9,7 @@ import (
 	"log"
 	"os"
 	"slices"
+	"regexp"
 	"strings"
 )
 
@@ -534,6 +535,34 @@ func ParseHighlights(s string, sep string,
 		ret[i] = Highlight{pos, pos + 1, hChar}
 	}
 	return ret
+}
+
+func ParseHighlightFile(fname string,
+	oneBased bool, hChar byte) ([]Highlight, error) {
+	ret := make([]Highlight, 0)
+	var err error
+	re := regexp.MustCompile(`[GACT](\d+)[GACT]`)
+	utils.Lines(fname, func(line string, lineErr error) bool {
+		if lineErr != nil {
+			err = lineErr
+			return false
+		}
+
+		// Make this just work if the file contains mutations rather than
+		// positions.
+		groups := re.FindStringSubmatch(line)
+		if groups != nil {
+			line = groups[1]
+		}
+
+		pos := utils.Atoi(line)
+		if oneBased {
+			pos -= 1
+		}
+		ret = append(ret, Highlight{pos, pos+1, hChar})
+		return true
+	})
+	return ret, err
 }
 
 func (g *Genomes) saveCluStyle(fname string,
