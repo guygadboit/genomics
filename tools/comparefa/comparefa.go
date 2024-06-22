@@ -8,6 +8,7 @@ import (
 	"genomics/utils"
 	"log"
 	"os"
+	"os/exec"
 )
 
 // Represents an AA change
@@ -200,6 +201,35 @@ func (c *Comparison) GraphData(fname string) {
 	w.Flush()
 }
 
+func RunGnuplot(fname string) {
+	gpName := "comparefa-plot.gpi"
+	f, err := os.Create(gpName)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer f.Close()
+
+	w := bufio.NewWriter(f)
+
+	fmt.Fprint(w, `
+set title "Cumulative silent and non-silent muts"
+set xlabel "nucleotide offset"
+set ylabel "count"
+
+plot "cumulative-muts.txt" using 1 title "silent" with lines, \
+	"cumulative-muts.txt" using 2 title "non-silent" with lines, \
+	"cumulative-muts.txt" using 3 title "insertions" with lines, \
+	"cumulative-muts.txt" using 4 title "deletions" with lines
+`)
+	w.Flush()
+
+	cmd := exec.Command("gnuplot", "--persist", gpName)
+	err = cmd.Run()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+	}
+}
+
 func compare(g *genomes.Genomes, a, b int) Comparison {
 	var ret Comparison
 	ret.Init(g, a, b, false)
@@ -379,6 +409,7 @@ func main() {
 			fname := "cumulative-muts.txt"
 			c.GraphData(fname)
 			fmt.Printf("Wrote %s\n", fname)
+			RunGnuplot(fname)
 		}
 	}
 
