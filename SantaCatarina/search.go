@@ -162,9 +162,9 @@ func LoadShortNames() []string {
 }
 
 func runSimulation(g *genomes.Genomes, nd *mutations.NucDistro) {
-	g2 := g.Filter(0, 43)
+	g2 := g.Filter(0, 58)
 	mask := g.Filter(5, 6, 7, 8, 10, 11)
-	Simulate(g2, mask, nd, 6, 7, 1e7)
+	Simulate(g2, mask, nd, 87, 87+402, 1e4)
 }
 
 func PlotSignificant(
@@ -182,13 +182,15 @@ func PlotSignificant(
 	individuals := CountSignificant(db, ids,
 		g, minOR, maxP, silent, mask, expected)
 
-	shortNames := LoadShortNames()
+	// shortNames := LoadShortNames()
 	maskSet := utils.ToSet(mask)
 	for i, r := range individuals {
 		if i == 0 || maskSet[i] {
 			continue
 		}
-		fmt.Fprintln(w, shortNames[i], r)
+		// name := g.Names[i][0:11]
+		name := fmt.Sprintf("%d", i)
+		fmt.Fprintln(w, name, r)
 	}
 	w.Flush()
 	fmt.Printf("Wrote %s\n", fname)
@@ -197,12 +199,13 @@ func PlotSignificant(
 func main() {
 	rand.Seed(9879)
 
+	g := genomes.LoadGenomes("../fasta/more_relatives.fasta",
+		"../fasta/WH1.orfs", false)
+	g.RemoveGaps()
 	/*
-		g := genomes.LoadGenomes("../fasta/SARS2-relatives.fasta",
+		g := genomes.LoadGenomes("./RelativesPlusKhosta.fasta",
 			"../fasta/WH1.orfs", false)
 	*/
-	g := genomes.LoadGenomes("RelativesPlusKhosta.fasta",
-		"../fasta/WH1.orfs", false)
 	/*
 		g := genomes.LoadGenomes("../fasta/all.fasta", "../fasta/WH1.orfs", false)
 	*/
@@ -218,10 +221,19 @@ func main() {
 		return
 	*/
 
-	mask := []int{5, 6, 7, 8, 10, 11}
+	/*
+		ShowAllPossibleSilentMuts(g)
+		return
+	*/
+
+	// mask := []int{5, 6, 7, 8, 10, 11}
+ 	// mask := []int{463, 460, 461, 462, 465, 466}
+	// mask := []int{460, 461, 462, 465, 466, 463}
+	var mask []int
 	db := database.NewDatabase()
 
 	/*
+		nd := mutations.NewNucDistro(g)
 		runSimulation(g, nd)
 		return
 	*/
@@ -232,12 +244,12 @@ func main() {
 			return false
 		}
 		/*
-			if r.Country != "Egypt" {
-				return false
-			}
+		if r.Country == "Egypt" {
+			return false
+		}
 		*/
 		/*
-			if r.GisaidAccession != "EPI_ISL_582787" {
+			if r.GisaidAccession != "EPI_ISL_8193636" {
 				return false
 			}
 		*/
@@ -249,10 +261,9 @@ func main() {
 
 	idSlice := utils.FromSet(ids)
 	slices.Sort(idSlice)
-	// idSlice = utils.Sample(idSlice, 1000)
 
 	expected := FindAllOdds(g, mask)
-	PlotSignificant(db, idSlice, g, 10, 1e-4, true,
+	PlotSignificant(db, idSlice, g, 10, 1e-5, false,
 		"individuals.txt",
 		"All",
 		mask, expected)

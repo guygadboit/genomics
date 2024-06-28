@@ -3,76 +3,9 @@ package main
 import (
 	"genomics/database"
 	"genomics/genomes"
-	"genomics/mutations"
 	"log"
-	"math/rand"
 	"fmt"
 )
-
-// What are the odds of finding a single random mut that matches the genomes in
-// g (from 1 thru the end), but that doesn't match any in mask? Return the
-// number of hits over its iterations. If silent, only look for silent
-// mutations.
-func OutgroupMontecarlo(g *genomes.Genomes, mask *genomes.Genomes,
-	nd *mutations.NucDistro, its int, silent bool) int {
-	hits := 0
-
-	type mutation struct {
-		pos   int
-		newNt byte
-	}
-	seen := make(map[mutation]bool)
-
-	for i := 0; i < its; i++ {
-		var mut mutation
-		for {
-			mut.pos = rand.Intn(g.Length())
-			existing := g.Nts[0][mut.pos]
-			for {
-				mut.newNt = nd.Random()
-				if mut.newNt != existing {
-					break
-				}
-			}
-
-			if seen[mut] {
-				continue
-			}
-			seen[mut] = true
-
-			if silent {
-				isSilent, _, err := genomes.IsSilentWithReplacement(g,
-					mut.pos, 0, 0, []byte{mut.newNt})
-				if err != nil && err.Error() == "Not in ORF" {
-					// We are calling these silent (they don't change the
-					// protein) in OutgroupMatches etc.
-					isSilent = true
-				}
-				if !isSilent {
-					continue
-				}
-			}
-			break
-		}
-
-		// Now see if we match something in g, but not in mask
-	genomes:
-		for k := 1; k < g.NumGenomes(); k++ {
-			if g.Nts[k][mut.pos] == mut.newNt {
-				if mask != nil {
-					for m := 0; m < mask.NumGenomes(); m++ {
-						if mask.Nts[m][mut.pos] == mut.newNt {
-							continue genomes
-						}
-					}
-				}
-				hits++
-				break
-			}
-		}
-	}
-	return hits
-}
 
 // Return which muts match genomes in g from "from" onwards
 func OutgroupMatches(g *genomes.Genomes,

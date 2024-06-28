@@ -17,8 +17,9 @@ set title "{}"
 set style fill solid
 set boxwidth 0.5
 set xtics rotate by -90
+set xrange [0:528]
 
-plot "temp.dat" using 2:xtic(1) with boxes notitle
+plot "temp.dat" using 2 with boxes notitle
 """.format(title), file=fp)
 
 	print("Now run gnuplot --persist plot.gpi")
