@@ -9,6 +9,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"slices"
 )
 
 // Represents an AA change
@@ -113,7 +114,7 @@ func (c *Comparison) proteinSummary() {
 	fmt.Printf("AA similarity: %.2f%%\n", ((total-numMuts)*100)/total)
 }
 
-func (c *Comparison) Summary() {
+func (c *Comparison) Summary(showIndels bool) {
 	if c.IsProtein {
 		c.proteinSummary()
 		return
@@ -130,6 +131,18 @@ func (c *Comparison) Summary() {
 	fmt.Println("\nNucleotide changes")
 	for _, mut := range c.NtMuts {
 		fmt.Println(mut.ToString())
+	}
+
+	if showIndels {
+		fmt.Println("Insertions (1-based)")
+		for _, ins := range c.Insertions {
+			fmt.Println(ins + 1)
+		}
+
+		fmt.Println("Deletions (1-based)")
+		for _, del := range c.Deletions {
+			fmt.Println(del + 1)
+		}
 	}
 
 	S, N, NO := c.SilentCount()
@@ -302,6 +315,9 @@ func compare(g *genomes.Genomes, a, b int) Comparison {
 		start = orf.End
 	}
 
+	slices.Sort(ret.Insertions)
+	slices.Sort(ret.Deletions)
+
 	return ret
 }
 
@@ -339,6 +355,7 @@ func main() {
 	var protein bool
 	var highlightString string
 	var highlightFile string
+	var showIndels bool
 
 	flag.StringVar(&orfName, "orfs", "", "ORFs")
 	flag.StringVar(&include, "i", "", "Genomes to include (unset means all)")
@@ -352,6 +369,7 @@ func main() {
 		"", "1-based positions to highlight separated with ,")
 	flag.StringVar(&highlightFile, "highlight-file",
 		"", "1-based positions to highlight one per line in a file")
+	flag.BoolVar(&showIndels, "indels", false, "Show indels")
 	flag.Parse()
 
 	var g *genomes.Genomes
@@ -403,7 +421,7 @@ func main() {
 		} else if silentOnly {
 			c.SilentSummary()
 		} else {
-			c.Summary()
+			c.Summary(showIndels)
 		}
 		if len(which) == 2 && graphData {
 			fname := "cumulative-muts.txt"
