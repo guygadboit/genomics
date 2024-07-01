@@ -53,7 +53,7 @@ func (index *Index) loadMetadata() {
 }
 
 /*
-	Write the index out to files and clear it
+Write the index out to files and clear it
 */
 func (index *Index) save() {
 	for k, v := range index.data {
@@ -139,11 +139,14 @@ type IndexSearch struct {
 
 	// Where we last found something (usually == pos-1)
 	lastFound int
+
+	// Have we gone past the end?
+	end bool
 }
 
 /*
-	Read in one of our cache files. This contains all the positions of a
-	particular pattern, like CCGGGT or whatever. Return the positions.
+Read in one of our cache files. This contains all the positions of a
+particular pattern, like CCGGGT or whatever. Return the positions.
 */
 func readFile(root string, pattern string) []int {
 	ret := make([]int, 0)
@@ -262,7 +265,9 @@ func (s *IndexSearch) incr() bool {
 }
 
 func (s *IndexSearch) Next() {
-	s.incr()
+	if !s.incr() {
+		s.end = true
+	}
 }
 
 func (s *IndexSearch) Get() (int, error) {
@@ -273,7 +278,7 @@ func (s *IndexSearch) Get() (int, error) {
 }
 
 func (s *IndexSearch) End() bool {
-	return s.iterator == len(s.positions[0])
+	return s.end
 }
 
 func (s *IndexSearch) GenomeLength() int {
@@ -281,12 +286,12 @@ func (s *IndexSearch) GenomeLength() int {
 }
 
 /*
-	Bidirectional IndexSearch (looks for the pattern and then for its reverse
-	complement)
+Bidirectional IndexSearch (looks for the pattern and then for its reverse
+complement)
 */
 type BidiIndexSearch struct {
-	forwards	IndexSearch
-	backwards	IndexSearch
+	forwards  IndexSearch
+	backwards IndexSearch
 }
 
 func (s *BidiIndexSearch) Init(root string, needle []byte) {

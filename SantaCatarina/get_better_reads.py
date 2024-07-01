@@ -1,7 +1,7 @@
-# Given the bowtie2 alignment of the reads with WH1 and with P2S create a new
-# SAM file containing only the reads that had a higher alignment sore with WH1
-# than they did with P2S. Use the non-sorted SAM files for this, so the reads
-# are all in the same order
+# Given the bowtie2 alignment of the reads with WH1 and something else create a
+# new SAM file containing only the reads that had a higher alignment sore with
+# WH1 than they did with the other thing. Use the non-sorted SAM files for
+# this, so the reads are all in the same order
 from pdb import set_trace as brk
 from collections import namedtuple
 from argparse import *
@@ -37,14 +37,14 @@ def load_reads(fname):
 	return ret
 
 
-def find_better(wh1, p2s, output):
+def find_better(sam1, sam2, output):
 	ret = []
 
 	def out(line):
 		print(line, file=output)
 
-	sam1_reads = load_reads(wh1)
-	sam2_reads = load_reads(p2s)
+	sam1_reads = load_reads(sam1)
+	sam2_reads = load_reads(sam2)
 
 	out("""@HD\tVN:1.0\tSO:unsorted
 @SQ\tSN:Severe\tLN:29903
@@ -72,7 +72,7 @@ def main():
 				better = find_better(sam1, sam2, output)
 	print("Wrote better.sam")
 
-	# Sort these by how much better they aligned with WH1 than with P2S
+	# Sort these by how much better they aligned with sam1 than sam2
 	better.sort(key=lambda r: r[0] - r[1], reverse=True)
 	for v_score, other_score, line in better:
 		print(v_score, other_score, line)

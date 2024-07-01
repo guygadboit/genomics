@@ -182,14 +182,13 @@ func PlotSignificant(
 	individuals := CountSignificant(db, ids,
 		g, minOR, maxP, silent, mask, expected)
 
-	// shortNames := LoadShortNames()
+	shortNames := LoadShortNames()
 	maskSet := utils.ToSet(mask)
 	for i, r := range individuals {
 		if i == 0 || maskSet[i] {
 			continue
 		}
-		// name := g.Names[i][0:11]
-		name := fmt.Sprintf("%d", i)
+		name := shortNames[i]
 		fmt.Fprintln(w, name, r)
 	}
 	w.Flush()
@@ -199,13 +198,13 @@ func PlotSignificant(
 func main() {
 	rand.Seed(9879)
 
-	g := genomes.LoadGenomes("../fasta/more_relatives.fasta",
-		"../fasta/WH1.orfs", false)
-	g.RemoveGaps()
 	/*
-		g := genomes.LoadGenomes("./RelativesPlusKhosta.fasta",
+		g := genomes.LoadGenomes("../fasta/more_relatives.fasta",
 			"../fasta/WH1.orfs", false)
+		g.RemoveGaps()
 	*/
+	g := genomes.LoadGenomes("./RelativesPlusKhosta.fasta",
+		"../fasta/WH1.orfs", false)
 	/*
 		g := genomes.LoadGenomes("../fasta/all.fasta", "../fasta/WH1.orfs", false)
 	*/
@@ -226,10 +225,9 @@ func main() {
 		return
 	*/
 
-	// mask := []int{5, 6, 7, 8, 10, 11}
- 	// mask := []int{463, 460, 461, 462, 465, 466}
+	mask := []int{5, 6, 7, 8, 10, 11}
 	// mask := []int{460, 461, 462, 465, 466, 463}
-	var mask []int
+	// var mask []int
 	db := database.NewDatabase()
 
 	/*
@@ -244,9 +242,9 @@ func main() {
 			return false
 		}
 		/*
-		if r.Country == "Egypt" {
-			return false
-		}
+			if r.Country == "Egypt" {
+				return false
+			}
 		*/
 		/*
 			if r.GisaidAccession != "EPI_ISL_8193636" {
@@ -263,7 +261,7 @@ func main() {
 	slices.Sort(idSlice)
 
 	expected := FindAllOdds(g, mask)
-	PlotSignificant(db, idSlice, g, 10, 1e-5, false,
+	PlotSignificant(db, idSlice, g, 10, 1e-4, true,
 		"individuals.txt",
 		"All",
 		mask, expected)
