@@ -83,13 +83,12 @@ func test() {
 }
 
 func main() {
-	msgs := make(chan ReadMsg)
-	go ParseFastq("SRR29285436.fastq.gz", msgs)
+	reads := make(chan ReadMsg)
+	go ParseFastq("SRR29285436.fastq.gz", reads)
 
 	wh1 := "/fs/f/genomes/viruses/SARS2/index"
-	hn2021 := "/fs/f/genomes/viruses/HN2021/HN2021A-index"
 
-	var foundCount, total int
+	var notFoundCount, total int
 
 	f, err := os.Create("interesting.fastq")
 	if err != nil {
@@ -99,30 +98,21 @@ func main() {
 	w := bufio.NewWriter(f)
 
 	for {
-		read := <- msgs
+		read := <- reads
 		if read.End {
 			break
 		}
 
 		var search genomes.BidiIndexSearch
-		var inHN2021, inWH1, found bool
+		var found bool
 
-		for search.Init(hn2021, read.Nts); !search.End(); search.Next() {
-			inHN2021 = true
+		for search.Init(wh1, read.Nts); !search.End(); search.Next() {
+			found = true
 			break
 		}
-
-		if inHN2021 {
-			for search.Init(wh1, read.Nts); !search.End(); search.Next() {
-				inWH1 = true
-				break
-			}
-		}
 		
-		found = inHN2021 && !inWH1
-
-		if found {
-			foundCount++
+		if !found {
+			notFoundCount++
 			read.Output(w)
 		}
 		total++
@@ -131,6 +121,6 @@ func main() {
 			fmt.Println(total)
 		}
 	}
-	fmt.Printf("Found %d/%d\n", foundCount, total)
+	fmt.Printf("Not perfect matches in WH1: %d/%d\n", notFoundCount, total)
 	w.Flush()
 }

@@ -660,3 +660,16 @@ func (g *Genomes) SaveClu(fname string,
 	highlights []Highlight, which ...int) error {
 	return g.saveCluStyle(fname, highlights, false, which...)
 }
+
+// Given a position (which skips gaps) into the "which"th genome, convert that
+// into a position in the 0th. So basically put the gaps back.
+func (g *Genomes) ConvertPosition(which int, pos int) int {
+	var gaps int
+	for i := 0; i < pos; i++ {
+		if g.Nts[which][i] == '-' {
+			fmt.Printf("gap at %d\n", i)
+			gaps++
+		}
+	}
+	return pos + gaps
+}

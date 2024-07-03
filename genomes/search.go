@@ -38,6 +38,11 @@ func (s *Search) Start() {
 	s.Next()
 }
 
+func (s *Search) StartAt(pos int) {
+	s.pos = pos
+	s.Next()
+}
+
 func (s *Search) Get() (int, error) {
 	nts := s.haystack.Nts[s.which]
 	if s.lastFound < len(nts) {
