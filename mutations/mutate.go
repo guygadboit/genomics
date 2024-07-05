@@ -240,6 +240,9 @@ func Summary(g *genomes.Genomes) {
 	}
 }
 
+/*
+All the possible silent muts (excludes those outside ORFs)
+*/
 func PossibleSilentMuts(g *genomes.Genomes, which int) []Mutation {
 	ret := make([]Mutation, 0)
 	for pos := 0; pos < g.Length(); pos++ {

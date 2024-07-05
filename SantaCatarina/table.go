@@ -26,7 +26,7 @@ func findMuts(db *database.Database, ids []database.Id) database.Mutations {
 		ret = append(ret, k)
 	}
 	slices.SortFunc(ret, func(a, b database.Mutation) int {
-		return a.Pos - b.Pos
+		return int(a.Pos - b.Pos)
 	})
 	return ret
 }
