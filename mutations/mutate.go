@@ -164,8 +164,10 @@ func CountMutations(g *genomes.Genomes) (int, int) {
 }
 
 type Mutation struct {
-	Pos    int
+	Pos    int	// 0-based
 	Silent bool
+	From   byte
+	To     byte
 }
 
 /*
@@ -190,7 +192,7 @@ func FindMutations(g *genomes.Genomes, a, b int) []Mutation {
 		}
 
 		isSilent, _, _ := genomes.IsSilent(g, i, 1, a, b)
-		ret = append(ret, Mutation{i, isSilent})
+		ret = append(ret, Mutation{i, isSilent, aNt, bNt})
 	}
 	return ret
 }
@@ -236,4 +238,25 @@ func Summary(g *genomes.Genomes) {
 		fmt.Printf("%d. %s| S:%d NS:%d Similarity:%.2f%%\n",
 			i, g.Names[i], s, ns, ss*100)
 	}
+}
+
+func PossibleSilentMuts(g *genomes.Genomes, which int) []Mutation {
+	ret := make([]Mutation, 0)
+	for pos := 0; pos < g.Length(); pos++ {
+		nt := g.Nts[0][pos]
+		for _, replacement := range []byte{'G', 'A', 'C', 'T'} {
+			if replacement == nt {
+				continue
+			}
+			silent, _, err := genomes.IsSilentWithReplacement(g, pos, 0, 0,
+				[]byte{replacement})
+			if err != nil {
+				continue
+			}
+			if silent {
+				ret = append(ret, Mutation{pos, true, nt, replacement})
+			}
+		}
+	}
+	return ret
 }

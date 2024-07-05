@@ -130,7 +130,7 @@ positions:
 	for i := 0; i < g.Length()-length; i++ {
 		for j := 0; j < g.NumGenomes(); j++ {
 			for k := 0; k < j; k++ {
-				err, silent, numMuts := genomes.IsSilent(g, i, length, j, k)
+				silent, numMuts, err := genomes.IsSilent(g, i, length, j, k)
 				if err != nil {
 					continue
 				}
@@ -166,7 +166,7 @@ func (t *Tag) Init(g *genomes.Genomes, p Pattern) {
 	for i := 0; i < g.NumGenomes(); i++ {
 		// There shouldn't be an error here because we wouldn't be here if this
 		// location hadn't been OK in FindPatterns
-		_, silent, numMuts := genomes.IsSilent(g, p.Pos, n, p.Origin, i)
+		silent, numMuts, _ := genomes.IsSilent(g, p.Pos, n, p.Origin, i)
 
 		if silent {
 			alt := g.Nts[i][p.Pos : p.Pos+n]
