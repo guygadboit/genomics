@@ -2,10 +2,10 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"genomics/genomes"
 	"genomics/mutations"
-	"genomics/utils"
+	"genomics/stats"
+	"log"
 )
 
 type Positions map[int]bool
@@ -60,6 +60,8 @@ func main() {
 		"../fasta/WH1.orfs", false)
 
 	mutations := mutations.PossibleSilentMuts(g, 0)
+
+	// All of the places where it's possible to have a silent mut
 	possible := make(Positions)
 
 	for _, mut := range mutations {
@@ -69,12 +71,18 @@ func main() {
 	for i := 1; i < g.NumGenomes(); i++ {
 		actual := make(Positions)
 		for _, mut := range mutations {
-			if g.Nts[1][mut.Pos] == mut.To {
+			// All of the places where this relative actually has a silent mut
+			if g.Nts[i][mut.Pos] == mut.To {
 				actual[mut.Pos] = true
 			}
 		}
-		nsIn, nsOut := CountInSites(g, i, utils.Difference(possible, actual))
-		sIn, sOut := CountInSites(g, i, actual)
-		fmt.Println(nsIn, nsOut, sIn, sOut)
+		possibleIn, possibleOut := CountInSites(g, i, possible)
+		actualIn, actualOut := CountInSites(g, i, actual)
+
+		var ct stats.ContingencyTable
+		ct.Init(actualIn, actualOut, possibleIn, possibleOut)
+		OR, p := ct.FisherExact()
+		fmt.Println(ct)
+		fmt.Printf("%s: OR=%f p=%f\n", g.Names[i], OR, p)
 	}
 }
