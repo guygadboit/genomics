@@ -221,6 +221,17 @@ func Intersection[T comparable](a map[T]bool, b map[T]bool) map[T]bool {
 	return ret
 }
 
+// Return the set a-b
+func Difference[T comparable](a map[T]bool, b map[T]bool) map[T]bool {
+	ret := make(map[T]bool)
+	for k, _ := range a {
+		if !b[k] {
+			ret[k] = true
+		}
+	}
+	return ret
+}
+
 func Shuffle[T any](s []T) {
 	rand.Shuffle(len(s), func(i, j int) {
 		s[i], s[j] = s[j], s[i]
