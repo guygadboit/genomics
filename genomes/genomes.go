@@ -565,6 +565,32 @@ func ParseHighlightFile(fname string,
 	return ret, err
 }
 
+// Returns the string to use for the highlights. If you wanted to optimize this
+// you could track where you got to in highlights and resume searching from
+// there the next time (as it is sorted).
+func makeHighlightString(highlights []Highlight, start, length int) string {
+	ret := make([]byte, length)
+	// Start off with it being all spaces
+	for i := 0; i < len(ret); i++ {
+		ret[i] = ' '
+	}
+
+	// Now find any highlights that might be in there and put them in
+positions:
+	for i := 0; i < len(ret); i++ {
+		for _, h := range highlights {
+			if start+i >= h.Start && start+i < h.End {
+				ret[i] = h.Char
+				// If more than one highlight matches this position, just stick
+				// with the first one we found.
+				continue positions
+			}
+		}
+	}
+
+	return string(ret)
+}
+
 func (g *Genomes) saveCluStyle(fname string,
 	highlights []Highlight, withTranslation bool, which ...int) error {
 	fd, err := os.Create(fname)
@@ -594,7 +620,6 @@ func (g *Genomes) saveCluStyle(fname string,
 	slices.SortFunc(highlights, func(a, b Highlight) int {
 		return a.Start - b.Start
 	})
-	var highlightIt int
 
 	for i := 0; i < g.Length(); i += 60 {
 		n := g.Length() - i
@@ -603,26 +628,8 @@ func (g *Genomes) saveCluStyle(fname string,
 		}
 
 		if len(highlights) > 0 {
-			fmt.Fprintf(fp, "%16s", "")
-			for _, h := range highlights[highlightIt:] {
-				found := false
-				if i+n >= h.Start && i < h.End {
-					found = true
-					for j := i; j < h.Start; j++ {
-						fmt.Fprintf(fp, " ")
-					}
-					for j := h.Start; j < h.End && j < i+n; j++ {
-						fmt.Fprintf(fp, "%c", h.Char)
-					}
-				}
-				if i+n >= h.End {
-					highlightIt++
-				}
-				if found { // Don't attempt to print overlapping highlights
-					break
-				}
-			}
-			fmt.Fprintf(fp, "\n")
+			fmt.Fprintf(fp, "%16s%s\n",
+				"", makeHighlightString(highlights, i, n))
 		}
 
 		for j, w := range which {

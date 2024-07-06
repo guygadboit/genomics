@@ -36,7 +36,7 @@ func CountInSites(g *genomes.Genomes, which int,
 		}
 		for i := 0; i < len(site); i++ {
 			if out[pos+i] {
-				out[pos+i] = false
+				delete(out, pos+i)
 				in[pos+i] = true
 			}
 		}
@@ -68,12 +68,18 @@ func makeHighlights(actualIn, actualOut,
 	}
 
 	for pos, _ := range possibleIn {
-		ret = append(ret, genomes.Highlight{pos, pos+1, 'X'})
+		if !actualIn[pos] {
+			ret = append(ret, genomes.Highlight{pos, pos+1, 'X'})
+		}
 	}
 
+	/*
 	for pos, _ := range possibleOut {
-		ret = append(ret, genomes.Highlight{pos, pos+1, 'x'})
+		if !actualOut[pos] {
+			ret = append(ret, genomes.Highlight{pos, pos+1, 'x'})
+		}
 	}
+	*/
 
 	return ret
 }
