@@ -5,6 +5,7 @@ import (
 	"genomics/genomes"
 	"genomics/mutations"
 	"genomics/stats"
+	"genomics/utils"
 	"log"
 )
 
@@ -19,13 +20,7 @@ type Mutation struct {
 // site there either in the 0th genome or in the which'th one. Return the
 // positions of those that are in and out.
 func CountInSites(muts []Mutation,
-	g *genomes.Genomes, which int) (Positions, Positions) {
-	sites := [][]byte{
-		[]byte("GGTCTC"),
-		[]byte("GAGACC"),
-		[]byte("CGTCTC"),
-		[]byte("GAGACG"),
-	}
+	g *genomes.Genomes, which int, sites [][]byte) (Positions, Positions) {
 
 	in := make(Positions)
 	out := make(Positions)
@@ -36,6 +31,7 @@ func CountInSites(muts []Mutation,
 	for i, mut := range muts {
 		mutPositions[mut.Pos] = i
 		out[mut.Pos] = true
+		muts[i].In = false
 	}
 
 	handleMatch := func(s *genomes.Search, site []byte) {
@@ -47,7 +43,6 @@ func CountInSites(muts []Mutation,
 			j, there := mutPositions[pos+i]
 			if there {
 				muts[j].In = true
-
 				in[pos+i] = true
 				delete(out, pos+i)
 			}
@@ -96,15 +91,19 @@ func makeHighlights(actualIn, actualOut,
 	return ret
 }
 
-func main() {
-	g := genomes.LoadGenomes("../fasta/CloseRelatives.fasta",
-		"../fasta/WH1.orfs", false)
+func MonteCarlo(g *genomes.Genomes, muts []Mutation, its int) {
+	for i := 0; i < its; i++ {
+		sites := make([][]byte, 4)
 
-	muts := make([]Mutation, 0)
-	for _, mut := range mutations.PossibleSilentMuts(g, 0) {
-		muts = append(muts, Mutation{mut, false})
+		for j := 0; j < 2; j++ {
+			sites[j] = utils.RandomNts(6)
+			sites[j+2] = utils.ReverseComplement(sites[j])
+		}
+		TestGenomes(g, muts, sites)
 	}
+}
 
+func TestGenomes(g *genomes.Genomes, muts []Mutation, sites [][]byte) {
 	for i := 1; i < g.NumGenomes(); i++ {
 		actual := make([]Mutation, 0)
 		for _, mut := range muts {
@@ -114,11 +113,8 @@ func main() {
 			}
 		}
 
-		// Find the positions and save them in a .clu file for checking
-		a, b := CountInSites(actual, g, i)
-		c, d := CountInSites(muts, g, i,)
-		highlights := makeHighlights(a, b, c, d)
-		g.SaveWithTranslation(fmt.Sprintf("%d.clu", i), highlights, 0, i)
+		CountInSites(actual, g, i, sites)
+		CountInSites(muts, g, i, sites)
 
 		// Now the actual counts, which are based on mutations, not on
 		// positions.
@@ -143,6 +139,28 @@ func main() {
 		var ct stats.ContingencyTable
 		ct.Init(actualIn, actualOut, possibleIn, possibleOut)
 		OR, p := ct.FisherExact()
-		fmt.Printf("%s: OR=%f p=%f\n", g.Names[i], OR, p)
+		fmt.Printf("%s: OR=%f p=%g\n", g.Names[i], OR, p)
 	}
+}
+
+func main() {
+	sites := [][]byte{
+		[]byte("GGTCTC"),
+		[]byte("GAGACC"),
+		[]byte("CGTCTC"),
+		[]byte("GAGACG"),
+	}
+
+	g := genomes.LoadGenomes("../fasta/CloseRelatives.fasta",
+		"../fasta/WH1.orfs", false)
+
+	muts := make([]Mutation, 0)
+	for _, mut := range mutations.PossibleSilentMuts(g, 0) {
+		muts = append(muts, Mutation{mut, false})
+	}
+
+	fmt.Println("With the actual sites")
+	TestGenomes(g, muts, sites)
+	fmt.Println("MonteCarlo")
+	MonteCarlo(g, muts, 1000)
 }
