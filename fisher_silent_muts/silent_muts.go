@@ -10,24 +10,33 @@ import (
 
 type Positions map[int]bool
 
-// Return how the positions of muts inside and outside the sites, wherever
-// those sites appear either in the 0th or the which'th genome
-func CountInSites(g *genomes.Genomes, which int,
-	positions Positions) (Positions, Positions) {
+type Mutation struct {
+	mutations.Mutation
+	In	bool	// is this mutation inside the sites?
+}
+
+// Set mut.In for all the muts in mutations. You're "In" a site if there's a
+// site there either in the 0th genome or in the which'th one. Return the
+// positions of those that are in and out.
+func CountInSites(muts []Mutation,
+	g *genomes.Genomes, which int) (Positions, Positions) {
 	sites := [][]byte{
 		[]byte("GGTCTC"),
 		[]byte("GAGACC"),
 		[]byte("CGTCTC"),
 		[]byte("GAGACG"),
 	}
-	// Make a copy since we destroy this. This starts off as the set of all
-	// positions that are outside the sites.
-	out := make(Positions)
-	for k, _ := range positions {
-		out[k] = true
-	}
 
 	in := make(Positions)
+	out := make(Positions)
+
+	// Index the muts by their positions, and store them all in "out"
+	// initially. We will remove them from there as we find them in sites
+	mutPositions := make(map[int]int)
+	for i, mut := range muts {
+		mutPositions[mut.Pos] = i
+		out[mut.Pos] = true
+	}
 
 	handleMatch := func(s *genomes.Search, site []byte) {
 		pos, err := s.Get()
@@ -35,9 +44,12 @@ func CountInSites(g *genomes.Genomes, which int,
 			log.Fatal(err)
 		}
 		for i := 0; i < len(site); i++ {
-			if out[pos+i] {
-				delete(out, pos+i)
+			j, there := mutPositions[pos+i]
+			if there {
+				muts[j].In = true
+
 				in[pos+i] = true
+				delete(out, pos+i)
 			}
 		}
 	}
@@ -60,11 +72,11 @@ func makeHighlights(actualIn, actualOut,
 	ret := make([]genomes.Highlight, 0)
 
 	for pos, _ := range actualIn {
-		ret = append(ret, genomes.Highlight{pos, pos+1, 'L'})
+		ret = append(ret, genomes.Highlight{pos, pos+1, 'Z'})
 	}
 
 	for pos, _ := range actualOut {
-		ret = append(ret, genomes.Highlight{pos, pos+1, 'l'})
+		ret = append(ret, genomes.Highlight{pos, pos+1, 'z'})
 	}
 
 	for pos, _ := range possibleIn {
@@ -88,35 +100,49 @@ func main() {
 	g := genomes.LoadGenomes("../fasta/CloseRelatives.fasta",
 		"../fasta/WH1.orfs", false)
 
-	mutations := mutations.PossibleSilentMuts(g, 0)
-
-	// All of the places where it's possible to have a silent mut
-	possible := make(Positions)
-
-	for _, mut := range mutations {
-		possible[mut.Pos] = true
+	muts := make([]Mutation, 0)
+	for _, mut := range mutations.PossibleSilentMuts(g, 0) {
+		muts = append(muts, Mutation{mut, false})
 	}
 
 	for i := 1; i < g.NumGenomes(); i++ {
-		actual := make(Positions)
-		for _, mut := range mutations {
+		actual := make([]Mutation, 0)
+		for _, mut := range muts {
 			// All of the places where this relative actually has a silent mut
 			if g.Nts[i][mut.Pos] == mut.To {
-				actual[mut.Pos] = true
+				actual = append(actual, mut)
 			}
 		}
-		possibleIn, possibleOut := CountInSites(g, i, possible)
-		actualIn, actualOut := CountInSites(g, i, actual)
+
+		// Find the positions and save them in a .clu file for checking
+		a, b := CountInSites(actual, g, i)
+		c, d := CountInSites(muts, g, i,)
+		highlights := makeHighlights(a, b, c, d)
+		g.SaveWithTranslation(fmt.Sprintf("%d.clu", i), highlights, 0, i)
+
+		// Now the actual counts, which are based on mutations, not on
+		// positions.
+		var actualIn, actualOut int
+		for _, mut := range actual {
+			if mut.In {
+				actualIn++
+			} else {
+				actualOut++
+			}
+		}
+
+		var possibleIn, possibleOut int
+		for _, mut := range muts {
+			if mut.In {
+				possibleIn++
+			} else {
+				possibleOut++
+			}
+		}
 
 		var ct stats.ContingencyTable
-		ct.Init(len(actualIn), len(actualOut),
-			len(possibleIn), len(possibleOut))
+		ct.Init(actualIn, actualOut, possibleIn, possibleOut)
 		OR, p := ct.FisherExact()
-		fmt.Println(ct)
 		fmt.Printf("%s: OR=%f p=%f\n", g.Names[i], OR, p)
-
-		highlights := makeHighlights(actualIn, actualOut,
-			possibleIn, possibleOut)
-		g.SaveWithTranslation(fmt.Sprintf("%d.clu", i), highlights, 0, i)
 	}
 }
