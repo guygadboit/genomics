@@ -649,8 +649,8 @@ func (g *Genomes) saveCluStyle(fname string,
 	return nil
 }
 
-// Save in a clu-style format with the translation. Assume a and b are aligned.
-// Nothing for which means save everything
+// Save in a clu-style format with the translation. Nothing for which means
+// save everything
 func (g *Genomes) SaveWithTranslation(fname string,
 	highlights []Highlight, which ...int) error {
 	return g.saveCluStyle(fname, highlights, true, which...)

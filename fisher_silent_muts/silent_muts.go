@@ -10,24 +10,24 @@ import (
 
 type Positions map[int]bool
 
-// Return how many muts in muts are inside and outside the sites, wherever
+// Return how the positions of muts inside and outside the sites, wherever
 // those sites appear either in the 0th or the which'th genome
 func CountInSites(g *genomes.Genomes, which int,
-	positions Positions) (int, int) {
+	positions Positions) (Positions, Positions) {
 	sites := [][]byte{
 		[]byte("GGTCTC"),
 		[]byte("GAGACC"),
 		[]byte("CGTCTC"),
 		[]byte("GAGACG"),
 	}
-	var inCount int
-
 	// Make a copy since we destroy this. This starts off as the set of all
 	// positions that are outside the sites.
 	out := make(Positions)
 	for k, _ := range positions {
 		out[k] = true
 	}
+
+	in := make(Positions)
 
 	handleMatch := func(s *genomes.Search, site []byte) {
 		pos, err := s.Get()
@@ -37,7 +37,7 @@ func CountInSites(g *genomes.Genomes, which int,
 		for i := 0; i < len(site); i++ {
 			if out[pos+i] {
 				out[pos+i] = false
-				inCount++
+				in[pos+i] = true
 			}
 		}
 	}
@@ -52,7 +52,30 @@ func CountInSites(g *genomes.Genomes, which int,
 			handleMatch(&s, site)
 		}
 	}
-	return inCount, len(out)
+	return in, out
+}
+
+func makeHighlights(actualIn, actualOut,
+	possibleIn, possibleOut Positions) []genomes.Highlight {
+	ret := make([]genomes.Highlight, 0)
+
+	for pos, _ := range actualIn {
+		ret = append(ret, genomes.Highlight{pos, pos+1, 'L'})
+	}
+
+	for pos, _ := range actualOut {
+		ret = append(ret, genomes.Highlight{pos, pos+1, 'l'})
+	}
+
+	for pos, _ := range possibleIn {
+		ret = append(ret, genomes.Highlight{pos, pos+1, 'X'})
+	}
+
+	for pos, _ := range possibleOut {
+		ret = append(ret, genomes.Highlight{pos, pos+1, 'x'})
+	}
+
+	return ret
 }
 
 func main() {
@@ -80,9 +103,14 @@ func main() {
 		actualIn, actualOut := CountInSites(g, i, actual)
 
 		var ct stats.ContingencyTable
-		ct.Init(actualIn, actualOut, possibleIn, possibleOut)
+		ct.Init(len(actualIn), len(actualOut),
+			len(possibleIn), len(possibleOut))
 		OR, p := ct.FisherExact()
 		fmt.Println(ct)
 		fmt.Printf("%s: OR=%f p=%f\n", g.Names[i], OR, p)
+
+		highlights := makeHighlights(actualIn, actualOut,
+			possibleIn, possibleOut)
+		g.SaveWithTranslation(fmt.Sprintf("%d.clu", i), highlights, 0, i)
 	}
 }
