@@ -13,22 +13,24 @@ SOCK_NAME = "/tmp/call_scipy.sock"
 
 class Handler(socketserver.StreamRequestHandler):
 	def __init__(self, *args, **kwargs):
-		self.pat = re.compile(r'^.*CT\[(\d+) (\d+) (\d+) (\d+)\]')
+		self.pat = re.compile(r'^.*CT\[(\d+) (\d+) (\d+) (\d+)\] (.*)$')
 		super(Handler, self).__init__(*args, **kwargs)
 
 	def handle(self):
 		print("Client connected...")
 		while True:
-			line = str(self.rfile.readline())
+			line = str(self.rfile.readline(), "utf-8")
+			line = line.strip()
 			m = self.pat.match(line)
 
 			# We seem to get a blank line when the connection is closed
 			if not m: break
 
-			a, b, c, d = [int(x) for x in m.groups()]
+			a, b, c, d = [int(x) for x in m.groups()[:4]]
+			alternative = m.group(5)
 			contingency_table = np.array([[a, b], [c, d]], dtype=float)
 
-			OR, p = fisher_exact(contingency_table, alternative="greater")
+			OR, p = fisher_exact(contingency_table, alternative=alternative)
 			self.wfile.write(bytes("{} {}\n".format(OR, p), 'ascii'))
 
 

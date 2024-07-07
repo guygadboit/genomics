@@ -3,8 +3,8 @@ package stats
 import (
 	"fmt"
 	"log"
-	"net"
 	"math"
+	"net"
 )
 
 type ContingencyTable struct {
@@ -16,7 +16,20 @@ type FisherResult struct {
 	OR, p float64
 }
 
-var fisherInput chan *ContingencyTable
+type FisherAlternative int
+
+const (
+	TWO_SIDED FisherAlternative = iota
+	LESS
+	GREATER
+)
+
+type FisherInput struct {
+	ct          *ContingencyTable
+	alternative FisherAlternative
+}
+
+var fisherInput chan *FisherInput
 var fisherOutput chan FisherResult
 
 func FisherClient() {
@@ -29,9 +42,16 @@ func FisherClient() {
 	buf := make([]byte, 256)
 	var result FisherResult
 
+	alternatives := []string{
+		"two-sided",
+		"less",
+		"greater",
+	}
+
 	for {
-		ct := <-fisherInput
-		msg := fmt.Sprintf("%s\n", ct.String())
+		fi := <-fisherInput
+		msg := fmt.Sprintf("%s %s\n",
+			fi.ct.String(), alternatives[fi.alternative])
 		conn.Write([]byte(msg))
 		_, err := conn.Read(buf)
 		if err != nil {
@@ -60,8 +80,9 @@ func (c *ContingencyTable) CalcOR() float64 {
 }
 
 // But if we want to know the p-value we'll get that from our Python server.
-func (c *ContingencyTable) FisherExact() (float64, float64) {
-	fisherInput <- c
+func (c *ContingencyTable) FisherExact(alternative FisherAlternative) (float64,
+	float64) {
+	fisherInput <- &FisherInput{c, alternative}
 	result := <-fisherOutput
 	c.OR, c.P = result.OR, result.p
 	return c.OR, c.P
@@ -72,7 +93,7 @@ func (ct *ContingencyTable) String() string {
 }
 
 func init() {
-	fisherInput = make(chan *ContingencyTable)
+	fisherInput = make(chan *FisherInput)
 	fisherOutput = make(chan FisherResult)
 	go FisherClient()
 }

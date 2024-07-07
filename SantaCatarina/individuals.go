@@ -47,7 +47,7 @@ func CheckCT(ct stats.ContingencyTable,
 	name string, minOR, maxP float64) bool {
 	OR := ct.OR
 	if OR > minOR {
-		_, p := ct.FisherExact()
+		_, p := ct.FisherExact(stats.GREATER)
 		if p < maxP {
 			/*
 			fmt.Printf("%s %s: %d/%d OR=%.2f p=%.4g\n",

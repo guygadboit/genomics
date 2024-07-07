@@ -107,7 +107,7 @@ func TestGenomes(g *genomes.Genomes, possible []Mutation, sites [][]byte) {
 		SetIn(actual, positions)
 		ct := FindCT(possible, actual)
 		
-		OR, p := ct.FisherExact()
+		OR, p := ct.FisherExact(stats.GREATER)
 		fmt.Printf("%s: OR=%f p=%g\n", g.Names[i], OR, p)
 	}
 }
