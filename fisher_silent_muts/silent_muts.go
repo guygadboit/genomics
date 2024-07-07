@@ -5,7 +5,6 @@ import (
 	"genomics/genomes"
 	"genomics/mutations"
 	"genomics/stats"
-	"math/rand"
 	"log"
 )
 
@@ -43,21 +42,6 @@ func FindPositions(g *genomes.Genomes, which int, sites [][]byte) Positions {
 	return ret
 }
 
-// Make a similar set of positions to if you were looking for sites but just
-// any old where.
-func RandomPositions(g *genomes.Genomes, which int) Positions {
-	ret := make(Positions)
-
-	for i := 0; i < 8; i++ {
-		start := rand.Intn(g.Length())
-		for j := 0; j < 6; j++ {
-			ret[start+j] = true
-		}
-	}
-
-	return ret
-}
-
 // Find the actual mutations between 0 and which given the possible ones
 func FindActual(g *genomes.Genomes, which int, possible []Mutation) []Mutation {
 	ret := make([]Mutation, 0)
@@ -76,26 +60,32 @@ func SetIn(muts []Mutation, positions Positions) {
 	}
 }
 
-func FindCT(possible []Mutation, actual []Mutation) stats.ContingencyTable {
-	var a, b, c, d int
+func FindCT(actual []Mutation, possible []Mutation) stats.ContingencyTable {
+	var actualIn, actualOut Positions
+	var possibleIn, possibleOut Positions
+
+	actualIn = make(Positions)
+	actualOut = make(Positions)
 	for _, mut := range actual {
 		if mut.In {
-			a++
+			actualIn[mut.Pos] = true
 		} else {
-			b++
+			actualOut[mut.Pos] = true
 		}
 	}
 
+	possibleIn = make(Positions)
+	possibleOut = make(Positions)
 	for _, mut := range possible {
 		if mut.In {
-			c++
+			possibleIn[mut.Pos] = true
 		} else {
-			d++
+			possibleOut[mut.Pos] = true
 		}
 	}
 
 	var ret stats.ContingencyTable
-	ret.Init(a, b, c, d)
+	ret.Init(len(actualIn), len(actualOut), len(possibleIn), len(possibleOut))
 	return ret
 }
 
@@ -103,11 +93,12 @@ func TestGenomes(g *genomes.Genomes, possible []Mutation, sites [][]byte) {
 	for i := 1; i < g.NumGenomes(); i++ {
 		positions := FindPositions(g, i, sites)
 		actual := FindActual(g, i, possible)
-		SetIn(possible, positions)
 		SetIn(actual, positions)
-		ct := FindCT(possible, actual)
-		
+		SetIn(possible, positions)
+		ct := FindCT(actual, possible)
+
 		OR, p := ct.FisherExact(stats.GREATER)
+		fmt.Println(ct)
 		fmt.Printf("%s: OR=%f p=%g\n", g.Names[i], OR, p)
 	}
 }
@@ -129,5 +120,4 @@ func main() {
 	}
 
 	TestGenomes(g, possible, sites)
-
 }
