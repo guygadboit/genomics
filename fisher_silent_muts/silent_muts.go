@@ -2,9 +2,13 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 	"genomics/genomes"
 	"genomics/mutations"
 	"genomics/stats"
+	"genomics/utils"
+	"os"
+	"bufio"
 	"log"
 )
 
@@ -89,18 +93,99 @@ func FindCT(actual []Mutation, possible []Mutation) stats.ContingencyTable {
 	return ret
 }
 
-func TestGenomes(g *genomes.Genomes, possible []Mutation, sites [][]byte) {
+type Result struct {
+	genome int
+	OR     float64
+	p      float64
+}
+
+// Pass in either sites or positions.
+func TestGenomes(g *genomes.Genomes,
+	possible []Mutation, sites [][]byte,
+	positions Positions, verbose bool) []Result {
+	ret := make([]Result, 0)
 	for i := 1; i < g.NumGenomes(); i++ {
-		positions := FindPositions(g, i, sites)
+		if positions == nil {
+			positions = FindPositions(g, i, sites)
+		}
 		actual := FindActual(g, i, possible)
 		SetIn(actual, positions)
 		SetIn(possible, positions)
 		ct := FindCT(actual, possible)
 
 		OR, p := ct.FisherExact(stats.GREATER)
-		fmt.Println(ct)
-		fmt.Printf("%s: OR=%f p=%g\n", g.Names[i], OR, p)
+
+		if verbose {
+			fmt.Println(ct)
+			fmt.Printf("%s: OR=%f p=%g\n", g.Names[i], OR, p)
+		}
+		ret = append(ret, Result{i, OR, p})
 	}
+	return ret
+}
+
+// Make a similar set of positions to if you were looking for sites but just
+// any old where. We do cluster them in groups of 6
+func RandomPositions(g *genomes.Genomes, which int) Positions {
+	ret := make(Positions)
+
+	for i := 0; i < 8; i++ {
+		start := rand.Intn(g.Length())
+		for j := 0; j < 6; j++ {
+			ret[start+j] = true
+		}
+	}
+
+	return ret
+}
+
+func MonteCarlo(g *genomes.Genomes,
+	possible []Mutation, its int, useSites bool) []Result {
+	ret := make([]Result, 0)
+	for i := 0; i < its; i++ {
+		var positions Positions
+		if useSites {
+			sites := make([][]byte, 4)
+			for j := 0; j < 2; j++ {
+				sites[j] = utils.RandomNts(6)
+				// sites[j+2] = utils.ReverseComplement(sites[j])
+				sites[j+2] = utils.RandomNts(6)
+			}
+			positions = FindPositions(g, 1, sites)
+		} else {
+			positions = RandomPositions(g, 1)
+		}
+		ret = append(ret, TestGenomes(g, possible, nil, positions, false)...)
+	}
+	return ret
+}
+
+func OutputResults(results []Result, which int) {
+	f, err := os.Create("ORs")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer f.Close()
+	orW := bufio.NewWriter(f)
+
+	f2, err := os.Create("ps")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer f2.Close()
+	pW := bufio.NewWriter(f2)
+
+	for _, res := range results {
+		if res.genome == which {
+			fmt.Fprintln(orW, res.OR)
+			fmt.Fprintln(pW, res.p)
+		}
+	}
+
+	orW.Flush()
+	pW.Flush()
+
+	fmt.Println("Wrote ORs and ps")
 }
 
 func main() {
@@ -119,5 +204,9 @@ func main() {
 		possible = append(possible, Mutation{mut, false})
 	}
 
-	TestGenomes(g, possible, sites)
+	TestGenomes(g, possible, sites, nil, true)
+
+	g = g.Filter(0, 1)
+	mc := MonteCarlo(g, possible, 5000, true)
+	OutputResults(mc, 1)
 }
