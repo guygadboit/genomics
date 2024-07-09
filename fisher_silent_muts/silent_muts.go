@@ -22,7 +22,7 @@ type SitePositions struct {
 
 type Mutation struct {
 	mutations.Mutation
-	In    bool // is this mutation inside the sites?
+	In bool // is this mutation inside the sites?
 }
 
 // Find all the positions which are inside a site either in the 0th or the
@@ -78,35 +78,47 @@ func SetIn(muts []Mutation, positions *SitePositions) {
 }
 
 // Find the contingency table based on a per-site rather than a per-nt analysis
-func FindSiteCT(actual []Mutation,
-	possible []Mutation, positions *SitePositions) stats.ContingencyTable {
+func FindSiteCT(actual []Mutation, possible []Mutation,
+	positions *SitePositions, length int) stats.ContingencyTable {
 	var a, b, c, d int
 
-	// For each mut, is it within 6nts of the start of a site? If so, count
-	// that whole site as a "hit"
-	actualIn := make(Positions)
+	actualPositions := make(Positions)
 	for _, mut := range actual {
-		for i := mut.Pos-5; i >=0 && i <= mut.Pos; i++ {
-			if positions.Starts[i] {
-				actualIn[i] = true
-				break
-			}
-		}
+		actualPositions[mut.Pos] = true
 	}
-	a = len(actualIn)
-	b = len(actual) - a
 
-	possibleIn := make(Positions)
+	possiblePositions := make(Positions)
 	for _, mut := range possible {
-		for i := mut.Pos-5; i >=0 && i <= mut.Pos; i++ {
-			if positions.Starts[i] {
-				possibleIn[i] = true
-				break
+		possiblePositions[mut.Pos] = true
+	}
+
+	for i := 0; i < length-6; i++ {
+		startsSite := positions.Starts[i]
+		var hasActual, hasPossible bool
+		for j := i; j < i+6; j++ {
+			if actualPositions[j] {
+				hasActual = true
+			}
+			if possiblePositions[j] {
+				hasPossible = true
+			}
+		}
+		if startsSite {
+			if hasActual {
+				a++
+			}
+			if hasPossible {
+				c++
+			}
+		} else {
+			if hasActual {
+				b++
+			}
+			if hasPossible {
+				d++
 			}
 		}
 	}
-	c = len(possibleIn)
-	d = len(possible) - a
 
 	var ret stats.ContingencyTable
 	ret.Init(a, b, c, d)
@@ -150,7 +162,7 @@ type Result struct {
 
 // Pass in either sites or positions (and nil for the other one)
 func TestGenomes(g *genomes.Genomes,
-	possible []Mutation, added bool, sites [][]byte,
+	possible []Mutation, added bool, perSite bool, sites [][]byte,
 	positions *SitePositions, verbose bool) []Result {
 	ret := make([]Result, 0)
 	for i := 1; i < g.NumGenomes(); i++ {
@@ -161,8 +173,13 @@ func TestGenomes(g *genomes.Genomes,
 		actual := FindActual(g, i, possible)
 		SetIn(actual, positions)
 		SetIn(possible, positions)
-		// ct := FindCT(actual, possible)
-		ct := FindSiteCT(actual, possible, positions)
+
+		var ct stats.ContingencyTable
+		if perSite {
+			ct = FindSiteCT(actual, possible, positions, g.Length())
+		} else {
+			ct = FindCT(actual, possible)
+		}
 
 		OR, p := ct.FisherExact(stats.GREATER)
 
@@ -234,7 +251,7 @@ func MonteCarlo(g *genomes.Genomes,
 			positions = RandomPositions(g, 1)
 		}
 		ret = append(ret, TestGenomes(g, possible,
-			true, nil, &positions, false)...)
+			true, false, nil, &positions, false)...)
 	}
 	return ret
 }
@@ -312,6 +329,7 @@ func main() {
 	var orfs string
 	var added bool
 	var doMC bool
+	var perSite bool
 
 	flag.StringVar(&fasta, "fasta",
 		"../fasta/CloseRelatives.fasta", "relatives")
@@ -319,6 +337,7 @@ func main() {
 	flag.BoolVar(&added, "added",
 		true, "Look at added rather than removed sites")
 	flag.BoolVar(&doMC, "montecarlo", false, "Do the MonteCarlo")
+	flag.BoolVar(&perSite, "per-site", false, "Look per site rather than per nt")
 	flag.Parse()
 
 	g := genomes.LoadGenomes(fasta, orfs, false)
@@ -328,7 +347,7 @@ func main() {
 		possible = append(possible, Mutation{mut, false})
 	}
 
-	TestGenomes(g, possible, added, sites, nil, true)
+	TestGenomes(g, possible, added, perSite, sites, nil, true)
 
 	if doMC {
 		g = g.Filter(0, 1)
