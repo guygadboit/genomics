@@ -23,7 +23,6 @@ type SitePositions struct {
 type Mutation struct {
 	mutations.Mutation
 	In    bool // is this mutation inside the sites?
-	Start bool // Is the mutation at the start of one of the sites?
 }
 
 // Find all the positions which are inside a site either in the 0th or the
@@ -75,8 +74,43 @@ func FindActual(g *genomes.Genomes, which int, possible []Mutation) []Mutation {
 func SetIn(muts []Mutation, positions *SitePositions) {
 	for i, mut := range muts {
 		muts[i].In = positions.All[mut.Pos]
-		muts[i].Start = positions.Starts[mut.Pos]
 	}
+}
+
+// Find the contingency table based on a per-site rather than a per-nt analysis
+func FindSiteCT(actual []Mutation,
+	possible []Mutation, positions *SitePositions) stats.ContingencyTable {
+	var a, b, c, d int
+
+	// For each mut, is it within 6nts of the start of a site? If so, count
+	// that whole site as a "hit"
+	actualIn := make(Positions)
+	for _, mut := range actual {
+		for i := mut.Pos-5; i >=0 && i <= mut.Pos; i++ {
+			if positions.Starts[i] {
+				actualIn[i] = true
+				break
+			}
+		}
+	}
+	a = len(actualIn)
+	b = len(actual) - a
+
+	possibleIn := make(Positions)
+	for _, mut := range possible {
+		for i := mut.Pos-5; i >=0 && i <= mut.Pos; i++ {
+			if positions.Starts[i] {
+				possibleIn[i] = true
+				break
+			}
+		}
+	}
+	c = len(possibleIn)
+	d = len(possible) - a
+
+	var ret stats.ContingencyTable
+	ret.Init(a, b, c, d)
+	return ret
 }
 
 func FindCT(actual []Mutation, possible []Mutation) stats.ContingencyTable {
@@ -127,7 +161,8 @@ func TestGenomes(g *genomes.Genomes,
 		actual := FindActual(g, i, possible)
 		SetIn(actual, positions)
 		SetIn(possible, positions)
-		ct := FindCT(actual, possible)
+		// ct := FindCT(actual, possible)
+		ct := FindSiteCT(actual, possible, positions)
 
 		OR, p := ct.FisherExact(stats.GREATER)
 
@@ -290,7 +325,7 @@ func main() {
 
 	possible := make([]Mutation, 0)
 	for _, mut := range mutations.PossibleSilentMuts(g, 0) {
-		possible = append(possible, Mutation{mut, false, false})
+		possible = append(possible, Mutation{mut, false})
 	}
 
 	TestGenomes(g, possible, added, sites, nil, true)
