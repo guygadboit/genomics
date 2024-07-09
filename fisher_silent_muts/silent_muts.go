@@ -15,23 +15,32 @@ import (
 
 type Positions map[int]bool
 
+type SitePositions struct {
+	Starts Positions // Places where sites start
+	All    Positions // Places that include any part of a site
+}
+
 type Mutation struct {
 	mutations.Mutation
-	In bool // is this mutation inside the sites?
+	In    bool // is this mutation inside the sites?
+	Start bool // Is the mutation at the start of one of the sites?
 }
 
 // Find all the positions which are inside a site either in the 0th or the
 // which'th genome. Look for sites "added" in 0 if added else "removed" in 0.
 func FindPositions(g *genomes.Genomes,
-	which int, sites [][]byte, added bool) Positions {
-	ret := make(Positions)
+	which int, sites [][]byte, added bool) SitePositions {
+	var ret SitePositions
+	ret.Starts = make(Positions)
+	ret.All = make(Positions)
 	handleMatch := func(s *genomes.Search, site []byte) {
 		pos, err := s.Get()
 		if err != nil {
 			log.Fatal(err)
 		}
+		ret.Starts[pos] = true
 		for i := 0; i < len(site); i++ {
-			ret[pos+i] = true
+			ret.All[pos+i] = true
 		}
 	}
 
@@ -63,9 +72,10 @@ func FindActual(g *genomes.Genomes, which int, possible []Mutation) []Mutation {
 }
 
 // Set the In field on muts based on whether they are in positions
-func SetIn(muts []Mutation, positions Positions) {
+func SetIn(muts []Mutation, positions *SitePositions) {
 	for i, mut := range muts {
-		muts[i].In = positions[mut.Pos]
+		muts[i].In = positions.All[mut.Pos]
+		muts[i].Start = positions.Starts[mut.Pos]
 	}
 }
 
@@ -107,11 +117,12 @@ type Result struct {
 // Pass in either sites or positions (and nil for the other one)
 func TestGenomes(g *genomes.Genomes,
 	possible []Mutation, added bool, sites [][]byte,
-	positions Positions, verbose bool) []Result {
+	positions *SitePositions, verbose bool) []Result {
 	ret := make([]Result, 0)
 	for i := 1; i < g.NumGenomes(); i++ {
 		if positions == nil {
-			positions = FindPositions(g, i, sites, added)
+			pos := FindPositions(g, i, sites, added)
+			positions = &pos
 		}
 		actual := FindActual(g, i, possible)
 		SetIn(actual, positions)
@@ -132,7 +143,7 @@ func TestGenomes(g *genomes.Genomes,
 		ret = append(ret, Result{i, OR, p})
 
 		if verbose {
-			highlights := makeHighlights(positions, 'v')
+			highlights := makeHighlights(positions.All, 'v')
 			fname := fmt.Sprintf("%d.clu", i)
 			g.SaveWithTranslation(fname, highlights, 0, i)
 			fmt.Printf("Wrote %s\n", fname)
@@ -144,13 +155,16 @@ func TestGenomes(g *genomes.Genomes,
 
 // Make a similar set of positions to if you were looking for sites but just
 // any old where. We do cluster them in groups of 6
-func RandomPositions(g *genomes.Genomes, which int) Positions {
-	ret := make(Positions)
+func RandomPositions(g *genomes.Genomes, which int) SitePositions {
+	var ret SitePositions
+	ret.All = make(Positions)
+	ret.Starts = make(Positions)
 
 	for i := 0; i < 35; i++ {
 		start := rand.Intn(g.Length() - 6)
+		ret.Starts[start] = true
 		for j := 0; j < 6; j++ {
-			ret[start+j] = true
+			ret.All[start+j] = true
 		}
 	}
 
@@ -172,7 +186,7 @@ func MonteCarlo(g *genomes.Genomes,
 	possible []Mutation, its int, useSites bool) []Result {
 	ret := make([]Result, 0)
 	for i := 0; i < its; i++ {
-		var positions Positions
+		var positions SitePositions
 		if useSites {
 			sites := make([][]byte, 4)
 			for j := 0; j < 2; j++ {
@@ -185,7 +199,7 @@ func MonteCarlo(g *genomes.Genomes,
 			positions = RandomPositions(g, 1)
 		}
 		ret = append(ret, TestGenomes(g, possible,
-			true, nil, positions, false)...)
+			true, nil, &positions, false)...)
 	}
 	return ret
 }
@@ -276,7 +290,7 @@ func main() {
 
 	possible := make([]Mutation, 0)
 	for _, mut := range mutations.PossibleSilentMuts(g, 0) {
-		possible = append(possible, Mutation{mut, false})
+		possible = append(possible, Mutation{mut, false, false})
 	}
 
 	TestGenomes(g, possible, added, sites, nil, true)
