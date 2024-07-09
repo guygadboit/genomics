@@ -1,15 +1,16 @@
 package main
 
 import (
+	"bufio"
+	"flag"
 	"fmt"
-	"math/rand"
 	"genomics/genomes"
 	"genomics/mutations"
 	"genomics/stats"
 	"genomics/utils"
-	"os"
-	"bufio"
 	"log"
+	"math/rand"
+	"os"
 )
 
 type Positions map[int]bool
@@ -20,8 +21,9 @@ type Mutation struct {
 }
 
 // Find all the positions which are inside a site either in the 0th or the
-// which'th genome
-func FindPositions(g *genomes.Genomes, which int, sites [][]byte) Positions {
+// which'th genome. Look for sites "added" in 0 if added else "removed" in 0.
+func FindPositions(g *genomes.Genomes,
+	which int, sites [][]byte, added bool) Positions {
 	ret := make(Positions)
 	handleMatch := func(s *genomes.Search, site []byte) {
 		pos, err := s.Get()
@@ -35,11 +37,14 @@ func FindPositions(g *genomes.Genomes, which int, sites [][]byte) Positions {
 
 	for _, site := range sites {
 		var s genomes.Search
-		for s.Init(g, 0, site, 0.0); !s.End(); s.Next() {
-			handleMatch(&s, site)
-		}
-		for s.Init(g, which, site, 0.0); !s.End(); s.Next() {
-			handleMatch(&s, site)
+		if added {
+			for s.Init(g, 0, site, 0.0); !s.End(); s.Next() {
+				handleMatch(&s, site)
+			}
+		} else {
+			for s.Init(g, which, site, 0.0); !s.End(); s.Next() {
+				handleMatch(&s, site)
+			}
 		}
 	}
 
@@ -99,14 +104,14 @@ type Result struct {
 	p      float64
 }
 
-// Pass in either sites or positions.
+// Pass in either sites or positions (and nil for the other one)
 func TestGenomes(g *genomes.Genomes,
-	possible []Mutation, sites [][]byte,
+	possible []Mutation, added bool, sites [][]byte,
 	positions Positions, verbose bool) []Result {
 	ret := make([]Result, 0)
 	for i := 1; i < g.NumGenomes(); i++ {
 		if positions == nil {
-			positions = FindPositions(g, i, sites)
+			positions = FindPositions(g, i, sites, added)
 		}
 		actual := FindActual(g, i, possible)
 		SetIn(actual, positions)
@@ -116,11 +121,24 @@ func TestGenomes(g *genomes.Genomes,
 		OR, p := ct.FisherExact(stats.GREATER)
 
 		if verbose {
+			if added {
+				fmt.Println("Sites added")
+			} else {
+				fmt.Println("Sites removed")
+			}
 			fmt.Println(ct)
 			fmt.Printf("%s: OR=%f p=%g\n", g.Names[i], OR, p)
 		}
 		ret = append(ret, Result{i, OR, p})
+
+		if verbose {
+			highlights := makeHighlights(positions, 'v')
+			fname := fmt.Sprintf("%d.clu", i)
+			g.SaveWithTranslation(fname, highlights, 0, i)
+			fmt.Printf("Wrote %s\n", fname)
+		}
 	}
+
 	return ret
 }
 
@@ -129,14 +147,25 @@ func TestGenomes(g *genomes.Genomes,
 func RandomPositions(g *genomes.Genomes, which int) Positions {
 	ret := make(Positions)
 
-	for i := 0; i < 8; i++ {
-		start := rand.Intn(g.Length())
+	for i := 0; i < 35; i++ {
+		start := rand.Intn(g.Length() - 6)
 		for j := 0; j < 6; j++ {
 			ret[start+j] = true
 		}
 	}
 
 	return ret
+}
+
+// What is the sequence similarity inside the site positions?
+func SequenceSimilarity(g *genomes.Genomes, positions Positions) float64 {
+	var same float64
+	for pos, _ := range positions {
+		if g.Nts[0][pos] == g.Nts[1][pos] {
+			same++
+		}
+	}
+	return same / float64(len(positions))
 }
 
 func MonteCarlo(g *genomes.Genomes,
@@ -148,14 +177,15 @@ func MonteCarlo(g *genomes.Genomes,
 			sites := make([][]byte, 4)
 			for j := 0; j < 2; j++ {
 				sites[j] = utils.RandomNts(6)
-				// sites[j+2] = utils.ReverseComplement(sites[j])
-				sites[j+2] = utils.RandomNts(6)
+				sites[j+2] = utils.ReverseComplement(sites[j])
+				// sites[j+2] = utils.RandomNts(6)
 			}
-			positions = FindPositions(g, 1, sites)
+			positions = FindPositions(g, 1, sites, true)
 		} else {
 			positions = RandomPositions(g, 1)
 		}
-		ret = append(ret, TestGenomes(g, possible, nil, positions, false)...)
+		ret = append(ret, TestGenomes(g, possible,
+			true, nil, positions, false)...)
 	}
 	return ret
 }
@@ -188,6 +218,39 @@ func OutputResults(results []Result, which int) {
 	fmt.Println("Wrote ORs and ps")
 }
 
+func MakeTestGenomes(g *genomes.Genomes) {
+	nd := mutations.NewNucDistro(g)
+
+	var orfs genomes.Orfs
+	ret := genomes.NewGenomes(orfs, 2)
+
+	ret.Nts[0] = make([]byte, g.Length())
+	ret.Nts[1] = make([]byte, g.Length())
+
+	for i := 0; i < g.Length(); i++ {
+		ret.Nts[0][i] = nd.Random()
+		if rand.Float64() < 0.96 {
+			ret.Nts[1][i] = ret.Nts[0][i]
+		} else {
+			ret.Nts[1][i] = nd.Random()
+		}
+	}
+	ret.Names[0] = "Test Random Genome"
+	ret.Names[1] = "Test Random Relative"
+
+	ret.SaveMulti("random.fasta")
+}
+
+func makeHighlights(positions Positions, char byte) []genomes.Highlight {
+	ret := make([]genomes.Highlight, 0)
+
+	for pos, _ := range positions {
+		ret = append(ret, genomes.Highlight{pos, pos + 1, char})
+	}
+
+	return ret
+}
+
 func main() {
 	sites := [][]byte{
 		[]byte("GGTCTC"),
@@ -196,17 +259,31 @@ func main() {
 		[]byte("GAGACG"),
 	}
 
-	g := genomes.LoadGenomes("../fasta/CloseRelatives.fasta",
-		"../fasta/WH1.orfs", false)
+	var fasta string
+	var orfs string
+	var added bool
+	var doMC bool
+
+	flag.StringVar(&fasta, "fasta",
+		"../fasta/CloseRelatives.fasta", "relatives")
+	flag.StringVar(&orfs, "orfs", "../fasta/WH1.orfs", "orfs")
+	flag.BoolVar(&added, "added",
+		true, "Look at added rather than removed sites")
+	flag.BoolVar(&doMC, "montecarlo", false, "Do the MonteCarlo")
+	flag.Parse()
+
+	g := genomes.LoadGenomes(fasta, orfs, false)
 
 	possible := make([]Mutation, 0)
 	for _, mut := range mutations.PossibleSilentMuts(g, 0) {
 		possible = append(possible, Mutation{mut, false})
 	}
 
-	TestGenomes(g, possible, sites, nil, true)
+	TestGenomes(g, possible, added, sites, nil, true)
 
-	g = g.Filter(0, 1)
-	mc := MonteCarlo(g, possible, 5000, true)
-	OutputResults(mc, 1)
+	if doMC {
+		g = g.Filter(0, 1)
+		mc := MonteCarlo(g, possible, 5000, true)
+		OutputResults(mc, 1)
+	}
 }
