@@ -342,6 +342,10 @@ func main() {
 
 	g := genomes.LoadGenomes(fasta, orfs, false)
 
+	posInfo := FindPositionInfo(g, sites)
+	posInfo.Print()
+	return
+
 	possible := make([]Mutation, 0)
 	for _, mut := range mutations.PossibleSilentMuts(g, 0) {
 		possible = append(possible, Mutation{mut, false})
