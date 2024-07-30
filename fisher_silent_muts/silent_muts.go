@@ -125,7 +125,16 @@ func FindSiteCT(actual []Mutation, possible []Mutation,
 	return ret
 }
 
-func FindCT(actual []Mutation, possible []Mutation) stats.ContingencyTable {
+/*
+Calculate a Contingency Table in a variety of correct or incorrect ways given
+the actual mutations, the possible mutations, where the sites are, and the
+length of the genome
+*/
+type CTCalc func(actual []Mutation, possible []Mutation,
+	positions *SitePositions, length int) stats.ContingencyTable
+
+func FindCT(actual []Mutation, possible []Mutation,
+	positions *SitePositions, length int) stats.ContingencyTable {
 	var actualIn, actualOut Positions
 	var possibleIn, possibleOut Positions
 
@@ -162,7 +171,7 @@ type Result struct {
 
 // Pass in either sites or positions (and nil for the other one)
 func TestGenomes(g *genomes.Genomes,
-	possible []Mutation, added bool, perSite bool, sites [][]byte,
+	possible []Mutation, added bool, calcFn CTCalc, sites [][]byte,
 	positions *SitePositions, verbose bool) []Result {
 	ret := make([]Result, 0)
 	for i := 1; i < g.NumGenomes(); i++ {
@@ -175,12 +184,7 @@ func TestGenomes(g *genomes.Genomes,
 		SetIn(possible, positions)
 
 		var ct stats.ContingencyTable
-		if perSite {
-			ct = FindSiteCT(actual, possible, positions, g.Length())
-		} else {
-			ct = FindCT(actual, possible)
-		}
-
+		ct = calcFn(actual, possible, positions, g.Length())
 		OR, p := ct.FisherExact(stats.GREATER)
 
 		if verbose {
@@ -234,8 +238,12 @@ func SequenceSimilarity(g *genomes.Genomes, positions Positions) float64 {
 	return same / float64(len(positions))
 }
 
+/*
+If useSites use random sites, and find where they are. Otherwise just use
+random positions
+*/
 func MonteCarlo(g *genomes.Genomes,
-	possible []Mutation, its int, useSites bool) []Result {
+	possible []Mutation, its int, useSites bool, calcFn CTCalc) []Result {
 	ret := make([]Result, 0)
 	for i := 0; i < its; i++ {
 		var positions SitePositions
@@ -251,7 +259,7 @@ func MonteCarlo(g *genomes.Genomes,
 			positions = RandomPositions(g, 1)
 		}
 		ret = append(ret, TestGenomes(g, possible,
-			true, false, nil, &positions, false)...)
+			true, calcFn, nil, &positions, false)...)
 	}
 	return ret
 }
@@ -337,25 +345,36 @@ func main() {
 	flag.BoolVar(&added, "added",
 		true, "Look at added rather than removed sites")
 	flag.BoolVar(&doMC, "montecarlo", false, "Do the MonteCarlo")
-	flag.BoolVar(&perSite, "per-site", false, "Look per site rather than per nt")
+	flag.BoolVar(&perSite, "per-site",
+		false, "Look per site rather than per nt")
 	flag.Parse()
 
 	g := genomes.LoadGenomes(fasta, orfs, false)
 
+	/*
+	// This is for validating your per-site calculation
 	posInfo := FindPositionInfo(g, sites)
 	posInfo.Print()
 	return
+	*/
 
 	possible := make([]Mutation, 0)
 	for _, mut := range mutations.PossibleSilentMuts(g, 0) {
 		possible = append(possible, Mutation{mut, false})
 	}
 
-	TestGenomes(g, possible, added, perSite, sites, nil, true)
+	var calcFn CTCalc
+	if perSite {
+		calcFn = FindSiteCT
+	} else {
+		calcFn = FindCT
+	}
+
+	TestGenomes(g, possible, added, calcFn, sites, nil, true)
 
 	if doMC {
 		g = g.Filter(0, 1)
-		mc := MonteCarlo(g, possible, 5000, true)
+		mc := MonteCarlo(g, possible, 5000, true, FindCT)
 		OutputResults(mc, 1)
 	}
 }
