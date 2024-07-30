@@ -163,6 +163,31 @@ func FindCT(actual []Mutation, possible []Mutation,
 	return ret
 }
 
+/*
+This is the calculation they used in the preprint. We ignore the possible
+mutations and just look at the ratios inside and outside the sites
+*/
+func FindCTWrong(actual []Mutation, possible []Mutation,
+	positions *SitePositions, length int) stats.ContingencyTable {
+	var silentIn, silentOut int
+
+	for _, mut := range actual {
+		if positions.All[mut.Pos] {
+			silentIn++
+		} else {
+			silentOut++
+		}
+	}
+
+	// Now we just need to know the total number of positions inside and
+	// outside the sites.
+	total := len(positions.All)
+
+	var ret stats.ContingencyTable
+	ret.Init(silentIn, total-silentIn, silentOut, length-total-silentOut)
+	return ret
+}
+
 type Result struct {
 	genome int
 	OR     float64
@@ -337,7 +362,7 @@ func main() {
 	var orfs string
 	var added bool
 	var doMC bool
-	var perSite bool
+	var algorithm string
 
 	flag.StringVar(&fasta, "fasta",
 		"../fasta/CloseRelatives.fasta", "relatives")
@@ -345,17 +370,28 @@ func main() {
 	flag.BoolVar(&added, "added",
 		true, "Look at added rather than removed sites")
 	flag.BoolVar(&doMC, "montecarlo", false, "Do the MonteCarlo")
-	flag.BoolVar(&perSite, "per-site",
-		false, "Look per site rather than per nt")
+	flag.StringVar(&algorithm, "algo", "default", "Algorithm for finding CT")
 	flag.Parse()
+
+	var calcFn CTCalc
+	switch algorithm {
+	case "default":
+		calcFn = FindCT
+	case "per-site":
+		calcFn = FindSiteCT
+	case "wrong":
+		calcFn = FindCTWrong
+	default:
+		log.Fatal("Bad algorithm")
+	}
 
 	g := genomes.LoadGenomes(fasta, orfs, false)
 
 	/*
-	// This is for validating your per-site calculation
-	posInfo := FindPositionInfo(g, sites)
-	posInfo.Print()
-	return
+		// This is for validating your per-site calculation
+		posInfo := FindPositionInfo(g, sites)
+		posInfo.Print()
+		return
 	*/
 
 	possible := make([]Mutation, 0)
@@ -363,18 +399,11 @@ func main() {
 		possible = append(possible, Mutation{mut, false})
 	}
 
-	var calcFn CTCalc
-	if perSite {
-		calcFn = FindSiteCT
-	} else {
-		calcFn = FindCT
-	}
-
 	TestGenomes(g, possible, added, calcFn, sites, nil, true)
 
 	if doMC {
 		g = g.Filter(0, 1)
-		mc := MonteCarlo(g, possible, 5000, true, FindCT)
+		mc := MonteCarlo(g, possible, 5000, true, calcFn)
 		OutputResults(mc, 1)
 	}
 }
