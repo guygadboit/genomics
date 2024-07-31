@@ -461,12 +461,12 @@ func (env *Environment) FindAlternatives(maxMuts int) Alternatives {
 		for i := 0; i < env.length; i++ {
 			if alt[start+i] != existing[i] {
 				numMuts++
-				codonPos = (env.offset + i) % 3 + 1
+				codonPos = (env.offset+i)%3 + 1
 			}
 		}
 
 		if numMuts != 1 {
-			codonPos = 0	// meaningless in this case
+			codonPos = 0 // meaningless in this case
 		}
 
 		if numMuts > 0 && numMuts <= maxMuts {
@@ -555,6 +555,20 @@ func Translate(genome *Genomes, which int) Translation {
 		}
 		ret = append(ret, Codon{pos, nts, aa})
 	}
+	return ret
+}
+
+type TranslationMap map[int]Codon
+
+func NewTranslationMap(trans Translation) TranslationMap {
+	ret := make(TranslationMap)
+
+	for _, codon := range trans {
+		for i := 0; i < 3; i++ {
+			ret[codon.Pos+i] = codon
+		}
+	}
+
 	return ret
 }
 

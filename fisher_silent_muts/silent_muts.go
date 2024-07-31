@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"genomics/genomes"
 	"genomics/mutations"
+	"genomics/simulation"
 	"genomics/stats"
 	"genomics/utils"
 	"log"
@@ -13,50 +14,18 @@ import (
 	"os"
 )
 
-type Positions map[int]bool
+type Where int
 
-type SitePositions struct {
-	Starts Positions // Places where sites start
-	All    Positions // Places that include any part of a site
-}
+const (
+	SITE_IN_A Where = iota
+	SITE_IN_B
+	SITE_IN_EITHER
+)
 
 type Mutation struct {
 	mutations.Mutation
-	In bool // is this mutation inside the sites?
-}
-
-// Find all the positions which are inside a site either in the 0th or the
-// which'th genome. Look for sites "added" in 0 if added else "removed" in 0.
-func FindPositions(g *genomes.Genomes,
-	which int, sites [][]byte, added bool) SitePositions {
-	var ret SitePositions
-	ret.Starts = make(Positions)
-	ret.All = make(Positions)
-	handleMatch := func(s *genomes.Search, site []byte) {
-		pos, err := s.Get()
-		if err != nil {
-			log.Fatal(err)
-		}
-		ret.Starts[pos] = true
-		for i := 0; i < len(site); i++ {
-			ret.All[pos+i] = true
-		}
-	}
-
-	for _, site := range sites {
-		var s genomes.Search
-		if added {
-			for s.Init(g, 0, site, 0.0); !s.End(); s.Next() {
-				handleMatch(&s, site)
-			}
-		} else {
-			for s.Init(g, which, site, 0.0); !s.End(); s.Next() {
-				handleMatch(&s, site)
-			}
-		}
-	}
-
-	return ret
+	In0 bool // is this mutation inside the sites in the first genome?
+	In1 bool // is this mutation inside the sites in the second genome?
 }
 
 // Find the actual mutations between 0 and which given the possible ones
@@ -70,121 +39,197 @@ func FindActual(g *genomes.Genomes, which int, possible []Mutation) []Mutation {
 	return ret
 }
 
-// Set the In field on muts based on whether they are in positions
-func SetIn(muts []Mutation, positions *SitePositions) {
-	for i, mut := range muts {
-		muts[i].In = positions.All[mut.Pos]
-	}
-}
-
-// Find the contingency table based on a per-site rather than a per-nt analysis
-func FindSiteCT(actual []Mutation, possible []Mutation,
-	positions *SitePositions, length int) stats.ContingencyTable {
-	var a, b, c, d int
-
-	actualPositions := make(Positions)
-	for _, mut := range actual {
-		actualPositions[mut.Pos] = true
-	}
-
-	possiblePositions := make(Positions)
-	for _, mut := range possible {
-		possiblePositions[mut.Pos] = true
-	}
-
-	for i := 0; i < length-6; i++ {
-		startsSite := positions.Starts[i]
-		var hasActual, hasPossible bool
-		for j := i; j < i+6; j++ {
-			if actualPositions[j] {
-				hasActual = true
-			}
-			if possiblePositions[j] {
-				hasPossible = true
-			}
-		}
-		if startsSite {
-			if hasActual {
-				a++
-			}
-			if hasPossible {
-				c++
-			}
-		} else {
-			if hasActual {
-				b++
-			}
-			if hasPossible {
-				d++
-			}
-		}
-	}
-
-	var ret stats.ContingencyTable
-	ret.Init(a, b, c, d)
-	return ret
-}
-
 /*
 Calculate a Contingency Table in a variety of correct or incorrect ways given
 the actual mutations, the possible mutations, where the sites are, and the
-length of the genome
+length of the genome. If correctDoubles then count where sites appear in both
+genomes correctly (only applies when where == SITE_IN_EITHER)
 */
-type CTCalc func(actual []Mutation, possible []Mutation,
-	positions *SitePositions, length int) stats.ContingencyTable
+type CalcCT func(posInfo PosInfo,
+	which int, where Where, correctDoubles bool) stats.ContingencyTable
 
-func FindCT(actual []Mutation, possible []Mutation,
-	positions *SitePositions, length int) stats.ContingencyTable {
-	var actualIn, actualOut Positions
-	var possibleIn, possibleOut Positions
+// How many "hits" to count for a match.
+func findScore(where Where, correctDoubles, inA, inB bool) int {
+	var score int
 
-	actualIn = make(Positions)
-	actualOut = make(Positions)
-	for _, mut := range actual {
-		if mut.In {
-			actualIn[mut.Pos] = true
-		} else {
-			actualOut[mut.Pos] = true
+	switch where {
+	case SITE_IN_A:
+		if inA {
+			score = 1
+		}
+	case SITE_IN_B:
+		if inB {
+			score = 1
+		}
+	case SITE_IN_EITHER:
+		if inA || inB {
+			score = 1
+		}
+		if correctDoubles && inA && inB {
+			score++
 		}
 	}
+	return score
+}
 
-	possibleIn = make(Positions)
-	possibleOut = make(Positions)
-	for _, mut := range possible {
-		if mut.In {
-			possibleIn[mut.Pos] = true
-		} else {
-			possibleOut[mut.Pos] = true
+func FindCT(posInfo PosInfo,
+	which int, where Where, correctDoubles bool) stats.ContingencyTable {
+	var actualIn, actualOut int
+	var possibleIn, possibleOut int
+
+	for _, pd := range posInfo {
+		in0 := pd.InSite[0]
+		in1 := pd.InSite[which]
+		score := findScore(where, correctDoubles, in0, in1)
+
+		if pd.Actual[which] {
+			if score > 0 {
+				actualIn += score
+			} else {
+				actualOut++
+			}
+		}
+
+		if pd.Possible > 0 {
+			if score > 0 {
+				possibleIn += score
+			} else {
+				possibleOut++
+			}
 		}
 	}
 
 	var ret stats.ContingencyTable
-	ret.Init(len(actualIn), len(actualOut), len(possibleIn), len(possibleOut))
+	ret.Init(actualIn, actualOut, possibleIn, possibleOut)
+	return ret
+}
+
+func FindCTAlt(posInfo PosInfo,
+	which int, correctDoubles bool) stats.ContingencyTable {
+	var actualIn, actualOut int
+	var possibleIn, possibleOut int
+
+	for _, pd := range posInfo {
+		in0 := pd.InSite[0]
+		in1 := pd.InSite[which]
+		actual := pd.Actual[which]
+
+		// Another way of writing the same code (with correctDoubles) which is
+		// equivalent but perhaps clearer?
+		if actual {
+			if in0 {
+				actualIn++
+			}
+			if in1 {
+				actualIn++
+			}
+			if !(in0 || in1) {
+				actualOut++
+			}
+		}
+
+		if pd.Possible > 0 {
+			if in0 {
+				possibleIn++
+			}
+			if in1 {
+				possibleIn++
+			}
+			if !(in0 || in1) {
+				possibleOut++
+			}
+		}
+	}
+
+	var ret stats.ContingencyTable
+	ret.Init(actualIn, actualOut, possibleIn, possibleOut)
+	return ret
+}
+
+// Do it the way they did in the preprint.
+func FindCTWrong(posInfo PosInfo,
+	which int, where Where, correctDoubles bool) stats.ContingencyTable {
+	var silentInside, nsInside int
+	var silentOutside, nsOutside int
+
+	for _, pd := range posInfo {
+		in0 := pd.InSite[0]
+		in1 := pd.InSite[which]
+		score := findScore(where, correctDoubles, in0, in1)
+
+		silentMut := pd.Actual[which]
+
+		if silentMut {
+			if score > 0 {
+				silentInside += score
+			} else {
+				silentOutside++
+			}
+		} else {
+			if score > 0 {
+				nsInside += score
+			} else {
+				nsOutside++
+			}
+		}
+	}
+
+	var ret stats.ContingencyTable
+	ret.Init(silentInside, nsInside, silentOutside, nsOutside)
 	return ret
 }
 
 /*
-This is the calculation they used in the preprint. We ignore the possible
-mutations and just look at the ratios inside and outside the sites
+Find a CT based on the number of sites that have been altered, regardless of
+how many mutations per site
 */
-func FindCTWrong(actual []Mutation, possible []Mutation,
-	positions *SitePositions, length int) stats.ContingencyTable {
-	var silentIn, silentOut int
+func FindSiteCT(posInfo PosInfo,
+	which int, where Where, correctDoubles bool) stats.ContingencyTable {
+	var actualIn, actualOut int
+	var possibleIn, possibleOut int
 
-	for _, mut := range actual {
-		if positions.All[mut.Pos] {
-			silentIn++
-		} else {
-			silentOut++
+	for i := 0; i < len(posInfo)-6; i++ {
+		pd := posInfo[i]
+
+		in0 := pd.StartsSite[0]
+		in1 := pd.StartsSite[which]
+		score := findScore(where, correctDoubles, in0, in1)
+
+		// Are there >1 actual muts in the whole site?
+		var got bool
+		for j := 0; j < 6; j++ {
+			if posInfo[i+j].Actual[which] {
+				got = true
+				break
+			}
+		}
+		if got {
+			if score > 0 {
+				actualIn += score
+			} else {
+				actualOut++
+			}
+		}
+
+		// Same thing for possible
+		got = false
+		for j := 0; j < 6; j++ {
+			if posInfo[i+j].Possible > 0 {
+				got = true
+				break
+			}
+		}
+		if got {
+			if score > 0 {
+				possibleIn += score
+			} else {
+				possibleOut++
+			}
 		}
 	}
 
-	// Now we just need to know the total number of positions inside and
-	// outside the sites.
-	total := len(positions.All)
-
 	var ret stats.ContingencyTable
-	ret.Init(silentIn, total-silentIn, silentOut, length-total-silentOut)
+	ret.Init(actualIn, actualOut, possibleIn, possibleOut)
 	return ret
 }
 
@@ -194,97 +239,30 @@ type Result struct {
 	p      float64
 }
 
-// Pass in either sites or positions (and nil for the other one)
-func TestGenomes(g *genomes.Genomes,
-	possible []Mutation, added bool, calcFn CTCalc, sites [][]byte,
-	positions *SitePositions, verbose bool) []Result {
-	ret := make([]Result, 0)
-	for i := 1; i < g.NumGenomes(); i++ {
-		if positions == nil {
-			pos := FindPositions(g, i, sites, added)
-			positions = &pos
-		}
-		actual := FindActual(g, i, possible)
-		SetIn(actual, positions)
-		SetIn(possible, positions)
-
-		var ct stats.ContingencyTable
-		ct = calcFn(actual, possible, positions, g.Length())
-		OR, p := ct.FisherExact(stats.GREATER)
-
-		if verbose {
-			if added {
-				fmt.Println("Sites added")
-			} else {
-				fmt.Println("Sites removed")
-			}
-			fmt.Println(ct)
-			fmt.Printf("%s: OR=%f p=%g\n", g.Names[i], OR, p)
-		}
-		ret = append(ret, Result{i, OR, p})
-
-		if verbose {
-			highlights := makeHighlights(positions.All, 'v')
-			fname := fmt.Sprintf("%d.clu", i)
-			g.SaveWithTranslation(fname, highlights, 0, i)
-			fmt.Printf("Wrote %s\n", fname)
-		}
-	}
-
-	return ret
-}
-
-// Make a similar set of positions to if you were looking for sites but just
-// any old where. We do cluster them in groups of 6
-func RandomPositions(g *genomes.Genomes, which int) SitePositions {
-	var ret SitePositions
-	ret.All = make(Positions)
-	ret.Starts = make(Positions)
-
-	for i := 0; i < 35; i++ {
-		start := rand.Intn(g.Length() - 6)
-		ret.Starts[start] = true
-		for j := 0; j < 6; j++ {
-			ret.All[start+j] = true
-		}
-	}
-
-	return ret
-}
-
-// What is the sequence similarity inside the site positions?
-func SequenceSimilarity(g *genomes.Genomes, positions Positions) float64 {
-	var same float64
-	for pos, _ := range positions {
-		if g.Nts[0][pos] == g.Nts[1][pos] {
-			same++
-		}
-	}
-	return same / float64(len(positions))
-}
-
 /*
 If useSites use random sites, and find where they are. Otherwise just use
 random positions
 */
-func MonteCarlo(g *genomes.Genomes,
-	possible []Mutation, its int, useSites bool, calcFn CTCalc) []Result {
+func MonteCarlo(g *genomes.Genomes, possible PossibleMap,
+	its int, calc CalcCT, where Where, correctDoubles bool) []Result {
 	ret := make([]Result, 0)
 	for i := 0; i < its; i++ {
-		var positions SitePositions
-		if useSites {
-			sites := make([][]byte, 4)
-			for j := 0; j < 2; j++ {
-				sites[j] = utils.RandomNts(6)
-				sites[j+2] = utils.ReverseComplement(sites[j])
-				// sites[j+2] = utils.RandomNts(6)
-			}
-			positions = FindPositions(g, 1, sites, true)
-		} else {
-			positions = RandomPositions(g, 1)
+		sites := make([][]byte, 4)
+		for j := 0; j < 2; j++ {
+			sites[j] = utils.RandomNts(6)
+			sites[j+2] = utils.ReverseComplement(sites[j])
 		}
-		ret = append(ret, TestGenomes(g, possible,
-			true, calcFn, nil, &positions, false)...)
+		posInfo := FindPositionInfo(g, possible, sites)
+
+		for j := 1; j < g.NumGenomes(); j++ {
+			ct := calc(posInfo, j, where, correctDoubles)
+			OR, p := ct.FisherExact(stats.GREATER)
+			ret = append(ret, Result{j, OR, p})
+		}
+
+		if i%100 == 0 {
+			fmt.Printf("%d/%d\n", i, its)
+		}
 	}
 	return ret
 }
@@ -340,16 +318,6 @@ func MakeTestGenomes(g *genomes.Genomes) {
 	ret.SaveMulti("random.fasta")
 }
 
-func makeHighlights(positions Positions, char byte) []genomes.Highlight {
-	ret := make([]genomes.Highlight, 0)
-
-	for pos, _ := range positions {
-		ret = append(ret, genomes.Highlight{pos, pos + 1, char})
-	}
-
-	return ret
-}
-
 func main() {
 	sites := [][]byte{
 		[]byte("GGTCTC"),
@@ -360,22 +328,54 @@ func main() {
 
 	var fasta string
 	var orfs string
-	var added bool
 	var doMC bool
+	var correctDoubles bool
 	var algorithm string
+	var whichMC int
+	var redistribute bool
+	var whereS string
 
 	flag.StringVar(&fasta, "fasta",
 		"../fasta/CloseRelatives.fasta", "relatives")
 	flag.StringVar(&orfs, "orfs", "../fasta/WH1.orfs", "orfs")
-	flag.BoolVar(&added, "added",
-		true, "Look at added rather than removed sites")
 	flag.BoolVar(&doMC, "montecarlo", false, "Do the MonteCarlo")
+	flag.BoolVar(&correctDoubles, "doubles", true, "Count doubles correctly")
 	flag.StringVar(&algorithm, "algo", "default", "Algorithm for finding CT")
+	flag.IntVar(&whichMC, "which-mc", 2, "Which genome to use for MonteCarlo")
+	flag.BoolVar(&redistribute, "redistrib", false, "Redistribute mutations")
+	flag.StringVar(&whereS, "where", "either", "Where to look for sites")
 	flag.Parse()
 
-	var calcFn CTCalc
+	g := genomes.LoadGenomes(fasta, orfs, false)
+
+	if redistribute {
+		fmt.Println("Redistributing the mutations")
+		nd := mutations.NewNucDistro(g)
+		g, _ = simulation.MakeSimulatedMutant(g, 0, whichMC, nd)
+		whichMC = 1
+	}
+
+	var where Where
+	switch whereS {
+	case "either":
+		where = SITE_IN_EITHER
+	case "a":
+		where = SITE_IN_A
+	case "b":
+		where = SITE_IN_B
+	default:
+		log.Fatal("Invalid where specification")
+	}
+
+	possible := NewPossibleMap(mutations.PossibleSilentMuts(g, 0))
+	posInfo := FindPositionInfo(g, possible, sites)
+	posInfo.Print()
+	return
+
+	var calcFn CalcCT
 	switch algorithm {
 	case "default":
+		// calcFn = FindCTAlt
 		calcFn = FindCT
 	case "per-site":
 		calcFn = FindSiteCT
@@ -385,25 +385,16 @@ func main() {
 		log.Fatal("Bad algorithm")
 	}
 
-	g := genomes.LoadGenomes(fasta, orfs, false)
-
-	/*
-		// This is for validating your per-site calculation
-		posInfo := FindPositionInfo(g, sites)
-		posInfo.Print()
-		return
-	*/
-
-	possible := make([]Mutation, 0)
-	for _, mut := range mutations.PossibleSilentMuts(g, 0) {
-		possible = append(possible, Mutation{mut, false})
+	for i := 1; i < g.NumGenomes(); i++ {
+		ct := calcFn(posInfo, i, where, correctDoubles)
+		OR, p := ct.FisherExact(stats.GREATER)
+		fmt.Printf("%s: %f %f\n", g.Names[i], OR, p)
+		fmt.Println(ct.String())
 	}
 
-	TestGenomes(g, possible, added, calcFn, sites, nil, true)
-
 	if doMC {
-		g = g.Filter(0, 1)
-		mc := MonteCarlo(g, possible, 5000, true, calcFn)
+		g = g.Filter(0, whichMC)
+		mc := MonteCarlo(g, possible, 5000, calcFn, where, correctDoubles)
 		OutputResults(mc, 1)
 	}
 }
