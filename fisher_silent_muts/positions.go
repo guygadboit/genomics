@@ -5,6 +5,8 @@ import (
 	"genomics/genomes"
 	"genomics/mutations"
 	"log"
+	"os"
+	"bufio"
 )
 
 type PosDatum struct {
@@ -108,23 +110,44 @@ func FindPositionInfo(g *genomes.Genomes,
 	return ret
 }
 
-func (p *PosInfo) Print() {
-	fmt.Printf("pos\tposs\t")
+func (p *PosInfo) SaveTSV() {
+	f, err := os.Create("posinfo.tsv")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer f.Close()
+
+	w := bufio.NewWriter(f)
+
+	fmt.Fprintf(w, "pos\tposs\t")
 	numGenomes := len((*p)[0].Actual)
 	for i := 0; i < numGenomes; i++ {
-		fmt.Printf("nt-%d\taa-%d\tact-%d\tstart-%d\tin-%d\t", i, i, i, i, i)
+		fmt.Fprintf(w, "nt-%d\taa-%d\tact-%d\tstart-%d\tin-%d\t", i, i, i, i, i)
 	}
-	fmt.Printf("\n")
+	fmt.Fprintf(w, "\n")
 
 	for i, datum := range *p {
-		fmt.Printf("%d\t%d\t", i, datum.Possible)
+		fmt.Fprintf(w, "%d\t%d\t", i, datum.Possible)
 		for j := 0; j < numGenomes; j++ {
-			fmt.Printf("%c\t", datum.Nt[j])
-			fmt.Printf("%c\t", datum.Aa[j])
-			fmt.Printf("%t\t", datum.Actual[j])
-			fmt.Printf("%t\t", datum.StartsSite[j])
-			fmt.Printf("%t\t", datum.InSite[j])
+			fmt.Fprintf(w, "%c\t", datum.Nt[j])
+			fmt.Fprintf(w, "%c\t", datum.Aa[j])
+			fmt.Fprintf(w, "%t\t", datum.Actual[j])
+			fmt.Fprintf(w, "%t\t", datum.StartsSite[j])
+			fmt.Fprintf(w, "%t\t", datum.InSite[j])
 		}
-		fmt.Printf("\n")
+		fmt.Fprintf(w, "\n")
+	}
+	w.Flush()
+	fmt.Printf("Wrote posinfo.tsv\n")
+}
+
+func (p *PosInfo) ShowSites() {
+	for i := 0; i < len((*p)[0].StartsSite); i++ {
+		fmt.Printf("Genome %d\n", i)
+		for pos, pd := range *p {
+			if pd.StartsSite[i] {
+				fmt.Printf("Site at %d (0-based)\n", pos)
+			}
+		}
 	}
 }

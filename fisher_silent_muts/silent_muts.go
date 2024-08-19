@@ -334,6 +334,7 @@ func main() {
 	var whichMC int
 	var redistribute bool
 	var whereS string
+	var show bool
 
 	flag.StringVar(&fasta, "fasta",
 		"../fasta/CloseRelatives.fasta", "relatives")
@@ -344,6 +345,7 @@ func main() {
 	flag.IntVar(&whichMC, "which-mc", 2, "Which genome to use for MonteCarlo")
 	flag.BoolVar(&redistribute, "redistrib", false, "Redistribute mutations")
 	flag.StringVar(&whereS, "where", "either", "Where to look for sites")
+	flag.BoolVar(&show, "show", false, "Show the info")
 	flag.Parse()
 
 	g := genomes.LoadGenomes(fasta, orfs, false)
@@ -369,8 +371,12 @@ func main() {
 
 	possible := NewPossibleMap(mutations.PossibleSilentMuts(g, 0))
 	posInfo := FindPositionInfo(g, possible, sites)
-	posInfo.Print()
-	return
+
+	if show {
+		posInfo.SaveTSV()
+		posInfo.ShowSites()
+		return
+	}
 
 	var calcFn CalcCT
 	switch algorithm {
