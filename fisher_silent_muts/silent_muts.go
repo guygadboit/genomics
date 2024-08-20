@@ -191,9 +191,9 @@ func FindSiteCT(posInfo PosInfo,
 	for i := 0; i < len(posInfo)-6; i++ {
 		pd := posInfo[i]
 
-		in0 := pd.StartsSite[0]
-		in1 := pd.StartsSite[which]
-		score := findScore(where, correctDoubles, in0, in1)
+		starts0 := pd.StartsSite[0]
+		starts1 := pd.StartsSite[which]
+		score := findScore(where, correctDoubles, starts0, starts1)
 
 		// Are there >1 actual muts in the whole site?
 		var got bool
