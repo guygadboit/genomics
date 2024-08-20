@@ -339,11 +339,13 @@ func main() {
 	var redistribute bool
 	var whereS string
 	var show bool
+	var its int
 
 	flag.StringVar(&fasta, "fasta",
 		"../fasta/CloseRelatives.fasta", "relatives")
 	flag.StringVar(&orfs, "orfs", "../fasta/WH1.orfs", "orfs")
 	flag.BoolVar(&doMC, "montecarlo", false, "Do the MonteCarlo")
+	flag.IntVar(&its, "its", 5000, "Montecarlo iterations")
 	flag.BoolVar(&correctDoubles, "doubles", true, "Count doubles correctly")
 	flag.StringVar(&algorithm, "algo", "default", "Algorithm for finding CT")
 	flag.IntVar(&whichMC, "which-mc", 2, "Which genome to use for MonteCarlo")
@@ -395,16 +397,27 @@ func main() {
 		log.Fatal("Bad algorithm")
 	}
 
+	if doMC {
+		g2 := g.Filter(0, whichMC)
+		mc := MonteCarlo(g2, possible, its, calcFn, where, correctDoubles)
+		OutputResults(mc, 1)
+
+		var greater int
+		ct := calcFn(posInfo, whichMC, where, correctDoubles)
+		refOR := ct.CalcOR()
+		for _, result := range mc {
+			if result.OR >= refOR {
+				greater++
+			}
+		}
+		fmt.Printf("%f are greater than reference OR of %f\n",
+			float64(greater)/float64(its), refOR)
+	}
+
 	for i := 1; i < g.NumGenomes(); i++ {
 		ct := calcFn(posInfo, i, where, correctDoubles)
 		OR, p := ct.FisherExact(stats.GREATER)
 		fmt.Printf("%s: %f %f\n", g.Names[i], OR, p)
 		fmt.Println(ct.String())
-	}
-
-	if doMC {
-		g = g.Filter(0, whichMC)
-		mc := MonteCarlo(g, possible, 5000, calcFn, where, correctDoubles)
-		OutputResults(mc, 1)
 	}
 }
