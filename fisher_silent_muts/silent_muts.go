@@ -101,6 +101,10 @@ func FindCT(posInfo PosInfo,
 
 	var ret stats.ContingencyTable
 	ret.Init(actualIn, actualOut, possibleIn, possibleOut)
+
+	// This gives you a different CT but the same exact OR and p, as it should
+	// be:
+	// ret.Init(actualIn, possibleIn, actualOut, possibleOut)
 	return ret
 }
 
