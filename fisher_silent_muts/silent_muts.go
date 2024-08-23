@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"genomics/genomes"
 	"genomics/mutations"
-	"genomics/simulation"
+	//"genomics/simulation"
 	"genomics/stats"
 	"genomics/utils"
 	"log"
@@ -322,6 +322,43 @@ func MakeTestGenomes(g *genomes.Genomes) {
 	ret.SaveMulti("random.fasta")
 }
 
+func Redistribute(g *genomes.Genomes, which int) *genomes.Genomes {
+	g2 := g.Filter(0, which)
+	numSilent, _ := mutations.CountMutations(g2)
+	fmt.Printf("There are %d silent muts\n", numSilent)
+
+	possible := mutations.PossibleSilentMuts(g2, 1)
+	fmt.Printf("There are %d possible silent muts\n", len(possible))
+	rand.Shuffle(len(possible), func(i, j int) {
+		possible[i], possible[j] = possible[j], possible[i]
+	})
+
+	ret := g2.Filter(0, 0)
+	ret.DeepCopy(1)
+
+	mutsToApply := numSilent
+	for i := 0; i < len(possible); i++ {
+		mut := possible[i]
+		if ret.Nts[1][mut.Pos] != mut.From {
+			// This means we already did a mutation here (there may be a few
+			// possible mutations for a given position). If so find another
+			// position.
+			continue
+		}
+		ret.Nts[1][mut.Pos] = mut.To
+		mutsToApply--
+		if mutsToApply == 0 {
+			break
+		}
+	}
+
+	if mutsToApply != 0 {
+		fmt.Printf("Wasn't able to apply all of them\n")
+	}
+
+	return ret
+}
+
 func main() {
 	sites := [][]byte{
 		[]byte("GGTCTC"),
@@ -358,9 +395,14 @@ func main() {
 
 	if redistribute {
 		fmt.Println("Redistributing the mutations")
+		g = Redistribute(g, whichMC)
+		whichMC = 1
+		g.SaveMulti("redistributed.fasta")
+		/*
 		nd := mutations.NewNucDistro(g)
 		g, _ = simulation.MakeSimulatedMutant(g, 0, whichMC, nd)
 		whichMC = 1
+		*/
 	}
 
 	var where Where
