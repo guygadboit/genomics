@@ -95,6 +95,7 @@ func FindCT(posInfo PosInfo,
 				possibleIn += score
 			} else {
 				possibleOut++
+				// possibleOut += pd.Possible
 			}
 		}
 	}
@@ -327,7 +328,7 @@ func Redistribute(g *genomes.Genomes, which int) *genomes.Genomes {
 	numSilent, _ := mutations.CountMutations(g2)
 	fmt.Printf("There are %d silent muts\n", numSilent)
 
-	possible := mutations.PossibleSilentMuts(g2, 1)
+	possible := mutations.PossibleSilentMuts(g2, 0)
 	fmt.Printf("There are %d possible silent muts\n", len(possible))
 	rand.Shuffle(len(possible), func(i, j int) {
 		possible[i], possible[j] = possible[j], possible[i]
@@ -353,7 +354,48 @@ func Redistribute(g *genomes.Genomes, which int) *genomes.Genomes {
 	}
 
 	if mutsToApply != 0 {
-		fmt.Printf("Wasn't able to apply all of them\n")
+		// This is pretty unlikely
+		fmt.Printf("Wasn't able to apply all of them. %d left\n", mutsToApply)
+	}
+
+	return ret
+}
+
+/*
+Rather than pick possible mutations "out of a hat", pick possible mutation
+positions
+*/
+func Redistribute2(g *genomes.Genomes,
+	possible PossibleMap, which int) *genomes.Genomes {
+	g2 := g.Filter(0, which)
+	numSilent, _ := mutations.CountMutations(g2)
+	fmt.Printf("There are %d silent muts\n", numSilent)
+
+	positions := make([]int, 0, len(possible))
+	for k, _ := range possible {
+		positions = append(positions, k)
+	}
+
+	rand.Shuffle(len(positions), func(i, j int) {
+		positions[i], positions[j] = positions[j], positions[i]
+	})
+
+	ret := g2.Filter(0, 0)
+	ret.DeepCopy(1)
+
+	mutsToApply := numSilent
+	for i := 0; i < len(positions); i++ {
+		mut := possible[positions[i]][0]
+		ret.Nts[1][mut.Pos] = mut.To
+		mutsToApply--
+		if mutsToApply == 0 {
+			break
+		}
+	}
+
+	if mutsToApply != 0 {
+		// This is pretty unlikely
+		fmt.Printf("Wasn't able to apply all of them. %d left\n", mutsToApply)
 	}
 
 	return ret
@@ -392,10 +434,13 @@ func main() {
 	flag.Parse()
 
 	g := genomes.LoadGenomes(fasta, orfs, false)
+	possible := NewPossibleMap(mutations.PossibleSilentMuts(g, 0))
+	posInfo := FindPositionInfo(g, possible, sites)
 
 	if redistribute {
 		fmt.Println("Redistributing the mutations")
-		g = Redistribute(g, whichMC)
+		// g = Redistribute(g, whichMC)
+		g = Redistribute2(g, possible, whichMC)
 		whichMC = 1
 		g.SaveMulti("redistributed.fasta")
 		/*
@@ -416,9 +461,6 @@ func main() {
 	default:
 		log.Fatal("Invalid where specification")
 	}
-
-	possible := NewPossibleMap(mutations.PossibleSilentMuts(g, 0))
-	posInfo := FindPositionInfo(g, possible, sites)
 
 	if show {
 		posInfo.SaveTSV()
