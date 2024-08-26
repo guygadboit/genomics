@@ -323,49 +323,10 @@ func MakeTestGenomes(g *genomes.Genomes) {
 	ret.SaveMulti("random.fasta")
 }
 
-func Redistribute(g *genomes.Genomes, which int) *genomes.Genomes {
-	g2 := g.Filter(0, which)
-	numSilent, _ := mutations.CountMutations(g2)
-	fmt.Printf("There are %d silent muts\n", numSilent)
-
-	possible := mutations.PossibleSilentMuts(g2, 0)
-	fmt.Printf("There are %d possible silent muts\n", len(possible))
-	rand.Shuffle(len(possible), func(i, j int) {
-		possible[i], possible[j] = possible[j], possible[i]
-	})
-
-	ret := g2.Filter(0, 0)
-	ret.DeepCopy(1)
-
-	mutsToApply := numSilent
-	for i := 0; i < len(possible); i++ {
-		mut := possible[i]
-		if ret.Nts[1][mut.Pos] != mut.From {
-			// This means we already did a mutation here (there may be a few
-			// possible mutations for a given position). If so find another
-			// position.
-			continue
-		}
-		ret.Nts[1][mut.Pos] = mut.To
-		mutsToApply--
-		if mutsToApply == 0 {
-			break
-		}
-	}
-
-	if mutsToApply != 0 {
-		// This is pretty unlikely
-		fmt.Printf("Wasn't able to apply all of them. %d left\n", mutsToApply)
-	}
-
-	return ret
-}
-
 /*
-Rather than pick possible mutations "out of a hat", pick possible mutation
-positions
+Pick possible places to have silent mutations randomly.
 */
-func Redistribute2(g *genomes.Genomes,
+func Redistribute(g *genomes.Genomes,
 	possible PossibleMap, which int) *genomes.Genomes {
 	g2 := g.Filter(0, which)
 	numSilent, _ := mutations.CountMutations(g2)
@@ -376,6 +337,8 @@ func Redistribute2(g *genomes.Genomes,
 		positions = append(positions, k)
 	}
 
+	// They're in a fairly random order anyway (because map keys) but shuffle
+	// them again to be sure.
 	rand.Shuffle(len(positions), func(i, j int) {
 		positions[i], positions[j] = positions[j], positions[i]
 	})
@@ -385,7 +348,9 @@ func Redistribute2(g *genomes.Genomes,
 
 	mutsToApply := numSilent
 	for i := 0; i < len(positions); i++ {
-		mut := possible[positions[i]][0]
+		muts := possible[positions[i]]
+		j := rand.Intn(len(muts))
+		mut := muts[j]
 		ret.Nts[1][mut.Pos] = mut.To
 		mutsToApply--
 		if mutsToApply == 0 {
@@ -435,20 +400,16 @@ func main() {
 
 	g := genomes.LoadGenomes(fasta, orfs, false)
 	possible := NewPossibleMap(mutations.PossibleSilentMuts(g, 0))
-	posInfo := FindPositionInfo(g, possible, sites)
 
 	if redistribute {
 		fmt.Println("Redistributing the mutations")
-		// g = Redistribute(g, whichMC)
-		g = Redistribute2(g, possible, whichMC)
+		g = Redistribute(g, possible, whichMC)
 		whichMC = 1
 		g.SaveMulti("redistributed.fasta")
-		/*
-		nd := mutations.NewNucDistro(g)
-		g, _ = simulation.MakeSimulatedMutant(g, 0, whichMC, nd)
-		whichMC = 1
-		*/
+		fmt.Printf("Wrote redistributed.fasta\n")
 	}
+
+	posInfo := FindPositionInfo(g, possible, sites)
 
 	var where Where
 	switch whereS {
@@ -465,7 +426,6 @@ func main() {
 	if show {
 		posInfo.SaveTSV()
 		posInfo.ShowSites()
-		return
 	}
 
 	var calcFn CalcCT
