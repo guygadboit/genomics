@@ -240,6 +240,7 @@ func FindSiteCT(posInfo PosInfo,
 
 type Result struct {
 	genome int
+	sites  [][]byte
 	OR     float64
 	p      float64
 }
@@ -262,7 +263,7 @@ func MonteCarlo(g *genomes.Genomes, possible PossibleMap,
 		for j := 1; j < g.NumGenomes(); j++ {
 			ct := calc(posInfo, j, where, correctDoubles)
 			OR, p := ct.FisherExact(stats.GREATER)
-			ret = append(ret, Result{j, OR, p})
+			ret = append(ret, Result{j, sites, OR, p})
 		}
 
 		if i%100 == 0 {
@@ -366,6 +367,26 @@ func Redistribute(g *genomes.Genomes,
 	return ret
 }
 
+// Highlight the sites
+func makeHighlights(pi PosInfo, which int) []genomes.Highlight {
+	ret := make([]genomes.Highlight, 0)
+
+	for pos, pd := range pi {
+		in0 := pd.InSite[0]
+		in1 := pd.InSite[which]
+
+		if in0 && in1 {
+			ret = append(ret, genomes.Highlight{pos, pos + 1, 'x'})
+		} else if in0 {
+			ret = append(ret, genomes.Highlight{pos, pos + 1, 'w'})
+		} else if in1 {
+			ret = append(ret, genomes.Highlight{pos, pos + 1, 'v'})
+		}
+	}
+
+	return ret
+}
+
 func main() {
 	sites := [][]byte{
 		[]byte("GGTCTC"),
@@ -452,6 +473,9 @@ func main() {
 		for _, result := range mc {
 			if result.OR >= refOR {
 				greater++
+				fmt.Printf("%s/%s %f\n",
+					string(result.sites[0]),
+					string(result.sites[1]), result.OR)
 			}
 		}
 		fmt.Printf("%f are greater than reference OR of %f\n",
@@ -463,5 +487,10 @@ func main() {
 		OR, p := ct.FisherExact(stats.GREATER)
 		fmt.Printf("%s: %f %f\n", g.Names[i], OR, p)
 		fmt.Println(ct.String())
+
+		highlights := makeHighlights(posInfo, i)
+		fname := fmt.Sprintf("%d.clu", i)
+		g.SaveWithTranslation(fname, highlights, 0, i)
+		fmt.Printf("Wrote %s\n", fname)
 	}
 }
