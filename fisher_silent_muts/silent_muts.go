@@ -95,7 +95,6 @@ func FindCT(posInfo PosInfo,
 				possibleIn += score
 			} else {
 				possibleOut++
-				// possibleOut += pd.Possible
 			}
 		}
 	}
@@ -486,11 +485,10 @@ func main() {
 		ct := calcFn(posInfo, i, where, correctDoubles)
 		OR, p := ct.FisherExact(stats.GREATER)
 		fmt.Printf("%s: %f %f\n", g.Names[i], OR, p)
-		fmt.Println(ct.String())
+		fmt.Println(ct.HumanString())
 
 		highlights := makeHighlights(posInfo, i)
 		fname := fmt.Sprintf("%d.clu", i)
 		g.SaveWithTranslation(fname, highlights, 0, i)
-		fmt.Printf("Wrote %s\n", fname)
 	}
 }

@@ -88,8 +88,14 @@ func (c *ContingencyTable) FisherExact(alternative FisherAlternative) (float64,
 	return c.OR, c.P
 }
 
+// A string in the format we pass it to scipy
 func (ct *ContingencyTable) String() string {
 	return fmt.Sprintf("CT[%d %d %d %d]", ct.A, ct.B, ct.C, ct.D)
+}
+
+// A more acceptably readable string
+func (ct *ContingencyTable) HumanString() string {
+	return fmt.Sprintf("(%d/%d) / (%d/%d)", ct.A, ct.B, ct.C, ct.D)
 }
 
 func init() {
