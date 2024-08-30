@@ -386,6 +386,19 @@ func makeHighlights(pi PosInfo, which int) []genomes.Highlight {
 	return ret
 }
 
+func TestAll(g *genomes.Genomes, sites [][]byte,
+	calcFn CalcCT, where Where, correctDoubles bool) {
+	for i := 0; i < g.NumGenomes(); i++ {
+		g2 := g.Swap(0, i)
+		possible := NewPossibleMap(mutations.PossibleSilentMuts(g2, 0))
+		posInfo := FindPositionInfo(g2, possible, sites)
+		for j := 1; j < g2.NumGenomes(); j++ {
+			ct := calcFn(posInfo, j, where, correctDoubles)
+			fmt.Printf("%d,%d: %f\n", i, j, ct.CalcOR())
+		}
+	}
+}
+
 func main() {
 	sites := [][]byte{
 		[]byte("GGTCTC"),
@@ -404,6 +417,7 @@ func main() {
 	var whereS string
 	var show bool
 	var its int
+	var testAll bool
 
 	flag.StringVar(&fasta, "fasta",
 		"../fasta/CloseRelatives.fasta", "relatives")
@@ -416,6 +430,8 @@ func main() {
 	flag.BoolVar(&redistribute, "redistrib", false, "Redistribute mutations")
 	flag.StringVar(&whereS, "where", "either", "Where to look for sites")
 	flag.BoolVar(&show, "show", false, "Show the info")
+	flag.BoolVar(&testAll, "testall", false, "Test all pairs")
+
 	flag.Parse()
 
 	g := genomes.LoadGenomes(fasta, orfs, false)
@@ -490,5 +506,9 @@ func main() {
 		highlights := makeHighlights(posInfo, i)
 		fname := fmt.Sprintf("%d.clu", i)
 		g.SaveWithTranslation(fname, highlights, 0, i)
+	}
+
+	if testAll {
+		TestAll(g, sites, calcFn, where, correctDoubles)
 	}
 }

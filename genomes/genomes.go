@@ -192,6 +192,19 @@ func (g *Genomes) Filter(which ...int) *Genomes {
 	return ret
 }
 
+// Make a shallow copy of g but with a and b swapped. You could do this with
+// filter but it would be annoying.
+func (g *Genomes) Swap(a, b int) *Genomes {
+	ret := NewGenomes(g.Orfs, g.NumGenomes())
+	for i := 0; i < g.NumGenomes(); i++ {
+		ret.Nts[i] = g.Nts[i]
+		ret.Names[i] = g.Names[i]
+	}
+	ret.Nts[a], ret.Nts[b] = ret.Nts[b], ret.Nts[a]
+	ret.Names[a], ret.Names[b] = ret.Names[b], ret.Names[a]
+	return ret
+}
+
 // Make the specified genomes into deep copies of themselves (because you want
 // to mutate them for example)
 func (g *Genomes) DeepCopy(which ...int) {
