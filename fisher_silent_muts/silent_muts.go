@@ -394,7 +394,11 @@ func TestAll(g *genomes.Genomes, sites [][]byte,
 		posInfo := FindPositionInfo(g2, possible, sites)
 		for j := 1; j < g2.NumGenomes(); j++ {
 			ct := calcFn(posInfo, j, where, correctDoubles)
-			fmt.Printf("%d,%d: %f\n", i, j, ct.CalcOR())
+			ct.CalcOR()
+			if ct.OR > 3 {
+				OR, p := ct.FisherExact(stats.GREATER)
+				fmt.Printf("%d,%d: %f %f\n", i, j, OR, p)
+			}
 		}
 	}
 }
