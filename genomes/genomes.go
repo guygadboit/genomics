@@ -171,11 +171,15 @@ func (g *Genomes) SaveSelected(fname string, which ...int) error {
 	return nil
 }
 
+// Make a deep copy (of the nts-- the names are just shallow copied)
 func (g *Genomes) Clone() *Genomes {
 	ret := NewGenomes(g.Orfs, g.NumGenomes())
 	for i := 0; i < len(g.Nts); i++ {
 		ret.Nts[i] = make([]byte, len(g.Nts[i]))
 		copy(ret.Nts[i], g.Nts[i])
+	}
+	for i := 0; i < g.NumGenomes(); i++ {
+		ret.Names[i] = g.Names[i]
 	}
 	return ret
 }

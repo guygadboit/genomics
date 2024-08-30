@@ -323,44 +323,49 @@ func MakeTestGenomes(g *genomes.Genomes) {
 	ret.SaveMulti("random.fasta")
 }
 
-/*
-Pick possible places to have silent mutations randomly.
-*/
-func Redistribute(g *genomes.Genomes,
-	possible PossibleMap, which int) *genomes.Genomes {
-	g2 := g.Filter(0, which)
-	numSilent, _ := mutations.CountMutations(g2)
-	fmt.Printf("There are %d silent muts\n", numSilent)
+// Redistribute the silent mutations randomly according to position. Do this in
+// all the genomes.
+func Redistribute(g *genomes.Genomes, possible PossibleMap) *genomes.Genomes {
+	ret := g.Clone()
 
-	positions := make([]int, 0, len(possible))
-	for k, _ := range possible {
-		positions = append(positions, k)
-	}
+	for i := 1; i < ret.NumGenomes(); i++ {
+		g2 := ret.Filter(0, i)
+		numSilent, _ := mutations.CountMutations(g2)
+		fmt.Printf("There are %d silent muts\n", numSilent)
 
-	// They're in a fairly random order anyway (because map keys) but shuffle
-	// them again to be sure.
-	rand.Shuffle(len(positions), func(i, j int) {
-		positions[i], positions[j] = positions[j], positions[i]
-	})
-
-	ret := g2.Filter(0, 0)
-	ret.DeepCopy(1)
-
-	mutsToApply := numSilent
-	for i := 0; i < len(positions); i++ {
-		muts := possible[positions[i]]
-		j := rand.Intn(len(muts))
-		mut := muts[j]
-		ret.Nts[1][mut.Pos] = mut.To
-		mutsToApply--
-		if mutsToApply == 0 {
-			break
+		positions := make([]int, 0, len(possible))
+		for k, _ := range possible {
+			positions = append(positions, k)
 		}
-	}
 
-	if mutsToApply != 0 {
-		// This is pretty unlikely
-		fmt.Printf("Wasn't able to apply all of them. %d left\n", mutsToApply)
+		// They're in a fairly random order anyway (because map keys) but
+		// shuffle them again to be sure.
+		rand.Shuffle(len(positions), func(i, j int) {
+			positions[i], positions[j] = positions[j], positions[i]
+		})
+
+		// Set the i'th genome to a copy of the 0th, ready to apply the random
+		// mutations.
+		ret.Nts[i] = ret.Nts[0]
+		ret.DeepCopy(i)
+
+		mutsToApply := numSilent
+		for j := 0; j < len(positions); j++ {
+			muts := possible[positions[j]]
+			k := rand.Intn(len(muts))
+			mut := muts[k]
+			ret.Nts[i][mut.Pos] = mut.To
+			mutsToApply--
+			if mutsToApply == 0 {
+				break
+			}
+		}
+
+		if mutsToApply != 0 {
+			// This is pretty unlikely
+			fmt.Printf("Wasn't able to apply all of them. %d left\n",
+				mutsToApply)
+		}
 	}
 
 	return ret
@@ -387,20 +392,31 @@ func makeHighlights(pi PosInfo, which int) []genomes.Highlight {
 }
 
 func TestAll(g *genomes.Genomes, sites [][]byte,
-	calcFn CalcCT, where Where, correctDoubles bool) {
+	calcFn CalcCT, where Where, correctDoubles bool, redistribute bool) {
+	count := 0
 	for i := 0; i < g.NumGenomes(); i++ {
 		g2 := g.Swap(0, i)
+		a := i
 		possible := NewPossibleMap(mutations.PossibleSilentMuts(g2, 0))
 		posInfo := FindPositionInfo(g2, possible, sites)
 		for j := 1; j < g2.NumGenomes(); j++ {
-			ct := calcFn(posInfo, j, where, correctDoubles)
-			ct.CalcOR()
-			if ct.OR > 3 {
-				OR, p := ct.FisherExact(stats.GREATER)
-				fmt.Printf("%d,%d: %f %f\n", i, j, OR, p)
+			b := j
+			if j == i {
+				b = 0
 			}
+			ct := calcFn(posInfo, j, where, correctDoubles)
+			OR := ct.CalcOR()
+			fmt.Printf("%d,%d: %f", a, b, OR)
+			if ct.OR > 3 {
+				_, p := ct.FisherExact(stats.GREATER)
+				fmt.Printf(" p=%f\n", p)
+			} else {
+				fmt.Printf("\n")
+			}
+			count++
 		}
 	}
+	fmt.Printf("Tested %d pairs (1/%d=%f)\n", count, count, 1.0/float64(count))
 }
 
 func main() {
@@ -443,8 +459,7 @@ func main() {
 
 	if redistribute {
 		fmt.Println("Redistributing the mutations")
-		g = Redistribute(g, possible, whichMC)
-		whichMC = 1
+		g = Redistribute(g, possible)
 		g.SaveMulti("redistributed.fasta")
 		fmt.Printf("Wrote redistributed.fasta\n")
 	}
@@ -513,6 +528,6 @@ func main() {
 	}
 
 	if testAll {
-		TestAll(g, sites, calcFn, where, correctDoubles)
+		TestAll(g, sites, calcFn, where, correctDoubles, false)
 	}
 }
