@@ -392,8 +392,10 @@ func makeHighlights(pi PosInfo, which int) []genomes.Highlight {
 }
 
 func TestAll(g *genomes.Genomes, sites [][]byte,
-	calcFn CalcCT, where Where, correctDoubles bool, redistribute bool) {
+	calcFn CalcCT, where Where,
+	correctDoubles bool, redistribute bool) []Result {
 	count := 0
+	ret := make([]Result, 0)
 	for i := 0; i < g.NumGenomes(); i++ {
 		g2 := g.Swap(0, i)
 		a := i
@@ -414,9 +416,15 @@ func TestAll(g *genomes.Genomes, sites [][]byte,
 				fmt.Printf("\n")
 			}
 			count++
+
+			// We aren't currently working out the p for all of them, and we're
+			// just putting 0 in as the genome. If you ever need to do anything
+			// except output all the ORs change this.
+			ret = append(ret, Result{0, sites, ct.OR, ct.P})
 		}
 	}
 	fmt.Printf("Tested %d pairs (1/%d=%f)\n", count, count, 1.0/float64(count))
+	return ret
 }
 
 func main() {
@@ -425,6 +433,12 @@ func main() {
 		[]byte("GAGACC"),
 		[]byte("CGTCTC"),
 		[]byte("GAGACG"),
+		/*
+		[]byte("CGTCTT"),
+		[]byte("AAGACG"),
+		[]byte("TTGTTA"),
+		[]byte("TAACAA"),
+		*/
 	}
 
 	var fasta string
@@ -528,6 +542,7 @@ func main() {
 	}
 
 	if testAll {
-		TestAll(g, sites, calcFn, where, correctDoubles, false)
+		results := TestAll(g, sites, calcFn, where, correctDoubles, false)
+		OutputResults(results, 0)
 	}
 }
