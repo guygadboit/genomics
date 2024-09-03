@@ -217,19 +217,16 @@ func FindSiteCT(posInfo PosInfo,
 			}
 		}
 
-		// Same thing for possible
-		got = false
+		// How many possible silent muts are there in the whole site?
+		totalPossible := 0
 		for j := 0; j < 6; j++ {
-			if posInfo[i+j].Possible > 0 {
-				got = true
-				break
-			}
+			totalPossible += posInfo[i+j].Possible
 		}
-		if got {
+		if totalPossible > 0 {
 			if score > 0 {
-				possibleIn += score
+				possibleIn += score * totalPossible
 			} else {
-				possibleOut++
+				possibleOut += totalPossible
 			}
 		}
 	}
@@ -291,7 +288,9 @@ func OutputResults(results []Result, which int) {
 
 	for _, res := range results {
 		if res.genome == which {
-			fmt.Fprintln(orW, res.OR)
+			if res.OR != 0 {
+				fmt.Fprintln(orW, res.OR)
+			}
 			fmt.Fprintln(pW, res.p)
 		}
 	}
@@ -436,10 +435,10 @@ func main() {
 		[]byte("CGTCTC"),
 		[]byte("GAGACG"),
 		/*
-		[]byte("CGTCTT"),
-		[]byte("AAGACG"),
-		[]byte("TTGTTA"),
-		[]byte("TAACAA"),
+			[]byte("CGTCTT"),
+			[]byte("AAGACG"),
+			[]byte("TTGTTA"),
+			[]byte("TAACAA"),
 		*/
 	}
 
