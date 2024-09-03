@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"bufio"
+	"reflect"
 )
 
 type PosDatum struct {
@@ -34,19 +35,30 @@ func (p *PosDatum) Init(numGenomes int) {
 }
 
 // map of positions to possible mutations at that position
-type PossibleMap map[int][]mutations.Mutation
+type PossibleMap struct {
+	window	int
+	mutations	map[int][]mutations.MutatedSequence
+}
 
-func NewPossibleMap(muts []mutations.Mutation) PossibleMap {
-	ret := make(map[int][]mutations.Mutation)
+func (p *PossibleMap) Init(window int) {
+	p.window = window
+	p.mutations = make(map[int][]mutations.MutatedSequence)
+}
+
+func NewPossibleMap(window int,
+	muts []mutations.MutatedSequence) *PossibleMap {
+	var ret PossibleMap
+	ret.Init(window)
+
 	for _, mut := range muts {
-		_, there := ret[mut.Pos]
+		_, there := ret.mutations[mut.Pos]
 		if !there {
-			ret[mut.Pos] = []mutations.Mutation{mut}
+			ret.mutations[mut.Pos] = []mutations.MutatedSequence{mut}
 		} else {
-			ret[mut.Pos] = append(ret[mut.Pos], mut)
+			ret.mutations[mut.Pos] = append(ret.mutations[mut.Pos], mut)
 		}
 	}
-	return ret
+	return &ret
 }
 
 /*
@@ -55,8 +67,9 @@ starts a site, is in a site, and how many possible and actual mutations there
 are there with each genome.
 */
 func FindPositionInfo(g *genomes.Genomes,
-	possible PossibleMap, sites [][]byte) PosInfo {
+	possible *PossibleMap, sites [][]byte) PosInfo {
 	ret := make(PosInfo, g.Length())
+	window := possible.window
 
 	translations := make([]genomes.TranslationMap, g.NumGenomes())
 	for i := 0; i < g.NumGenomes(); i++ {
@@ -64,14 +77,15 @@ func FindPositionInfo(g *genomes.Genomes,
 	}
 
 	for i := 0; i < g.Length(); i++ {
-		muts := possible[i]
+		muts := possible.mutations[i]
 
 		ret[i].Init(g.NumGenomes())
 		ret[i].Possible = len(muts)
 
 		for j := 1; j < g.NumGenomes(); j++ {
 			for _, mut := range muts {
-				if g.Nts[j][mut.Pos] == mut.To {
+				if reflect.DeepEqual(g.Nts[j][mut.Pos:mut.Pos+window],
+					mut.To) {
 					ret[i].Actual[j] = true
 				}
 			}

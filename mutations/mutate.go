@@ -163,11 +163,21 @@ func CountMutations(g *genomes.Genomes) (int, int) {
 	return CountSequentialMutations(g, 1)
 }
 
-type Mutation struct {
+type BaseMutation struct {
 	Pos    int // 0-based
 	Silent bool
-	From   byte
-	To     byte
+}
+
+type Mutation struct {
+	BaseMutation
+	From byte
+	To   byte
+}
+
+type MutatedSequence struct {
+	BaseMutation
+	From []byte
+	To   []byte
 }
 
 /*
@@ -192,7 +202,7 @@ func FindMutations(g *genomes.Genomes, a, b int) []Mutation {
 		}
 
 		isSilent, _, _ := genomes.IsSilent(g, i, 1, a, b)
-		ret = append(ret, Mutation{i, isSilent, aNt, bNt})
+		ret = append(ret, Mutation{BaseMutation{i, isSilent}, aNt, bNt})
 	}
 	return ret
 }
@@ -258,7 +268,8 @@ func PossibleSilentMuts(g *genomes.Genomes, which int) []Mutation {
 				continue
 			}
 			if silent {
-				ret = append(ret, Mutation{pos, true, nt, replacement})
+				ret = append(ret, Mutation{BaseMutation{pos, true},
+					nt, replacement})
 			}
 		}
 	}
@@ -266,39 +277,24 @@ func PossibleSilentMuts(g *genomes.Genomes, which int) []Mutation {
 }
 
 /*
-All the possible silent muts for each nt assuming that the nts either side can
-change to whatever you need as well.
+All the possible silent muts for each nt (or string of length nts starting at
+each position) assuming that the nts either side can change to whatever you
+need as well.
 */
-func PossibleSilentMuts2(g *genomes.Genomes, which int) []Mutation {
-	ret := make([]Mutation, 0)
-	for pos := 0; pos < g.Length(); pos++ {
-		var env genomes.Environment
-		err := env.Init(g, pos, 1, which)
-		if err != nil {
-			continue
-		}
-		nt := g.Nts[which][pos]
-		for _, alt := range env.FindAlternatives(1, false) {
-			ret = append(ret, Mutation{pos, true, nt, alt.Nts[0]})
-		}
-	}
-	return ret
-}
-
-// Each Mutation returned actually represents a sequence of window nts starting
-// at Pos which are silent.
-func PossibleSilentMuts3(g *genomes.Genomes,
-	which int, window int) []Mutation {
-	ret := make([]Mutation, 0)
+func PossibleSilentMuts2(g *genomes.Genomes,
+	which int, window int) []MutatedSequence {
+	ret := make([]MutatedSequence, 0)
+	nts := g.Nts[which]
 	for pos := 0; pos < g.Length(); pos++ {
 		var env genomes.Environment
 		err := env.Init(g, pos, window, which)
 		if err != nil {
 			continue
 		}
-		nt := g.Nts[which][pos]
 		for _, alt := range env.FindAlternatives(window, false) {
-			ret = append(ret, Mutation{pos, true, nt, alt.Nts[0]})
+			ret = append(ret,
+				MutatedSequence{BaseMutation{pos, true},
+					nts[pos : pos+window], alt.Nts})
 		}
 	}
 	return ret

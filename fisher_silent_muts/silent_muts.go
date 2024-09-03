@@ -39,14 +39,21 @@ func FindActual(g *genomes.Genomes, which int, possible []Mutation) []Mutation {
 	return ret
 }
 
-/*
-Calculate a Contingency Table in a variety of correct or incorrect ways given
-the actual mutations, the possible mutations, where the sites are, and the
-length of the genome. If correctDoubles then count where sites appear in both
-genomes correctly (only applies when where == SITE_IN_EITHER)
-*/
-type CalcCT func(posInfo PosInfo,
-	which int, where Where, correctDoubles bool) stats.ContingencyTable
+type CalcCT struct {
+	/*
+		Calculate a Contingency Table in a variety of correct or incorrect ways
+		given the actual mutations, the possible mutations, where the sites are,
+		and the length of the genome. If correctDoubles then count where sites
+		appear in both genomes correctly (only applies when where ==
+		SITE_IN_EITHER)
+	*/
+	calc func(posInfo PosInfo, which int,
+		where Where, correctDoubles bool) stats.ContingencyTable
+
+	// How long a window to use when looking at actually and possibly silently
+	// mutated sequences.
+	window int
+}
 
 // How many "hits" to count for a match.
 func findScore(where Where, correctDoubles, inA, inB bool) int {
@@ -244,7 +251,7 @@ type Result struct {
 If useSites use random sites, and find where they are. Otherwise just use
 random positions
 */
-func MonteCarlo(g *genomes.Genomes, possible PossibleMap,
+func MonteCarlo(g *genomes.Genomes, possible *PossibleMap,
 	its int, calc CalcCT, where Where, correctDoubles bool) []Result {
 	ret := make([]Result, 0)
 	for i := 0; i < its; i++ {
@@ -256,7 +263,7 @@ func MonteCarlo(g *genomes.Genomes, possible PossibleMap,
 		posInfo := FindPositionInfo(g, possible, sites)
 
 		for j := 1; j < g.NumGenomes(); j++ {
-			ct := calc(posInfo, j, where, correctDoubles)
+			ct := calc.calc(posInfo, j, where, correctDoubles)
 			OR, p := ct.FisherExact(stats.GREATER)
 			ret = append(ret, Result{j, sites, OR, p})
 		}
@@ -323,16 +330,20 @@ func MakeTestGenomes(g *genomes.Genomes) {
 
 // Redistribute the silent mutations randomly according to position. Do this in
 // all the genomes.
-func Redistribute(g *genomes.Genomes, possible PossibleMap) *genomes.Genomes {
+func Redistribute(g *genomes.Genomes, possible *PossibleMap) *genomes.Genomes {
 	ret := g.Clone()
+
+	if possible.window != 1 {
+		log.Fatal("Can't do this with non-1 based possible maps")
+	}
 
 	for i := 1; i < ret.NumGenomes(); i++ {
 		g2 := ret.Filter(0, i)
 		numSilent, _ := mutations.CountMutations(g2)
 		fmt.Printf("There are %d silent muts\n", numSilent)
 
-		positions := make([]int, 0, len(possible))
-		for k, _ := range possible {
+		positions := make([]int, 0, len(possible.mutations))
+		for k, _ := range possible.mutations {
 			positions = append(positions, k)
 		}
 
@@ -349,10 +360,10 @@ func Redistribute(g *genomes.Genomes, possible PossibleMap) *genomes.Genomes {
 
 		mutsToApply := numSilent
 		for j := 0; j < len(positions); j++ {
-			muts := possible[positions[j]]
+			muts := possible.mutations[positions[j]]
 			k := rand.Intn(len(muts))
 			mut := muts[k]
-			ret.Nts[i][mut.Pos] = mut.To
+			ret.Nts[i][mut.Pos] = mut.To[0]
 			mutsToApply--
 			if mutsToApply == 0 {
 				break
@@ -390,21 +401,21 @@ func makeHighlights(pi PosInfo, which int) []genomes.Highlight {
 }
 
 func TestAll(g *genomes.Genomes, sites [][]byte,
-	calcFn CalcCT, where Where,
-	correctDoubles bool, redistribute bool) []Result {
+	calc CalcCT, where Where, correctDoubles bool, redistribute bool) []Result {
 	count := 0
 	ret := make([]Result, 0)
 	for i := 0; i < g.NumGenomes(); i++ {
 		g2 := g.Swap(0, i)
 		a := i
-		possible := NewPossibleMap(mutations.PossibleSilentMuts2(g2, 0))
+		possible := NewPossibleMap(calc.window,
+			mutations.PossibleSilentMuts2(g2, 0, calc.window))
 		posInfo := FindPositionInfo(g2, possible, sites)
 		for j := 1; j < g2.NumGenomes(); j++ {
 			b := j
 			if j == i {
 				b = 0
 			}
-			ct := calcFn(posInfo, j, where, correctDoubles)
+			ct := calc.calc(posInfo, j, where, correctDoubles)
 			OR := ct.CalcOR()
 			fmt.Printf("%d,%d: %f", a, b, OR)
 			if ct.OR > 3 {
@@ -466,8 +477,22 @@ func main() {
 
 	flag.Parse()
 
+	var calc CalcCT
+	switch algorithm {
+	case "default":
+		// calcFn = FindCTAlt
+		calc = CalcCT{FindCT, 1}
+	case "per-site":
+		calc = CalcCT{FindCT, 6}
+	case "wrong":
+		calc = CalcCT{FindCTWrong, 1}
+	default:
+		log.Fatal("Bad algorithm")
+	}
+
 	g := genomes.LoadGenomes(fasta, orfs, false)
-	possible := NewPossibleMap(mutations.PossibleSilentMuts2(g, 0))
+	possible := NewPossibleMap(calc.window,
+		mutations.PossibleSilentMuts2(g, 0, calc.window))
 
 	if redistribute {
 		fmt.Println("Redistributing the mutations")
@@ -495,26 +520,13 @@ func main() {
 		posInfo.ShowSites(g)
 	}
 
-	var calcFn CalcCT
-	switch algorithm {
-	case "default":
-		// calcFn = FindCTAlt
-		calcFn = FindCT
-	case "per-site":
-		calcFn = FindSiteCT
-	case "wrong":
-		calcFn = FindCTWrong
-	default:
-		log.Fatal("Bad algorithm")
-	}
-
 	if doMC {
 		g2 := g.Filter(0, whichMC)
-		mc := MonteCarlo(g2, possible, its, calcFn, where, correctDoubles)
+		mc := MonteCarlo(g2, possible, its, calc, where, correctDoubles)
 		OutputResults(mc, 1)
 
 		var greater int
-		ct := calcFn(posInfo, whichMC, where, correctDoubles)
+		ct := calc.calc(posInfo, whichMC, where, correctDoubles)
 		refOR := ct.CalcOR()
 		for _, result := range mc {
 			if result.OR >= refOR {
@@ -529,7 +541,7 @@ func main() {
 	}
 
 	for i := 1; i < g.NumGenomes(); i++ {
-		ct := calcFn(posInfo, i, where, correctDoubles)
+		ct := calc.calc(posInfo, i, where, correctDoubles)
 		OR, p := ct.FisherExact(stats.GREATER)
 		fmt.Printf("%s: %f %f\n", g.Names[i], OR, p)
 		fmt.Println(ct.HumanString())
@@ -540,7 +552,7 @@ func main() {
 	}
 
 	if testAll {
-		results := TestAll(g, sites, calcFn, where, correctDoubles, false)
+		results := TestAll(g, sites, calc, where, correctDoubles, false)
 		OutputResults(results, 0)
 	}
 }
