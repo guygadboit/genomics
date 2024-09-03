@@ -66,7 +66,7 @@ func findScore(where Where, correctDoubles, inA, inB bool) int {
 			score = 1
 		}
 		if correctDoubles && inA && inB {
-			score++
+			score = 2
 		}
 	}
 	return score
@@ -92,9 +92,11 @@ func FindCT(posInfo PosInfo,
 
 		if pd.Possible > 0 {
 			if score > 0 {
-				possibleIn += score
+				// possibleIn += score
+				possibleIn += score * pd.Possible
 			} else {
-				possibleOut++
+				// possibleOut++
+				possibleOut += pd.Possible
 			}
 		}
 	}
@@ -399,7 +401,7 @@ func TestAll(g *genomes.Genomes, sites [][]byte,
 	for i := 0; i < g.NumGenomes(); i++ {
 		g2 := g.Swap(0, i)
 		a := i
-		possible := NewPossibleMap(mutations.PossibleSilentMuts(g2, 0))
+		possible := NewPossibleMap(mutations.PossibleSilentMuts2(g2, 0))
 		posInfo := FindPositionInfo(g2, possible, sites)
 		for j := 1; j < g2.NumGenomes(); j++ {
 			b := j
@@ -469,7 +471,7 @@ func main() {
 	flag.Parse()
 
 	g := genomes.LoadGenomes(fasta, orfs, false)
-	possible := NewPossibleMap(mutations.PossibleSilentMuts(g, 0))
+	possible := NewPossibleMap(mutations.PossibleSilentMuts2(g, 0))
 
 	if redistribute {
 		fmt.Println("Redistributing the mutations")
@@ -494,7 +496,7 @@ func main() {
 
 	if show {
 		posInfo.SaveTSV()
-		posInfo.ShowSites()
+		posInfo.ShowSites(g)
 	}
 
 	var calcFn CalcCT

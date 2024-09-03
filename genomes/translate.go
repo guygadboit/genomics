@@ -427,9 +427,11 @@ func (a Alternatives) Swap(i, j int) {
 
 /*
 Find the alternative nt sequences that would not change the protein here,
-ordered by fewest muts first.
+ordered by fewest muts first. If constrained, an alternative doesn't count if
+it needs changes outside env to be silent.
 */
-func (env *Environment) FindAlternatives(maxMuts int) Alternatives {
+func (env *Environment) FindAlternatives(maxMuts int,
+	constrained bool) Alternatives {
 	var it altIter
 	ret := make(Alternatives, 0)
 
@@ -448,13 +450,13 @@ func (env *Environment) FindAlternatives(maxMuts int) Alternatives {
 		alt, more = it.Next()
 		start, end := env.offset, env.offset+env.length
 
-		// The alternative is no good if it differs outside the subsequence
-		if !reflect.DeepEqual(alt[:start], env.window[:start]) {
-			continue
-		}
-
-		if !reflect.DeepEqual(alt[end:], env.window[end:]) {
-			continue
+		if constrained {
+			if !reflect.DeepEqual(alt[:start], env.window[:start]) {
+				continue
+			}
+			if !reflect.DeepEqual(alt[end:], env.window[end:]) {
+				continue
+			}
 		}
 
 		numMuts, codonPos := 0, 0

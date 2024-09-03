@@ -122,7 +122,7 @@ func FindPatterns(g *genomes.Genomes, patterns []string) Results {
 
 			// Or is one of the silent alternatives the pattern?
 			if !interested {
-				for _, alt := range env.FindAlternatives(6) {
+				for _, alt := range env.FindAlternatives(6, true) {
 					if patSet[string(alt.Nts)] {
 						interested = true
 						break

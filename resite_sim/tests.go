@@ -42,7 +42,7 @@ func testAlternatives(genome *genomes.Genomes) {
 	var env genomes.Environment
 	env.Init(genome, 300, 6, 0)
 
-	alternatives := env.FindAlternatives(6)
+	alternatives := env.FindAlternatives(6, true)
 	fmt.Println(alternatives)
 }
 

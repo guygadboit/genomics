@@ -141,12 +141,17 @@ func (p *PosInfo) SaveTSV() {
 	fmt.Printf("Wrote posinfo.tsv\n")
 }
 
-func (p *PosInfo) ShowSites() {
+func (p *PosInfo) ShowSites(g *genomes.Genomes) {
 	for i := 0; i < len((*p)[0].StartsSite); i++ {
 		fmt.Printf("Genome %d\n", i)
 		for pos, pd := range *p {
 			if pd.StartsSite[i] {
-				fmt.Printf("Site at %d (0-based)\n", pos)
+				site := string(g.Nts[i][pos:pos+6])
+				fmt.Printf("Site %s at %d (0-based)\n", site, pos)
+				for j := 0; j < 6; j++ {
+					fmt.Printf("%d,", (*p)[pos+j].Possible)
+				}
+				fmt.Printf("\n")
 			}
 		}
 	}

@@ -75,7 +75,7 @@ func RemoveSite(genome *genomes.Genomes,
 		if err != nil {
 			return false
 		}
-		alternatives := env.FindAlternatives(1)
+		alternatives := env.FindAlternatives(1, true)
 
 		if len(alternatives) == 0 {
 			return false

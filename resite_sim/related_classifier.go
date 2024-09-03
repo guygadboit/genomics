@@ -284,7 +284,7 @@ func (c *Classifier) ExploreMissingSites() {
 
 		var env genomes.Environment
 		env.Init(g, location, 6, 0)
-		alternatives := env.FindAlternatives(1)
+		alternatives := env.FindAlternatives(1, true)
 
 		// We're also only interested in places where SC2 differs silently from
 		// a site.
