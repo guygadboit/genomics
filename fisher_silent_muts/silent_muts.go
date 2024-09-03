@@ -217,16 +217,13 @@ func FindSiteCT(posInfo PosInfo,
 			}
 		}
 
-		// How many possible silent muts are there in the whole site?
-		totalPossible := 0
-		for j := 0; j < 6; j++ {
-			totalPossible += posInfo[i+j].Possible
-		}
-		if totalPossible > 0 {
+		if pd.Possible > 0 {
 			if score > 0 {
-				possibleIn += score * totalPossible
+				// possibleIn += score * pd.Possible
+				possibleIn += score
 			} else {
-				possibleOut += totalPossible
+				// possibleOut += pd.Possible
+				possibleOut++
 			}
 		}
 	}

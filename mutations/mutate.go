@@ -164,7 +164,7 @@ func CountMutations(g *genomes.Genomes) (int, int) {
 }
 
 type Mutation struct {
-	Pos    int	// 0-based
+	Pos    int // 0-based
 	Silent bool
 	From   byte
 	To     byte
@@ -279,6 +279,25 @@ func PossibleSilentMuts2(g *genomes.Genomes, which int) []Mutation {
 		}
 		nt := g.Nts[which][pos]
 		for _, alt := range env.FindAlternatives(1, false) {
+			ret = append(ret, Mutation{pos, true, nt, alt.Nts[0]})
+		}
+	}
+	return ret
+}
+
+// Each Mutation returned actually represents a sequence of window nts starting
+// at Pos which are silent.
+func PossibleSilentMuts3(g *genomes.Genomes,
+	which int, window int) []Mutation {
+	ret := make([]Mutation, 0)
+	for pos := 0; pos < g.Length(); pos++ {
+		var env genomes.Environment
+		err := env.Init(g, pos, window, which)
+		if err != nil {
+			continue
+		}
+		nt := g.Nts[which][pos]
+		for _, alt := range env.FindAlternatives(window, false) {
 			ret = append(ret, Mutation{pos, true, nt, alt.Nts[0]})
 		}
 	}
