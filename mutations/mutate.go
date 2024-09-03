@@ -277,7 +277,7 @@ func PossibleSilentMuts(g *genomes.Genomes, which int) []Mutation {
 }
 
 /*
-All the possible silent muts for each nt (or string of length nts starting at
+All the possible silent muts for each nt (or string of window nts starting at
 each position) assuming that the nts either side can change to whatever you
 need as well.
 */

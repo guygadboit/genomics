@@ -117,48 +117,6 @@ func FindCT(posInfo PosInfo,
 	return ret
 }
 
-func FindCTAlt(posInfo PosInfo,
-	which int, correctDoubles bool) stats.ContingencyTable {
-	var actualIn, actualOut int
-	var possibleIn, possibleOut int
-
-	for _, pd := range posInfo {
-		in0 := pd.InSite[0]
-		in1 := pd.InSite[which]
-		actual := pd.Actual[which]
-
-		// Another way of writing the same code (with correctDoubles) which is
-		// equivalent but perhaps clearer?
-		if actual {
-			if in0 {
-				actualIn++
-			}
-			if in1 {
-				actualIn++
-			}
-			if !(in0 || in1) {
-				actualOut++
-			}
-		}
-
-		if pd.Possible > 0 {
-			if in0 {
-				possibleIn++
-			}
-			if in1 {
-				possibleIn++
-			}
-			if !(in0 || in1) {
-				possibleOut++
-			}
-		}
-	}
-
-	var ret stats.ContingencyTable
-	ret.Init(actualIn, actualOut, possibleIn, possibleOut)
-	return ret
-}
-
 // Do it the way they did in the preprint.
 func FindCTWrong(posInfo PosInfo,
 	which int, where Where, correctDoubles bool) stats.ContingencyTable {
@@ -189,54 +147,6 @@ func FindCTWrong(posInfo PosInfo,
 
 	var ret stats.ContingencyTable
 	ret.Init(silentInside, nsInside, silentOutside, nsOutside)
-	return ret
-}
-
-/*
-Find a CT based on the number of sites that have been altered, regardless of
-how many mutations per site
-*/
-func FindSiteCT(posInfo PosInfo,
-	which int, where Where, correctDoubles bool) stats.ContingencyTable {
-	var actualIn, actualOut int
-	var possibleIn, possibleOut int
-
-	for i := 0; i < len(posInfo)-6; i++ {
-		pd := posInfo[i]
-
-		starts0 := pd.StartsSite[0]
-		starts1 := pd.StartsSite[which]
-		score := findScore(where, correctDoubles, starts0, starts1)
-
-		// Are there >1 actual muts in the whole site?
-		var got bool
-		for j := 0; j < 6; j++ {
-			if posInfo[i+j].Actual[which] {
-				got = true
-				break
-			}
-		}
-		if got {
-			if score > 0 {
-				actualIn += score
-			} else {
-				actualOut++
-			}
-		}
-
-		if pd.Possible > 0 {
-			if score > 0 {
-				// possibleIn += score * pd.Possible
-				possibleIn += score
-			} else {
-				// possibleOut += pd.Possible
-				possibleOut++
-			}
-		}
-	}
-
-	var ret stats.ContingencyTable
-	ret.Init(actualIn, actualOut, possibleIn, possibleOut)
 	return ret
 }
 
@@ -543,7 +453,7 @@ func main() {
 	for i := 1; i < g.NumGenomes(); i++ {
 		ct := calc.calc(posInfo, i, where, correctDoubles)
 		OR, p := ct.FisherExact(stats.GREATER)
-		fmt.Printf("%s: %f %f\n", g.Names[i], OR, p)
+		fmt.Printf("%s: %f %.4g\n", g.Names[i], OR, p)
 		fmt.Println(ct.HumanString())
 
 		highlights := makeHighlights(posInfo, i)
