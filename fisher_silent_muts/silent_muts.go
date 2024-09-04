@@ -388,6 +388,7 @@ func main() {
 	var show bool
 	var its int
 	var testAll bool
+	var save bool
 
 	flag.StringVar(&fasta, "fasta",
 		"../fasta/CloseRelatives.fasta", "relatives")
@@ -401,6 +402,7 @@ func main() {
 	flag.StringVar(&whereS, "where", "either", "Where to look for sites")
 	flag.BoolVar(&show, "show", false, "Show the info")
 	flag.BoolVar(&testAll, "testall", false, "Test all pairs")
+	flag.BoolVar(&save, "save", false, "Save clu files")
 
 	flag.Parse()
 
@@ -423,12 +425,8 @@ func main() {
 
 	if redistribute {
 		fmt.Println("Redistributing the mutations")
-		var pm *PossibleMap
-		if possible.window == 1 {
-			pm = possible
-		} else {
-			pm = NewPossibleMap(1, mutations.PossibleSilentMuts2(g, 0, 1))
-		}
+		muts := mutations.ToSequences(mutations.PossibleSilentMuts(g, 0))
+		pm := NewPossibleMap(1, muts)
 		g = Redistribute(g, pm)
 		g.SaveMulti("redistributed.fasta")
 		fmt.Printf("Wrote redistributed.fasta\n")
@@ -479,9 +477,11 @@ func main() {
 		fmt.Printf("%s: %f %.4g\n", g.Names[i], OR, p)
 		fmt.Println(ct.HumanString())
 
-		highlights := makeHighlights(posInfo, i)
-		fname := fmt.Sprintf("%d.clu", i)
-		g.SaveWithTranslation(fname, highlights, 0, i)
+		if save {
+			highlights := makeHighlights(posInfo, i)
+			fname := fmt.Sprintf("%d.clu", i)
+			g.SaveWithTranslation(fname, highlights, 0, i)
+		}
 	}
 
 	if testAll {

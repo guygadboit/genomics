@@ -299,3 +299,15 @@ func PossibleSilentMuts2(g *genomes.Genomes,
 	}
 	return ret
 }
+
+// Convert a bunch of SNVs to sequences of length 1 (in case you have functions
+// that need that)
+func ToSequences(muts []Mutation) []MutatedSequence {
+	ret := make([]MutatedSequence, len(muts))
+	for i, mut := range muts {
+		ret[i].BaseMutation = mut.BaseMutation
+		ret[i].From = []byte{mut.From}
+		ret[i].To = []byte{mut.To}
+	}
+	return ret
+}
