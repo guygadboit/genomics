@@ -1,0 +1,1362 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE article>
+<article xmlns="http://docbook.org/ns/docbook" version="5.0"
+xmlns:xlink="http://www.w3.org/1999/xlink">
+<articleinfo>
+    <author>
+        <firstname>
+            Guy
+        </firstname>
+        <surname>
+            Gadboit
+        </surname>
+    </author>
+</articleinfo>
+<title>
+    Hotspots of silent mutation in BsaI/BsmBI sites in the SARS-CoV-2 genome
+</title>
+
+<abstract>
+    <simpara>
+        A well-known <link xlink:href="https://www.biorxiv.org/content/10.1101/2022.10.18.512756v2">preprint</link> argued (among other things) that there was an anomalously high concentration of silent mutations in BsaI/BsmBI recognition sites in the SARS-CoV-2 genome when compared to RaTG13 and BANAL-20-52, and estimated p-values for the significance of both comparisons. Although the calculated significances (of p=9&#xd7;10<superscript>-8</superscript> and p=0.004) are overestimates, corrected and controlled calculations still yield some significance (p=7.66&#xd7;10<superscript>-5</superscript> and p=0.035). It remains unclear whether these observations are better explained by a natural or lab origin hypothesis.
+    </simpara>
+</abstract>
+
+<section>
+    <title>Introduction</title>
+    <simpara>
+        The lab engineering hypothesis here is that researchers were manipulating the locations of BsaI/BsmBI recognition sites in the SARS-CoV-2 genome in order to make it easier to reconstruct it with reverse genetics. The virus they were manipulating them in would have been SARS-CoV-2 itself, only differing in the handful of locations where they were manipulating these sites. If we had the sequence of that virus it would be obvious whether the sites had been manipulated. But the closest thing we have are SARS-CoV-2's natural close relatives, of which RaTG13 and BANAL-20-52 are the closest.
+    </simpara>
+    <simpara>
+        The approach taken in the preprint then is to see if we can separate the natural mutations that exist between SARS-CoV-2 and those close relatives from any additional artificial ones that may have been introduced. That is why the calculations always involve two viruses: SARS-CoV-2 and either RaTG13 or BANAL-20-52. I have also added a third for comparison, a "Chimeric Ancestor". This is not a real virus but a reconstruction of all the various pieces of other viruses where they are most closely related following the analysis in <link xlink:href="https://www.nature.com/articles/s41586-022-04532-4">Temmam et al. 2022</link>).
+    </simpara>
+    <simpara>
+        When trying to understand whether anything we discover in the
+        SARS-CoV-2 genome tells us anything about the origin what we are
+        really interested in is a "Bayes Factor"&#x2014; what is the ratio
+        of the probabilities of the observations under the natural and lab
+        origin hypotheses?
+    </simpara>
+    <simpara>
+        If we assume that under natural evolution silent mutations happen at
+        random (in some sense) we can use Fisher's Exact Test to estimate
+        the probability that some observed classification of them would
+        arise by chance. If we find what looks like a lot of silent
+        mutations in the BsaI/BsmBI recognition sites, we can ask, how
+        likely is that to have arisen naturally, under the assumption that
+        their positions should be random? If we find this was unlikely we
+        may have discovered something, but not necessarily evidence of lab
+        engineering. For that we
+        <emphasis>also</emphasis>
+        need to show that the observations are more probable under a lab
+        hypothesis. There may be other natural hypotheses that explain them
+        better. We may also discover that our assumptions about randomness
+        weren't quite right.
+    </simpara>
+    <simpara>
+        In short there are two different questions here: did we
+        find anything unusual or suprising at all? And, if we did, does it
+        point to lab engineering?
+    </simpara>
+</section>
+
+<section>
+    <title>Reproducing the calculation</title>
+    <simpara>
+        In the text of the preprint, they write:
+    </simpara>
+    <blockquote>
+        <simpara>
+            <emphasis>
+            There are 12 silent mutations found in 9 distinct BsaI/BsmBI sites
+            between RaTG13 and SARS-CoV-2, and 882 silent mutations outside of
+            BsaI/BsmBI sites. There are 5 silent mutations found in 7 distinct
+            BsaI/BsmBI sites between BANAL52 and SARS-CoV-2, and 753 silent
+            mutations
+            outside BsaI/BsmBI sites.
+                </emphasis>
+        </simpara>
+    </blockquote>
+    <simpara>
+        And the calculation in the code is presented as follows:
+    </simpara>
+    <programlisting>
+        ### Fisher Test of Silent Mutations within BsaI/BsmBI sites
+        ## number of nt's within BB sites
+        BB_sites_RaTG13 &lt;- Pos[Virus %in% c('SARS2','RaTG13'),length(unique(position))]*6 
+        BB_Smuts_RaTG13 &lt;- M[site %in% REsites &amp; Virus=='RaTG13',.N]
+        SMuts_RaTG13 &lt;- M[Virus=="RaTG13",sum(silent)]-BB_Smuts_RaTG13
+        RaTG13_genome_nonBB &lt;- nchar(RaTG13)-BB_sites_RaTG13
+
+        A_RaTG13 &lt;- matrix(c(BB_Smuts_RaTG13,BB_sites_RaTG13-BB_Smuts_RaTG13,
+        SMuts_RaTG13,RaTG13_genome_nonBB-SMuts_RaTG13),nrow=2,byrow = T)
+        fisher.test(A_RaTG13)
+        # Fisher's Exact Test for Count Data
+        # 
+        # data:  A_RaTG13
+        # p-value = 9.087e-08
+        # alternative hypothesis: true odds ratio is not equal to 1
+        # 95 percent confidence interval:
+        # 4.24042 17.25056
+        # sample estimates:
+        # odds ratio 
+        # 8.877937 
+    </programlisting>
+    <simpara>
+        From this information we have three out of the four terms we need to reconstruct the contingency table: (12/42) / (882/d).
+    </simpara>
+    <simpara>
+        We assume that by <code>nchar(RaTG13)</code> they mean the total number of nucleotides in RaTG13 (MN996532.2), which is 29855. <code>BB_Smuts_RaTG13</code> is the total number of silent muts in sites, which is 12, and <code>BB_sites_RaTG13</code> is the total number of nucleotides in sites, which is 54. This makes <code>RaTG13_genome_nonBB</code> equal to 29855-54, and the final value in the contingency table 29855-54-882=28919.
+    </simpara>
+    <simpara>
+        So our complete contigency table should be (12/42) / (882/28919). This gives me an OR of 9.368 and a p of 5.21&#xd7;10<superscript>-8</superscript>, which does not match their numbers of 8.877937 and p=9&#x00d7;10<superscript>-8</superscript>. I suspect the reason for this may be different estimates of the length. Perhaps they're using the length in the alignment rather than the actual genome length?
+    </simpara>
+    <simpara>
+        But I don't think these details matter. In my own
+        calculations, I also get slightly different numbers for the total number
+        of
+        silent mutations (possibly because I am using a different alignment
+        tool) and for the total number of nucleotides as I am only counting those
+        that are in coding sequences.
+    </simpara>
+    <simpara>
+        This gives me ORs and ps for RaTG13 and BANAL-20-52 of:
+    </simpara>
+    <literallayout>
+        <computeroutput>
+BANAL-20-52: OR=5.085137 p=0.004515 (5/37) / (773/29088)
+RaTG13: OR=8.579448 p=1.296e-07 (12/42) / (962/28887)
+        </computeroutput>
+    </literallayout>
+</section>
+
+<section>
+    <title>The calculated p-values fail basic sanity tests</title>
+    <simpara>
+        If we compute some "p-values" using a formula, the question arises: how
+        can we check the result? One way is to try the same calculation on some
+        "controls": datasets on which we would not expect to find anything
+        unusual. If we do find something unusual on those datasets, either we
+        have just made an error in how we are counting things, or perhaps we
+        have found something real and unusual, but perhaps that isn't better explained by
+        our hypothesis (in this case that SARS-CoV-2 shows traces of
+        engineering).
+    </simpara>
+    <simpara>
+        A BsaI recognition site is just the 6 nucleotide pattern GGTCTC or its
+        reverse complement GAGACC (and BsmBI is CGTCTC/GAGACG).
+    </simpara>
+    <simpara>
+        The two basic controls we will be using here are: calculating odds
+        ratios (ORs) for BsaI/BsmBI sites in <emphasis>other</emphasis>
+    pairs of SARS-CoV-2 related viruses, that are not under suspicion of having
+    a lab origin; and calculating odds ratios for mutations in other 6nt
+    patterns (selected at random) between SARS-CoV-2 and RaTG13 (or BANAL-20-52
+        etc.).
+    </simpara>
+    <simpara>
+        The control patterns we will use are generated by picking two 6nt
+        sequences at random, and their reverse complements. Then we will count
+        silent mutations etc. in the sites defined by those patterns.
+    </simpara>
+    <simpara>
+        The preprint claims a p-value of 9&#xd7;10 <superscript>-8</superscript>
+        for the comparison with RaTG13. This is much smaller than the reciprocal of the total number
+        of possible 6 nucleotide sequences (4096) and of pairs of 6 nucleotide
+        sequences (1.68&#xd7;10<superscript>7</superscript>).
+    </simpara>
+    <simpara>
+        So if that p-value were correct, it should be very hard to find
+        <emphasis>another</emphasis>
+        pair of 6nt patterns which score a higher odds ratio (using the calculation in the
+        preprint) than the actual BsaI/BsmBI patterns.
+    </simpara>
+    <simpara>
+        But it turns out we can find several, just by trying the calculation
+        on a few thousand random pairs and their reverse
+        complements.
+    </simpara>
+    <simpara>
+        <code>
+            $ go run -- *.go -algo original -montecarlo -which-mc=3 -doubles=false
+        </code>
+    </simpara>
+    <simpara>
+        Produces the following pairs of 6nt patterns and their odds ratios, which are all higher than the value of 8.579448 for BsaI/BsmBI in RaTG13:
+    </simpara>
+    <simpara>
+        <literallayout>
+            <computeroutput>
+CGGCCC/TGCGCC 9.097702
+CGCCGG/CGGACT 14.879115
+GGGGCA/CGAGTC 9.927909
+GGCCGG/CCGAGA 9.927909
+CGAGTC/GGCGCA 9.927909
+AGGGCG/CCGACC 9.927909
+0.001600 are greater than reference OR of 8.579448
+            </computeroutput>
+        </literallayout>
+    </simpara>
+    <simpara>
+        In other words, the patterns above (which were just selected at random)
+        are all apparently more unusual and anomalous than the BsaI/BsmBI
+        recognition
+        sites, using the same calculation that was supposed to pick those out as
+        having been manipulated.
+    </simpara>
+    <simpara>
+        This gives us a rough estimate that the true significance is somewhere
+        closer to p=0.0016, which is much less significant than p=1.296&#xd7;10
+        <superscript>-7</superscript>. Therefore something must be wrong with the original calculation.
+    </simpara>
+    <simpara>
+        Our other kind of control is to repeat the calculation, using the BsaI/BsmBI recognition sites, in other pairs of genomes, which are not under suspicion of having been manipulated.
+    </simpara>
+    <simpara>
+        <code>
+            $ go run -- *.go -algo original -testall -fasta ../fasta/SARS2-relatives.fasta
+        </code>
+    </simpara>
+    <simpara>
+        This reveals several high odds ratios for other pairs of viruses and apparently low p-values. Interestingly RaTG13 appears near the top several times (the reasons for this will be clear later). But there are other examples too.
+    </simpara>
+    <literallayout>
+        <computeroutput>
+RaTG13,BANAL-20-103: 8.058429 p=8.956683643280792e-08
+RaTG13,BANAL-20-236: 7.593421 p=3.7636490908469625e-06
+BANAL-20-236,RaTG13: 7.585572 p=3.796766324134739e-06
+RaTG13,RpYN06: 7.533070 p=9.468263454817954e-10
+BANAL-20-236,RaTG13: 7.317192 p=2.1811718530008234e-07
+BANAL-20-103,RaTG13: 7.315253 p=6.562885160341414e-07
+RaTG13,BANAL-20-236: 7.282421 p=2.2971100021053767e-07
+YN2021,PrC31: 7.070457 p=5.197625152971807e-06
+PrC31,YN2021: 7.040989 p=5.384177287044883e-06
+Rp22DB159,Rp22DB167: 6.895097 p=0.00042395898530785684
+        </computeroutput>
+    </literallayout>
+</section>
+
+<section>
+    <title>
+    The distribution of ORs under the original calculation is not centered on 1
+    </title>
+    <simpara>
+        When we calculate an odds ratio of, say, 8, we are saying that what we
+        observe appears to be 8 times less likely than what we expect under some
+        null hypothesis. This requires that our calculation should give us an
+        odds ratio
+        of about 1.0 on data on which we think the null hypothesis&#x2014; which in this case is that the
+        mutations in the BsaI/BsmBI sites arose naturally&#x2014; is the right one.
+    </simpara>
+    <simpara>
+        It's therefore instructive to look at the distribution of odds ratios
+        for our two kinds of control. Let's look at BsaI/BsmBI sites in other (non-engineered) viruses first:
+    </simpara>
+    <para>
+        <figure>
+            <title>ORs (original calculation) for all combinations of pairs of SARS2r-CoV genomes</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="./graph01.svg"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
+    </para>
+    <simpara>
+        This was computed with:
+    </simpara>
+    <simpara>
+        <literallayout>
+        <code>
+$ go run -- *.go -algo original -doubles=false -testall -fasta ../fasta/SARS2-relatives.fasta
+$ gnuplot --persist distribution.gpi
+        </code>
+        </literallayout>
+    </simpara>
+    <simpara>
+        And now for our other control, different random 6nt patterns,
+        but still comparing SARS-CoV-2 and RaTG13. As we can see,
+        the distribution here is not centered on 1 either:
+    </simpara>
+    <para>
+        <figure>
+            <title>ORs (original calculation) for 5000 pairs of random 6nt patterns in SARS-CoV-2 vs RaTG13</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="./graph02.svg"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
+    </para>
+    <simpara>
+        This was computed with:
+    </simpara>
+    <simpara>
+        <literallayout>
+        <code>
+$ go run -- *.go -algo original -doubles=false -montecarlo -which-mc=3
+$ gnuplot --persist distribution.gpi
+        </code>
+        </literallayout>
+    </simpara>
+    <simpara>
+        In other words, using the original calculation, other random pairs of viruses and other random sites all show about twice the odds we are expecting. Obviously this doesn't imply either that all those viruses have been manipulated (and not just in the BsaI/BsmBI sites but everywhere!) but that the calculation is wrong. We will see how in the next section.
+    </simpara>
+</section>
+
+<section>
+    <title>The way mutations are counted in sites that appear in both genomes inflates the OR</title>
+
+    <simpara>
+        In the preprint, they define "inside" a site as anywhere a site appears <emphasis>either</emphasis> in SARS-CoV-2 <emphasis>or</emphasis> in RaTG13. But what about the places where a site is inside <emphasis>both</emphasis> of them? Let's look at the numbers. There are 5 sites in SARS-CoV-2 (at 2193, 9751, 17329, 17972 and 24102) and 6 sites in RaTG13 (at 10444, 11648, 17329, 17972, 22922, 24509). Note that two of those sites are in <emphasis>both</emphasis>,
+        viz the ones at 17329 and 17972.
+    </simpara>
+    <simpara>
+        In this table the "Alignment" entries show the nucleotide sequences in SARS-CoV-2 and RaTG13, a '*' wherever they are the same, and the amino acid coded for at that location ('R'=Arginine, 'D'=Aspartic Acid etc.).
+    </simpara>
+    <table id="table1">
+        <title>BsaI/BsmBI sites compared in SARS-CoV-2 and RaTG13</title>
+        <tgroup cols="5">
+            <colspec/>
+            <colspec/>
+            <colspec/>
+            <colspec colwidth="4em"/>
+            <colspec/>
+            <thead>
+                <row>
+                    <entry>Position in alignment</entry>
+                    <entry>Enzyme</entry>
+                    <entry>Genome</entry>
+                    <entry>Alignment</entry>
+                    <entry>Number of silent mutations</entry>
+                </row>
+            </thead>
+            <tbody>
+                <row>
+                    <entry>2193</entry>
+                    <entry>BsmBI</entry>
+                    <entry>SARS-CoV-2</entry>
+                    <entry valign="middle">
+                        <mediaobject>
+                            <imageobject>
+                                <imagedata scale="25" fileref="./clu1.png"/>
+                            </imageobject>
+                        </mediaobject>
+                    </entry>
+                    <entry>1</entry>
+                </row>
+                <row>
+                    <entry>9751</entry>
+                    <entry>BsmBI</entry>
+                    <entry>SARS-CoV-2</entry>
+                    <entry>
+                        <mediaobject>
+                            <imageobject>
+                                <imagedata scale="25" fileref="./clu2.png"/>
+                            </imageobject>
+                        </mediaobject>
+                    </entry>
+                    <entry>2</entry>
+                </row>
+                <row>
+                    <entry>10444</entry>
+                    <entry>BsaI</entry>
+                    <entry>RaTG-13</entry>
+                    <entry>
+                        <mediaobject>
+                            <imageobject>
+                                <imagedata scale="25" fileref="./clu3.png"/>
+                            </imageobject>
+                        </mediaobject>
+                    </entry>
+                    <entry>1</entry>
+                </row>
+                <row>
+                    <entry>11648</entry>
+                    <entry>BsaI</entry>
+                    <entry>RaTG-13</entry>
+                    <entry>
+                        <mediaobject>
+                            <imageobject>
+                                <imagedata scale="25" fileref="./clu4.png"/>
+                            </imageobject>
+                        </mediaobject>
+                    </entry>
+                    <entry>1</entry>
+                </row>
+                <row>
+                    <entry>17329</entry>
+                    <entry>BsmBI</entry>
+                    <entry>Both</entry>
+                    <entry>
+                        <mediaobject>
+                            <imageobject>
+                                <imagedata scale="25" fileref="./clu5.png"/>
+                            </imageobject>
+                        </mediaobject>
+                    </entry>
+                    <entry>0</entry>
+                </row>
+                <row>
+                    <entry>17972</entry>
+                    <entry>BsaI</entry>
+                    <entry>Both</entry>
+                    <entry>
+                        <mediaobject>
+                            <imageobject>
+                                <imagedata scale="25" fileref="./clu6.png"/>
+                            </imageobject>
+                        </mediaobject>
+                    </entry>
+                    <entry>0</entry>
+                </row>
+                <row>
+                    <entry>22922</entry>
+                    <entry>BsmBI</entry>
+                    <entry>RaTG-13</entry>
+                    <entry>
+                        <mediaobject>
+                            <imageobject>
+                                <imagedata scale="25" fileref="./clu7.png"/>
+                            </imageobject>
+                        </mediaobject>
+                    </entry>
+                    <entry>4</entry>
+                </row>
+                <row>
+                    <entry>24102</entry>
+                    <entry>BsaI</entry>
+                    <entry>SARS-CoV-2</entry>
+                    <entry>
+                        <mediaobject>
+                            <imageobject>
+                                <imagedata scale="25" fileref="./clu8.png"/>
+                            </imageobject>
+                        </mediaobject>
+                    </entry>
+                    <entry>1</entry>
+                </row>
+                <row>
+                    <entry>24509</entry>
+                    <entry>BsmBI</entry>
+                    <entry>RaTG-13</entry>
+                    <entry>
+                        <mediaobject>
+                            <imageobject>
+                                <imagedata scale="25" fileref="./clu9.png"/>
+                            </imageobject>
+                        </mediaobject>
+                    </entry>
+                    <entry>2</entry>
+                </row>
+            </tbody>
+        </tgroup>
+    </table>
+    <simpara>
+        The odds they are calculating in the preprint are based on the
+        number of nucleotides in these regions that are silently mutated,
+        over the number that aren't silently mutated. So the first question
+        is, how many silent mutations are there in those regions?
+    </simpara>
+    <simpara>
+        Those first 5 sites contain, respectively, 1, 2, 0, 0 and 2 mutations.
+        Those add up to 5. 5 sites of 6nts each is 30nts, so we have 5 silent
+        muts, 30 total, and so 25 locations that aren't mutated (30-5). So the
+        odds would be 5/25 if we were only looking at sites in SARS-CoV-2. Now
+        if we looked instead at the 6 places in RaTG13 where sites occur, and
+        how many mutations are inside those sites, we find, respectively, 1, 1,
+        0, 0, 4, 1. Those sum to 7. So the odds here are 7/29. Clearly there are 12 silent mutations when we are interested in sites in <emphasis>either</emphasis> genome so the numerator of our odds will be 12. But what about the denominator?
+    </simpara>
+    <simpara>
+        There are 9 sites altogether (5 in SARS-CoV-2 plus 6
+        in RaTG13 minus the two that are in both). On that basis the total number of
+        nucleotides is 9&#xd7;6=54, and so our odds would be 12/42. This is the way
+        they calculate it in the preprint:
+    </simpara>
+
+    <programlisting>
+BB_sites_RaTG13 &lt;- Pos[Virus %in% c('SARS2','RaTG13'),length(unique(position))]*6 
+    </programlisting>
+
+    <simpara>
+        This inflates the odds ratio because it is only counting
+        the number of nucleotides that aren't silently mutated in those two regions
+        where both genomes share a site once, not once <emphasis>for each genome</emphasis>.
+    </simpara>
+    <simpara>
+        If we look at the odds of silent mutations in places where the sites appear in each genome individually, but without trying to combine them, we find 5/25 and 7/29 for where sites appear in SARS-CoV-2 or RaTG13 respectively. We shouldn't expect those odds to magically increase when we look at both together, just because we are looking at both together. This is why combining those odds should give us (5+7)/(25+29)=12/54 (not 12/42).
+    </simpara>
+    <simpara>
+        In other words, if a site appears in both genomes, it needs to contribute to the denominator <emphasis>twice</emphasis>. There is a more discussion of this subtlety in
+        this
+        <link xlink:href="https://x.com/gadboit/status/1811667218813399548">
+            X thread.
+        </link>
+    </simpara>
+</section>
+<section>
+    <title>Another look at the distributions of ORs with correct counting of double matches</title>
+    <simpara>
+        So how do things look when we use the correct denominators, taking into account sites that appear in both genomes?
+    </simpara>
+
+    <figure>
+        <title>ORs (corrected double matches) for 5000 pairs of random 6nt patterns in SARS-CoV-2 vs RaTG13</title>
+        <mediaobject>
+            <imageobject>
+                <imagedata fileref="./graph04.svg"/>
+            </imageobject>
+        </mediaobject>
+    </figure>
+    <simpara>
+        This was computed with:
+    </simpara>
+    <simpara>
+        <literallayout>
+            <code>
+                $ go run -- *.go -algo original -montecarlo -which-mc=3
+                $ gnuplot --persist distribution.gpi
+            </code>
+        </literallayout>
+    </simpara>
+
+    <simpara>
+        As we can see (compare with Figure 2) the distribution of ORs for other 6nt sites is now correctly centered on 1.
+    </simpara>
+
+    <figure id="fig4">
+        <title>ORs (corrected double matches) for all combinations of pairs of SARS2r-CoV genomes</title>
+        <mediaobject>
+            <imageobject>
+                <imagedata fileref="./graph03.svg"/>
+            </imageobject>
+        </mediaobject>
+    </figure>
+    <simpara>
+        This was computed with:
+    </simpara>
+    <simpara>
+        <literallayout>
+            <code>
+                $ go run -- *.go -algo original -testall -fasta ../fasta/SARS2-relatives.fasta
+                $ gnuplot --persist distribution.gpi
+            </code>
+        </literallayout>
+    </simpara>
+
+    <simpara>
+        But, interestingly, the distribution of the ORs when looking at mutations in BsaI/BsmBI sites in other pairs of viruses is still centered some way above 1.0.
+    </simpara>
+
+    <simpara>
+        We now have a calculation we can basically trust&#x2014; because it does yield
+        an OR of about 1.0 on one of our controls (we don't expect patterns
+        other than BsaI/BsmBI to have been manipulated in SARS-CoV-2).
+    </simpara>
+
+    <simpara>
+        But on the other control (we don't expect BsaI/BsmBI sites to have
+        been manipulated in other viruses that aren't SARS-CoV-2) it still seems
+        to be "reading too high".
+    </simpara>
+
+    <simpara>
+        What this seems to be telling us is that there is indeed something
+        "special"
+        about BsaI/BsmBI sites, but which we also see in other viruses that are
+        under no
+        suspicion of having been engineered. So whatever that special thing it
+        is, it is not
+        attributable to engineering. But if we can understand what it is
+        attributable to, maybe we can do a corrected calculation to see if there
+        is any remaining significance for the engineering hypothesis.
+    </simpara>
+
+    <simpara>
+        After counting the sites that appear in both viruses correctly, we end
+        up with the following ORs and ps:
+        <informaltable>
+            <tgroup cols="3">
+                <thead>
+                    <row>
+                        <entry>Comparison</entry>
+                        <entry>OR</entry>
+                        <entry>p-value</entry>
+                    </row>
+                </thead>
+                <tbody>
+                    <row>
+                        <entry>SARS-CoV-2 vs RaTG13</entry>
+                        <entry>6.672904</entry>
+                        <entry>1.294&#xd7;10<superscript>-6</superscript></entry>
+                    </row>
+                    <row>
+                        <entry>SARS-CoV-2 vs BANAL-20-52</entry>
+                        <entry>3.839797</entry>
+                        <entry>0.013</entry>
+                    </row>
+                </tbody>
+            </tgroup>
+        </informaltable>
+    </simpara>
+</section>
+<section>
+    <title>What's special about BsaI/BsmBI?</title>
+
+    <simpara>
+        If you look at <link linkend="table1">Table 1</link> above, one particular site stands out. This is the site at 22922. In SARS-CoV-2 we have AGATTG, and in RaTG13, CGTCTC (which is the BsmBI site). Remarkably, in this section of 6 nucleotides, there are <emphasis>4</emphasis> silent mutations.
+    </simpara>
+
+    <simpara>
+        That one site contributes a great deal to the high odds ratio (and low p-value) for the comparison. If we change that last site in SARS-CoV-2 to CGTCTT (which differs from RaTG13 silently, as before, but this time with only 1 mutation rather than 4) and repeat the calculation, we get an OR of 4.74 and p=0.00027 (compared with 6.67 and 1.294&#xd7;10<superscript>-6</superscript>)
+    </simpara>
+
+    <simpara>
+        What best explains this unusual site, with 4 silent mutations out of 6? On the face of it, it's unlikely to be engineering. We would expect an engineer to make the minimum number of changes possible to add or remove a BsaI/BsmBI site (so as to minimize the risk of disrupting secondary RNA structure etc.). Why would she remove a site with 4 silent mutations rather than just one?
+    </simpara>
+
+    <simpara>
+        What about a natural explanation? The BsmBI site happens to be codon-aligned and codes for the amino acid sequence Arginine-Leucine at this point in RaTG13. That particular combination happens to have the largest number of possible synonyms of <emphasis>any</emphasis> pair of amino acids in biology.
+    </simpara>
+
+    <simpara>
+        There are 36 synonyms for Arginine-Leucine, many of which have 3 or 4 mutations from CGTCTC:
+    </simpara>
+    <simpara>
+    <informaltable>
+        <tgroup cols="2">
+            <thead>
+                <row>
+                <entry>Nucleotides</entry>
+                <entry>Mutations from CGTCTC</entry>
+                </row>
+            </thead>
+            <tbody>
+                <row><entry>CGTCTC</entry><entry>0</entry></row>
+                <row><entry>AGACTC</entry><entry>2</entry></row>
+                <row><entry>CGGCTC</entry><entry>1</entry></row>
+                <row><entry>CGACTC</entry><entry>1</entry></row>
+                <row><entry>CGCCTC</entry><entry>1</entry></row>
+                <row><entry>AGGCTC</entry><entry>2</entry></row>
+                <row><entry>AGACTG</entry><entry>3</entry></row>
+                <row><entry>CGGCTG</entry><entry>2</entry></row>
+                <row><entry>CGACTG</entry><entry>2</entry></row>
+                <row><entry>CGCCTG</entry><entry>2</entry></row>
+                <row><entry>AGGCTG</entry><entry>3</entry></row>
+                <row><entry>CGTCTG</entry><entry>1</entry></row>
+                <row><entry>AGATTA</entry><entry>4</entry></row>
+                <row><entry>CGGTTA</entry><entry>3</entry></row>
+                <row><entry>CGATTA</entry><entry>3</entry></row>
+                <row><entry>CGCTTA</entry><entry>3</entry></row>
+                <row><entry>AGGTTA</entry><entry>4</entry></row>
+                <row><entry>CGTTTA</entry><entry>2</entry></row>
+                <row><entry>AGATTG</entry><entry>4</entry></row>
+                <row><entry>CGGTTG</entry><entry>3</entry></row>
+                <row><entry>CGATTG</entry><entry>3</entry></row>
+                <row><entry>CGCTTG</entry><entry>3</entry></row>
+                <row><entry>AGGTTG</entry><entry>4</entry></row>
+                <row><entry>CGTTTG</entry><entry>2</entry></row>
+                <row><entry>AGACTA</entry><entry>3</entry></row>
+                <row><entry>CGGCTA</entry><entry>2</entry></row>
+                <row><entry>CGACTA</entry><entry>2</entry></row>
+                <row><entry>CGCCTA</entry><entry>2</entry></row>
+                <row><entry>AGGCTA</entry><entry>3</entry></row>
+                <row><entry>CGTCTA</entry><entry>1</entry></row>
+                <row><entry>AGACTT</entry><entry>3</entry></row>
+                <row><entry>CGGCTT</entry><entry>2</entry></row>
+                <row><entry>CGACTT</entry><entry>2</entry></row>
+                <row><entry>CGCCTT</entry><entry>2</entry></row>
+                <row><entry>AGGCTT</entry><entry>3</entry></row>
+                <row><entry>CGTCTT</entry><entry>1</entry></row>
+            </tbody>
+        </tgroup>
+    </informaltable>
+    </simpara>
+
+    <simpara>
+        Under an assumption of strong purifying selection, it is perhaps not too unexpected to find 4 silent mutations in 6 nucleotides in places where 4 silent mutations in 6 nucleotides are <emphasis>possible</emphasis>.
+    </simpara>
+
+    <simpara>
+        In other words, the specialness of BsmBI in this test might be arising not from <emphasis>where</emphasis> it is, but from <emphasis>what</emphasis> it is. It so happens that in one direction (and when in frame) the BsmBI recognition sequences codes for a protein sequence that has a high number of synonyms with lots of mutations. This might be why we find an unusually high number of silent mutations in BsmBI sites (including in other pairs of viruses, not suspected of being engineered&#x2014; see <link linkend="fig4">Figure 4</link>).
+    </simpara>
+
+    <simpara>
+        There is another way we can test whether what matters about BsaI/BsmBI sites is their content rather than their location. We can repeat the calculation we used for <link linkend="fig4">Figure 4</link> but before doing each comparison, redistribute the silent mutations.
+    </simpara>
+
+    <simpara>
+        The way this works is as follows: Before doing the calculation of the odds ratio between two genomes, we first count the number of silent mutations that exist between them. Then we set the second genome equal to the first. Then we find all the positions where a silent mutation is possible. We pick positions from that set at random, and choose, also at random, the actual nucleotide to use, provided that it gives us a silent mutation, and apply that to the second genome. Then we do the odds ratio calculation as before.
+    </simpara>
+
+    <simpara>
+        If, after randomizing the positions of the mutations, we still find that BsaI/BsmBI sites score generally higher than 1 on our test, it confirms the hypothesis that this is because more mutations are possible in those sites, because of the content they happen to have. It can't be anything to do with position, because we randomized the positions.
+    </simpara>
+    <simpara>
+        <literallayout>
+            <code>
+$ go run -- *.go -algo original -testall -fasta ../fasta/SARS2-relatives.fasta -redistrib
+            </code>
+        </literallayout>
+    </simpara>
+
+    <figure id="fig5">
+        <title>ORs (corrected double matches) for all combinations of pairs of SARS2r-CoV genomes, silent mutations redistributed randomly</title>
+        <mediaobject>
+            <imageobject>
+                <imagedata fileref="./graph05.svg"/>
+            </imageobject>
+        </mediaobject>
+    </figure>
+
+    <simpara>
+        The result is a distribution still centered above 1. In other words: you
+        tend to find more silent mutations in BsaI/BsmBI sites even when their
+        positions are randomized, because (at least partly) more silent
+        mutations are possible in those sites.
+    </simpara>
+</section>
+
+<section>
+    <title>An improved calculation shows that there is a real anomaly</title>
+    <simpara>
+        The original calculation in the preprint was of the odds ratio of
+        silently mutated locations, and locations that weren't silently mutated,
+        inside and outside the BsaI/BsmBI sites. There is an implicit assumption
+        there that we would expect those ratios to be about the same. But, as we
+        have seen, that assumption turns out to be false.
+    </simpara>
+    <simpara>
+        Can we do better? It's worth reminding ourselves what Fisher's Exact
+        Test actually exactly tests. If I put 1000 balls in a hat, of which 990
+        are red, and 10 are blue, and you pick out 5 balls at random, what is
+        the probability that 3 or more of the 5 will be blue? That probability
+        is the p-value that Fisher's Exact Test gives us (there are slightly
+        different calculations for exactly 3, 3 or more, or 3 or fewer).
+    </simpara>
+    <simpara>
+        So what we really want to do here is put <emphasis>all possible</emphasis> silent mutations into a "hat", with the ones that are inside BsaI/BsmBI sites "coloured" red. Then we can use the test to tell us the probability that, under the assumption that nature just picks possible mutations at random, we would find the number of silent mutations in the sites that we do find. If that number is still low then we can wonder about alternative hypotheses to explain it (including engineering).
+    </simpara>
+    <simpara>
+        In reality, we know that nature does not exactly pick mutations at
+        random. Some nucleotides are more common than others in particular
+        genomes. Sometimes particular codons are preferred over others. Some
+        regions are subject to stronger purifying selection than others.
+        Nevertheless, keeping these caveats in mind, we can try a modified test
+        and see how it performs on our controls. This will at least give us some
+        kind of estimate of whether there is really anything unusual about the
+        locations of the sites in the SARS-CoV-2 genome.
+    </simpara>
+    <simpara>
+        To recap briefly: the odds ratio calculated in the original preprint was (number of silent mutations in sites / other locations in sites) / (number of silent mutations outside sites / other locations outside sites). This takes no account of how many silent mutations are <emphasis>possible</emphasis> in each location, and resulted in inflated values, particularly for one of the BsmBI sites which happens to code for a sequence that has a large number of possible synonyms, as well as defining a site. This coincidence has nothing to do with any lab engineering hypothesis.
+    </simpara>
+    <simpara>
+        Our new calculation will take the form: (number of silent mutations in sites / number of silent mutations outside sites) / (number of possible silent mutations in sites / number of possible silent mutations outside sites).
+    </simpara>
+    <simpara>
+        How do we decide how many silent mutations are possible at a particular
+        location? There are various ways you could do this. You could say a
+        silent mutation is possible if you can change just that nucleotide on
+        its own to one of the other four without changing the protein. You
+        could call that "one possible mutation", or you could count each
+        alternative nucleotide that doesn't change the protein there as a
+        separate possible mutation, and add them all up
+    </simpara>
+    <simpara>
+        These are reasonable models for random point mutations over a relatively
+        short period of time. But they don't capture the situation where
+        multiple adjacent nucleotides can change together (or one after the
+        other) and give you the same protein, which perhaps models better a
+        situation in which you have a lot of mutation time but strong purifying
+        selection. In particular they won't be able to "find" the situation we
+        have with that BsmBI site at 22922, where there are 4 mutations out of 6
+        and no change to the protein.
+    </simpara>
+    <simpara>
+        A more "aggressive" approach, and the calculation we are using here,
+        is to count all the possible values that a nucleotide could have, while
+        preserving the protein, assuming that surrounding nucleotides change as
+        necessary in order to allow that. Each of those alternative values is a
+        "ball" in our
+        "hat" for Fisher's Exact Test, and the ones that happen to be inside
+        BsaI/BsmBI sites are "coloured red". Now that we know how many balls of
+        each colour are in the hat, we can compare with the actual numbers of silent
+        mutations inside and outside sites, between any two genomes,
+        and calculate an odds ratio and p-value. If a nucleotide can have the
+        same value as part of more than one synonymous codon, we count all of them.
+        For example the third nucleotide in a Leucine codon can be 'A' either
+        because the codon is "TTA" or because it's "CTA". We therefore count a
+        mutation to A in this position as
+        <emphasis>
+        two
+    </emphasis>
+    possible mutations, because what we are trying to capture here is some
+    approximation to the "number of ways" you can end up with an A there.
+    </simpara>
+    <simpara>
+        When applied to our first control&#x2014; random pairs of 6nt patterns
+        and their reverse complements&#x2014; we see a distribution that
+        looks a bit skewed, but is still centered on 1:
+    </simpara>
+    <figure id="fig7">
+        <title>ORs (improved calculation) for 5000 pairs of random 6nt patterns in SARS-CoV-2 vs RaTG13</title>
+        <mediaobject>
+            <imageobject>
+                <imagedata fileref="./graph08.svg"/>
+            </imageobject>
+        </mediaobject>
+    </figure>
+    <simpara>
+        This was created with:
+    </simpara>
+
+    <simpara>
+        <literallayout>
+            <code>
+$ go run -- *.go -montecarlo -which-mc=3
+$ gnuplot --persist distribution.gpi
+            </code>
+        </literallayout>
+    </simpara>
+    <simpara>
+        The first control was always centered on 1. But this time, when applied to our other control&#x2014; all the pairs of
+        SARS2-related viruses in a large set&#x2014; this new calculation also gives us a distribution centered on 1. Notably, the
+        comparisons between SARS-CoV-2 and BANAL-20-52, RaTG13, or the "Chimeric Ancestor" are <emphasis>still</emphasis> outliers.
+    </simpara>
+
+    <figure id="fig7">
+        <title>ORs (improved calculation) for all combinations of pairs of SARS2r-CoV genomes</title>
+        <mediaobject>
+            <imageobject>
+                <imagedata fileref="./graph07.svg"/>
+            </imageobject>
+        </mediaobject>
+    </figure>
+
+    <simpara>
+        This was created with:
+    </simpara>
+
+    <simpara>
+        <literallayout>
+            <code>
+$ go run -- *.go -testall -fasta ../fasta/SARS2-relatives.fasta
+$ gnuplot --persist distribution.gpi
+            </code>
+        </literallayout>
+    </simpara>
+
+    <simpara>
+        And here are the ORs and p-values for comparisons between SARS-CoV-2 and closely related viruses, using Fisher's Exact Test on the contingency matrix constructed with possible mutations as described above:
+        <informaltable>
+            <tgroup cols="3">
+                <thead>
+                    <row>
+                        <entry>Comparison</entry>
+                        <entry>OR</entry>
+                        <entry>p-value</entry>
+                    </row>
+                </thead>
+                <tbody>
+                    <row>
+                        <entry>SARS-CoV-2 vs RaTG13</entry>
+                        <entry>4.066</entry>
+                        <entry>7.66&#xd7;10<superscript>-5</superscript></entry>
+                    </row>
+                    <row>
+                        <entry>SARS-CoV-2 vs BANAL-20-52</entry>
+                        <entry>2.850</entry>
+                        <entry>0.0349</entry>
+                    </row>
+                    <row>
+                        <entry>SARS-CoV-2 vs Chimeric Ancestor</entry>
+                        <entry>3.730</entry>
+                        <entry>0.00055</entry>
+                    </row>
+                </tbody>
+            </tgroup>
+        </informaltable>
+    </simpara>
+
+    <simpara>
+        Note that these p-values should only be considered approximations. Fisher's Exact Test is assuming a hypergeometric distribution (which is what you will get with actual coloured balls in hats). The actual distribution will be something different, because of, among other things, the caveats mentioned above. Nevertheless we can see from <link linkend="fig7">Figure 7</link> that there is no doubt that the number of silent mutations between SARS-CoV-2 and its closest known relatives in BsaI/BsmBI sites <emphasis>is</emphasis> anomalous. That is just a graph of actual values computed on real viruses.
+    </simpara>
+    <simpara>
+        It doesn't automatically follow that what we observe here is more probable under an engineering hypothesis. But it certainly invites suspicion given that:
+    </simpara>
+    <itemizedlist>
+        <listitem>
+            <simpara>
+                The DEFUSE draft proposal mentioned 6 segments using BsmBI (but it doesn't mention BsaI).
+            </simpara>
+        </listitem>
+        <listitem>
+            <simpara>
+                SARS-CoV-2 does divide into 6 segments, none of which are too long, if you split it on BsmBI and BsaI sites. This type of pattern would be expected to occur naturally about 0.6%<footnote>
+                    Based on my own simulation, the code for which is in the <code>resite_sim</code> directory.
+                </footnote>
+                    of the time.
+            </simpara>
+        </listitem>
+        <listitem>
+            <simpara>
+                As demonstrated above, there is some anomaly around the silent mutations in BsaI/BsmBI sites in SARS-CoV-2 compared to its closest known relatives, when compared to controls.
+            </simpara>
+        </listitem>
+    </itemizedlist>
+    <simpara>
+        However, other features of the engineering hypothesis still require explanation. If you were using BsaI/BsmBI, why would you leave the sites in the final assembled genome anyway? Why use BsaI as well as BsmBI?
+    </simpara>
+    <simpara>
+        Furthermore, as we shall see in the next section, a different feature of the BsaI/BsmBI sites in SARS-CoV-2 and its relatives seems more consistent with a natural origin, and also raises questions about whether this anomalous odds ratio has anything to do with engineering.
+    </simpara>
+
+</section>
+<section>
+    <title>What do BsaI/BsmBI sites in related viruses but not in SARS-CoV-2 tell us?</title>
+    <table id="table3">
+        <title>BsaI/BsmBI sites removed in SARS-CoV-2 compared to close relatives</title>
+        <tgroup cols="4">
+            <thead>
+                <row>
+                    <entry>Position</entry>
+                    <entry>Allele in SARS-CoV-2</entry>
+                    <entry>Shared with</entry>
+                    <entry>Alternatives and their frequencies</entry>
+                </row>
+            </thead>
+            <tbody>
+                <row>
+                    <entry>4665</entry>
+                    <entry>GATCTC</entry>
+                    <entry>10</entry>
+                    <entry>
+                        GATCCC (2), <emphasis role="strong">
+                            GGTCTC (1), </emphasis>
+                        GATCAC (1), GATCGC (0)</entry>
+                </row>
+                <row>
+                    <entry>4772</entry>
+                    <entry>GAAACC</entry>
+                    <entry>14</entry>
+                    <entry>
+                        GAAACG (0), <emphasis role="strong">
+                            GAGACC (0), </emphasis>
+                        GAAACA (0), GAAACT (0) </entry>
+                </row>
+                <row>
+                    <entry>6403</entry>
+                    <entry>AGTCTC</entry>
+                    <entry>10</entry>
+                    <entry>
+                        AGTTTC (0), AGTGTC (0), AGTATC (0), TGTCTC (1), <emphasis role="strong">
+                            CGTCTC (2), </emphasis>
+                        <emphasis role="strong">
+                            GGTCTC (0)</emphasis>
+                    </entry>
+                </row>
+                <row>
+                    <entry>7699</entry>
+                    <entry>AAGACC</entry>
+                    <entry>11</entry>
+                    <entry>
+                        AAGGCC (0), <emphasis role="strong">
+                            GAGACC (4), </emphasis>
+                        ACGACC (0) </entry>
+                </row>
+                <row>
+                    <entry>10444</entry>
+                    <entry>GAGGCC</entry>
+                    <entry>1</entry>
+                    <entry>
+                        GCGGCC (0), <emphasis role="strong">
+                            GAGACC (14), </emphasis>
+                    </entry>
+                </row>
+                <row>
+                    <entry>11064</entry>
+                    <entry>GGTCTT</entry>
+                    <entry>14</entry>
+                    <entry>
+                        GGTCCT (0), GGTCAT (0), GGTCGT (0), <emphasis role="strong">
+                            GGTCTC (1)</emphasis>
+                    </entry>
+                </row>
+                <row>
+                    <entry>11648</entry>
+                    <entry>GGCCTC</entry>
+                    <entry>6</entry>
+                    <entry>
+                        GGCCTT (0), GGCCTG (0), GGACTC (0), <emphasis role="strong">
+                            GGTCTC (7), </emphasis>
+                        GGGCTC (0), GGCCTA (1) </entry>
+                </row>
+                <row>
+                    <entry>12423</entry>
+                    <entry>GAGATG</entry>
+                    <entry>12</entry>
+                    <entry>
+                        <emphasis role="strong">
+                            GAGACG (1), </emphasis>
+                        GGGATG (2) </entry>
+                </row>
+                <row>
+                    <entry>15644</entry>
+                    <entry>GAGATG</entry>
+                    <entry>13</entry>
+                    <entry>
+                        <emphasis role="strong">
+                            GAGACG (1), </emphasis>
+                        GGGATG (1) </entry>
+                </row>
+                <row>
+                    <entry>15752</entry>
+                    <entry>CATCTC</entry>
+                    <entry>10</entry>
+                    <entry>
+                        CATCCC (0), CCTCTC (0), <emphasis role="strong">
+                            CGTCTC (2), </emphasis>
+                        CTTCTC (0), CATCAC (2), CATCGC (0) </entry>
+                </row>
+                <row>
+                    <entry>15844</entry>
+                    <entry>GAGACT</entry>
+                    <entry>14</entry>
+                    <entry>
+                        <emphasis role="strong">
+                            GAGACG (0), </emphasis>
+                        <emphasis role="strong">
+                            GAGACC (1), </emphasis>
+                        GAGACA (0), GAAACT (0) </entry>
+                </row>
+                <row>
+                    <entry>16299</entry>
+                    <entry>TAGACC</entry>
+                    <entry>11</entry>
+                    <entry>
+                        TAGGCC (0), CAGACC (2), <emphasis role="strong">
+                            GAGACC (1), </emphasis>
+                        AAGACC (1), TCGACC (0) </entry>
+                </row>
+                <row>
+                    <entry>16663</entry>
+                    <entry>GAGACA</entry>
+                    <entry>10</entry>
+                    <entry>
+                        <emphasis role="strong">
+                            GAGACG (0), </emphasis>
+                        <emphasis role="strong">
+                            GAGACC (3), </emphasis>
+                        GAAACA (2), GAGACT (0) </entry>
+                </row>
+                <row>
+                    <entry>18467</entry>
+                    <entry>GAGATC</entry>
+                    <entry>9</entry>
+                    <entry>
+                        <emphasis role="strong">
+                            GAGACC (3), </emphasis>
+                        GTGATC (1), GCGATC (0), GGGATC (0) </entry>
+                </row>
+                <row>
+                    <entry>20967</entry>
+                    <entry>TGTCTC</entry>
+                    <entry>10</entry>
+                    <entry>
+                        TGTTTC (3), TGTGTC (0), TGTATC (0), <emphasis role="strong">
+                            CGTCTC (2)</emphasis>
+                    </entry>
+                </row>
+                <row>
+                    <entry>24509</entry>
+                    <entry>CGTCTT</entry>
+                    <entry>7</entry>
+                    <entry>
+                        CGCCTT (2), CGGCTT (0), CGACTT (0), CGTCTG (0), <emphasis role="strong">
+                            CGTCTC (2), </emphasis>
+                        CGTCTA (3) </entry>
+                </row>
+            </tbody>
+        </tgroup>
+    </table>
+    <simpara>
+        This <link linkend="table3">table</link> shows each location where one or more of the related viruses in the 
+        <link xlink:href="https://www.nature.com/articles/s41586-022-04532-4">Temmam et al. 2022</link> paper have a BsaI/BsmBI site but SARS-CoV-2 does not, but where the protein is unchanged.
+    </simpara>
+    <simpara>
+        The list of viruses, and the basic idea here, comes from <link xlink:href="https://github.com/alexcritschristoph/ancestral_reconstruction_endonucleases.git">this</link> project, which I recommend investigating. But we are specifically concentrating on sites <emphasis>not</emphasis> in SARS-CoV-2 that were apparently <emphasis>removed</emphasis> and on <emphasis>how many ways there are</emphasis> of doing that.
+    </simpara>
+    <simpara>
+        The second column shows what SARS-CoV-2 does have in each location instead of the BsaI/BsmBI site.
+    </simpara>
+    <simpara>
+        The third column shows all the different nucleotide values of each site that would preserve the protein, followed by how often each occurs in the set of related viruses. <emphasis role="strong">Bold type</emphasis> indicates alleles that actually are BsaI/BsmBI sites.
+    </simpara>
+    <simpara>
+        Looking at the first row as an example, one of the viruses in the set
+        (it's RpYN06 in this case) has the BsaI site GGTCTC at position 4665 in
+        the
+        alignment. In this location, SARS-CoV-2 has GATCTC, and so do 10 other
+        viruses in the set. As we can see in the third column, other silent
+        alternatives of nucleotides are only rarely seen.
+    </simpara>
+    <simpara>
+        The striking thing about this data is how in all nearly all the places where SARS-CoV-2 has a site removed, the <emphasis>way</emphasis> it's removed seems to copy the exact nucleotides that are present in a significant majority of relatives.
+    </simpara>
+    <simpara>
+        Under an engineering hypothesis, our engineer working in the lab would need to move some sites around to achieve the desired restriction map. This would involve adding sites in some locations, and removing them in others.
+    </simpara>
+    <simpara>
+        If she were adding a site, she would probably look for a place close
+        enough to where she wanted that could be achieved with the minimum
+        number of mutations. There are lots of places you can put sites with
+        just one silent mutation, and the exact spacing for making a reverse
+        genetics system is not that important. This implies that it would be
+        very hard to see whether this had been done. The only trace would be a
+        handful of single silent mutations (and these are dotted around the
+        place anyway).
+    </simpara>
+    <simpara>
+        But if she were
+        <emphasis>
+        removing
+    </emphasis>
+    a site, there are many more choices. I would expect her just to put an
+    arbitrary single nucleotide change into the site, probably in the third
+    position of a codon, to eliminate it without changing the protein. So she would have to be "lucky" to end up with an allele that happened to be shared by a significant number of natural relatives.
+    </simpara>
+    <simpara>
+        This table gives us an idea of how lucky. In the first case, there are
+        four ways she could have removed the site. She picked the one that
+        happened to be shared by the majority of relatives-- about a 1/4 chance.
+        It's about 1/4 for all the rows in the table (except the location at
+        10444).
+    </simpara>
+    <simpara>
+        One question is how many sites did she have to remove? If it was four,
+        then there is a probability of only 0.004 that she would get this
+        "lucky". But if it was only 1, we have an insignificant result of of 0.25.
+    </simpara>
+    <simpara>
+        Looking at the table one location stands out&#x2014; the one at 10444.
+        Here the site is removed in SARS-CoV-2 with an allele only shared
+        with one other relative (RpYN06). So maybe only that one was engineered?
+        The site has been
+        removed with a single nucleotide change, which is the sort of economical
+        way we might expect an engineer to do it. Maybe it's just luck that it
+        matches RpYN06? This is possible, but note that in the <link xlink:href="https://www.nature.com/articles/s41586-022-04532-4">Temmam et al.</link> paper this whole region of the SARS-CoV-2 genome was found to be closest to RpYN06 out of all the relatives examined (suggesting it may have gained the allele at 10444 from a recent recombination event).
+    </simpara>
+    <simpara>
+        It is quite possible that in order to achieve the desired restriction
+        map you would only need to remove one site. But we can't have our cake
+        and eat it. If you only removed one site, with a single silent mutation,
+        that would be too small a change to make much difference to the
+        anomalous odds ratio reported above. We can
+        test this easily. If I remove that site and repeat the "improved" odds
+        ratio calculation I get:
+    </simpara>
+    <simpara>
+        <informaltable>
+            <tgroup cols="3">
+                <thead>
+                    <row>
+                        <entry>Comparison</entry>
+                        <entry>OR</entry>
+                        <entry>p-value</entry>
+                    </row>
+                </thead>
+                <tbody>
+                    <row>
+                        <entry>SARS-CoV-2 vs RaTG13</entry>
+                        <entry>3.463</entry>
+                        <entry>0.00055</entry>
+                    </row>
+                    <row>
+                        <entry>SARS-CoV-2 vs BANAL-20-52</entry>
+                        <entry>2.067</entry>
+                        <entry>0.1344</entry>
+                    </row>
+                    <row>
+                        <entry>SARS-CoV-2 vs Chimeric Ancestor</entry>
+                        <entry>3.830</entry>
+                        <entry>0.00024</entry>
+                    </row>
+                </tbody>
+            </tgroup>
+        </informaltable>
+    </simpara>
+    <simpara>
+        The ORs have all reduced, but there are still significant anomalies
+        compared to RaTG13 and the Chimeric Ancestor.
+    </simpara>
+    <simpara>
+        The fact that each added site can also be found in a relative is not
+        very significant, because when you add a site you have less choice about
+        how to add it. You would expect to find any arbitary single nucleotide
+        variation somewhere else in a collection of related viruses of about
+        90-95% sequence similarity. Only removed sites have the potential to
+        tell us something. But they all look "natural". Even if we suppose, for
+        the sake of argument, that the site at 10444 was engineered (and it's a
+        coincidence that it's shared by RpYN06), one site is not
+        enough to explain the anomalous odds ratio.
+    </simpara>
+</section>
+<section>
+    <title>How easy is it to detect simulated engineered genomes?</title>
+    <simpara>
+        To summarize the problem so far: we have an anomalous statistic
+        concerning mutations in BsaI/BsmBI sites in SARS-CoV-2 compared to its
+        close relatives. The mutations in those sites score significantly higher
+        on our calculation than in other pairs of related viruses. But when we look
+        at the sites themselves it doesn't look like any of them have been
+        removed compared to related viruses (except perhaps one coincidence).
+    </simpara>
+    <simpara>
+        The question we have is: is the anomalous statistic caused by
+        engineering, or some unknown natural factor? We already found one
+        coincidental natural factor (BsmBI sites naturally have a lot of
+        synonyms)
+        that affected the original calculation. There may be others. Nature is
+        full of surprises.
+    </simpara>
+    <simpara>
+        The fact that the anomalous statistic apparently has high significance
+        might actually argue
+        <emphasis>
+        against
+    </emphasis>
+    engineering for the following reason: would we
+    <emphasis>
+    expect
+</emphasis>
+    engineering to result in something detectable with such high significance?
+    If I
+    did want to tweak a genome to give me 6 segments shorter than 8000
+    nucleotides
+    between BsaI/BsmBI sites I would only need to introduce a small number of
+    silent
+    mutations, sprinkled among the noise of the 700 or so others that exist
+    between the genomes we are comparing anyway. Would those few extra ones show
+    up
+    on our test? And with how strong a signal? An analogy is: suppose I use a
+    sensitive microphone to try to
+    detect a water leak underground. But instead of finding the small hissing
+    noise
+    I'm looking for, it finds a really loud one. This would make me wonder if
+    the signal was caused
+    by something else like a car driving past.
+    </simpara>
+    <simpara>
+        We can approach this question with a simulation. On the computer we can
+        make thousands of simulated genomes with the right numbers of "natural"
+        silent mutations between them, selected from a representative nucleotide
+        distribution. Then in about half of these simulated genomes we introduce
+        a few additional silent mutations to add and remove BsaI/BsmBI sites. We
+        compute 
+        the odds ratio as discussed (using our final "improved" calculation&#x2014;
+        that centres on 1 in both controls) and then we can see how much those
+        odds ratios differ between the "tampered" and "untampered" genomes on
+        average.
+    </simpara>
+    <simpara>
+        Simulations like this are only an approximation. But they are based on
+        similar assumptions to those behind the idea that the odds ratio we are
+        calculating could detect tampering with BsaI/BsmBI sites. We are asking:
+        does the test work, even under its own assumptions?
+    </simpara>
+    <figure id="fig8">
+        <title>Simulation boxplots</title>
+        <mediaobject>
+            <imageobject>
+                <imagedata fileref="./boxplots.svg"/>
+            </imageobject>
+        </mediaobject>
+    </figure>
+    <simpara>
+        These are boxplots showing the distribution of ORs computed for mutants derived from
+        each of the specified genomes. The pink boxes show the ORs for mutants
+        that had not had extra silent mutations added in BsaI/BsmBI sites, and
+        the green ones those that had. The red arrows show the actual values of
+        the OR for SARS-CoV-2 compared with each virus.
+    </simpara>
+    <simpara>
+        The boxes are drawn around the regions between the first and third
+        quartiles, and the whiskers extend as far as 1.5 times the interquartile
+        range in each direction. There is good diagram of how this works <link xlink:href="https://en.wikipedia.org/wiki/Box_plot#/media/File:Boxplot_vs_PDF.svg">here</link>.
+    </simpara>
+    <simpara>
+        As we can see, even with only one site removed, the test is able to
+        distinguish engineered genomes from those that are not engineered, but
+        only with modest accuracy, especially in the case where only one site
+        was removed. In the right-hand plots the interquartile
+        ranges overlap.
+    </simpara>
+    <simpara>
+        This seems to fit with the intuition that a handful of extra silent mutations should not be possible to detect with such high confidences as p~=10<superscript>-5</superscript>. In the comparisons with RaTG13 (the top row of boxplots) the red line does seem to be "too high". Its value is outside the whiskers for both boxes: it would be an outlier <emphasis>whether SARS-CoV-2 was engineered or not</emphasis>.
+    </simpara>
+    <simpara>
+        This implies that our test
+        <emphasis>
+        is
+    </emphasis>
+        picking up something else. Another factor that might contribute to
+        different
+        mutation rates inside BsaI/BsmBI sites could be codon usage bias. In
+        other work I
+        have found some evidence that sequential double mutations are more
+        common in close relatives of SARS-CoV-2 than you would expect if they
+        just occurred individually at random. We don't know what might be
+        causing this, but we can't just assume that when something is anomalous
+        that it's caused by engineering.
+    </simpara>
+    <simpara>
+        A caveat to the above is how these mutants were simulated.
+The simulator works by picking a nucleotide at random from the distribution it finds in
+the starting genome. It then tries to put that nucleotide in at a
+random position to replace what was there. But if that would change the protein
+it gives up and tries again. It keeps doing this until it's achieved the same number of
+individual silent mutations that actually exist between SARS-CoV-2 or RaTG13 (or
+        whichever virus we're running the test on). The model here is that mutations are close to uniformly distributed in the genome. But, as we found when looking at the odds ratio calculation, a better model seems to take into account that in some places more silent mutations are <emphasis>possible</emphasis> than in others.
+    </simpara>
+    <simpara>
+        That is harder to simulate directly, because many of those possible silent mutations require nearby changes to keep them silent. But given that we expect there to be more silent mutations in the sites <emphasis>anyway</emphasis> (just because of what they happen to code for) in reality, we might expect that adding extra mutations in the sites would affect the odds ratio less. In other words a more realistic simulation might bring the red arrow down a bit in the RaTG13 simulation. In short: a more realistic simulation might mean that tampering is harder to see, and thus at the same time solve the problem that our test seems to be "reading too high".
+    </simpara>
+    <simpara>
+        When we look at the boxplots for BANAL-20-52 however, the actual OR hits squarely in the green box and nicely outside the pink one. That looks like a good positive result validating both the method and the result. It seems to indicate that this test works to detect tampering in the BsaI/BsmBI sites, and that it has detected it, but only with modest confidence (eyeballing the chart maybe it's somewhere around p=0.05%, which seems consistent with our estimate from Fisher's Exact Test which was p=0.035).
+    </simpara>
+</section>
+
+<section>
+    <title>Discussion</title>
+    <simpara>
+    The main points are:
+    </simpara>
+    <itemizedlist>
+        <listitem>
+            <simpara>
+                After correcting errors, and adjusting the calculation, we have a test that gives us an OR of about 1 on controls, but significantly outlying values on SARS-CoV-2 (See <link linkend="fig7">Figure 7</link>). Therefore we can say that there are indeed hotspots of silent mutation in BsaI/BsmBI sites in SARS-CoV-2.
+            </simpara>
+        </listitem>
+        <listitem>
+            <simpara>
+                However extremely low p-values that seem too good to be true probably
+                are: it just isn't that easy to spot such a small number of
+                extra silent mutations (see <link linkend="fig8">Figure 8</link>).
+            </simpara>
+        </listitem>
+        <listitem>
+            <simpara>
+                Is the evidence for engineering from this odds ratio calculation enough to balance out the evidence against it in <link linkend="table3">Table 2</link>?
+            </simpara>
+        </listitem>
+    </itemizedlist>
+    </section>
+
+    <section>
+        <title>Conclusion</title>
+        <simpara>
+            The conclusion is left as an exercise for the reader.
+        </simpara>
+    </section>
+
+</article>

@@ -396,7 +396,7 @@ func (it *altIter) Next() ([]byte, bool) {
 }
 
 func TestAlternatives() {
-	protein := []byte("LF")
+	protein := []byte("RL")
 	var it altIter
 	it.Init(protein)
 
@@ -423,6 +423,20 @@ func (a Alternatives) Less(i, j int) bool {
 
 func (a Alternatives) Swap(i, j int) {
 	a[i], a[j] = a[j], a[i]
+}
+
+// Return a copy of a which has been uniqued on Nts
+func (a Alternatives) Unique() Alternatives {
+	m := make(map[string]Alternative)
+	for _, alt := range a {
+		m[string(alt.Nts)] = alt
+	}
+
+	ret := make(Alternatives, 0)
+	for _, v := range m {
+		ret = append(ret, v)
+	}
+	return ret
 }
 
 /*
