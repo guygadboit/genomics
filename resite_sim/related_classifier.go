@@ -30,8 +30,8 @@ func (c *Classifier) Init() {
 	*/
 
 	/*
-	c.relatives = genomes.LoadGenomes("../fasta/ACCRealigned.fasta",
-		"../fasta/WH1.orfs", false)
+		c.relatives = genomes.LoadGenomes("../fasta/ACCRealigned.fasta",
+			"../fasta/WH1.orfs", false)
 	*/
 
 	c.relatives = genomes.LoadGenomes("../fasta/Temmam.fasta",

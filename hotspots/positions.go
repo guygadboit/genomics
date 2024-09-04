@@ -1,4 +1,4 @@
-package main
+package hotspots
 
 import (
 	"fmt"
@@ -36,13 +36,13 @@ func (p *PosDatum) Init(numGenomes int) {
 
 // map of positions to possible mutations at that position
 type PossibleMap struct {
-	window	int
-	mutations	map[int][]mutations.MutatedSequence
+	Window	int
+	Mutations	map[int][]mutations.MutatedSequence
 }
 
 func (p *PossibleMap) Init(window int) {
-	p.window = window
-	p.mutations = make(map[int][]mutations.MutatedSequence)
+	p.Window = window
+	p.Mutations = make(map[int][]mutations.MutatedSequence)
 }
 
 func NewPossibleMap(window int,
@@ -51,11 +51,11 @@ func NewPossibleMap(window int,
 	ret.Init(window)
 
 	for _, mut := range muts {
-		_, there := ret.mutations[mut.Pos]
+		_, there := ret.Mutations[mut.Pos]
 		if !there {
-			ret.mutations[mut.Pos] = []mutations.MutatedSequence{mut}
+			ret.Mutations[mut.Pos] = []mutations.MutatedSequence{mut}
 		} else {
-			ret.mutations[mut.Pos] = append(ret.mutations[mut.Pos], mut)
+			ret.Mutations[mut.Pos] = append(ret.Mutations[mut.Pos], mut)
 		}
 	}
 	return &ret
@@ -69,7 +69,7 @@ are there with each genome.
 func FindPositionInfo(g *genomes.Genomes,
 	possible *PossibleMap, sites [][]byte) PosInfo {
 	ret := make(PosInfo, g.Length())
-	window := possible.window
+	window := possible.Window
 
 	translations := make([]genomes.TranslationMap, g.NumGenomes())
 	for i := 0; i < g.NumGenomes(); i++ {
@@ -77,7 +77,7 @@ func FindPositionInfo(g *genomes.Genomes,
 	}
 
 	for i := 0; i < g.Length(); i++ {
-		muts := possible.mutations[i]
+		muts := possible.Mutations[i]
 
 		ret[i].Init(g.NumGenomes())
 		ret[i].Possible = len(muts)
@@ -162,10 +162,12 @@ func (p *PosInfo) ShowSites(g *genomes.Genomes) {
 			if pd.StartsSite[i] {
 				site := string(g.Nts[i][pos:pos+6])
 				fmt.Printf("Site %s at %d (0-based)\n", site, pos)
+                /*
 				for j := 0; j < 6; j++ {
 					fmt.Printf("%d,", (*p)[pos+j].Possible)
 				}
 				fmt.Printf("\n")
+                */
 			}
 		}
 	}

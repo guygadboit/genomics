@@ -8,6 +8,7 @@ package main
 import (
 	"fmt"
 	"genomics/genomes"
+	"genomics/hotspots"
 )
 
 type SilentInSites struct {
@@ -104,6 +105,9 @@ func CountSilentInSitesReference(name string, sites []ReSite,
 	var result TamperTrialResult
 	result.SilentInSites = CountSilentInSites(g, RE_SITES, false)
 	result.name = baseName
+
+	ct := hotspots.CalculateCT(g)
+	result.OR = ct.CalcOR()
 
 	results <- &result
 }
