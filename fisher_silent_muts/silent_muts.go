@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"genomics/genomes"
 	"genomics/mutations"
-	//"genomics/simulation"
 	"genomics/stats"
 	"genomics/utils"
 	"log"
+	"math"
 	"math/rand"
 	"os"
 )
@@ -219,7 +219,7 @@ func OutputResults(results []Result, which int) {
 
 	for _, res := range results {
 		if res.genome == which {
-			if res.OR != 0 {
+			if res.OR != 0 && !math.IsNaN(res.OR) {
 				fmt.Fprintln(orW, res.OR)
 			}
 			fmt.Fprintln(pW, res.p)
@@ -365,16 +365,10 @@ func TestAll(g *genomes.Genomes, sites [][]byte,
 
 func main() {
 	sites := [][]byte{
-		[]byte("GGTCTC"),
-		[]byte("GAGACC"),
-		[]byte("CGTCTC"),
-		[]byte("GAGACG"),
-		/*
-			[]byte("CGTCTT"),
-			[]byte("AAGACG"),
-			[]byte("TTGTTA"),
-			[]byte("TAACAA"),
-		*/
+		[]byte("GGTCTC"), // BsaI
+		[]byte("GAGACC"), // BsaI
+		[]byte("CGTCTC"), // BsmBI
+		[]byte("GAGACG"), // BsmBI
 	}
 
 	var fasta string
