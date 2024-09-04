@@ -79,14 +79,21 @@ func findScore(where Where, correctDoubles, inA, inB bool) int {
 	return score
 }
 
-func FindCT(posInfo PosInfo,
-	which int, where Where, correctDoubles bool) stats.ContingencyTable {
+func findCT(posInfo PosInfo,
+	which int, where Where,
+	correctDoubles bool, starts bool) stats.ContingencyTable {
 	var actualIn, actualOut int
 	var possibleIn, possibleOut int
 
 	for _, pd := range posInfo {
-		in0 := pd.InSite[0]
-		in1 := pd.InSite[which]
+		var in0, in1 bool
+		if starts {
+			in0 = pd.StartsSite[0]
+			in1 = pd.StartsSite[which]
+		} else {
+			in0 = pd.InSite[0]
+			in1 = pd.InSite[which]
+		}
 		score := findScore(where, correctDoubles, in0, in1)
 
 		if pd.Actual[which] {
@@ -115,6 +122,16 @@ func FindCT(posInfo PosInfo,
 	// be:
 	// ret.Init(actualIn, possibleIn, actualOut, possibleOut)
 	return ret
+}
+
+func FindCT(posInfo PosInfo,
+	which int, where Where, correctDoubles bool) stats.ContingencyTable {
+	return findCT(posInfo, which, where, correctDoubles, false)
+}
+
+func FindSiteCT(posInfo PosInfo,
+	which int, where Where, correctDoubles bool) stats.ContingencyTable {
+	return findCT(posInfo, which, where, correctDoubles, true)
 }
 
 // Do it the way they did in the preprint.
@@ -393,7 +410,7 @@ func main() {
 		// calcFn = FindCTAlt
 		calc = CalcCT{FindCT, 1}
 	case "per-site":
-		calc = CalcCT{FindCT, 6}
+		calc = CalcCT{FindSiteCT, 6}
 	case "wrong":
 		calc = CalcCT{FindCTWrong, 1}
 	default:
@@ -406,7 +423,13 @@ func main() {
 
 	if redistribute {
 		fmt.Println("Redistributing the mutations")
-		g = Redistribute(g, possible)
+		var pm *PossibleMap
+		if possible.window == 1 {
+			pm = possible
+		} else {
+			pm = NewPossibleMap(1, mutations.PossibleSilentMuts2(g, 0, 1))
+		}
+		g = Redistribute(g, pm)
 		g.SaveMulti("redistributed.fasta")
 		fmt.Printf("Wrote redistributed.fasta\n")
 	}
