@@ -14,6 +14,9 @@ import (
 	"time"
 )
 
+// Let's use this type for OneBased positions and regular ints for zero based.
+type OneBasedPos int
+
 /*
 Anything iterable and if you do it like this you can easily use it in for
 loops.
@@ -101,13 +104,10 @@ func (f *FileReader) Close() {
 
 type LineFun func(string, error) bool
 
-func Lines(fname string, fun LineFun) {
-	fp := NewFileReader(fname)
-	defer fp.Close()
-
+func lines(r *bufio.Reader, fun LineFun) {
 loop:
 	for {
-		line, err := fp.ReadString('\n')
+		line, err := r.ReadString('\n')
 		switch err {
 		case io.EOF:
 			break loop
@@ -123,10 +123,31 @@ loop:
 	}
 }
 
+// Call fun for all the lines in a file
+func Lines(fname string, fun LineFun) {
+	fp := NewFileReader(fname)
+	defer fp.Close()
+	lines(fp.Reader, fun)
+}
+
+// Call fun for all the lines in a Reader
+func ReaderLines(reader io.Reader, fun LineFun) {
+	r := bufio.NewReader(reader)
+	lines(r, fun)
+}
+
 func Atoi(s string) int {
 	ret, err := strconv.Atoi(s)
 	if err != nil {
 		log.Fatal("Bad integer")
+	}
+	return ret
+}
+
+func Atof(s string) float64 {
+	ret, err := strconv.ParseFloat(s, 64)
+	if err != nil {
+		log.Fatal("Bad float")
 	}
 	return ret
 }
@@ -139,13 +160,6 @@ func Wrap(w io.Writer, nts []byte) {
 		fmt.Fprintf(w, "%s\n", string(nts[i:i+ll]))
 	}
 	fmt.Fprintf(w, "%s\n", string(nts[i:]))
-}
-
-// Given a path get the basic filename without the extension out
-func BasicName(path string) string {
-	_, f := filepath.Split(path)
-	ext := filepath.Ext(f)
-	return strings.TrimSuffix(f, ext)
 }
 
 func IsRegularNt(nt byte) bool {
@@ -266,6 +280,16 @@ func ParseInts(s string, sep string) []int {
 	return ret
 }
 
+func Shorten(s string, length int) string {
+	words := strings.Split(s, " ")
+	w := words[0]
+	if len(w) > length {
+		return w[0:length]
+	} else {
+		return w
+	}
+}
+
 /*
 Make room in a slice for count new items starting at pos. This is a weird "Go
 Idiom". Makes sense when you think about it but too weird to remember so let's
@@ -277,4 +301,20 @@ func Insert[T any](s []T, pos, count int) []T {
 
 func Date(year int, month time.Month, day int) time.Time {
 	return time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
+}
+
+func SplitExt(fname string) (string, string) {
+	ext := filepath.Ext(fname)
+	base := fname[:len(fname)-len(ext)]
+	return base, ext
+}
+
+func BaseName(fname string) string {
+	var ret, ext string
+	for ret = fname; ; {
+		ret, ext = SplitExt(ret)
+		if len(ext) == 0 {
+			return ret
+		}
+	}
 }

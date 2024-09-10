@@ -1,0 +1,6997 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   width="357.5mm"
+   height="421mm"
+   viewBox="0 0 357.5 421"
+   version="1.1"
+   id="svg8158">
+  <defs
+     id="defs8152">
+    <circle
+       id="gpDot"
+       r="0.5"
+       stroke-width="0.5"
+       stroke="currentColor"
+       cx="0"
+       cy="0" />
+    <path
+       id="gpPt0"
+       stroke-width="0.222"
+       stroke="currentColor"
+       d="M -1,0 H 1 M 0,-1 v 2" />
+    <path
+       id="gpPt1"
+       stroke-width="0.222"
+       stroke="currentColor"
+       d="M -1,-1 1,1 M 1,-1 -1,1" />
+    <path
+       id="gpPt2"
+       stroke-width="0.222"
+       stroke="currentColor"
+       d="M -1,0 H 1 M 0,-1 v 2 m -1,-2 2,2 m -2,0 2,-2" />
+    <rect
+       id="gpPt3"
+       stroke-width="0.222"
+       stroke="currentColor"
+       x="-1"
+       y="-1"
+       width="2"
+       height="2" />
+    <rect
+       id="gpPt4"
+       stroke-width="0.222"
+       stroke="currentColor"
+       fill="currentColor"
+       x="-1"
+       y="-1"
+       width="2"
+       height="2" />
+    <circle
+       id="gpPt5"
+       stroke-width="0.222"
+       stroke="currentColor"
+       cx="0"
+       cy="0"
+       r="1" />
+    <use
+       xlink:href="#gpPt5"
+       id="gpPt6"
+       fill="currentColor"
+       stroke="none"
+       x="0"
+       y="0"
+       width="100%"
+       height="100%" />
+    <path
+       id="gpPt7"
+       stroke-width="0.222"
+       stroke="currentColor"
+       d="m 0,-1.33 -1.33,2 h 2.66 z" />
+    <use
+       xlink:href="#gpPt7"
+       id="gpPt8"
+       fill="currentColor"
+       stroke="none"
+       x="0"
+       y="0"
+       width="100%"
+       height="100%" />
+    <use
+       xlink:href="#gpPt7"
+       id="gpPt9"
+       stroke="currentColor"
+       transform="scale(-1)"
+       x="0"
+       y="0"
+       width="100%"
+       height="100%" />
+    <use
+       xlink:href="#gpPt9"
+       id="gpPt10"
+       fill="currentColor"
+       stroke="none"
+       x="0"
+       y="0"
+       width="100%"
+       height="100%" />
+    <use
+       xlink:href="#gpPt3"
+       id="gpPt11"
+       stroke="currentColor"
+       transform="rotate(45)"
+       x="0"
+       y="0"
+       width="100%"
+       height="100%" />
+    <use
+       xlink:href="#gpPt11"
+       id="gpPt12"
+       fill="currentColor"
+       stroke="none"
+       x="0"
+       y="0"
+       width="100%"
+       height="100%" />
+    <path
+       id="gpPt13"
+       stroke-width="0.222"
+       stroke="currentColor"
+       d="M 0,1.33 1.265,0.411 0.782,-1.067 -0.782,-1.076 -1.265,0.411 Z" />
+    <use
+       xlink:href="#gpPt13"
+       id="gpPt14"
+       fill="currentColor"
+       stroke="none"
+       x="0"
+       y="0"
+       width="100%"
+       height="100%" />
+    <filter
+       id="textbox"
+       filterUnits="objectBoundingBox"
+       x="0"
+       y="0"
+       height="1"
+       width="1">
+      <feFlood
+         flood-color="white"
+         flood-opacity="1"
+         result="bgnd"
+         id="feFlood3080" />
+      <feComposite
+         in="SourceGraphic"
+         in2="bgnd"
+         operator="atop"
+         id="feComposite3082" />
+    </filter>
+    <filter
+       id="greybox"
+       filterUnits="objectBoundingBox"
+       x="0"
+       y="0"
+       height="1"
+       width="1">
+      <feFlood
+         flood-color="lightgrey"
+         flood-opacity="1"
+         result="grey"
+         id="feFlood3085" />
+      <feComposite
+         in="SourceGraphic"
+         in2="grey"
+         operator="atop"
+         id="feComposite3087" />
+    </filter>
+    <circle
+       id="gpDot-6"
+       r="0.5"
+       stroke-width="0.5"
+       stroke="currentColor"
+       cx="0"
+       cy="0" />
+    <path
+       id="gpPt0-7"
+       stroke-width="0.222"
+       stroke="currentColor"
+       d="M -1,0 H 1 M 0,-1 v 2" />
+    <path
+       id="gpPt1-5"
+       stroke-width="0.222"
+       stroke="currentColor"
+       d="M -1,-1 1,1 M 1,-1 -1,1" />
+    <path
+       id="gpPt2-3"
+       stroke-width="0.222"
+       stroke="currentColor"
+       d="M -1,0 H 1 M 0,-1 v 2 m -1,-2 2,2 m -2,0 2,-2" />
+    <rect
+       id="gpPt3-5"
+       stroke-width="0.222"
+       stroke="currentColor"
+       x="-1"
+       y="-1"
+       width="2"
+       height="2" />
+    <rect
+       id="gpPt4-6"
+       stroke-width="0.222"
+       stroke="currentColor"
+       fill="currentColor"
+       x="-1"
+       y="-1"
+       width="2"
+       height="2" />
+    <circle
+       id="gpPt5-2"
+       stroke-width="0.222"
+       stroke="currentColor"
+       cx="0"
+       cy="0"
+       r="1" />
+    <use
+       xlink:href="#gpPt5-2"
+       id="gpPt6-9"
+       fill="currentColor"
+       stroke="none"
+       x="0"
+       y="0"
+       width="100%"
+       height="100%" />
+    <path
+       id="gpPt7-1"
+       stroke-width="0.222"
+       stroke="currentColor"
+       d="m 0,-1.33 -1.33,2 h 2.66 z" />
+    <use
+       xlink:href="#gpPt7-1"
+       id="gpPt8-2"
+       fill="currentColor"
+       stroke="none"
+       x="0"
+       y="0"
+       width="100%"
+       height="100%" />
+    <use
+       xlink:href="#gpPt7-1"
+       id="gpPt9-7"
+       stroke="currentColor"
+       transform="scale(-1)"
+       x="0"
+       y="0"
+       width="100%"
+       height="100%" />
+    <use
+       xlink:href="#gpPt9-7"
+       id="gpPt10-0"
+       fill="currentColor"
+       stroke="none"
+       x="0"
+       y="0"
+       width="100%"
+       height="100%" />
+    <use
+       xlink:href="#gpPt3-5"
+       id="gpPt11-9"
+       stroke="currentColor"
+       transform="rotate(45)"
+       x="0"
+       y="0"
+       width="100%"
+       height="100%" />
+    <use
+       xlink:href="#gpPt11-9"
+       id="gpPt12-3"
+       fill="currentColor"
+       stroke="none"
+       x="0"
+       y="0"
+       width="100%"
+       height="100%" />
+    <path
+       id="gpPt13-6"
+       stroke-width="0.222"
+       stroke="currentColor"
+       d="M 0,1.33 1.265,0.411 0.782,-1.067 -0.782,-1.076 -1.265,0.411 Z" />
+    <use
+       xlink:href="#gpPt13-6"
+       id="gpPt14-0"
+       fill="currentColor"
+       stroke="none"
+       x="0"
+       y="0"
+       width="100%"
+       height="100%" />
+    <filter
+       id="textbox-6"
+       filterUnits="objectBoundingBox"
+       x="0"
+       y="0"
+       height="1"
+       width="1">
+      <feFlood
+         flood-color="white"
+         flood-opacity="1"
+         result="bgnd"
+         id="feFlood2736" />
+      <feComposite
+         in="SourceGraphic"
+         in2="bgnd"
+         operator="atop"
+         id="feComposite2738" />
+    </filter>
+    <filter
+       id="greybox-2"
+       filterUnits="objectBoundingBox"
+       x="0"
+       y="0"
+       height="1"
+       width="1">
+      <feFlood
+         flood-color="lightgrey"
+         flood-opacity="1"
+         result="grey"
+         id="feFlood2741" />
+      <feComposite
+         in="SourceGraphic"
+         in2="grey"
+         operator="atop"
+         id="feComposite2743" />
+    </filter>
+    <circle
+       id="gpDot-8"
+       r="0.5"
+       stroke-width="0.5"
+       stroke="currentColor"
+       cx="0"
+       cy="0" />
+    <path
+       id="gpPt0-79"
+       stroke-width="0.222"
+       stroke="currentColor"
+       d="M -1,0 H 1 M 0,-1 v 2" />
+    <path
+       id="gpPt1-2"
+       stroke-width="0.222"
+       stroke="currentColor"
+       d="M -1,-1 1,1 M 1,-1 -1,1" />
+    <path
+       id="gpPt2-0"
+       stroke-width="0.222"
+       stroke="currentColor"
+       d="M -1,0 H 1 M 0,-1 v 2 m -1,-2 2,2 m -2,0 2,-2" />
+    <rect
+       id="gpPt3-2"
+       stroke-width="0.222"
+       stroke="currentColor"
+       x="-1"
+       y="-1"
+       width="2"
+       height="2" />
+    <rect
+       id="gpPt4-3"
+       stroke-width="0.222"
+       stroke="currentColor"
+       fill="currentColor"
+       x="-1"
+       y="-1"
+       width="2"
+       height="2" />
+    <circle
+       id="gpPt5-7"
+       stroke-width="0.222"
+       stroke="currentColor"
+       cx="0"
+       cy="0"
+       r="1" />
+    <use
+       xlink:href="#gpPt5-7"
+       id="gpPt6-5"
+       fill="currentColor"
+       stroke="none"
+       x="0"
+       y="0"
+       width="100%"
+       height="100%" />
+    <path
+       id="gpPt7-9"
+       stroke-width="0.222"
+       stroke="currentColor"
+       d="m 0,-1.33 -1.33,2 h 2.66 z" />
+    <use
+       xlink:href="#gpPt7-9"
+       id="gpPt8-22"
+       fill="currentColor"
+       stroke="none"
+       x="0"
+       y="0"
+       width="100%"
+       height="100%" />
+    <use
+       xlink:href="#gpPt7-9"
+       id="gpPt9-8"
+       stroke="currentColor"
+       transform="scale(-1)"
+       x="0"
+       y="0"
+       width="100%"
+       height="100%" />
+    <use
+       xlink:href="#gpPt9-8"
+       id="gpPt10-9"
+       fill="currentColor"
+       stroke="none"
+       x="0"
+       y="0"
+       width="100%"
+       height="100%" />
+    <use
+       xlink:href="#gpPt3-2"
+       id="gpPt11-7"
+       stroke="currentColor"
+       transform="rotate(45)"
+       x="0"
+       y="0"
+       width="100%"
+       height="100%" />
+    <use
+       xlink:href="#gpPt11-7"
+       id="gpPt12-36"
+       fill="currentColor"
+       stroke="none"
+       x="0"
+       y="0"
+       width="100%"
+       height="100%" />
+    <path
+       id="gpPt13-1"
+       stroke-width="0.222"
+       stroke="currentColor"
+       d="M 0,1.33 1.265,0.411 0.782,-1.067 -0.782,-1.076 -1.265,0.411 Z" />
+    <use
+       xlink:href="#gpPt13-1"
+       id="gpPt14-2"
+       fill="currentColor"
+       stroke="none"
+       x="0"
+       y="0"
+       width="100%"
+       height="100%" />
+    <filter
+       id="textbox-9"
+       filterUnits="objectBoundingBox"
+       x="0"
+       y="0"
+       height="1"
+       width="1">
+      <feFlood
+         flood-color="white"
+         flood-opacity="1"
+         result="bgnd"
+         id="feFlood1360" />
+      <feComposite
+         in="SourceGraphic"
+         in2="bgnd"
+         operator="atop"
+         id="feComposite1362" />
+    </filter>
+    <filter
+       id="greybox-3"
+       filterUnits="objectBoundingBox"
+       x="0"
+       y="0"
+       height="1"
+       width="1">
+      <feFlood
+         flood-color="lightgrey"
+         flood-opacity="1"
+         result="grey"
+         id="feFlood1365" />
+      <feComposite
+         in="SourceGraphic"
+         in2="grey"
+         operator="atop"
+         id="feComposite1367" />
+    </filter>
+    <circle
+       id="gpDot-4"
+       r="0.5"
+       stroke-width="0.5"
+       stroke="currentColor"
+       cx="0"
+       cy="0" />
+    <path
+       id="gpPt0-78"
+       stroke-width="0.222"
+       stroke="currentColor"
+       d="M -1,0 H 1 M 0,-1 v 2" />
+    <path
+       id="gpPt1-4"
+       stroke-width="0.222"
+       stroke="currentColor"
+       d="M -1,-1 1,1 M 1,-1 -1,1" />
+    <path
+       id="gpPt2-5"
+       stroke-width="0.222"
+       stroke="currentColor"
+       d="M -1,0 H 1 M 0,-1 v 2 m -1,-2 2,2 m -2,0 2,-2" />
+    <rect
+       id="gpPt3-0"
+       stroke-width="0.222"
+       stroke="currentColor"
+       x="-1"
+       y="-1"
+       width="2"
+       height="2" />
+    <rect
+       id="gpPt4-36"
+       stroke-width="0.222"
+       stroke="currentColor"
+       fill="currentColor"
+       x="-1"
+       y="-1"
+       width="2"
+       height="2" />
+    <circle
+       id="gpPt5-1"
+       stroke-width="0.222"
+       stroke="currentColor"
+       cx="0"
+       cy="0"
+       r="1" />
+    <use
+       xlink:href="#gpPt5-1"
+       id="gpPt6-0"
+       fill="currentColor"
+       stroke="none"
+       x="0"
+       y="0"
+       width="100%"
+       height="100%" />
+    <path
+       id="gpPt7-6"
+       stroke-width="0.222"
+       stroke="currentColor"
+       d="m 0,-1.33 -1.33,2 h 2.66 z" />
+    <use
+       xlink:href="#gpPt7-6"
+       id="gpPt8-3"
+       fill="currentColor"
+       stroke="none"
+       x="0"
+       y="0"
+       width="100%"
+       height="100%" />
+    <use
+       xlink:href="#gpPt7-6"
+       id="gpPt9-2"
+       stroke="currentColor"
+       transform="scale(-1)"
+       x="0"
+       y="0"
+       width="100%"
+       height="100%" />
+    <use
+       xlink:href="#gpPt9-2"
+       id="gpPt10-06"
+       fill="currentColor"
+       stroke="none"
+       x="0"
+       y="0"
+       width="100%"
+       height="100%" />
+    <use
+       xlink:href="#gpPt3-0"
+       id="gpPt11-1"
+       stroke="currentColor"
+       transform="rotate(45)"
+       x="0"
+       y="0"
+       width="100%"
+       height="100%" />
+    <use
+       xlink:href="#gpPt11-1"
+       id="gpPt12-5"
+       fill="currentColor"
+       stroke="none"
+       x="0"
+       y="0"
+       width="100%"
+       height="100%" />
+    <path
+       id="gpPt13-5"
+       stroke-width="0.222"
+       stroke="currentColor"
+       d="M 0,1.33 1.265,0.411 0.782,-1.067 -0.782,-1.076 -1.265,0.411 Z" />
+    <use
+       xlink:href="#gpPt13-5"
+       id="gpPt14-4"
+       fill="currentColor"
+       stroke="none"
+       x="0"
+       y="0"
+       width="100%"
+       height="100%" />
+    <filter
+       id="textbox-7"
+       filterUnits="objectBoundingBox"
+       x="0"
+       y="0"
+       height="1"
+       width="1">
+      <feFlood
+         flood-color="white"
+         flood-opacity="1"
+         result="bgnd"
+         id="feFlood24" />
+      <feComposite
+         in="SourceGraphic"
+         in2="bgnd"
+         operator="atop"
+         id="feComposite26" />
+    </filter>
+    <filter
+       id="greybox-6"
+       filterUnits="objectBoundingBox"
+       x="0"
+       y="0"
+       height="1"
+       width="1">
+      <feFlood
+         flood-color="lightgrey"
+         flood-opacity="1"
+         result="grey"
+         id="feFlood29" />
+      <feComposite
+         in="SourceGraphic"
+         in2="grey"
+         operator="atop"
+         id="feComposite31" />
+    </filter>
+    <circle
+       id="gpDot-7"
+       r="0.5"
+       stroke-width="0.5"
+       stroke="currentColor"
+       cx="0"
+       cy="0" />
+    <path
+       id="gpPt0-4"
+       stroke-width="0.222"
+       stroke="currentColor"
+       d="M -1,0 H 1 M 0,-1 v 2" />
+    <path
+       id="gpPt1-52"
+       stroke-width="0.222"
+       stroke="currentColor"
+       d="M -1,-1 1,1 M 1,-1 -1,1" />
+    <path
+       id="gpPt2-54"
+       stroke-width="0.222"
+       stroke="currentColor"
+       d="M -1,0 H 1 M 0,-1 v 2 m -1,-2 2,2 m -2,0 2,-2" />
+    <rect
+       id="gpPt3-7"
+       stroke-width="0.222"
+       stroke="currentColor"
+       x="-1"
+       y="-1"
+       width="2"
+       height="2" />
+    <rect
+       id="gpPt4-4"
+       stroke-width="0.222"
+       stroke="currentColor"
+       fill="currentColor"
+       x="-1"
+       y="-1"
+       width="2"
+       height="2" />
+    <circle
+       id="gpPt5-4"
+       stroke-width="0.222"
+       stroke="currentColor"
+       cx="0"
+       cy="0"
+       r="1" />
+    <use
+       xlink:href="#gpPt5-4"
+       id="gpPt6-3"
+       fill="currentColor"
+       stroke="none"
+       x="0"
+       y="0"
+       width="100%"
+       height="100%" />
+    <path
+       id="gpPt7-0"
+       stroke-width="0.222"
+       stroke="currentColor"
+       d="m 0,-1.33 -1.33,2 h 2.66 z" />
+    <use
+       xlink:href="#gpPt7-0"
+       id="gpPt8-7"
+       fill="currentColor"
+       stroke="none"
+       x="0"
+       y="0"
+       width="100%"
+       height="100%" />
+    <use
+       xlink:href="#gpPt7-0"
+       id="gpPt9-86"
+       stroke="currentColor"
+       transform="scale(-1)"
+       x="0"
+       y="0"
+       width="100%"
+       height="100%" />
+    <use
+       xlink:href="#gpPt9-86"
+       id="gpPt10-8"
+       fill="currentColor"
+       stroke="none"
+       x="0"
+       y="0"
+       width="100%"
+       height="100%" />
+    <use
+       xlink:href="#gpPt3-7"
+       id="gpPt11-8"
+       stroke="currentColor"
+       transform="rotate(45)"
+       x="0"
+       y="0"
+       width="100%"
+       height="100%" />
+    <use
+       xlink:href="#gpPt11-8"
+       id="gpPt12-4"
+       fill="currentColor"
+       stroke="none"
+       x="0"
+       y="0"
+       width="100%"
+       height="100%" />
+    <path
+       id="gpPt13-3"
+       stroke-width="0.222"
+       stroke="currentColor"
+       d="M 0,1.33 1.265,0.411 0.782,-1.067 -0.782,-1.076 -1.265,0.411 Z" />
+    <use
+       xlink:href="#gpPt13-3"
+       id="gpPt14-1"
+       fill="currentColor"
+       stroke="none"
+       x="0"
+       y="0"
+       width="100%"
+       height="100%" />
+    <filter
+       id="textbox-4"
+       filterUnits="objectBoundingBox"
+       x="0"
+       y="0"
+       height="1"
+       width="1">
+      <feFlood
+         flood-color="white"
+         flood-opacity="1"
+         result="bgnd"
+         id="feFlood24-9" />
+      <feComposite
+         in="SourceGraphic"
+         in2="bgnd"
+         operator="atop"
+         id="feComposite26-2" />
+    </filter>
+    <filter
+       id="greybox-0"
+       filterUnits="objectBoundingBox"
+       x="0"
+       y="0"
+       height="1"
+       width="1">
+      <feFlood
+         flood-color="lightgrey"
+         flood-opacity="1"
+         result="grey"
+         id="feFlood29-6" />
+      <feComposite
+         in="SourceGraphic"
+         in2="grey"
+         operator="atop"
+         id="feComposite31-8" />
+    </filter>
+    <circle
+       id="gpDot-0"
+       r="0.5"
+       stroke-width="0.5"
+       stroke="currentColor"
+       cx="0"
+       cy="0" />
+    <path
+       id="gpPt0-2"
+       stroke-width="0.222"
+       stroke="currentColor"
+       d="M -1,0 H 1 M 0,-1 v 2" />
+    <path
+       id="gpPt1-1"
+       stroke-width="0.222"
+       stroke="currentColor"
+       d="M -1,-1 1,1 M 1,-1 -1,1" />
+    <path
+       id="gpPt2-05"
+       stroke-width="0.222"
+       stroke="currentColor"
+       d="M -1,0 H 1 M 0,-1 v 2 m -1,-2 2,2 m -2,0 2,-2" />
+    <rect
+       id="gpPt3-1"
+       stroke-width="0.222"
+       stroke="currentColor"
+       x="-1"
+       y="-1"
+       width="2"
+       height="2" />
+    <rect
+       id="gpPt4-1"
+       stroke-width="0.222"
+       stroke="currentColor"
+       fill="currentColor"
+       x="-1"
+       y="-1"
+       width="2"
+       height="2" />
+    <circle
+       id="gpPt5-0"
+       stroke-width="0.222"
+       stroke="currentColor"
+       cx="0"
+       cy="0"
+       r="1" />
+    <use
+       xlink:href="#gpPt5-0"
+       id="gpPt6-8"
+       fill="currentColor"
+       stroke="none"
+       x="0"
+       y="0"
+       width="100%"
+       height="100%" />
+    <path
+       id="gpPt7-5"
+       stroke-width="0.222"
+       stroke="currentColor"
+       d="m 0,-1.33 -1.33,2 h 2.66 z" />
+    <use
+       xlink:href="#gpPt7-5"
+       id="gpPt8-0"
+       fill="currentColor"
+       stroke="none"
+       x="0"
+       y="0"
+       width="100%"
+       height="100%" />
+    <use
+       xlink:href="#gpPt7-5"
+       id="gpPt9-6"
+       stroke="currentColor"
+       transform="scale(-1)"
+       x="0"
+       y="0"
+       width="100%"
+       height="100%" />
+    <use
+       xlink:href="#gpPt9-6"
+       id="gpPt10-4"
+       fill="currentColor"
+       stroke="none"
+       x="0"
+       y="0"
+       width="100%"
+       height="100%" />
+    <use
+       xlink:href="#gpPt3-1"
+       id="gpPt11-6"
+       stroke="currentColor"
+       transform="rotate(45)"
+       x="0"
+       y="0"
+       width="100%"
+       height="100%" />
+    <use
+       xlink:href="#gpPt11-6"
+       id="gpPt12-2"
+       fill="currentColor"
+       stroke="none"
+       x="0"
+       y="0"
+       width="100%"
+       height="100%" />
+    <path
+       id="gpPt13-58"
+       stroke-width="0.222"
+       stroke="currentColor"
+       d="M 0,1.33 1.265,0.411 0.782,-1.067 -0.782,-1.076 -1.265,0.411 Z" />
+    <use
+       xlink:href="#gpPt13-58"
+       id="gpPt14-6"
+       fill="currentColor"
+       stroke="none"
+       x="0"
+       y="0"
+       width="100%"
+       height="100%" />
+    <filter
+       id="textbox-2"
+       filterUnits="objectBoundingBox"
+       x="0"
+       y="0"
+       height="1"
+       width="1">
+      <feFlood
+         flood-color="white"
+         flood-opacity="1"
+         result="bgnd"
+         id="feFlood1360-8" />
+      <feComposite
+         in="SourceGraphic"
+         in2="bgnd"
+         operator="atop"
+         id="feComposite1362-4" />
+    </filter>
+    <filter
+       id="greybox-7"
+       filterUnits="objectBoundingBox"
+       x="0"
+       y="0"
+       height="1"
+       width="1">
+      <feFlood
+         flood-color="lightgrey"
+         flood-opacity="1"
+         result="grey"
+         id="feFlood1365-2" />
+      <feComposite
+         in="SourceGraphic"
+         in2="grey"
+         operator="atop"
+         id="feComposite1367-4" />
+    </filter>
+    <circle
+       id="gpDot-3"
+       r="0.5"
+       stroke-width="0.5"
+       stroke="currentColor"
+       cx="0"
+       cy="0" />
+    <path
+       id="gpPt0-1"
+       stroke-width="0.222"
+       stroke="currentColor"
+       d="M -1,0 H 1 M 0,-1 v 2" />
+    <path
+       id="gpPt1-10"
+       stroke-width="0.222"
+       stroke="currentColor"
+       d="M -1,-1 1,1 M 1,-1 -1,1" />
+    <path
+       id="gpPt2-34"
+       stroke-width="0.222"
+       stroke="currentColor"
+       d="M -1,0 H 1 M 0,-1 v 2 m -1,-2 2,2 m -2,0 2,-2" />
+    <rect
+       id="gpPt3-03"
+       stroke-width="0.222"
+       stroke="currentColor"
+       x="-1"
+       y="-1"
+       width="2"
+       height="2" />
+    <rect
+       id="gpPt4-9"
+       stroke-width="0.222"
+       stroke="currentColor"
+       fill="currentColor"
+       x="-1"
+       y="-1"
+       width="2"
+       height="2" />
+    <circle
+       id="gpPt5-19"
+       stroke-width="0.222"
+       stroke="currentColor"
+       cx="0"
+       cy="0"
+       r="1" />
+    <use
+       xlink:href="#gpPt5-19"
+       id="gpPt6-6"
+       fill="currentColor"
+       stroke="none"
+       x="0"
+       y="0"
+       width="100%"
+       height="100%" />
+    <path
+       id="gpPt7-93"
+       stroke-width="0.222"
+       stroke="currentColor"
+       d="m 0,-1.33 -1.33,2 h 2.66 z" />
+    <use
+       xlink:href="#gpPt7-93"
+       id="gpPt8-38"
+       fill="currentColor"
+       stroke="none"
+       x="0"
+       y="0"
+       width="100%"
+       height="100%" />
+    <use
+       xlink:href="#gpPt7-93"
+       id="gpPt9-0"
+       stroke="currentColor"
+       transform="scale(-1)"
+       x="0"
+       y="0"
+       width="100%"
+       height="100%" />
+    <use
+       xlink:href="#gpPt9-0"
+       id="gpPt10-5"
+       fill="currentColor"
+       stroke="none"
+       x="0"
+       y="0"
+       width="100%"
+       height="100%" />
+    <use
+       xlink:href="#gpPt3-03"
+       id="gpPt11-66"
+       stroke="currentColor"
+       transform="rotate(45)"
+       x="0"
+       y="0"
+       width="100%"
+       height="100%" />
+    <use
+       xlink:href="#gpPt11-66"
+       id="gpPt12-40"
+       fill="currentColor"
+       stroke="none"
+       x="0"
+       y="0"
+       width="100%"
+       height="100%" />
+    <path
+       id="gpPt13-0"
+       stroke-width="0.222"
+       stroke="currentColor"
+       d="M 0,1.33 1.265,0.411 0.782,-1.067 -0.782,-1.076 -1.265,0.411 Z" />
+    <use
+       xlink:href="#gpPt13-0"
+       id="gpPt14-46"
+       fill="currentColor"
+       stroke="none"
+       x="0"
+       y="0"
+       width="100%"
+       height="100%" />
+    <filter
+       id="textbox-26"
+       filterUnits="objectBoundingBox"
+       x="0"
+       y="0"
+       height="1"
+       width="1">
+      <feFlood
+         flood-color="white"
+         flood-opacity="1"
+         result="bgnd"
+         id="feFlood2048" />
+      <feComposite
+         in="SourceGraphic"
+         in2="bgnd"
+         operator="atop"
+         id="feComposite2050" />
+    </filter>
+    <filter
+       id="greybox-75"
+       filterUnits="objectBoundingBox"
+       x="0"
+       y="0"
+       height="1"
+       width="1">
+      <feFlood
+         flood-color="lightgrey"
+         flood-opacity="1"
+         result="grey"
+         id="feFlood2053" />
+      <feComposite
+         in="SourceGraphic"
+         in2="grey"
+         operator="atop"
+         id="feComposite2055" />
+    </filter>
+    <circle
+       id="gpDot-2"
+       r="0.5"
+       stroke-width="0.5"
+       stroke="currentColor"
+       cx="0"
+       cy="0" />
+    <path
+       id="gpPt0-8"
+       stroke-width="0.222"
+       stroke="currentColor"
+       d="M -1,0 H 1 M 0,-1 v 2" />
+    <path
+       id="gpPt1-29"
+       stroke-width="0.222"
+       stroke="currentColor"
+       d="M -1,-1 1,1 M 1,-1 -1,1" />
+    <path
+       id="gpPt2-9"
+       stroke-width="0.222"
+       stroke="currentColor"
+       d="M -1,0 H 1 M 0,-1 v 2 m -1,-2 2,2 m -2,0 2,-2" />
+    <rect
+       id="gpPt3-6"
+       stroke-width="0.222"
+       stroke="currentColor"
+       x="-1"
+       y="-1"
+       width="2"
+       height="2" />
+    <rect
+       id="gpPt4-0"
+       stroke-width="0.222"
+       stroke="currentColor"
+       fill="currentColor"
+       x="-1"
+       y="-1"
+       width="2"
+       height="2" />
+    <circle
+       id="gpPt5-27"
+       stroke-width="0.222"
+       stroke="currentColor"
+       cx="0"
+       cy="0"
+       r="1" />
+    <use
+       xlink:href="#gpPt5-27"
+       id="gpPt6-61"
+       fill="currentColor"
+       stroke="none"
+       x="0"
+       y="0"
+       width="100%"
+       height="100%" />
+    <path
+       id="gpPt7-3"
+       stroke-width="0.222"
+       stroke="currentColor"
+       d="m 0,-1.33 -1.33,2 h 2.66 z" />
+    <use
+       xlink:href="#gpPt7-3"
+       id="gpPt8-21"
+       fill="currentColor"
+       stroke="none"
+       x="0"
+       y="0"
+       width="100%"
+       height="100%" />
+    <use
+       xlink:href="#gpPt7-3"
+       id="gpPt9-5"
+       stroke="currentColor"
+       transform="scale(-1)"
+       x="0"
+       y="0"
+       width="100%"
+       height="100%" />
+    <use
+       xlink:href="#gpPt9-5"
+       id="gpPt10-99"
+       fill="currentColor"
+       stroke="none"
+       x="0"
+       y="0"
+       width="100%"
+       height="100%" />
+    <use
+       xlink:href="#gpPt3-6"
+       id="gpPt11-14"
+       stroke="currentColor"
+       transform="rotate(45)"
+       x="0"
+       y="0"
+       width="100%"
+       height="100%" />
+    <use
+       xlink:href="#gpPt11-14"
+       id="gpPt12-9"
+       fill="currentColor"
+       stroke="none"
+       x="0"
+       y="0"
+       width="100%"
+       height="100%" />
+    <path
+       id="gpPt13-10"
+       stroke-width="0.222"
+       stroke="currentColor"
+       d="M 0,1.33 1.265,0.411 0.782,-1.067 -0.782,-1.076 -1.265,0.411 Z" />
+    <use
+       xlink:href="#gpPt13-10"
+       id="gpPt14-7"
+       fill="currentColor"
+       stroke="none"
+       x="0"
+       y="0"
+       width="100%"
+       height="100%" />
+    <filter
+       id="textbox-5"
+       filterUnits="objectBoundingBox"
+       x="0"
+       y="0"
+       height="1"
+       width="1">
+      <feFlood
+         flood-color="white"
+         flood-opacity="1"
+         result="bgnd"
+         id="feFlood1704" />
+      <feComposite
+         in="SourceGraphic"
+         in2="bgnd"
+         operator="atop"
+         id="feComposite1706" />
+    </filter>
+    <filter
+       id="greybox-8"
+       filterUnits="objectBoundingBox"
+       x="0"
+       y="0"
+       height="1"
+       width="1">
+      <feFlood
+         flood-color="lightgrey"
+         flood-opacity="1"
+         result="grey"
+         id="feFlood1709" />
+      <feComposite
+         in="SourceGraphic"
+         in2="grey"
+         operator="atop"
+         id="feComposite1711" />
+    </filter>
+  </defs>
+  <metadata
+     id="metadata8155">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     id="layer1"
+     transform="translate(-60.130953,199.91667)">
+    <g
+       id="gnuplot_canvas"
+       transform="matrix(0.26458333,0,0,0.26458333,80.130953,-179.91667)">
+      <rect
+         x="0"
+         y="0"
+         width="600"
+         height="480"
+         fill="none"
+         id="rect3062" />
+      <defs
+         id="defs3090">
+        <circle
+           id="circle9108"
+           r="0.5"
+           stroke-width="0.5"
+           stroke="currentColor"
+           cx="0"
+           cy="0" />
+        <path
+           id="path9110"
+           stroke-width="0.222"
+           stroke="currentColor"
+           d="M -1,0 H 1 M 0,-1 v 2" />
+        <path
+           id="path9112"
+           stroke-width="0.222"
+           stroke="currentColor"
+           d="M -1,-1 1,1 M 1,-1 -1,1" />
+        <path
+           id="path9114"
+           stroke-width="0.222"
+           stroke="currentColor"
+           d="M -1,0 H 1 M 0,-1 v 2 m -1,-2 2,2 m -2,0 2,-2" />
+        <rect
+           id="rect9116"
+           stroke-width="0.222"
+           stroke="currentColor"
+           x="-1"
+           y="-1"
+           width="2"
+           height="2" />
+        <rect
+           id="rect9118"
+           stroke-width="0.222"
+           stroke="currentColor"
+           fill="currentColor"
+           x="-1"
+           y="-1"
+           width="2"
+           height="2" />
+        <circle
+           id="circle9120"
+           stroke-width="0.222"
+           stroke="currentColor"
+           cx="0"
+           cy="0"
+           r="1" />
+        <use
+           xlink:href="#gpPt5"
+           id="use9122"
+           fill="currentColor"
+           stroke="none"
+           x="0"
+           y="0"
+           width="100%"
+           height="100%" />
+        <path
+           id="path9124"
+           stroke-width="0.222"
+           stroke="currentColor"
+           d="m 0,-1.33 -1.33,2 h 2.66 z" />
+        <use
+           xlink:href="#gpPt7"
+           id="use9126"
+           fill="currentColor"
+           stroke="none"
+           x="0"
+           y="0"
+           width="100%"
+           height="100%" />
+        <use
+           xlink:href="#gpPt7"
+           id="use9128"
+           stroke="currentColor"
+           transform="scale(-1)"
+           x="0"
+           y="0"
+           width="100%"
+           height="100%" />
+        <use
+           xlink:href="#gpPt9"
+           id="use9130"
+           fill="currentColor"
+           stroke="none"
+           x="0"
+           y="0"
+           width="100%"
+           height="100%" />
+        <use
+           xlink:href="#gpPt3"
+           id="use9132"
+           stroke="currentColor"
+           transform="rotate(45)"
+           x="0"
+           y="0"
+           width="100%"
+           height="100%" />
+        <use
+           xlink:href="#gpPt11"
+           id="use9134"
+           fill="currentColor"
+           stroke="none"
+           x="0"
+           y="0"
+           width="100%"
+           height="100%" />
+        <path
+           id="path9136"
+           stroke-width="0.222"
+           stroke="currentColor"
+           d="M 0,1.33 1.265,0.411 0.782,-1.067 -0.782,-1.076 -1.265,0.411 Z" />
+        <use
+           xlink:href="#gpPt13"
+           id="use9138"
+           fill="currentColor"
+           stroke="none"
+           x="0"
+           y="0"
+           width="100%"
+           height="100%" />
+        <filter
+           id="filter9144"
+           filterUnits="objectBoundingBox"
+           x="0"
+           y="0"
+           height="1"
+           width="1">
+          <feFlood
+             flood-color="white"
+             flood-opacity="1"
+             result="bgnd"
+             id="feFlood9140" />
+          <feComposite
+             in="SourceGraphic"
+             in2="bgnd"
+             operator="atop"
+             id="feComposite9142" />
+        </filter>
+        <filter
+           id="filter9150"
+           filterUnits="objectBoundingBox"
+           x="0"
+           y="0"
+           height="1"
+           width="1">
+          <feFlood
+             flood-color="lightgrey"
+             flood-opacity="1"
+             result="grey"
+             id="feFlood9146" />
+          <feComposite
+             in="SourceGraphic"
+             in2="grey"
+             operator="atop"
+             id="feComposite9148" />
+        </filter>
+      </defs>
+      <g
+         fill="none"
+         color="#ffffff"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g3092" />
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g3102">
+        <path
+           stroke="#000000"
+           d="m 54.53,444 h 9 m 511.29,0 h -9"
+           id="path3094" />
+        <g
+           transform="translate(46.14,447.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="end"
+           id="g3100">
+          <text
+             id="text3098"><tspan
+               font-family="Arial"
+               id="tspan3096">0</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g3112">
+        <path
+           stroke="#000000"
+           d="m 54.53,395.25 h 9 m 511.29,0 h -9"
+           id="path3104" />
+        <g
+           transform="translate(46.14,399.15)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="end"
+           id="g3110">
+          <text
+             id="text3108"><tspan
+               font-family="Arial"
+               id="tspan3106">0.5</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g3122">
+        <path
+           stroke="#000000"
+           d="m 54.53,346.5 h 9 m 511.29,0 h -9"
+           id="path3114" />
+        <g
+           transform="translate(46.14,350.4)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="end"
+           id="g3120">
+          <text
+             id="text3118"><tspan
+               font-family="Arial"
+               id="tspan3116">1</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g3132">
+        <path
+           stroke="#000000"
+           d="m 54.53,297.75 h 9 m 511.29,0 h -9"
+           id="path3124" />
+        <g
+           transform="translate(46.14,301.65)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="end"
+           id="g3130">
+          <text
+             id="text3128"><tspan
+               font-family="Arial"
+               id="tspan3126">1.5</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g3142">
+        <path
+           stroke="#000000"
+           d="m 54.53,249 h 9 m 511.29,0 h -9"
+           id="path3134" />
+        <g
+           transform="translate(46.14,252.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="end"
+           id="g3140">
+          <text
+             id="text3138"><tspan
+               font-family="Arial"
+               id="tspan3136">2</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g3152">
+        <path
+           stroke="#000000"
+           d="m 54.53,200.26 h 9 m 511.29,0 h -9"
+           id="path3144" />
+        <g
+           transform="translate(46.14,204.16)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="end"
+           id="g3150">
+          <text
+             id="text3148"><tspan
+               font-family="Arial"
+               id="tspan3146">2.5</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g3162">
+        <path
+           stroke="#000000"
+           d="m 54.53,151.51 h 9 m 511.29,0 h -9"
+           id="path3154" />
+        <g
+           transform="translate(46.14,155.41)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="end"
+           id="g3160">
+          <text
+             id="text3158"><tspan
+               font-family="Arial"
+               id="tspan3156">3</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g3172">
+        <path
+           stroke="#000000"
+           d="m 54.53,102.76 h 9 m 511.29,0 h -9"
+           id="path3164" />
+        <g
+           transform="translate(46.14,106.66)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="end"
+           id="g3170">
+          <text
+             id="text3168"><tspan
+               font-family="Arial"
+               id="tspan3166">3.5</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g3182">
+        <path
+           stroke="#000000"
+           d="m 54.53,54.01 h 9 m 511.29,0 h -9"
+           id="path3174" />
+        <g
+           transform="translate(46.14,57.91)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="end"
+           id="g3180">
+          <text
+             id="text3178"><tspan
+               font-family="Arial"
+               id="tspan3176">4</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g3192">
+        <path
+           stroke="#000000"
+           d="m 78.18,444 v -9 m 0,-380.99 v 9"
+           id="path3184" />
+        <g
+           transform="translate(78.18,465.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g3190">
+          <text
+             id="text3188"><tspan
+               font-family="Arial"
+               id="tspan3186">G+C</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g3202">
+        <path
+           stroke="#000000"
+           d="m 125.48,444 v -9 m 0,-380.99 v 9"
+           id="path3194" />
+        <g
+           transform="translate(125.48,465.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g3200">
+          <text
+             id="text3198"><tspan
+               font-family="Arial"
+               id="tspan3196">CG</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g3212">
+        <path
+           stroke="#000000"
+           d="m 172.78,444 v -9 m 0,-380.99 v 9"
+           id="path3204" />
+        <g
+           transform="translate(172.78,465.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g3210">
+          <text
+             id="text3208"><tspan
+               font-family="Arial"
+               id="tspan3206">TA</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g3222">
+        <path
+           stroke="#000000"
+           d="m 220.08,444 v -9 m 0,-380.99 v 9"
+           id="path3214" />
+        <g
+           transform="translate(220.08,465.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g3220">
+          <text
+             id="text3218"><tspan
+               font-family="Arial"
+               id="tspan3216">AG</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g3232">
+        <path
+           stroke="#000000"
+           d="m 267.38,444 v -9 m 0,-380.99 v 9"
+           id="path3224" />
+        <g
+           transform="translate(267.38,465.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g3230">
+          <text
+             id="text3228"><tspan
+               font-family="Arial"
+               id="tspan3226">AT</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g3242">
+        <path
+           stroke="#000000"
+           d="m 314.68,444 v -9 m 0,-380.99 v 9"
+           id="path3234" />
+        <g
+           transform="translate(314.68,465.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g3240">
+          <text
+             id="text3238"><tspan
+               font-family="Arial"
+               id="tspan3236">CC</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g3252">
+        <path
+           stroke="#000000"
+           d="m 361.97,444 v -9 m 0,-380.99 v 9"
+           id="path3244" />
+        <g
+           transform="translate(361.97,465.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g3250">
+          <text
+             id="text3248"><tspan
+               font-family="Arial"
+               id="tspan3246">GA</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g3262">
+        <path
+           stroke="#000000"
+           d="m 409.27,444 v -9 m 0,-380.99 v 9"
+           id="path3254" />
+        <g
+           transform="translate(409.27,465.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g3260">
+          <text
+             id="text3258"><tspan
+               font-family="Arial"
+               id="tspan3256">GC</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g3272">
+        <path
+           stroke="#000000"
+           d="m 456.57,444 v -9 m 0,-380.99 v 9"
+           id="path3264" />
+        <g
+           transform="translate(456.57,465.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g3270">
+          <text
+             id="text3268"><tspan
+               font-family="Arial"
+               id="tspan3266">GT</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g3282">
+        <path
+           stroke="#000000"
+           d="m 503.87,444 v -9 m 0,-380.99 v 9"
+           id="path3274" />
+        <g
+           transform="translate(503.87,465.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g3280">
+          <text
+             id="text3278"><tspan
+               font-family="Arial"
+               id="tspan3276">TG</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g3292">
+        <path
+           stroke="#000000"
+           d="m 551.17,444 v -9 m 0,-380.99 v 9"
+           id="path3284" />
+        <g
+           transform="translate(551.17,465.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g3290">
+          <text
+             id="text3288"><tspan
+               font-family="Arial"
+               id="tspan3286">TT</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g3294" />
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g3298">
+        <path
+           stroke="#000000"
+           d="M 54.53,54.01 V 444 H 574.82 V 54.01 Z"
+           id="path3296" />
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g3300" />
+      <g
+         id="gnuplot_plot_1">
+        <title
+           id="title3302">gnuplot_plot_1</title>
+        <g
+           fill="none"
+           color="#000000"
+           stroke="currentColor"
+           stroke-width="1"
+           stroke-linecap="butt"
+           stroke-linejoin="miter"
+           id="g3370">
+          <g
+             stroke="none"
+             shape-rendering="crispEdges"
+             id="g3306">
+            <polygon
+               fill="#ff0000"
+               points="90.01,444 90.01,397.72 66.35,397.72 66.35,444 "
+               id="polygon3304" />
+          </g>
+          <path
+             stroke="#ff0000"
+             d="M 66.35,444 V 397.73 H 90 V 444 Z"
+             id="path3308" />
+          <g
+             stroke="none"
+             shape-rendering="crispEdges"
+             id="g3312">
+            <polygon
+               fill="#ff0000"
+               points="137.31,444 137.31,374.72 113.65,374.72 113.65,444 "
+               id="polygon3310" />
+          </g>
+          <path
+             stroke="#ff0000"
+             d="M 113.65,444 V 374.73 H 137.3 V 444 Z"
+             id="path3314" />
+          <g
+             stroke="none"
+             shape-rendering="crispEdges"
+             id="g3318">
+            <polygon
+               fill="#ff0000"
+               points="184.61,444 184.61,379.27 160.95,379.27 160.95,444 "
+               id="polygon3316" />
+          </g>
+          <path
+             stroke="#ff0000"
+             d="M 160.95,444 V 379.28 H 184.6 V 444 Z"
+             id="path3320" />
+          <g
+             stroke="none"
+             shape-rendering="crispEdges"
+             id="g3324">
+            <polygon
+               fill="#ff0000"
+               points="231.91,444 231.91,236.53 208.25,236.53 208.25,444 "
+               id="polygon3322" />
+          </g>
+          <path
+             stroke="#ff0000"
+             d="M 208.25,444 V 236.54 H 231.9 V 444 Z"
+             id="path3326" />
+          <g
+             stroke="none"
+             shape-rendering="crispEdges"
+             id="g3330">
+            <polygon
+               fill="#ff0000"
+               points="279.21,444 279.21,365.33 255.55,365.33 255.55,444 "
+               id="polygon3328" />
+          </g>
+          <path
+             stroke="#ff0000"
+             d="M 255.55,444 V 365.34 H 279.2 V 444 Z"
+             id="path3332" />
+          <g
+             stroke="none"
+             shape-rendering="crispEdges"
+             id="g3336">
+            <polygon
+               fill="#ff0000"
+               points="326.51,444 326.51,248.08 302.85,248.08 302.85,444 "
+               id="polygon3334" />
+          </g>
+          <path
+             stroke="#ff0000"
+             d="M 302.85,444 V 248.09 H 326.5 V 444 Z"
+             id="path3338" />
+          <g
+             stroke="none"
+             shape-rendering="crispEdges"
+             id="g3342">
+            <polygon
+               fill="#ff0000"
+               points="373.81,444 373.81,262.17 350.15,262.17 350.15,444 "
+               id="polygon3340" />
+          </g>
+          <path
+             stroke="#ff0000"
+             d="M 350.15,444 V 262.18 H 373.8 V 444 Z"
+             id="path3344" />
+          <g
+             stroke="none"
+             shape-rendering="crispEdges"
+             id="g3348">
+            <polygon
+               fill="#ff0000"
+               points="421.11,444 421.11,336.41 397.45,336.41 397.45,444 "
+               id="polygon3346" />
+          </g>
+          <path
+             stroke="#ff0000"
+             d="M 397.45,444 V 336.42 H 421.1 V 444 Z"
+             id="path3350" />
+          <g
+             stroke="none"
+             shape-rendering="crispEdges"
+             id="g3354">
+            <polygon
+               fill="#ff0000"
+               points="468.41,444 468.41,259.73 444.75,259.73 444.75,444 "
+               id="polygon3352" />
+          </g>
+          <path
+             stroke="#ff0000"
+             d="M 444.75,444 V 259.74 H 468.4 V 444 Z"
+             id="path3356" />
+          <g
+             stroke="none"
+             shape-rendering="crispEdges"
+             id="g3360">
+            <polygon
+               fill="#ff0000"
+               points="515.71,444 515.71,213.94 492.05,213.94 492.05,444 "
+               id="polygon3358" />
+          </g>
+          <path
+             stroke="#ff0000"
+             d="M 492.05,444 V 213.95 H 515.7 V 444 Z"
+             id="path3362" />
+          <g
+             stroke="none"
+             shape-rendering="crispEdges"
+             id="g3366">
+            <polygon
+               fill="#ff0000"
+               points="563.01,444 563.01,212.03 539.35,212.03 539.35,444 "
+               id="polygon3364" />
+          </g>
+          <path
+             stroke="#ff0000"
+             d="M 539.35,444 V 212.04 H 563 V 444 Z"
+             id="path3368" />
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#ffffff"
+         stroke="#ff0000"
+         stroke-width="2"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g3373" />
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="2"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g3375" />
+      <g
+         fill="none"
+         color="#000000"
+         stroke="#000000"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g3377" />
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g3381">
+        <path
+           stroke="#000000"
+           d="M 54.53,54.01 V 444 H 574.82 V 54.01 Z"
+           id="path3379" />
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g3389">
+        <g
+           transform="translate(314.67,30.91)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g3387">
+          <text
+             id="text3385"><tspan
+               font-family="Arial"
+               id="tspan3383">Insertions dinucleotide profile</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g3391" />
+    </g>
+    <g
+       id="gnuplot_canvas-3"
+       transform="matrix(0.26458333,0,0,0.26458333,80.130953,-52.916672)">
+      <rect
+         x="0"
+         y="0"
+         width="600"
+         height="480"
+         fill="none"
+         id="rect2718" />
+      <defs
+         id="defs2746">
+        <circle
+           id="circle9692"
+           r="0.5"
+           stroke-width="0.5"
+           stroke="currentColor"
+           cx="0"
+           cy="0" />
+        <path
+           id="path9694"
+           stroke-width="0.222"
+           stroke="currentColor"
+           d="M -1,0 H 1 M 0,-1 v 2" />
+        <path
+           id="path9696"
+           stroke-width="0.222"
+           stroke="currentColor"
+           d="M -1,-1 1,1 M 1,-1 -1,1" />
+        <path
+           id="path9698"
+           stroke-width="0.222"
+           stroke="currentColor"
+           d="M -1,0 H 1 M 0,-1 v 2 m -1,-2 2,2 m -2,0 2,-2" />
+        <rect
+           id="rect9700"
+           stroke-width="0.222"
+           stroke="currentColor"
+           x="-1"
+           y="-1"
+           width="2"
+           height="2" />
+        <rect
+           id="rect9702"
+           stroke-width="0.222"
+           stroke="currentColor"
+           fill="currentColor"
+           x="-1"
+           y="-1"
+           width="2"
+           height="2" />
+        <circle
+           id="circle9704"
+           stroke-width="0.222"
+           stroke="currentColor"
+           cx="0"
+           cy="0"
+           r="1" />
+        <use
+           xlink:href="#gpPt5-2"
+           id="use9706"
+           fill="currentColor"
+           stroke="none"
+           x="0"
+           y="0"
+           width="100%"
+           height="100%" />
+        <path
+           id="path9708"
+           stroke-width="0.222"
+           stroke="currentColor"
+           d="m 0,-1.33 -1.33,2 h 2.66 z" />
+        <use
+           xlink:href="#gpPt7-1"
+           id="use9710"
+           fill="currentColor"
+           stroke="none"
+           x="0"
+           y="0"
+           width="100%"
+           height="100%" />
+        <use
+           xlink:href="#gpPt7-1"
+           id="use9712"
+           stroke="currentColor"
+           transform="scale(-1)"
+           x="0"
+           y="0"
+           width="100%"
+           height="100%" />
+        <use
+           xlink:href="#gpPt9-7"
+           id="use9714"
+           fill="currentColor"
+           stroke="none"
+           x="0"
+           y="0"
+           width="100%"
+           height="100%" />
+        <use
+           xlink:href="#gpPt3-5"
+           id="use9716"
+           stroke="currentColor"
+           transform="rotate(45)"
+           x="0"
+           y="0"
+           width="100%"
+           height="100%" />
+        <use
+           xlink:href="#gpPt11-9"
+           id="use9718"
+           fill="currentColor"
+           stroke="none"
+           x="0"
+           y="0"
+           width="100%"
+           height="100%" />
+        <path
+           id="path9720"
+           stroke-width="0.222"
+           stroke="currentColor"
+           d="M 0,1.33 1.265,0.411 0.782,-1.067 -0.782,-1.076 -1.265,0.411 Z" />
+        <use
+           xlink:href="#gpPt13-6"
+           id="use9722"
+           fill="currentColor"
+           stroke="none"
+           x="0"
+           y="0"
+           width="100%"
+           height="100%" />
+        <filter
+           id="filter9728"
+           filterUnits="objectBoundingBox"
+           x="0"
+           y="0"
+           height="1"
+           width="1">
+          <feFlood
+             flood-color="white"
+             flood-opacity="1"
+             result="bgnd"
+             id="feFlood9724" />
+          <feComposite
+             in="SourceGraphic"
+             in2="bgnd"
+             operator="atop"
+             id="feComposite9726" />
+        </filter>
+        <filter
+           id="filter9734"
+           filterUnits="objectBoundingBox"
+           x="0"
+           y="0"
+           height="1"
+           width="1">
+          <feFlood
+             flood-color="lightgrey"
+             flood-opacity="1"
+             result="grey"
+             id="feFlood9730" />
+          <feComposite
+             in="SourceGraphic"
+             in2="grey"
+             operator="atop"
+             id="feComposite9732" />
+        </filter>
+      </defs>
+      <g
+         fill="none"
+         color="#ffffff"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g2748" />
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g2758">
+        <path
+           stroke="#000000"
+           d="m 54.53,444 h 9 m 511.29,0 h -9"
+           id="path2750" />
+        <g
+           transform="translate(46.14,447.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="end"
+           id="g2756">
+          <text
+             id="text2754"><tspan
+               font-family="Arial"
+               id="tspan2752">0</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g2768">
+        <path
+           stroke="#000000"
+           d="m 54.53,395.25 h 9 m 511.29,0 h -9"
+           id="path2760" />
+        <g
+           transform="translate(46.14,399.15)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="end"
+           id="g2766">
+          <text
+             id="text2764"><tspan
+               font-family="Arial"
+               id="tspan2762">0.5</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g2778">
+        <path
+           stroke="#000000"
+           d="m 54.53,346.5 h 9 m 511.29,0 h -9"
+           id="path2770" />
+        <g
+           transform="translate(46.14,350.4)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="end"
+           id="g2776">
+          <text
+             id="text2774"><tspan
+               font-family="Arial"
+               id="tspan2772">1</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g2788">
+        <path
+           stroke="#000000"
+           d="m 54.53,297.75 h 9 m 511.29,0 h -9"
+           id="path2780" />
+        <g
+           transform="translate(46.14,301.65)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="end"
+           id="g2786">
+          <text
+             id="text2784"><tspan
+               font-family="Arial"
+               id="tspan2782">1.5</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g2798">
+        <path
+           stroke="#000000"
+           d="m 54.53,249 h 9 m 511.29,0 h -9"
+           id="path2790" />
+        <g
+           transform="translate(46.14,252.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="end"
+           id="g2796">
+          <text
+             id="text2794"><tspan
+               font-family="Arial"
+               id="tspan2792">2</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g2808">
+        <path
+           stroke="#000000"
+           d="m 54.53,200.26 h 9 m 511.29,0 h -9"
+           id="path2800" />
+        <g
+           transform="translate(46.14,204.16)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="end"
+           id="g2806">
+          <text
+             id="text2804"><tspan
+               font-family="Arial"
+               id="tspan2802">2.5</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g2818">
+        <path
+           stroke="#000000"
+           d="m 54.53,151.51 h 9 m 511.29,0 h -9"
+           id="path2810" />
+        <g
+           transform="translate(46.14,155.41)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="end"
+           id="g2816">
+          <text
+             id="text2814"><tspan
+               font-family="Arial"
+               id="tspan2812">3</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g2828">
+        <path
+           stroke="#000000"
+           d="m 54.53,102.76 h 9 m 511.29,0 h -9"
+           id="path2820" />
+        <g
+           transform="translate(46.14,106.66)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="end"
+           id="g2826">
+          <text
+             id="text2824"><tspan
+               font-family="Arial"
+               id="tspan2822">3.5</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g2838">
+        <path
+           stroke="#000000"
+           d="m 54.53,54.01 h 9 m 511.29,0 h -9"
+           id="path2830" />
+        <g
+           transform="translate(46.14,57.91)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="end"
+           id="g2836">
+          <text
+             id="text2834"><tspan
+               font-family="Arial"
+               id="tspan2832">4</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g2848">
+        <path
+           stroke="#000000"
+           d="m 78.18,444 v -9 m 0,-380.99 v 9"
+           id="path2840" />
+        <g
+           transform="translate(78.18,465.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g2846">
+          <text
+             id="text2844"><tspan
+               font-family="Arial"
+               id="tspan2842">G+C</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g2858">
+        <path
+           stroke="#000000"
+           d="m 125.48,444 v -9 m 0,-380.99 v 9"
+           id="path2850" />
+        <g
+           transform="translate(125.48,465.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g2856">
+          <text
+             id="text2854"><tspan
+               font-family="Arial"
+               id="tspan2852">CG</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g2868">
+        <path
+           stroke="#000000"
+           d="m 172.78,444 v -9 m 0,-380.99 v 9"
+           id="path2860" />
+        <g
+           transform="translate(172.78,465.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g2866">
+          <text
+             id="text2864"><tspan
+               font-family="Arial"
+               id="tspan2862">TA</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g2878">
+        <path
+           stroke="#000000"
+           d="m 220.08,444 v -9 m 0,-380.99 v 9"
+           id="path2870" />
+        <g
+           transform="translate(220.08,465.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g2876">
+          <text
+             id="text2874"><tspan
+               font-family="Arial"
+               id="tspan2872">AG</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g2888">
+        <path
+           stroke="#000000"
+           d="m 267.38,444 v -9 m 0,-380.99 v 9"
+           id="path2880" />
+        <g
+           transform="translate(267.38,465.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g2886">
+          <text
+             id="text2884"><tspan
+               font-family="Arial"
+               id="tspan2882">AT</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g2898">
+        <path
+           stroke="#000000"
+           d="m 314.68,444 v -9 m 0,-380.99 v 9"
+           id="path2890" />
+        <g
+           transform="translate(314.68,465.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g2896">
+          <text
+             id="text2894"><tspan
+               font-family="Arial"
+               id="tspan2892">CC</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g2908">
+        <path
+           stroke="#000000"
+           d="m 361.97,444 v -9 m 0,-380.99 v 9"
+           id="path2900" />
+        <g
+           transform="translate(361.97,465.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g2906">
+          <text
+             id="text2904"><tspan
+               font-family="Arial"
+               id="tspan2902">GA</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g2918">
+        <path
+           stroke="#000000"
+           d="m 409.27,444 v -9 m 0,-380.99 v 9"
+           id="path2910" />
+        <g
+           transform="translate(409.27,465.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g2916">
+          <text
+             id="text2914"><tspan
+               font-family="Arial"
+               id="tspan2912">GC</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g2928">
+        <path
+           stroke="#000000"
+           d="m 456.57,444 v -9 m 0,-380.99 v 9"
+           id="path2920" />
+        <g
+           transform="translate(456.57,465.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g2926">
+          <text
+             id="text2924"><tspan
+               font-family="Arial"
+               id="tspan2922">GT</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g2938">
+        <path
+           stroke="#000000"
+           d="m 503.87,444 v -9 m 0,-380.99 v 9"
+           id="path2930" />
+        <g
+           transform="translate(503.87,465.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g2936">
+          <text
+             id="text2934"><tspan
+               font-family="Arial"
+               id="tspan2932">TG</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g2948">
+        <path
+           stroke="#000000"
+           d="m 551.17,444 v -9 m 0,-380.99 v 9"
+           id="path2940" />
+        <g
+           transform="translate(551.17,465.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g2946">
+          <text
+             id="text2944"><tspan
+               font-family="Arial"
+               id="tspan2942">TT</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g2950" />
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g2954">
+        <path
+           stroke="#000000"
+           d="M 54.53,54.01 V 444 H 574.82 V 54.01 Z"
+           id="path2952" />
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g2956" />
+      <g
+         id="gnuplot_plot_1-6">
+        <title
+           id="title2958">gnuplot_plot_1</title>
+        <g
+           fill="none"
+           color="#000000"
+           stroke="currentColor"
+           stroke-width="1"
+           stroke-linecap="butt"
+           stroke-linejoin="miter"
+           id="g3026">
+          <g
+             stroke="none"
+             shape-rendering="crispEdges"
+             id="g2962">
+            <polygon
+               fill="#000080"
+               points="90.01,444 90.01,403.96 66.35,403.96 66.35,444 "
+               id="polygon2960" />
+          </g>
+          <path
+             stroke="#000080"
+             d="M 66.35,444 V 403.97 H 90 V 444 Z"
+             id="path2964" />
+          <g
+             stroke="none"
+             shape-rendering="crispEdges"
+             id="g2968">
+            <polygon
+               fill="#000080"
+               points="137.31,444 137.31,420.32 113.65,420.32 113.65,444 "
+               id="polygon2966" />
+          </g>
+          <path
+             stroke="#000080"
+             d="M 113.65,444 V 420.33 H 137.3 V 444 Z"
+             id="path2970" />
+          <g
+             stroke="none"
+             shape-rendering="crispEdges"
+             id="g2974">
+            <polygon
+               fill="#000080"
+               points="184.61,444 184.61,371.44 160.95,371.44 160.95,444 "
+               id="polygon2972" />
+          </g>
+          <path
+             stroke="#000080"
+             d="M 160.95,444 V 371.45 H 184.6 V 444 Z"
+             id="path2976" />
+          <g
+             stroke="none"
+             shape-rendering="crispEdges"
+             id="g2980">
+            <polygon
+               fill="#000080"
+               points="231.91,444 231.91,218.21 208.25,218.21 208.25,444 "
+               id="polygon2978" />
+          </g>
+          <path
+             stroke="#000080"
+             d="M 208.25,444 V 218.22 H 231.9 V 444 Z"
+             id="path2982" />
+          <g
+             stroke="none"
+             shape-rendering="crispEdges"
+             id="g2986">
+            <polygon
+               fill="#000080"
+               points="279.21,444 279.21,358.05 255.55,358.05 255.55,444 "
+               id="polygon2984" />
+          </g>
+          <path
+             stroke="#000080"
+             d="M 255.55,444 V 358.06 H 279.2 V 444 Z"
+             id="path2988" />
+          <g
+             stroke="none"
+             shape-rendering="crispEdges"
+             id="g2992">
+            <polygon
+               fill="#000080"
+               points="326.51,444 326.51,201.41 302.85,201.41 302.85,444 "
+               id="polygon2990" />
+          </g>
+          <path
+             stroke="#000080"
+             d="M 302.85,444 V 201.42 H 326.5 V 444 Z"
+             id="path2994" />
+          <g
+             stroke="none"
+             shape-rendering="crispEdges"
+             id="g2998">
+            <polygon
+               fill="#000080"
+               points="373.81,444 373.81,251.38 350.15,251.38 350.15,444 "
+               id="polygon2996" />
+          </g>
+          <path
+             stroke="#000080"
+             d="M 350.15,444 V 251.39 H 373.8 V 444 Z"
+             id="path3000" />
+          <g
+             stroke="none"
+             shape-rendering="crispEdges"
+             id="g3004">
+            <polygon
+               fill="#000080"
+               points="421.11,444 421.11,345.04 397.45,345.04 397.45,444 "
+               id="polygon3002" />
+          </g>
+          <path
+             stroke="#000080"
+             d="M 397.45,444 V 345.05 H 421.1 V 444 Z"
+             id="path3006" />
+          <g
+             stroke="none"
+             shape-rendering="crispEdges"
+             id="g3010">
+            <polygon
+               fill="#000080"
+               points="468.41,444 468.41,281.75 444.75,281.75 444.75,444 "
+               id="polygon3008" />
+          </g>
+          <path
+             stroke="#000080"
+             d="M 444.75,444 V 281.76 H 468.4 V 444 Z"
+             id="path3012" />
+          <g
+             stroke="none"
+             shape-rendering="crispEdges"
+             id="g3016">
+            <polygon
+               fill="#000080"
+               points="515.71,444 515.71,210.35 492.05,210.35 492.05,444 "
+               id="polygon3014" />
+          </g>
+          <path
+             stroke="#000080"
+             d="M 492.05,444 V 210.36 H 515.7 V 444 Z"
+             id="path3018" />
+          <g
+             stroke="none"
+             shape-rendering="crispEdges"
+             id="g3022">
+            <polygon
+               fill="#000080"
+               points="563.01,444 563.01,225.67 539.35,225.67 539.35,444 "
+               id="polygon3020" />
+          </g>
+          <path
+             stroke="#000080"
+             d="M 539.35,444 V 225.68 H 563 V 444 Z"
+             id="path3024" />
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#ffffff"
+         stroke="#000080"
+         stroke-width="2"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g3029" />
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="2"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g3031" />
+      <g
+         fill="none"
+         color="#000000"
+         stroke="#000000"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g3033" />
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g3037">
+        <path
+           stroke="#000000"
+           d="M 54.53,54.01 V 444 H 574.82 V 54.01 Z"
+           id="path3035" />
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g3045">
+        <g
+           transform="translate(314.67,30.91)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g3043">
+          <text
+             id="text3041"><tspan
+               font-family="Arial"
+               id="tspan3039">Human dinucleotide profile</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g3047" />
+    </g>
+    <g
+       id="gnuplot_canvas-9"
+       transform="matrix(0.26458333,0,0,0.26458333,238.88095,-179.91667)">
+      <rect
+         x="0"
+         y="0"
+         width="600"
+         height="480"
+         fill="none"
+         id="rect6" />
+      <defs
+         id="defs34">
+        <circle
+           id="circle10860"
+           r="0.5"
+           stroke-width="0.5"
+           stroke="currentColor"
+           cx="0"
+           cy="0" />
+        <path
+           id="path10862"
+           stroke-width="0.222"
+           stroke="currentColor"
+           d="M -1,0 H 1 M 0,-1 v 2" />
+        <path
+           id="path10864"
+           stroke-width="0.222"
+           stroke="currentColor"
+           d="M -1,-1 1,1 M 1,-1 -1,1" />
+        <path
+           id="path10866"
+           stroke-width="0.222"
+           stroke="currentColor"
+           d="M -1,0 H 1 M 0,-1 v 2 m -1,-2 2,2 m -2,0 2,-2" />
+        <rect
+           id="rect10868"
+           stroke-width="0.222"
+           stroke="currentColor"
+           x="-1"
+           y="-1"
+           width="2"
+           height="2" />
+        <rect
+           id="rect10870"
+           stroke-width="0.222"
+           stroke="currentColor"
+           fill="currentColor"
+           x="-1"
+           y="-1"
+           width="2"
+           height="2" />
+        <circle
+           id="circle10872"
+           stroke-width="0.222"
+           stroke="currentColor"
+           cx="0"
+           cy="0"
+           r="1" />
+        <use
+           xlink:href="#gpPt5-1"
+           id="use10874"
+           fill="currentColor"
+           stroke="none"
+           x="0"
+           y="0"
+           width="100%"
+           height="100%" />
+        <path
+           id="path10876"
+           stroke-width="0.222"
+           stroke="currentColor"
+           d="m 0,-1.33 -1.33,2 h 2.66 z" />
+        <use
+           xlink:href="#gpPt7-6"
+           id="use10878"
+           fill="currentColor"
+           stroke="none"
+           x="0"
+           y="0"
+           width="100%"
+           height="100%" />
+        <use
+           xlink:href="#gpPt7-6"
+           id="use10880"
+           stroke="currentColor"
+           transform="scale(-1)"
+           x="0"
+           y="0"
+           width="100%"
+           height="100%" />
+        <use
+           xlink:href="#gpPt9-2"
+           id="use10882"
+           fill="currentColor"
+           stroke="none"
+           x="0"
+           y="0"
+           width="100%"
+           height="100%" />
+        <use
+           xlink:href="#gpPt3-0"
+           id="use10884"
+           stroke="currentColor"
+           transform="rotate(45)"
+           x="0"
+           y="0"
+           width="100%"
+           height="100%" />
+        <use
+           xlink:href="#gpPt11-1"
+           id="use10886"
+           fill="currentColor"
+           stroke="none"
+           x="0"
+           y="0"
+           width="100%"
+           height="100%" />
+        <path
+           id="path10888"
+           stroke-width="0.222"
+           stroke="currentColor"
+           d="M 0,1.33 1.265,0.411 0.782,-1.067 -0.782,-1.076 -1.265,0.411 Z" />
+        <use
+           xlink:href="#gpPt13-5"
+           id="use10890"
+           fill="currentColor"
+           stroke="none"
+           x="0"
+           y="0"
+           width="100%"
+           height="100%" />
+        <filter
+           id="filter10896"
+           filterUnits="objectBoundingBox"
+           x="0"
+           y="0"
+           height="1"
+           width="1">
+          <feFlood
+             flood-color="white"
+             flood-opacity="1"
+             result="bgnd"
+             id="feFlood10892" />
+          <feComposite
+             in="SourceGraphic"
+             in2="bgnd"
+             operator="atop"
+             id="feComposite10894" />
+        </filter>
+        <filter
+           id="filter10902"
+           filterUnits="objectBoundingBox"
+           x="0"
+           y="0"
+           height="1"
+           width="1">
+          <feFlood
+             flood-color="lightgrey"
+             flood-opacity="1"
+             result="grey"
+             id="feFlood10898" />
+          <feComposite
+             in="SourceGraphic"
+             in2="grey"
+             operator="atop"
+             id="feComposite10900" />
+        </filter>
+      </defs>
+      <g
+         fill="none"
+         color="#ffffff"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g36" />
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g46">
+        <path
+           stroke="#000000"
+           d="m 54.53,444 h 9 m 511.29,0 h -9"
+           id="path38" />
+        <g
+           transform="translate(46.14,447.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="end"
+           id="g44">
+          <text
+             id="text42"><tspan
+               font-family="Arial"
+               id="tspan40">0</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g56">
+        <path
+           stroke="#000000"
+           d="m 54.53,395.25 h 9 m 511.29,0 h -9"
+           id="path48" />
+        <g
+           transform="translate(46.14,399.15)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="end"
+           id="g54">
+          <text
+             id="text52"><tspan
+               font-family="Arial"
+               id="tspan50">0.5</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g66">
+        <path
+           stroke="#000000"
+           d="m 54.53,346.5 h 9 m 511.29,0 h -9"
+           id="path58" />
+        <g
+           transform="translate(46.14,350.4)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="end"
+           id="g64">
+          <text
+             id="text62"><tspan
+               font-family="Arial"
+               id="tspan60">1</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g76">
+        <path
+           stroke="#000000"
+           d="m 54.53,297.75 h 9 m 511.29,0 h -9"
+           id="path68" />
+        <g
+           transform="translate(46.14,301.65)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="end"
+           id="g74">
+          <text
+             id="text72"><tspan
+               font-family="Arial"
+               id="tspan70">1.5</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g86">
+        <path
+           stroke="#000000"
+           d="m 54.53,249 h 9 m 511.29,0 h -9"
+           id="path78" />
+        <g
+           transform="translate(46.14,252.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="end"
+           id="g84">
+          <text
+             id="text82"><tspan
+               font-family="Arial"
+               id="tspan80">2</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g96">
+        <path
+           stroke="#000000"
+           d="m 54.53,200.26 h 9 m 511.29,0 h -9"
+           id="path88" />
+        <g
+           transform="translate(46.14,204.16)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="end"
+           id="g94">
+          <text
+             id="text92"><tspan
+               font-family="Arial"
+               id="tspan90">2.5</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g106">
+        <path
+           stroke="#000000"
+           d="m 54.53,151.51 h 9 m 511.29,0 h -9"
+           id="path98" />
+        <g
+           transform="translate(46.14,155.41)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="end"
+           id="g104">
+          <text
+             id="text102"><tspan
+               font-family="Arial"
+               id="tspan100">3</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g116">
+        <path
+           stroke="#000000"
+           d="m 54.53,102.76 h 9 m 511.29,0 h -9"
+           id="path108" />
+        <g
+           transform="translate(46.14,106.66)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="end"
+           id="g114">
+          <text
+             id="text112"><tspan
+               font-family="Arial"
+               id="tspan110">3.5</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g126">
+        <path
+           stroke="#000000"
+           d="m 54.53,54.01 h 9 m 511.29,0 h -9"
+           id="path118" />
+        <g
+           transform="translate(46.14,57.91)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="end"
+           id="g124">
+          <text
+             id="text122"><tspan
+               font-family="Arial"
+               id="tspan120">4</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g136">
+        <path
+           stroke="#000000"
+           d="m 78.18,444 v -9 m 0,-380.99 v 9"
+           id="path128" />
+        <g
+           transform="translate(78.18,465.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g134">
+          <text
+             id="text132"><tspan
+               font-family="Arial"
+               id="tspan130">G+C</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g146">
+        <path
+           stroke="#000000"
+           d="m 125.48,444 v -9 m 0,-380.99 v 9"
+           id="path138" />
+        <g
+           transform="translate(125.48,465.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g144">
+          <text
+             id="text142"><tspan
+               font-family="Arial"
+               id="tspan140">CG</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g156">
+        <path
+           stroke="#000000"
+           d="m 172.78,444 v -9 m 0,-380.99 v 9"
+           id="path148" />
+        <g
+           transform="translate(172.78,465.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g154">
+          <text
+             id="text152"><tspan
+               font-family="Arial"
+               id="tspan150">TA</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g166">
+        <path
+           stroke="#000000"
+           d="m 220.08,444 v -9 m 0,-380.99 v 9"
+           id="path158" />
+        <g
+           transform="translate(220.08,465.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g164">
+          <text
+             id="text162"><tspan
+               font-family="Arial"
+               id="tspan160">AG</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g176">
+        <path
+           stroke="#000000"
+           d="m 267.38,444 v -9 m 0,-380.99 v 9"
+           id="path168" />
+        <g
+           transform="translate(267.38,465.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g174">
+          <text
+             id="text172"><tspan
+               font-family="Arial"
+               id="tspan170">AT</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g186">
+        <path
+           stroke="#000000"
+           d="m 314.68,444 v -9 m 0,-380.99 v 9"
+           id="path178" />
+        <g
+           transform="translate(314.68,465.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g184">
+          <text
+             id="text182"><tspan
+               font-family="Arial"
+               id="tspan180">CC</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g196">
+        <path
+           stroke="#000000"
+           d="m 361.97,444 v -9 m 0,-380.99 v 9"
+           id="path188" />
+        <g
+           transform="translate(361.97,465.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g194">
+          <text
+             id="text192"><tspan
+               font-family="Arial"
+               id="tspan190">GA</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g206">
+        <path
+           stroke="#000000"
+           d="m 409.27,444 v -9 m 0,-380.99 v 9"
+           id="path198" />
+        <g
+           transform="translate(409.27,465.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g204">
+          <text
+             id="text202"><tspan
+               font-family="Arial"
+               id="tspan200">GC</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g216">
+        <path
+           stroke="#000000"
+           d="m 456.57,444 v -9 m 0,-380.99 v 9"
+           id="path208" />
+        <g
+           transform="translate(456.57,465.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g214">
+          <text
+             id="text212"><tspan
+               font-family="Arial"
+               id="tspan210">GT</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g226">
+        <path
+           stroke="#000000"
+           d="m 503.87,444 v -9 m 0,-380.99 v 9"
+           id="path218" />
+        <g
+           transform="translate(503.87,465.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g224">
+          <text
+             id="text222"><tspan
+               font-family="Arial"
+               id="tspan220">TG</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g236">
+        <path
+           stroke="#000000"
+           d="m 551.17,444 v -9 m 0,-380.99 v 9"
+           id="path228" />
+        <g
+           transform="translate(551.17,465.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g234">
+          <text
+             id="text232"><tspan
+               font-family="Arial"
+               id="tspan230">TT</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g238" />
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g242">
+        <path
+           stroke="#000000"
+           d="M 54.53,54.01 V 444 H 574.82 V 54.01 Z"
+           id="path240" />
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g244" />
+      <g
+         id="gnuplot_plot_1-5">
+        <title
+           id="title246">gnuplot_plot_1</title>
+        <g
+           fill="none"
+           color="#000000"
+           stroke="currentColor"
+           stroke-width="1"
+           stroke-linecap="butt"
+           stroke-linejoin="miter"
+           id="g314">
+          <g
+             stroke="none"
+             shape-rendering="crispEdges"
+             id="g250">
+            <polygon
+               fill="#000080"
+               points="90.01,444 90.01,374.28 66.35,374.28 66.35,444 "
+               id="polygon248" />
+          </g>
+          <path
+             stroke="#000080"
+             d="M 66.35,444 V 374.29 H 90 V 444 Z"
+             id="path252" />
+          <g
+             stroke="none"
+             shape-rendering="crispEdges"
+             id="g256">
+            <polygon
+               fill="#000080"
+               points="137.31,444 137.31,338.17 113.65,338.17 113.65,444 "
+               id="polygon254" />
+          </g>
+          <path
+             stroke="#000080"
+             d="M 113.65,444 V 338.18 H 137.3 V 444 Z"
+             id="path258" />
+          <g
+             stroke="none"
+             shape-rendering="crispEdges"
+             id="g262">
+            <polygon
+               fill="#000080"
+               points="184.61,444 184.61,395.28 160.95,395.28 160.95,444 "
+               id="polygon260" />
+          </g>
+          <path
+             stroke="#000080"
+             d="M 160.95,444 V 395.29 H 184.6 V 444 Z"
+             id="path264" />
+          <g
+             stroke="none"
+             shape-rendering="crispEdges"
+             id="g268">
+            <polygon
+               fill="#000080"
+               points="231.91,444 231.91,246.73 208.25,246.73 208.25,444 "
+               id="polygon266" />
+          </g>
+          <path
+             stroke="#000080"
+             d="M 208.25,444 V 246.74 H 231.9 V 444 Z"
+             id="path270" />
+          <g
+             stroke="none"
+             shape-rendering="crispEdges"
+             id="g274">
+            <polygon
+               fill="#000080"
+               points="279.21,444 279.21,324.59 255.55,324.59 255.55,444 "
+               id="polygon272" />
+          </g>
+          <path
+             stroke="#000080"
+             d="M 255.55,444 V 324.6 H 279.2 V 444 Z"
+             id="path276" />
+          <g
+             stroke="none"
+             shape-rendering="crispEdges"
+             id="g280">
+            <polygon
+               fill="#000080"
+               points="326.51,444 326.51,266.75 302.85,266.75 302.85,444 "
+               id="polygon278" />
+          </g>
+          <path
+             stroke="#000080"
+             d="M 302.85,444 V 266.76 H 326.5 V 444 Z"
+             id="path282" />
+          <g
+             stroke="none"
+             shape-rendering="crispEdges"
+             id="g286">
+            <polygon
+               fill="#000080"
+               points="373.81,444 373.81,194.06 350.15,194.06 350.15,444 "
+               id="polygon284" />
+          </g>
+          <path
+             stroke="#000080"
+             d="M 350.15,444 V 194.07 H 373.8 V 444 Z"
+             id="path288" />
+          <g
+             stroke="none"
+             shape-rendering="crispEdges"
+             id="g292">
+            <polygon
+               fill="#000080"
+               points="421.11,444 421.11,347.87 397.45,347.87 397.45,444 "
+               id="polygon290" />
+          </g>
+          <path
+             stroke="#000080"
+             d="M 397.45,444 V 347.88 H 421.1 V 444 Z"
+             id="path294" />
+          <g
+             stroke="none"
+             shape-rendering="crispEdges"
+             id="g298">
+            <polygon
+               fill="#000080"
+               points="468.41,444 468.41,250.48 444.75,250.48 444.75,444 "
+               id="polygon296" />
+          </g>
+          <path
+             stroke="#000080"
+             d="M 444.75,444 V 250.49 H 468.4 V 444 Z"
+             id="path300" />
+          <g
+             stroke="none"
+             shape-rendering="crispEdges"
+             id="g304">
+            <polygon
+               fill="#000080"
+               points="515.71,444 515.71,246.67 492.05,246.67 492.05,444 "
+               id="polygon302" />
+          </g>
+          <path
+             stroke="#000080"
+             d="M 492.05,444 V 246.68 H 515.7 V 444 Z"
+             id="path306" />
+          <g
+             stroke="none"
+             shape-rendering="crispEdges"
+             id="g310">
+            <polygon
+               fill="#000080"
+               points="563.01,444 563.01,300.16 539.35,300.16 539.35,444 "
+               id="polygon308" />
+          </g>
+          <path
+             stroke="#000080"
+             d="M 539.35,444 V 300.17 H 563 V 444 Z"
+             id="path312" />
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#ffffff"
+         stroke="#000080"
+         stroke-width="2"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g317" />
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="2"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g319" />
+      <g
+         fill="none"
+         color="#000000"
+         stroke="#000000"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g321" />
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g325">
+        <path
+           stroke="#000000"
+           d="M 54.53,54.01 V 444 H 574.82 V 54.01 Z"
+           id="path323" />
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g333">
+        <g
+           transform="translate(314.67,30.91)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g331">
+          <text
+             id="text329"><tspan
+               font-family="Arial"
+               id="tspan327">A.Israelii dinucleotide profile</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g335" />
+    </g>
+    <g
+       id="gnuplot_canvas-8"
+       transform="matrix(0.26458333,0,0,0.26458333,238.88095,-52.916672)">
+      <rect
+         x="0"
+         y="0"
+         width="600"
+         height="480"
+         fill="none"
+         id="rect1342" />
+      <defs
+         id="defs1370">
+        <circle
+           id="circle12396"
+           r="0.5"
+           stroke-width="0.5"
+           stroke="currentColor"
+           cx="0"
+           cy="0" />
+        <path
+           id="path12398"
+           stroke-width="0.222"
+           stroke="currentColor"
+           d="M -1,0 H 1 M 0,-1 v 2" />
+        <path
+           id="path12400"
+           stroke-width="0.222"
+           stroke="currentColor"
+           d="M -1,-1 1,1 M 1,-1 -1,1" />
+        <path
+           id="path12402"
+           stroke-width="0.222"
+           stroke="currentColor"
+           d="M -1,0 H 1 M 0,-1 v 2 m -1,-2 2,2 m -2,0 2,-2" />
+        <rect
+           id="rect12404"
+           stroke-width="0.222"
+           stroke="currentColor"
+           x="-1"
+           y="-1"
+           width="2"
+           height="2" />
+        <rect
+           id="rect12406"
+           stroke-width="0.222"
+           stroke="currentColor"
+           fill="currentColor"
+           x="-1"
+           y="-1"
+           width="2"
+           height="2" />
+        <circle
+           id="circle12408"
+           stroke-width="0.222"
+           stroke="currentColor"
+           cx="0"
+           cy="0"
+           r="1" />
+        <use
+           xlink:href="#gpPt5-0"
+           id="use12410"
+           fill="currentColor"
+           stroke="none"
+           x="0"
+           y="0"
+           width="100%"
+           height="100%" />
+        <path
+           id="path12412"
+           stroke-width="0.222"
+           stroke="currentColor"
+           d="m 0,-1.33 -1.33,2 h 2.66 z" />
+        <use
+           xlink:href="#gpPt7-5"
+           id="use12414"
+           fill="currentColor"
+           stroke="none"
+           x="0"
+           y="0"
+           width="100%"
+           height="100%" />
+        <use
+           xlink:href="#gpPt7-5"
+           id="use12416"
+           stroke="currentColor"
+           transform="scale(-1)"
+           x="0"
+           y="0"
+           width="100%"
+           height="100%" />
+        <use
+           xlink:href="#gpPt9-6"
+           id="use12418"
+           fill="currentColor"
+           stroke="none"
+           x="0"
+           y="0"
+           width="100%"
+           height="100%" />
+        <use
+           xlink:href="#gpPt3-1"
+           id="use12420"
+           stroke="currentColor"
+           transform="rotate(45)"
+           x="0"
+           y="0"
+           width="100%"
+           height="100%" />
+        <use
+           xlink:href="#gpPt11-6"
+           id="use12422"
+           fill="currentColor"
+           stroke="none"
+           x="0"
+           y="0"
+           width="100%"
+           height="100%" />
+        <path
+           id="path12424"
+           stroke-width="0.222"
+           stroke="currentColor"
+           d="M 0,1.33 1.265,0.411 0.782,-1.067 -0.782,-1.076 -1.265,0.411 Z" />
+        <use
+           xlink:href="#gpPt13-58"
+           id="use12426"
+           fill="currentColor"
+           stroke="none"
+           x="0"
+           y="0"
+           width="100%"
+           height="100%" />
+        <filter
+           id="filter12432"
+           filterUnits="objectBoundingBox"
+           x="0"
+           y="0"
+           height="1"
+           width="1">
+          <feFlood
+             flood-color="white"
+             flood-opacity="1"
+             result="bgnd"
+             id="feFlood12428" />
+          <feComposite
+             in="SourceGraphic"
+             in2="bgnd"
+             operator="atop"
+             id="feComposite12430" />
+        </filter>
+        <filter
+           id="filter12438"
+           filterUnits="objectBoundingBox"
+           x="0"
+           y="0"
+           height="1"
+           width="1">
+          <feFlood
+             flood-color="lightgrey"
+             flood-opacity="1"
+             result="grey"
+             id="feFlood12434" />
+          <feComposite
+             in="SourceGraphic"
+             in2="grey"
+             operator="atop"
+             id="feComposite12436" />
+        </filter>
+      </defs>
+      <g
+         fill="none"
+         color="#ffffff"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g1372" />
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g1382">
+        <path
+           stroke="#000000"
+           d="m 54.53,444 h 9 m 511.29,0 h -9"
+           id="path1374" />
+        <g
+           transform="translate(46.14,447.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="end"
+           id="g1380">
+          <text
+             id="text1378"><tspan
+               font-family="Arial"
+               id="tspan1376">0</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g1392">
+        <path
+           stroke="#000000"
+           d="m 54.53,395.25 h 9 m 511.29,0 h -9"
+           id="path1384" />
+        <g
+           transform="translate(46.14,399.15)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="end"
+           id="g1390">
+          <text
+             id="text1388"><tspan
+               font-family="Arial"
+               id="tspan1386">0.5</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g1402">
+        <path
+           stroke="#000000"
+           d="m 54.53,346.5 h 9 m 511.29,0 h -9"
+           id="path1394" />
+        <g
+           transform="translate(46.14,350.4)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="end"
+           id="g1400">
+          <text
+             id="text1398"><tspan
+               font-family="Arial"
+               id="tspan1396">1</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g1412">
+        <path
+           stroke="#000000"
+           d="m 54.53,297.75 h 9 m 511.29,0 h -9"
+           id="path1404" />
+        <g
+           transform="translate(46.14,301.65)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="end"
+           id="g1410">
+          <text
+             id="text1408"><tspan
+               font-family="Arial"
+               id="tspan1406">1.5</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g1422">
+        <path
+           stroke="#000000"
+           d="m 54.53,249 h 9 m 511.29,0 h -9"
+           id="path1414" />
+        <g
+           transform="translate(46.14,252.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="end"
+           id="g1420">
+          <text
+             id="text1418"><tspan
+               font-family="Arial"
+               id="tspan1416">2</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g1432">
+        <path
+           stroke="#000000"
+           d="m 54.53,200.26 h 9 m 511.29,0 h -9"
+           id="path1424" />
+        <g
+           transform="translate(46.14,204.16)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="end"
+           id="g1430">
+          <text
+             id="text1428"><tspan
+               font-family="Arial"
+               id="tspan1426">2.5</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g1442">
+        <path
+           stroke="#000000"
+           d="m 54.53,151.51 h 9 m 511.29,0 h -9"
+           id="path1434" />
+        <g
+           transform="translate(46.14,155.41)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="end"
+           id="g1440">
+          <text
+             id="text1438"><tspan
+               font-family="Arial"
+               id="tspan1436">3</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g1452">
+        <path
+           stroke="#000000"
+           d="m 54.53,102.76 h 9 m 511.29,0 h -9"
+           id="path1444" />
+        <g
+           transform="translate(46.14,106.66)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="end"
+           id="g1450">
+          <text
+             id="text1448"><tspan
+               font-family="Arial"
+               id="tspan1446">3.5</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g1462">
+        <path
+           stroke="#000000"
+           d="m 54.53,54.01 h 9 m 511.29,0 h -9"
+           id="path1454" />
+        <g
+           transform="translate(46.14,57.91)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="end"
+           id="g1460">
+          <text
+             id="text1458"><tspan
+               font-family="Arial"
+               id="tspan1456">4</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g1472">
+        <path
+           stroke="#000000"
+           d="m 78.18,444 v -9 m 0,-380.99 v 9"
+           id="path1464" />
+        <g
+           transform="translate(78.18,465.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g1470">
+          <text
+             id="text1468"><tspan
+               font-family="Arial"
+               id="tspan1466">G+C</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g1482">
+        <path
+           stroke="#000000"
+           d="m 125.48,444 v -9 m 0,-380.99 v 9"
+           id="path1474" />
+        <g
+           transform="translate(125.48,465.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g1480">
+          <text
+             id="text1478"><tspan
+               font-family="Arial"
+               id="tspan1476">CG</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g1492">
+        <path
+           stroke="#000000"
+           d="m 172.78,444 v -9 m 0,-380.99 v 9"
+           id="path1484" />
+        <g
+           transform="translate(172.78,465.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g1490">
+          <text
+             id="text1488"><tspan
+               font-family="Arial"
+               id="tspan1486">TA</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g1502">
+        <path
+           stroke="#000000"
+           d="m 220.08,444 v -9 m 0,-380.99 v 9"
+           id="path1494" />
+        <g
+           transform="translate(220.08,465.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g1500">
+          <text
+             id="text1498"><tspan
+               font-family="Arial"
+               id="tspan1496">AG</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g1512">
+        <path
+           stroke="#000000"
+           d="m 267.38,444 v -9 m 0,-380.99 v 9"
+           id="path1504" />
+        <g
+           transform="translate(267.38,465.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g1510">
+          <text
+             id="text1508"><tspan
+               font-family="Arial"
+               id="tspan1506">AT</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g1522">
+        <path
+           stroke="#000000"
+           d="m 314.68,444 v -9 m 0,-380.99 v 9"
+           id="path1514" />
+        <g
+           transform="translate(314.68,465.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g1520">
+          <text
+             id="text1518"><tspan
+               font-family="Arial"
+               id="tspan1516">CC</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g1532">
+        <path
+           stroke="#000000"
+           d="m 361.97,444 v -9 m 0,-380.99 v 9"
+           id="path1524" />
+        <g
+           transform="translate(361.97,465.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g1530">
+          <text
+             id="text1528"><tspan
+               font-family="Arial"
+               id="tspan1526">GA</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g1542">
+        <path
+           stroke="#000000"
+           d="m 409.27,444 v -9 m 0,-380.99 v 9"
+           id="path1534" />
+        <g
+           transform="translate(409.27,465.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g1540">
+          <text
+             id="text1538"><tspan
+               font-family="Arial"
+               id="tspan1536">GC</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g1552">
+        <path
+           stroke="#000000"
+           d="m 456.57,444 v -9 m 0,-380.99 v 9"
+           id="path1544" />
+        <g
+           transform="translate(456.57,465.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g1550">
+          <text
+             id="text1548"><tspan
+               font-family="Arial"
+               id="tspan1546">GT</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g1562">
+        <path
+           stroke="#000000"
+           d="m 503.87,444 v -9 m 0,-380.99 v 9"
+           id="path1554" />
+        <g
+           transform="translate(503.87,465.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g1560">
+          <text
+             id="text1558"><tspan
+               font-family="Arial"
+               id="tspan1556">TG</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g1572">
+        <path
+           stroke="#000000"
+           d="m 551.17,444 v -9 m 0,-380.99 v 9"
+           id="path1564" />
+        <g
+           transform="translate(551.17,465.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g1570">
+          <text
+             id="text1568"><tspan
+               font-family="Arial"
+               id="tspan1566">TT</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g1574" />
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g1578">
+        <path
+           stroke="#000000"
+           d="M 54.53,54.01 V 444 H 574.82 V 54.01 Z"
+           id="path1576" />
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g1580" />
+      <g
+         id="gnuplot_plot_1-0">
+        <title
+           id="title1582">gnuplot_plot_1</title>
+        <g
+           fill="none"
+           color="#000000"
+           stroke="currentColor"
+           stroke-width="1"
+           stroke-linecap="butt"
+           stroke-linejoin="miter"
+           id="g1650">
+          <g
+             stroke="none"
+             shape-rendering="crispEdges"
+             id="g1586">
+            <polygon
+               fill="#000080"
+               points="66.35,377.81 66.35,444 90.01,444 90.01,377.81 "
+               id="polygon1584" />
+          </g>
+          <path
+             stroke="#000080"
+             d="M 66.35,444 V 377.82 H 90 V 444 Z"
+             id="path1588" />
+          <g
+             stroke="none"
+             shape-rendering="crispEdges"
+             id="g1592">
+            <polygon
+               fill="#000080"
+               points="113.65,344.62 113.65,444 137.31,444 137.31,344.62 "
+               id="polygon1590" />
+          </g>
+          <path
+             stroke="#000080"
+             d="M 113.65,444 V 344.63 H 137.3 V 444 Z"
+             id="path1594" />
+          <g
+             stroke="none"
+             shape-rendering="crispEdges"
+             id="g1598">
+            <polygon
+               fill="#000080"
+               points="160.95,397.34 160.95,444 184.61,444 184.61,397.34 "
+               id="polygon1596" />
+          </g>
+          <path
+             stroke="#000080"
+             d="M 160.95,444 V 397.35 H 184.6 V 444 Z"
+             id="path1600" />
+          <g
+             stroke="none"
+             shape-rendering="crispEdges"
+             id="g1604">
+            <polygon
+               fill="#000080"
+               points="208.25,245.28 208.25,444 231.91,444 231.91,245.28 "
+               id="polygon1602" />
+          </g>
+          <path
+             stroke="#000080"
+             d="M 208.25,444 V 245.29 H 231.9 V 444 Z"
+             id="path1606" />
+          <g
+             stroke="none"
+             shape-rendering="crispEdges"
+             id="g1610">
+            <polygon
+               fill="#000080"
+               points="255.55,335.05 255.55,444 279.21,444 279.21,335.05 "
+               id="polygon1608" />
+          </g>
+          <path
+             stroke="#000080"
+             d="M 255.55,444 V 335.06 H 279.2 V 444 Z"
+             id="path1612" />
+          <g
+             stroke="none"
+             shape-rendering="crispEdges"
+             id="g1616">
+            <polygon
+               fill="#000080"
+               points="302.85,262.6 302.85,444 326.51,444 326.51,262.6 "
+               id="polygon1614" />
+          </g>
+          <path
+             stroke="#000080"
+             d="M 302.85,444 V 262.61 H 326.5 V 444 Z"
+             id="path1618" />
+          <g
+             stroke="none"
+             shape-rendering="crispEdges"
+             id="g1622">
+            <polygon
+               fill="#000080"
+               points="350.15,199.75 350.15,444 373.81,444 373.81,199.75 "
+               id="polygon1620" />
+          </g>
+          <path
+             stroke="#000080"
+             d="M 350.15,444 V 199.76 H 373.8 V 444 Z"
+             id="path1624" />
+          <g
+             stroke="none"
+             shape-rendering="crispEdges"
+             id="g1628">
+            <polygon
+               fill="#000080"
+               points="397.45,352.63 397.45,444 421.11,444 421.11,352.63 "
+               id="polygon1626" />
+          </g>
+          <path
+             stroke="#000080"
+             d="M 397.45,444 V 352.64 H 421.1 V 444 Z"
+             id="path1630" />
+          <g
+             stroke="none"
+             shape-rendering="crispEdges"
+             id="g1634">
+            <polygon
+               fill="#000080"
+               points="444.75,242.99 444.75,444 468.41,444 468.41,242.99 "
+               id="polygon1632" />
+          </g>
+          <path
+             stroke="#000080"
+             d="M 444.75,444 V 243 h 23.65 v 201 z"
+             id="path1636" />
+          <g
+             stroke="none"
+             shape-rendering="crispEdges"
+             id="g1640">
+            <polygon
+               fill="#000080"
+               points="492.05,230.31 492.05,444 515.71,444 515.71,230.31 "
+               id="polygon1638" />
+          </g>
+          <path
+             stroke="#000080"
+             d="M 492.05,444 V 230.32 H 515.7 V 444 Z"
+             id="path1642" />
+          <g
+             stroke="none"
+             shape-rendering="crispEdges"
+             id="g1646">
+            <polygon
+               fill="#000080"
+               points="539.35,290.87 539.35,444 563.01,444 563.01,290.87 "
+               id="polygon1644" />
+          </g>
+          <path
+             stroke="#000080"
+             d="M 539.35,444 V 290.88 H 563 V 444 Z"
+             id="path1648" />
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#ffffff"
+         stroke="#000080"
+         stroke-width="2"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g1653" />
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="2"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g1655" />
+      <g
+         fill="none"
+         color="#000000"
+         stroke="#000000"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g1657" />
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g1661">
+        <path
+           stroke="#000000"
+           d="M 54.53,54.01 V 444 H 574.82 V 54.01 Z"
+           id="path1659" />
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g1669">
+        <g
+           transform="translate(314.67,30.91)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g1667">
+          <text
+             id="text1665"><tspan
+               font-family="Arial"
+               id="tspan1663">A.Naeslundii dinucleotide profile</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g1671" />
+    </g>
+    <path
+       id="path12601-2"
+       style="fill:#000001;fill-opacity:0.90812;stroke:#000000;stroke-width:1.2235px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 110.82685,-90.566577 2.33442,4.04332 2.39316,-4.14509 z m 2.2606,-14.293633 v 13.787153" />
+    <path
+       id="path12601-9"
+       style="fill:#000001;fill-opacity:0.90812;stroke:#000000;stroke-width:1.2235px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 269.5492,-106.65424 2.33442,4.04332 2.39316,-4.14509 z m 2.2606,-14.29363 v 13.78715" />
+    <path
+       id="path12601-9-9"
+       style="fill:#000001;fill-opacity:0.90812;stroke:#000000;stroke-width:1.2235px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 269.60152,23.621738 2.33442,4.04332 2.39316,-4.14509 z m 2.2606,-14.2936316 V 23.115258" />
+    <path
+       id="path12601-9-0"
+       style="fill:#000001;fill-opacity:0.90812;stroke:#000000;stroke-width:1.2235px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 110.50995,36.763249 2.33442,4.04332 2.39316,-4.14509 z m 2.2606,-14.29363 v 13.78715" />
+    <g
+       id="gnuplot_canvas-81"
+       transform="matrix(0.26458333,0,0,0.26458333,80.130953,74.083326)">
+      <rect
+         x="0"
+         y="0"
+         width="600"
+         height="480"
+         fill="none"
+         id="rect2030" />
+      <defs
+         id="defs2058">
+        <circle
+           id="circle13066"
+           r="0.5"
+           stroke-width="0.5"
+           stroke="currentColor"
+           cx="0"
+           cy="0" />
+        <path
+           id="path13068"
+           stroke-width="0.222"
+           stroke="currentColor"
+           d="M -1,0 H 1 M 0,-1 v 2" />
+        <path
+           id="path13070"
+           stroke-width="0.222"
+           stroke="currentColor"
+           d="M -1,-1 1,1 M 1,-1 -1,1" />
+        <path
+           id="path13072"
+           stroke-width="0.222"
+           stroke="currentColor"
+           d="M -1,0 H 1 M 0,-1 v 2 m -1,-2 2,2 m -2,0 2,-2" />
+        <rect
+           id="rect13074"
+           stroke-width="0.222"
+           stroke="currentColor"
+           x="-1"
+           y="-1"
+           width="2"
+           height="2" />
+        <rect
+           id="rect13076"
+           stroke-width="0.222"
+           stroke="currentColor"
+           fill="currentColor"
+           x="-1"
+           y="-1"
+           width="2"
+           height="2" />
+        <circle
+           id="circle13078"
+           stroke-width="0.222"
+           stroke="currentColor"
+           cx="0"
+           cy="0"
+           r="1" />
+        <use
+           xlink:href="#gpPt5-19"
+           id="use13080"
+           fill="currentColor"
+           stroke="none"
+           x="0"
+           y="0"
+           width="100%"
+           height="100%" />
+        <path
+           id="path13082"
+           stroke-width="0.222"
+           stroke="currentColor"
+           d="m 0,-1.33 -1.33,2 h 2.66 z" />
+        <use
+           xlink:href="#gpPt7-93"
+           id="use13084"
+           fill="currentColor"
+           stroke="none"
+           x="0"
+           y="0"
+           width="100%"
+           height="100%" />
+        <use
+           xlink:href="#gpPt7-93"
+           id="use13086"
+           stroke="currentColor"
+           transform="scale(-1)"
+           x="0"
+           y="0"
+           width="100%"
+           height="100%" />
+        <use
+           xlink:href="#gpPt9-0"
+           id="use13088"
+           fill="currentColor"
+           stroke="none"
+           x="0"
+           y="0"
+           width="100%"
+           height="100%" />
+        <use
+           xlink:href="#gpPt3-03"
+           id="use13090"
+           stroke="currentColor"
+           transform="rotate(45)"
+           x="0"
+           y="0"
+           width="100%"
+           height="100%" />
+        <use
+           xlink:href="#gpPt11-66"
+           id="use13092"
+           fill="currentColor"
+           stroke="none"
+           x="0"
+           y="0"
+           width="100%"
+           height="100%" />
+        <path
+           id="path13094"
+           stroke-width="0.222"
+           stroke="currentColor"
+           d="M 0,1.33 1.265,0.411 0.782,-1.067 -0.782,-1.076 -1.265,0.411 Z" />
+        <use
+           xlink:href="#gpPt13-0"
+           id="use13096"
+           fill="currentColor"
+           stroke="none"
+           x="0"
+           y="0"
+           width="100%"
+           height="100%" />
+        <filter
+           id="filter13102"
+           filterUnits="objectBoundingBox"
+           x="0"
+           y="0"
+           height="1"
+           width="1">
+          <feFlood
+             flood-color="white"
+             flood-opacity="1"
+             result="bgnd"
+             id="feFlood13098" />
+          <feComposite
+             in="SourceGraphic"
+             in2="bgnd"
+             operator="atop"
+             id="feComposite13100" />
+        </filter>
+        <filter
+           id="filter13108"
+           filterUnits="objectBoundingBox"
+           x="0"
+           y="0"
+           height="1"
+           width="1">
+          <feFlood
+             flood-color="lightgrey"
+             flood-opacity="1"
+             result="grey"
+             id="feFlood13104" />
+          <feComposite
+             in="SourceGraphic"
+             in2="grey"
+             operator="atop"
+             id="feComposite13106" />
+        </filter>
+      </defs>
+      <g
+         fill="none"
+         color="#ffffff"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g2060" />
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g2070">
+        <path
+           stroke="#000000"
+           d="m 54.53,444 h 9 m 511.29,0 h -9"
+           id="path2062" />
+        <g
+           transform="translate(46.14,447.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="end"
+           id="g2068">
+          <text
+             id="text2066"><tspan
+               font-family="Arial"
+               id="tspan2064">0</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g2080">
+        <path
+           stroke="#000000"
+           d="m 54.53,395.25 h 9 m 511.29,0 h -9"
+           id="path2072" />
+        <g
+           transform="translate(46.14,399.15)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="end"
+           id="g2078">
+          <text
+             id="text2076"><tspan
+               font-family="Arial"
+               id="tspan2074">0.5</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g2090">
+        <path
+           stroke="#000000"
+           d="m 54.53,346.5 h 9 m 511.29,0 h -9"
+           id="path2082" />
+        <g
+           transform="translate(46.14,350.4)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="end"
+           id="g2088">
+          <text
+             id="text2086"><tspan
+               font-family="Arial"
+               id="tspan2084">1</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g2100">
+        <path
+           stroke="#000000"
+           d="m 54.53,297.75 h 9 m 511.29,0 h -9"
+           id="path2092" />
+        <g
+           transform="translate(46.14,301.65)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="end"
+           id="g2098">
+          <text
+             id="text2096"><tspan
+               font-family="Arial"
+               id="tspan2094">1.5</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g2110">
+        <path
+           stroke="#000000"
+           d="m 54.53,249 h 9 m 511.29,0 h -9"
+           id="path2102" />
+        <g
+           transform="translate(46.14,252.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="end"
+           id="g2108">
+          <text
+             id="text2106"><tspan
+               font-family="Arial"
+               id="tspan2104">2</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g2120">
+        <path
+           stroke="#000000"
+           d="m 54.53,200.26 h 9 m 511.29,0 h -9"
+           id="path2112" />
+        <g
+           transform="translate(46.14,204.16)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="end"
+           id="g2118">
+          <text
+             id="text2116"><tspan
+               font-family="Arial"
+               id="tspan2114">2.5</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g2130">
+        <path
+           stroke="#000000"
+           d="m 54.53,151.51 h 9 m 511.29,0 h -9"
+           id="path2122" />
+        <g
+           transform="translate(46.14,155.41)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="end"
+           id="g2128">
+          <text
+             id="text2126"><tspan
+               font-family="Arial"
+               id="tspan2124">3</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g2140">
+        <path
+           stroke="#000000"
+           d="m 54.53,102.76 h 9 m 511.29,0 h -9"
+           id="path2132" />
+        <g
+           transform="translate(46.14,106.66)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="end"
+           id="g2138">
+          <text
+             id="text2136"><tspan
+               font-family="Arial"
+               id="tspan2134">3.5</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g2150">
+        <path
+           stroke="#000000"
+           d="m 54.53,54.01 h 9 m 511.29,0 h -9"
+           id="path2142" />
+        <g
+           transform="translate(46.14,57.91)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="end"
+           id="g2148">
+          <text
+             id="text2146"><tspan
+               font-family="Arial"
+               id="tspan2144">4</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g2160">
+        <path
+           stroke="#000000"
+           d="m 78.18,444 v -9 m 0,-380.99 v 9"
+           id="path2152" />
+        <g
+           transform="translate(78.18,465.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g2158">
+          <text
+             id="text2156"><tspan
+               font-family="Arial"
+               id="tspan2154">G+C</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g2170">
+        <path
+           stroke="#000000"
+           d="m 125.48,444 v -9 m 0,-380.99 v 9"
+           id="path2162" />
+        <g
+           transform="translate(125.48,465.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g2168">
+          <text
+             id="text2166"><tspan
+               font-family="Arial"
+               id="tspan2164">CG</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g2180">
+        <path
+           stroke="#000000"
+           d="m 172.78,444 v -9 m 0,-380.99 v 9"
+           id="path2172" />
+        <g
+           transform="translate(172.78,465.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g2178">
+          <text
+             id="text2176"><tspan
+               font-family="Arial"
+               id="tspan2174">TA</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g2190">
+        <path
+           stroke="#000000"
+           d="m 220.08,444 v -9 m 0,-380.99 v 9"
+           id="path2182" />
+        <g
+           transform="translate(220.08,465.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g2188">
+          <text
+             id="text2186"><tspan
+               font-family="Arial"
+               id="tspan2184">AG</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g2200">
+        <path
+           stroke="#000000"
+           d="m 267.38,444 v -9 m 0,-380.99 v 9"
+           id="path2192" />
+        <g
+           transform="translate(267.38,465.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g2198">
+          <text
+             id="text2196"><tspan
+               font-family="Arial"
+               id="tspan2194">AT</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g2210">
+        <path
+           stroke="#000000"
+           d="m 314.68,444 v -9 m 0,-380.99 v 9"
+           id="path2202" />
+        <g
+           transform="translate(314.68,465.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g2208">
+          <text
+             id="text2206"><tspan
+               font-family="Arial"
+               id="tspan2204">CC</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g2220">
+        <path
+           stroke="#000000"
+           d="m 361.97,444 v -9 m 0,-380.99 v 9"
+           id="path2212" />
+        <g
+           transform="translate(361.97,465.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g2218">
+          <text
+             id="text2216"><tspan
+               font-family="Arial"
+               id="tspan2214">GA</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g2230">
+        <path
+           stroke="#000000"
+           d="m 409.27,444 v -9 m 0,-380.99 v 9"
+           id="path2222" />
+        <g
+           transform="translate(409.27,465.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g2228">
+          <text
+             id="text2226"><tspan
+               font-family="Arial"
+               id="tspan2224">GC</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g2240">
+        <path
+           stroke="#000000"
+           d="m 456.57,444 v -9 m 0,-380.99 v 9"
+           id="path2232" />
+        <g
+           transform="translate(456.57,465.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g2238">
+          <text
+             id="text2236"><tspan
+               font-family="Arial"
+               id="tspan2234">GT</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g2250">
+        <path
+           stroke="#000000"
+           d="m 503.87,444 v -9 m 0,-380.99 v 9"
+           id="path2242" />
+        <g
+           transform="translate(503.87,465.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g2248">
+          <text
+             id="text2246"><tspan
+               font-family="Arial"
+               id="tspan2244">TG</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g2260">
+        <path
+           stroke="#000000"
+           d="m 551.17,444 v -9 m 0,-380.99 v 9"
+           id="path2252" />
+        <g
+           transform="translate(551.17,465.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g2258">
+          <text
+             id="text2256"><tspan
+               font-family="Arial"
+               id="tspan2254">TT</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g2262" />
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g2266">
+        <path
+           stroke="#000000"
+           d="M 54.53,54.01 V 444 H 574.82 V 54.01 Z"
+           id="path2264" />
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g2268" />
+      <g
+         id="gnuplot_plot_1-69">
+        <title
+           id="title2270">gnuplot_plot_1</title>
+        <g
+           fill="none"
+           color="#000000"
+           stroke="currentColor"
+           stroke-width="1"
+           stroke-linecap="butt"
+           stroke-linejoin="miter"
+           id="g2338">
+          <g
+             stroke="none"
+             shape-rendering="crispEdges"
+             id="g2274">
+            <polygon
+               fill="#000080"
+               points="66.35,409.48 66.35,444 90.01,444 90.01,409.48 "
+               id="polygon2272" />
+          </g>
+          <path
+             stroke="#000080"
+             d="M 66.35,444 V 409.49 H 90 V 444 Z"
+             id="path2276" />
+          <g
+             stroke="none"
+             shape-rendering="crispEdges"
+             id="g2280">
+            <polygon
+               fill="#000080"
+               points="113.65,398.23 113.65,444 137.31,444 137.31,398.23 "
+               id="polygon2278" />
+          </g>
+          <path
+             stroke="#000080"
+             d="M 113.65,444 V 398.24 H 137.3 V 444 Z"
+             id="path2282" />
+          <g
+             stroke="none"
+             shape-rendering="crispEdges"
+             id="g2286">
+            <polygon
+               fill="#000080"
+               points="160.95,356.39 160.95,444 184.61,444 184.61,356.39 "
+               id="polygon2284" />
+          </g>
+          <path
+             stroke="#000080"
+             d="M 160.95,444 V 356.4 H 184.6 V 444 Z"
+             id="path2288" />
+          <g
+             stroke="none"
+             shape-rendering="crispEdges"
+             id="g2292">
+            <polygon
+               fill="#000080"
+               points="208.25,247.1 208.25,444 231.91,444 231.91,247.1 "
+               id="polygon2290" />
+          </g>
+          <path
+             stroke="#000080"
+             d="M 208.25,444 V 247.11 H 231.9 V 444 Z"
+             id="path2294" />
+          <g
+             stroke="none"
+             shape-rendering="crispEdges"
+             id="g2298">
+            <polygon
+               fill="#000080"
+               points="255.55,357.5 255.55,444 279.21,444 279.21,357.5 "
+               id="polygon2296" />
+          </g>
+          <path
+             stroke="#000080"
+             d="M 255.55,444 V 357.51 H 279.2 V 444 Z"
+             id="path2300" />
+          <g
+             stroke="none"
+             shape-rendering="crispEdges"
+             id="g2304">
+            <polygon
+               fill="#000080"
+               points="302.85,172.16 302.85,444 326.51,444 326.51,172.16 "
+               id="polygon2302" />
+          </g>
+          <path
+             stroke="#000080"
+             d="M 302.85,444 V 172.17 H 326.5 V 444 Z"
+             id="path2306" />
+          <g
+             stroke="none"
+             shape-rendering="crispEdges"
+             id="g2310">
+            <polygon
+               fill="#000080"
+               points="350.15,288.49 350.15,444 373.81,444 373.81,288.49 "
+               id="polygon2308" />
+          </g>
+          <path
+             stroke="#000080"
+             d="M 350.15,444 V 288.5 H 373.8 V 444 Z"
+             id="path2312" />
+          <g
+             stroke="none"
+             shape-rendering="crispEdges"
+             id="g2316">
+            <polygon
+               fill="#000080"
+               points="397.45,325.81 397.45,444 421.11,444 421.11,325.81 "
+               id="polygon2314" />
+          </g>
+          <path
+             stroke="#000080"
+             d="M 397.45,444 V 325.82 H 421.1 V 444 Z"
+             id="path2318" />
+          <g
+             stroke="none"
+             shape-rendering="crispEdges"
+             id="g2322">
+            <polygon
+               fill="#000080"
+               points="444.75,279.87 444.75,444 468.41,444 468.41,279.87 "
+               id="polygon2320" />
+          </g>
+          <path
+             stroke="#000080"
+             d="M 444.75,444 V 279.88 H 468.4 V 444 Z"
+             id="path2324" />
+          <g
+             stroke="none"
+             shape-rendering="crispEdges"
+             id="g2328">
+            <polygon
+               fill="#000080"
+               points="492.05,252.64 492.05,444 515.71,444 515.71,252.64 "
+               id="polygon2326" />
+          </g>
+          <path
+             stroke="#000080"
+             d="M 492.05,444 V 252.65 H 515.7 V 444 Z"
+             id="path2330" />
+          <g
+             stroke="none"
+             shape-rendering="crispEdges"
+             id="g2334">
+            <polygon
+               fill="#000080"
+               points="539.35,288.37 539.35,444 563.01,444 563.01,288.37 "
+               id="polygon2332" />
+          </g>
+          <path
+             stroke="#000080"
+             d="M 539.35,444 V 288.38 H 563 V 444 Z"
+             id="path2336" />
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#ffffff"
+         stroke="#000080"
+         stroke-width="2"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g2341" />
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="2"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g2343" />
+      <g
+         fill="none"
+         color="#000000"
+         stroke="#000000"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g2345" />
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g2349">
+        <path
+           stroke="#000000"
+           d="M 54.53,54.01 V 444 H 574.82 V 54.01 Z"
+           id="path2347" />
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g2357">
+        <g
+           transform="translate(314.67,30.91)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g2355">
+          <text
+             id="text2353"><tspan
+               font-family="Arial"
+               id="tspan2351">HCoVs dinucleotide profile</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g2359" />
+    </g>
+    <path
+       id="path12601-9-0-8"
+       style="fill:#000001;fill-opacity:0.90812;stroke:#000000;stroke-width:1.2235px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 111.16906,168.54702 2.33442,4.04332 2.39316,-4.14509 z m 2.2606,-14.29363 v 13.78715" />
+    <g
+       id="gnuplot_canvas-7"
+       transform="matrix(0.26458333,0,0,0.26458333,238.88095,74.083326)">
+      <rect
+         x="0"
+         y="0"
+         width="600"
+         height="480"
+         fill="none"
+         id="rect1686" />
+      <defs
+         id="defs1714">
+        <circle
+           id="circle13665"
+           r="0.5"
+           stroke-width="0.5"
+           stroke="currentColor"
+           cx="0"
+           cy="0" />
+        <path
+           id="path13667"
+           stroke-width="0.222"
+           stroke="currentColor"
+           d="M -1,0 H 1 M 0,-1 v 2" />
+        <path
+           id="path13669"
+           stroke-width="0.222"
+           stroke="currentColor"
+           d="M -1,-1 1,1 M 1,-1 -1,1" />
+        <path
+           id="path13671"
+           stroke-width="0.222"
+           stroke="currentColor"
+           d="M -1,0 H 1 M 0,-1 v 2 m -1,-2 2,2 m -2,0 2,-2" />
+        <rect
+           id="rect13673"
+           stroke-width="0.222"
+           stroke="currentColor"
+           x="-1"
+           y="-1"
+           width="2"
+           height="2" />
+        <rect
+           id="rect13675"
+           stroke-width="0.222"
+           stroke="currentColor"
+           fill="currentColor"
+           x="-1"
+           y="-1"
+           width="2"
+           height="2" />
+        <circle
+           id="circle13677"
+           stroke-width="0.222"
+           stroke="currentColor"
+           cx="0"
+           cy="0"
+           r="1" />
+        <use
+           xlink:href="#gpPt5-27"
+           id="use13679"
+           fill="currentColor"
+           stroke="none"
+           x="0"
+           y="0"
+           width="100%"
+           height="100%" />
+        <path
+           id="path13681"
+           stroke-width="0.222"
+           stroke="currentColor"
+           d="m 0,-1.33 -1.33,2 h 2.66 z" />
+        <use
+           xlink:href="#gpPt7-3"
+           id="use13683"
+           fill="currentColor"
+           stroke="none"
+           x="0"
+           y="0"
+           width="100%"
+           height="100%" />
+        <use
+           xlink:href="#gpPt7-3"
+           id="use13685"
+           stroke="currentColor"
+           transform="scale(-1)"
+           x="0"
+           y="0"
+           width="100%"
+           height="100%" />
+        <use
+           xlink:href="#gpPt9-5"
+           id="use13687"
+           fill="currentColor"
+           stroke="none"
+           x="0"
+           y="0"
+           width="100%"
+           height="100%" />
+        <use
+           xlink:href="#gpPt3-6"
+           id="use13689"
+           stroke="currentColor"
+           transform="rotate(45)"
+           x="0"
+           y="0"
+           width="100%"
+           height="100%" />
+        <use
+           xlink:href="#gpPt11-14"
+           id="use13691"
+           fill="currentColor"
+           stroke="none"
+           x="0"
+           y="0"
+           width="100%"
+           height="100%" />
+        <path
+           id="path13693"
+           stroke-width="0.222"
+           stroke="currentColor"
+           d="M 0,1.33 1.265,0.411 0.782,-1.067 -0.782,-1.076 -1.265,0.411 Z" />
+        <use
+           xlink:href="#gpPt13-10"
+           id="use13695"
+           fill="currentColor"
+           stroke="none"
+           x="0"
+           y="0"
+           width="100%"
+           height="100%" />
+        <filter
+           id="filter13701"
+           filterUnits="objectBoundingBox"
+           x="0"
+           y="0"
+           height="1"
+           width="1">
+          <feFlood
+             flood-color="white"
+             flood-opacity="1"
+             result="bgnd"
+             id="feFlood13697" />
+          <feComposite
+             in="SourceGraphic"
+             in2="bgnd"
+             operator="atop"
+             id="feComposite13699" />
+        </filter>
+        <filter
+           id="filter13707"
+           filterUnits="objectBoundingBox"
+           x="0"
+           y="0"
+           height="1"
+           width="1">
+          <feFlood
+             flood-color="lightgrey"
+             flood-opacity="1"
+             result="grey"
+             id="feFlood13703" />
+          <feComposite
+             in="SourceGraphic"
+             in2="grey"
+             operator="atop"
+             id="feComposite13705" />
+        </filter>
+      </defs>
+      <g
+         fill="none"
+         color="#ffffff"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g1716" />
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g1726">
+        <path
+           stroke="#000000"
+           d="m 54.53,444 h 9 m 511.29,0 h -9"
+           id="path1718" />
+        <g
+           transform="translate(46.14,447.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="end"
+           id="g1724">
+          <text
+             id="text1722"><tspan
+               font-family="Arial"
+               id="tspan1720">0</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g1736">
+        <path
+           stroke="#000000"
+           d="m 54.53,395.25 h 9 m 511.29,0 h -9"
+           id="path1728" />
+        <g
+           transform="translate(46.14,399.15)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="end"
+           id="g1734">
+          <text
+             id="text1732"><tspan
+               font-family="Arial"
+               id="tspan1730">0.5</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g1746">
+        <path
+           stroke="#000000"
+           d="m 54.53,346.5 h 9 m 511.29,0 h -9"
+           id="path1738" />
+        <g
+           transform="translate(46.14,350.4)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="end"
+           id="g1744">
+          <text
+             id="text1742"><tspan
+               font-family="Arial"
+               id="tspan1740">1</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g1756">
+        <path
+           stroke="#000000"
+           d="m 54.53,297.75 h 9 m 511.29,0 h -9"
+           id="path1748" />
+        <g
+           transform="translate(46.14,301.65)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="end"
+           id="g1754">
+          <text
+             id="text1752"><tspan
+               font-family="Arial"
+               id="tspan1750">1.5</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g1766">
+        <path
+           stroke="#000000"
+           d="m 54.53,249 h 9 m 511.29,0 h -9"
+           id="path1758" />
+        <g
+           transform="translate(46.14,252.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="end"
+           id="g1764">
+          <text
+             id="text1762"><tspan
+               font-family="Arial"
+               id="tspan1760">2</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g1776">
+        <path
+           stroke="#000000"
+           d="m 54.53,200.26 h 9 m 511.29,0 h -9"
+           id="path1768" />
+        <g
+           transform="translate(46.14,204.16)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="end"
+           id="g1774">
+          <text
+             id="text1772"><tspan
+               font-family="Arial"
+               id="tspan1770">2.5</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g1786">
+        <path
+           stroke="#000000"
+           d="m 54.53,151.51 h 9 m 511.29,0 h -9"
+           id="path1778" />
+        <g
+           transform="translate(46.14,155.41)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="end"
+           id="g1784">
+          <text
+             id="text1782"><tspan
+               font-family="Arial"
+               id="tspan1780">3</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g1796">
+        <path
+           stroke="#000000"
+           d="m 54.53,102.76 h 9 m 511.29,0 h -9"
+           id="path1788" />
+        <g
+           transform="translate(46.14,106.66)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="end"
+           id="g1794">
+          <text
+             id="text1792"><tspan
+               font-family="Arial"
+               id="tspan1790">3.5</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g1806">
+        <path
+           stroke="#000000"
+           d="m 54.53,54.01 h 9 m 511.29,0 h -9"
+           id="path1798" />
+        <g
+           transform="translate(46.14,57.91)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="end"
+           id="g1804">
+          <text
+             id="text1802"><tspan
+               font-family="Arial"
+               id="tspan1800">4</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g1816">
+        <path
+           stroke="#000000"
+           d="m 78.18,444 v -9 m 0,-380.99 v 9"
+           id="path1808" />
+        <g
+           transform="translate(78.18,465.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g1814">
+          <text
+             id="text1812"><tspan
+               font-family="Arial"
+               id="tspan1810">G+C</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g1826">
+        <path
+           stroke="#000000"
+           d="m 125.48,444 v -9 m 0,-380.99 v 9"
+           id="path1818" />
+        <g
+           transform="translate(125.48,465.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g1824">
+          <text
+             id="text1822"><tspan
+               font-family="Arial"
+               id="tspan1820">CG</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g1836">
+        <path
+           stroke="#000000"
+           d="m 172.78,444 v -9 m 0,-380.99 v 9"
+           id="path1828" />
+        <g
+           transform="translate(172.78,465.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g1834">
+          <text
+             id="text1832"><tspan
+               font-family="Arial"
+               id="tspan1830">TA</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g1846">
+        <path
+           stroke="#000000"
+           d="m 220.08,444 v -9 m 0,-380.99 v 9"
+           id="path1838" />
+        <g
+           transform="translate(220.08,465.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g1844">
+          <text
+             id="text1842"><tspan
+               font-family="Arial"
+               id="tspan1840">AG</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g1856">
+        <path
+           stroke="#000000"
+           d="m 267.38,444 v -9 m 0,-380.99 v 9"
+           id="path1848" />
+        <g
+           transform="translate(267.38,465.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g1854">
+          <text
+             id="text1852"><tspan
+               font-family="Arial"
+               id="tspan1850">AT</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g1866">
+        <path
+           stroke="#000000"
+           d="m 314.68,444 v -9 m 0,-380.99 v 9"
+           id="path1858" />
+        <g
+           transform="translate(314.68,465.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g1864">
+          <text
+             id="text1862"><tspan
+               font-family="Arial"
+               id="tspan1860">CC</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g1876">
+        <path
+           stroke="#000000"
+           d="m 361.97,444 v -9 m 0,-380.99 v 9"
+           id="path1868" />
+        <g
+           transform="translate(361.97,465.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g1874">
+          <text
+             id="text1872"><tspan
+               font-family="Arial"
+               id="tspan1870">GA</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g1886">
+        <path
+           stroke="#000000"
+           d="m 409.27,444 v -9 m 0,-380.99 v 9"
+           id="path1878" />
+        <g
+           transform="translate(409.27,465.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g1884">
+          <text
+             id="text1882"><tspan
+               font-family="Arial"
+               id="tspan1880">GC</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g1896">
+        <path
+           stroke="#000000"
+           d="m 456.57,444 v -9 m 0,-380.99 v 9"
+           id="path1888" />
+        <g
+           transform="translate(456.57,465.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g1894">
+          <text
+             id="text1892"><tspan
+               font-family="Arial"
+               id="tspan1890">GT</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g1906">
+        <path
+           stroke="#000000"
+           d="m 503.87,444 v -9 m 0,-380.99 v 9"
+           id="path1898" />
+        <g
+           transform="translate(503.87,465.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g1904">
+          <text
+             id="text1902"><tspan
+               font-family="Arial"
+               id="tspan1900">TG</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g1916">
+        <path
+           stroke="#000000"
+           d="m 551.17,444 v -9 m 0,-380.99 v 9"
+           id="path1908" />
+        <g
+           transform="translate(551.17,465.9)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g1914">
+          <text
+             id="text1912"><tspan
+               font-family="Arial"
+               id="tspan1910">TT</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g1918" />
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g1922">
+        <path
+           stroke="#000000"
+           d="M 54.53,54.01 V 444 H 574.82 V 54.01 Z"
+           id="path1920" />
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g1924" />
+      <g
+         id="gnuplot_plot_1-7">
+        <title
+           id="title1926">gnuplot_plot_1</title>
+        <g
+           fill="none"
+           color="#000000"
+           stroke="currentColor"
+           stroke-width="1"
+           stroke-linecap="butt"
+           stroke-linejoin="miter"
+           id="g1994">
+          <g
+             stroke="none"
+             shape-rendering="crispEdges"
+             id="g1930">
+            <polygon
+               fill="#000080"
+               points="66.35,376.8 66.35,444 90.01,444 90.01,376.8 "
+               id="polygon1928" />
+          </g>
+          <path
+             stroke="#000080"
+             d="M 66.35,444 V 376.81 H 90 V 444 Z"
+             id="path1932" />
+          <g
+             stroke="none"
+             shape-rendering="crispEdges"
+             id="g1936">
+            <polygon
+               fill="#000080"
+               points="113.65,344.82 113.65,444 137.31,444 137.31,344.82 "
+               id="polygon1934" />
+          </g>
+          <path
+             stroke="#000080"
+             d="M 113.65,444 V 344.83 H 137.3 V 444 Z"
+             id="path1938" />
+          <g
+             stroke="none"
+             shape-rendering="crispEdges"
+             id="g1942">
+            <polygon
+               fill="#000080"
+               points="160.95,397.26 160.95,444 184.61,444 184.61,397.26 "
+               id="polygon1940" />
+          </g>
+          <path
+             stroke="#000080"
+             d="M 160.95,444 V 397.27 H 184.6 V 444 Z"
+             id="path1944" />
+          <g
+             stroke="none"
+             shape-rendering="crispEdges"
+             id="g1948">
+            <polygon
+               fill="#000080"
+               points="208.25,241.8 208.25,444 231.91,444 231.91,241.8 "
+               id="polygon1946" />
+          </g>
+          <path
+             stroke="#000080"
+             d="M 208.25,444 V 241.81 H 231.9 V 444 Z"
+             id="path1950" />
+          <g
+             stroke="none"
+             shape-rendering="crispEdges"
+             id="g1954">
+            <polygon
+               fill="#000080"
+               points="255.55,337.79 255.55,444 279.21,444 279.21,337.79 "
+               id="polygon1952" />
+          </g>
+          <path
+             stroke="#000080"
+             d="M 255.55,444 V 337.8 H 279.2 V 444 Z"
+             id="path1956" />
+          <g
+             stroke="none"
+             shape-rendering="crispEdges"
+             id="g1960">
+            <polygon
+               fill="#000080"
+               points="302.85,262.74 302.85,444 326.51,444 326.51,262.74 "
+               id="polygon1958" />
+          </g>
+          <path
+             stroke="#000080"
+             d="M 302.85,444 V 262.75 H 326.5 V 444 Z"
+             id="path1962" />
+          <g
+             stroke="none"
+             shape-rendering="crispEdges"
+             id="g1966">
+            <polygon
+               fill="#000080"
+               points="350.15,197.24 350.15,444 373.81,444 373.81,197.24 "
+               id="polygon1964" />
+          </g>
+          <path
+             stroke="#000080"
+             d="M 350.15,444 V 197.25 H 373.8 V 444 Z"
+             id="path1968" />
+          <g
+             stroke="none"
+             shape-rendering="crispEdges"
+             id="g1972">
+            <polygon
+               fill="#000080"
+               points="397.45,352.87 397.45,444 421.11,444 421.11,352.87 "
+               id="polygon1970" />
+          </g>
+          <path
+             stroke="#000080"
+             d="M 397.45,444 V 352.88 H 421.1 V 444 Z"
+             id="path1974" />
+          <g
+             stroke="none"
+             shape-rendering="crispEdges"
+             id="g1978">
+            <polygon
+               fill="#000080"
+               points="444.75,242.17 444.75,444 468.41,444 468.41,242.17 "
+               id="polygon1976" />
+          </g>
+          <path
+             stroke="#000080"
+             d="M 444.75,444 V 242.18 H 468.4 V 444 Z"
+             id="path1980" />
+          <g
+             stroke="none"
+             shape-rendering="crispEdges"
+             id="g1984">
+            <polygon
+               fill="#000080"
+               points="492.05,233.16 492.05,444 515.71,444 515.71,233.16 "
+               id="polygon1982" />
+          </g>
+          <path
+             stroke="#000080"
+             d="M 492.05,444 V 233.17 H 515.7 V 444 Z"
+             id="path1986" />
+          <g
+             stroke="none"
+             shape-rendering="crispEdges"
+             id="g1990">
+            <polygon
+               fill="#000080"
+               points="539.35,296.57 539.35,444 563.01,444 563.01,296.57 "
+               id="polygon1988" />
+          </g>
+          <path
+             stroke="#000080"
+             d="M 539.35,444 V 296.58 H 563 V 444 Z"
+             id="path1992" />
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#ffffff"
+         stroke="#000080"
+         stroke-width="2"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g1997" />
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="2"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g1999" />
+      <g
+         fill="none"
+         color="#000000"
+         stroke="#000000"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g2001" />
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g2005">
+        <path
+           stroke="#000000"
+           d="M 54.53,54.01 V 444 H 574.82 V 54.01 Z"
+           id="path2003" />
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g2013">
+        <g
+           transform="translate(314.67,30.91)"
+           stroke="none"
+           fill="#000000"
+           font-family="Arial"
+           font-size="12px"
+           text-anchor="middle"
+           id="g2011">
+          <text
+             id="text2009"><tspan
+               font-family="Arial"
+               id="tspan2007">A.Viscosus dinucleotide profile</tspan></text>
+        </g>
+      </g>
+      <g
+         fill="none"
+         color="#000000"
+         stroke="currentColor"
+         stroke-width="1"
+         stroke-linecap="butt"
+         stroke-linejoin="miter"
+         id="g2015" />
+    </g>
+    <path
+       id="path12601-9-9-0"
+       style="fill:#000001;fill-opacity:0.90812;stroke:#000000;stroke-width:1.2235px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 269.72224,155.1835 2.33442,4.04332 2.39316,-4.14509 z m 2.2606,-14.29363 v 13.78715" />
+  </g>
+</svg>

@@ -7,25 +7,51 @@ from pdb import set_trace as brk
 
 GENOME_NAMES = (
 		"Insertions",
+		"ANaesl",
+		"AVisc",
+		"AIsrael",
 		"Human",
+# 		"Porphyromonas",
+# 		"AActinom",
+# 		"TForsyth",
+# 		"Treponema",
+		"HI",	# classic CG rich
 		"HCoVs",
-		"Streptomyces",
-		"Haemophilus",
-		"Listeria",
-		"Ricksettia",
-		"Salmonella",
-		"Legionella",
-		"MaybeBac",
-		"Cod",
-		"mRNAVaccines",
-		# 		"Bat",
-		# 		"RaccoonDog",
-		# 		"Pangolin",
-		# 		"Rabbit",
-		# 		"Pig",
-		# 		"Mouse",
+# 		"Streptomyces",
+# 		"Haemophilus",
+# 		"Listeria",
+# 		"Ricksettia",
+# 		"Salmonella",
+# 		"Legionella",
+# 		"MaybeBac",
+# 		"Cod",
+# 		"mRNAVaccines",
+# 		"StrepPyogenes",
+# 		"StrepPneum",
+# 		"Mycoplasma",
+# 		"OT",
+# 		"BactFragilis",
 		)
 
+GROUP_A = set((
+		"ANaesl",
+		"AVisc",
+		"AIsrael",
+		"Porphyromonas",
+		"AActinom",
+		"TForsyth",
+		"Treponema"))
+
+PROPER_NAMES = {
+		"ANaesl": "A.Naeslundii",
+		"AIsrael": "A.Israelii",
+		"AVisc": "A.Viscosus",
+		"Treponema": "T.Denticola",
+		"Porphyromonas": "P.Gingivalis",
+		"TForsyth": "T.Forsythia",
+		"AActinom": "A.Actin.",
+		"HI": "H.Influenzae",
+		}
 
 def lines(fname):
 	with open(fname) as fp:
@@ -53,8 +79,8 @@ class Genome:
 	def __init__(self, name):
 		self.name = name
 
-		self.singles = parse_fname("output/{}-1-nts.txt".format(self.name))
-		self.doubles = parse_fname("output/{}-2-nts.txt".format(self.name))
+		self.singles = parse_fname("{}-1-nts.txt".format(self.name))
+		self.doubles = parse_fname("{}-2-nts.txt".format(self.name))
 		self.merge()
 		self.calc_profile()
 		self.gc = self.singles["G"] + self.singles["C"]
@@ -117,12 +143,18 @@ class Genome:
 		with open("plot.gpi") as fp:
 			templ = string.Template(fp.read())
 
-		s = templ.substitute(name=self.name)
+		if self.name == "Insertions":
+			colour = "red"
+		else:
+			colour = "#000080"
+
+		proper_name = PROPER_NAMES.get(self.name, self.name)
+		s = templ.substitute(name=self.name, title=proper_name, colour=colour)
 		with open("tmp.gpi", "wt") as fp:
 			fp.write(s)
 
 		sp.run(["gnuplot", "tmp.gpi"])
-		return self.name + ".png"
+		return self.name + ".svg"
 
 
 def main():
@@ -133,13 +165,13 @@ def main():
 		fnames.append(g.plot())
 
 	try:
-		os.unlink("all.png")
+		os.unlink("all.svg")
 	except FileNotFoundError:
 		pass
 
-	sp.run("montage -geometry 640 {} all.png".format(
+	sp.run("montage -geometry 640 {} all.svg".format(
 		" ".join(fnames)), shell=True)
-	print("Look at all.png")
+	print("Look at all.svg")
 
 
 if __name__ == "__main__":

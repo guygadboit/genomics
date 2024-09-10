@@ -214,7 +214,7 @@ func (c *Comparison) GraphData(fname string) {
 	w.Flush()
 }
 
-func RunGnuplot(fname string) {
+func RunGnuplot(fname string, g *genomes.Genomes, a, b int) {
 	gpName := "comparefa-plot.gpi"
 	f, err := os.Create(gpName)
 	if err != nil {
@@ -224,8 +224,8 @@ func RunGnuplot(fname string) {
 
 	w := bufio.NewWriter(f)
 
-	fmt.Fprint(w, `
-set title "Cumulative silent and non-silent muts"
+	fmt.Fprintf(w, `
+set title "%s vs %s"
 set xlabel "nucleotide offset"
 set ylabel "count"
 
@@ -233,7 +233,7 @@ plot "cumulative-muts.txt" using 1 title "silent" with lines, \
 	"cumulative-muts.txt" using 2 title "non-silent" with lines, \
 	"cumulative-muts.txt" using 3 title "insertions" with lines, \
 	"cumulative-muts.txt" using 4 title "deletions" with lines
-`)
+`, utils.Shorten(g.Names[a], 8), utils.Shorten(g.Names[b], 8))
 	w.Flush()
 
 	cmd := exec.Command("gnuplot", "--persist", gpName)
@@ -427,7 +427,7 @@ func main() {
 			fname := "cumulative-muts.txt"
 			c.GraphData(fname)
 			fmt.Printf("Wrote %s\n", fname)
-			RunGnuplot(fname)
+			RunGnuplot(fname, g, which[0], which[1])
 		}
 	}
 

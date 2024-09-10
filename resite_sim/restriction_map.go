@@ -6,9 +6,11 @@ import (
 	//"fmt"
 )
 
+type REType int
+
 const (
-	BSAI  = 1
-	BSMBI = 2
+	BSAI  REType = 1
+	BSMBI        = 2
 )
 
 type ReSite struct {
@@ -16,7 +18,7 @@ type ReSite struct {
 	stickyStart int
 	stickyEnd   int  // I mean the end of the sticky end
 	reverse     bool // Whether the sticky end needs to be reversed
-	typ         int
+	typ         REType
 }
 
 var RE_SITES = []ReSite{
@@ -65,15 +67,19 @@ it's something people ask about so we might as well generate a result for
 them.
 */
 func FindRestrictionMap(genome *genomes.Genomes) (int,
-	int, bool, bool, []int) {
+	int, bool, bool, []int, []REType) {
 	var s Search
 	prev, maxLength, count := 0, 0, 0
 	stickyEnds := make(map[string]int)
 	unique := true
 	interleaved := false
 	// The previous type and how many types we changed type
-	var typ, prevType, typeChanged int
+	var (
+		typ, prevType REType
+		typeChanged   int
+	)
 	positions := make([]int, 0)
+	types := make([]REType, 0)
 
 	for s.Init(genome, RE_SITES); ; {
 		pos, site := s.Iter()
@@ -82,6 +88,7 @@ func FindRestrictionMap(genome *genomes.Genomes) (int,
 		}
 
 		positions = append(positions, pos)
+		types = append(types, site.typ)
 
 		typ = site.typ
 		if typ != prevType {
@@ -120,5 +127,5 @@ func FindRestrictionMap(genome *genomes.Genomes) (int,
 	}
 	count++
 
-	return count, maxLength, unique, interleaved, positions
+	return count, maxLength, unique, interleaved, positions, types
 }

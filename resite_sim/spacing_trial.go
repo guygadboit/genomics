@@ -2,10 +2,10 @@ package main
 
 import (
 	"fmt"
+	"genomics/genomes"
+	"genomics/mutations"
 	"io"
 	"strings"
-	"genomics/genomes"
-    "genomics/mutations"
 )
 
 type SpacingTrial struct {
@@ -22,7 +22,7 @@ func (t *SpacingTrial) WriteHeadings(w io.Writer) {
 	fmt.Fprintln(w, "# Results from a Spacing Trial")
 	fmt.Fprintln(w, "name count max_length unique acceptable"+
 		" interleaved muts_in_sites total_sites total_singles"+
-		" num_muts added removed genome_len positions")
+		" num_muts added removed OR genome_len positions")
 }
 
 type SpacingTrialResult struct {
@@ -35,11 +35,12 @@ type SpacingTrialResult struct {
 	mutsInSites  int    // Number of silent muts in sites
 	totalSites   int    // Total number of silently mutated sites
 	totalSingles int    // Total number sites silently mutated with 1 mut
-	numMuts		 int	// How many muts did we do
+	numMuts      int    // How many muts did we do
 	added        int    // How many sites were added?
 	removed      int    // How many sites were removed?
 	genomeLen    int    // length of the whole genome
 	positions    []int  // the actual positions of the sites
+	OR           float64
 }
 
 func (r *SpacingTrialResult) Write(w io.Writer) {
@@ -53,7 +54,7 @@ func (r *SpacingTrialResult) Write(w io.Writer) {
 	fmt.Fprintln(w, r.name, r.count,
 		r.maxLength, r.unique, r.acceptable, r.interleaved,
 		r.mutsInSites, r.totalSites, r.totalSingles,
-		r.numMuts, r.added, r.removed, r.genomeLen, positions)
+		r.numMuts, r.added, r.removed, r.OR, r.genomeLen, positions)
 }
 
 func toSet(a []int) map[int]bool {
@@ -88,7 +89,7 @@ func SpacingTrials(genome *genomes.Genomes, nd *mutations.NucDistro,
 	results chan interface{}) {
 	good := 0
 
-	count, maxLength, unique, interleaved, positions :=
+	count, maxLength, unique, interleaved, positions, _ :=
 		FindRestrictionMap(genome)
 	originalPositions := toSet(positions)
 
@@ -104,7 +105,7 @@ func SpacingTrials(genome *genomes.Genomes, nd *mutations.NucDistro,
 		mutant := genome.Clone()
 		mutations.MutateSilent(mutant, nd, numMuts, 1)
 
-		count, maxLength, unique, interleaved, positions =
+		count, maxLength, unique, interleaved, positions, _ =
 			FindRestrictionMap(mutant)
 
 		acceptable := unique && maxLength < 8000
@@ -117,9 +118,11 @@ func SpacingTrials(genome *genomes.Genomes, nd *mutations.NucDistro,
 		}
 
 		var sis SilentInSites
+		var OR float64
 		if countSites {
 			mutant.Combine(genome)
 			sis = CountSilentInSites(mutant, RE_SITES, true)
+			OR = CalcOR(mutant)
 		}
 
 		added, removed := addedRemoved(originalPositions, positions)
@@ -128,7 +131,7 @@ func SpacingTrials(genome *genomes.Genomes, nd *mutations.NucDistro,
 			count, maxLength, unique, acceptable, interleaved,
 			sis.totalMuts, sis.totalSites,
 			sis.totalSites, numMuts, added, removed,
-			genome.Length(), positions}
+			genome.Length(), positions, OR}
 
 		if i%100 == 0 {
 			reportProgress(i)

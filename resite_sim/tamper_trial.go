@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"genomics/genomes"
-	"genomics/hotspots"
 	"genomics/mutations"
 	"io"
 	"math/rand"
@@ -34,11 +33,6 @@ type TamperTrialResult struct {
 func (r *TamperTrialResult) Write(w io.Writer) {
 	fmt.Fprintln(w, r.name, r.tampered,
 		r.totalMuts, r.totalSites, r.totalSingleSites, r.OR)
-}
-
-func CalcOR(g *genomes.Genomes) float64 {
-	ct := hotspots.CalculateCT(g)
-	return ct.CalcOR()
 }
 
 func TamperTrials(genome *genomes.Genomes, nd *mutations.NucDistro,

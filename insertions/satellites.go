@@ -6,9 +6,9 @@ import (
 )
 
 /*
-	How many nts are the same? Return the highest number that are and what
-	value that corresponds to. But ignore anything with a negative value
-	because that doesn't count.
+How many nts are the same? Return the highest number that are and what
+value that corresponds to. But ignore anything with a negative value
+because that doesn't count.
 */
 func countSame(nts []int) (int, int) {
 	// Make a copy of nts with anything < 0 filtered out and then sort it.
@@ -47,11 +47,11 @@ func countSame(nts []int) (int, int) {
 }
 
 /*
-	Do nts appear more than once in genome, and if they do, how long is the
-	total match? Return the length of the repeating section and how many times
-	it repeats. The length is the longest we find and the count how many
-	repeats of any length greater than the pattern length (don't set too much
-	store by the number of repeats, the length is more interesting).
+Do nts appear more than once in genome, and if they do, how long is the
+total match? Return the length of the repeating section and how many times
+it repeats. The length is the longest we find and the count how many
+repeats of any length greater than the pattern length (don't set too much
+store by the number of repeats, the length is more interesting).
 */
 func findSatellites(genome *genomes.Genomes, index string,
 	pattern []byte, name string) (int, int) {

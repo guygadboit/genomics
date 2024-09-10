@@ -70,19 +70,39 @@ func main() {
 		"translate": TRANSLATE,
 		"codons":    CODONS,
 		"ss":        SIDE_BY_SIDE,
-		"dont":		 DONT,
+		"dont":      DONT,
 	}
-	var modeName, orfs, outName string
+	var (
+		modeName, orfs, outName string
+		offset                  int
+		reverse					bool
+	)
 
 	flag.StringVar(&modeName, "mode", "translate", "Translation mode")
 	flag.StringVar(&orfs, "orfs", "", "ORFs file")
 	flag.StringVar(&outName, "o", "", "Output filename")
+	flag.IntVar(&offset, "offset", 0, "Frame offset (0, 1 or 2)")
+	flag.BoolVar(&reverse, "reverse", false, "Treat as reverse complement")
 	flag.Parse()
 
 	g := genomes.LoadGenomes(flag.Arg(0), orfs, false)
 	mode, there := modes[modeName]
 	if !there {
 		log.Fatal("Invalid mode")
+	}
+
+	if reverse {
+		g.Nts[0] = utils.ReverseComplement(g.Nts[0])
+	}
+
+	if offset != 0 {
+		if offset > 2 {
+			log.Fatal("Offset should only be 0, 1 or 2")
+		}
+		for i, _ := range g.Orfs {
+			g.Orfs[i].Start += offset
+			g.Orfs[i].End += offset
+		}
 	}
 
 	switch mode {

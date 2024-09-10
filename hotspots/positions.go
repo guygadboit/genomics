@@ -1,12 +1,12 @@
 package hotspots
 
 import (
+	"bufio"
 	"fmt"
 	"genomics/genomes"
 	"genomics/mutations"
 	"log"
 	"os"
-	"bufio"
 	"reflect"
 )
 
@@ -18,8 +18,8 @@ type PosDatum struct {
 
 	// These aren't really needed for any of the code but nice to output to
 	// match things up.
-	Nt         []byte // The nts here in each genome
-	Aa         []byte // The aa here in each genome
+	Nt []byte // The nts here in each genome
+	Aa []byte // The aa here in each genome
 }
 
 // We store one of these for each position, whether there's anything
@@ -36,8 +36,8 @@ func (p *PosDatum) Init(numGenomes int) {
 
 // map of positions to possible mutations at that position
 type PossibleMap struct {
-	Window	int
-	Mutations	map[int][]mutations.MutatedSequence
+	Window    int
+	Mutations map[int][]mutations.MutatedSequence
 }
 
 func (p *PossibleMap) Init(window int) {
@@ -101,7 +101,7 @@ func FindPositionInfo(g *genomes.Genomes,
 		}
 	}
 
-	handleMatch := func(s *genomes.Search, which int, site []byte) {
+	handleMatch := func(s genomes.Search, which int, site []byte) {
 		pos, err := s.Get()
 		if err != nil {
 			log.Fatal(err)
@@ -115,8 +115,9 @@ func FindPositionInfo(g *genomes.Genomes,
 	for i := 0; i < g.NumGenomes(); i++ {
 		for _, site := range sites {
 			var s genomes.Search
-			for s.Init(g, i, site, 0.0); !s.End(); s.Next() {
-				handleMatch(&s, i, site)
+			for s = genomes.NewLinearSearch(g, i,
+				site, 0.0); !s.End(); s.Next() {
+				handleMatch(s, i, site)
 			}
 		}
 	}
@@ -160,14 +161,14 @@ func (p *PosInfo) ShowSites(g *genomes.Genomes) {
 		fmt.Printf("Genome %d\n", i)
 		for pos, pd := range *p {
 			if pd.StartsSite[i] {
-				site := string(g.Nts[i][pos:pos+6])
+				site := string(g.Nts[i][pos : pos+6])
 				fmt.Printf("Site %s at %d (0-based)\n", site, pos)
-                /*
-				for j := 0; j < 6; j++ {
-					fmt.Printf("%d,", (*p)[pos+j].Possible)
-				}
-				fmt.Printf("\n")
-                */
+				/*
+					for j := 0; j < 6; j++ {
+						fmt.Printf("%d,", (*p)[pos+j].Possible)
+					}
+					fmt.Printf("\n")
+				*/
 			}
 		}
 	}

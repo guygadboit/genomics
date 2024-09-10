@@ -2,42 +2,137 @@ package main
 
 import (
 	"bufio"
+	"encoding/gob"
 	"flag"
 	"fmt"
 	"genomics/genomes"
+	"genomics/mutations"
+	"genomics/stats"
 	"genomics/utils"
 	"io"
 	"log"
 	"os"
+	"reflect"
 	"regexp"
 	"sort"
 	"strings"
-	"sync"
 )
 
-type direction int
+type Direction int
 
 const (
-	UNKNOWN direction = iota
+	UNKNOWN Direction = iota
 	FORWARDS
 	BACKWARDS
 )
 
+type Homology struct {
+	Forwards  int     // number of nts that match ahead of the insert
+	Backwards int     // number of nts that match behind it
+	E         float64 // E value of the match with the most homology
+	FullMatch []byte  // The match including the homology
+}
+
+type Match struct {
+	stats.BlastResult
+	Name      string
+	SourcePos int
+	Dir       Direction
+	Homology  Homology
+	// XHomology  Homology // weird "crossed-over" homology
+}
+
 type Insertion struct {
-	id         int    // The order we found them in. Should be a line number
-	pos        int    // Where
-	nts        []byte // What
-	nSeqs      int    // How many times
-	inWH1      bool   // Is it in WH1?
-	inHuman    bool   // Is it in human? Note that most short things will be
-	posInHuman int
-	dirInHuman direction
-	inOrf      bool // Is it in an ORF?
+	Id            int               // The order we found them in. Should be a line number
+	Pos           utils.OneBasedPos // Where
+	Nts           []byte            // What
+	NSeqs         int               // How many times
+	InWH1         bool              // Is it in WH1?
+	InHuman       bool              // Is it in human? Note that most short things will be
+	PosInHuman    int
+	DirInHuman    Direction
+	InOrf         bool // Is it in an ORF?
+	NumHere       int  // Number of insertions at this location
+	StrictNumHere int  // Number here with NSeqs > 1
+	Matches       []Match
 }
 
 func (i *Insertion) ToString() string {
-	return fmt.Sprintf("%s at %d (%d seqs)", string(i.nts),
-		i.pos, i.nSeqs)
+	return fmt.Sprintf("%s at %d (%d seqs)", string(i.Nts),
+		i.Pos, i.NSeqs)
+}
+
+type InsertionData struct {
+	Locations       map[utils.OneBasedPos]int // maps position to count
+	LocationsStrict map[utils.OneBasedPos]int // require nseqs > 1
+	Insertions      []Insertion
+	NucDistro       *mutations.NucDistro
+}
+
+type InsertionNtIterator struct {
+	id      *InsertionData
+	filters []filterFunc
+	i, j    int
+}
+
+func (it *InsertionNtIterator) Start() {
+	it.i = 0
+}
+
+func (it *InsertionNtIterator) Get() byte {
+	return it.id.Insertions[it.i].Nts[it.j]
+}
+
+func filtersPass(ins *Insertion, filters []filterFunc) bool {
+	for _, f := range filters {
+		if !f(ins) {
+			return false
+		}
+	}
+	return true
+}
+
+func (it *InsertionNtIterator) Next() {
+	it.j++
+	if it.j == len(it.id.Insertions[it.i].Nts) {
+		it.j = 0
+
+		for {
+			it.i++
+			if it.i == len(it.id.Insertions) {
+				break
+			}
+			if filtersPass(&it.id.Insertions[it.i], it.filters) {
+				break
+			}
+		}
+	}
+}
+
+func (it *InsertionNtIterator) End() bool {
+	return it.i == len(it.id.Insertions)
+}
+
+func (id *InsertionData) GetNucDistro(
+	filters []filterFunc) *mutations.NucDistro {
+	if id.NucDistro != nil {
+		return id.NucDistro
+	}
+	it := InsertionNtIterator{id, filters, 0, 0}
+	id.NucDistro = mutations.NewNucDistro(&it)
+	fmt.Println(id.NucDistro)
+	return id.NucDistro
+}
+
+// Keep the lengths and locations the same, randomize the actual nucleotides.
+// Use a nucleotide distribution based on the insertions that match the
+// filters.
+func (id *InsertionData) Randomize(filters []filterFunc) {
+	nd := id.GetNucDistro(filters)
+	for i, _ := range id.Insertions {
+		ins := &id.Insertions[i]
+		nd.RandomSequence(ins.Nts)
+	}
 }
 
 func LoadInsertions(fname string, minLen int, minSeqs int) []Insertion {
@@ -73,29 +168,29 @@ reading:
 		}
 
 		ins := Insertion{utils.Atoi(groups[0][1]),
-			utils.Atoi(groups[0][2]),
+			utils.OneBasedPos(utils.Atoi(groups[0][2])),
 			[]byte(groups[0][3]),
 			utils.Atoi(groups[0][4]),
 			false, false,
-			0, UNKNOWN, true}
+			0, UNKNOWN, true, 0, 0, make([]Match, 0)}
 
-		if len(ins.nts) < minLen {
+		if len(ins.Nts) < minLen {
 			continue
 		}
 
-		if ins.nSeqs < minSeqs {
+		if ins.NSeqs < minSeqs {
 			continue
 		}
 
 		// Some of the insertions seem to be nearly all A. This looks bogus. So
 		// filter them out.
 		var aCount int
-		for i := 0; i < len(ins.nts); i++ {
-			if ins.nts[i] == 'A' {
+		for i := 0; i < len(ins.Nts); i++ {
+			if ins.Nts[i] == 'A' {
 				aCount++
 			}
 		}
-		if (float64(aCount) / float64(len(ins.nts))) > 0.99 {
+		if (float64(aCount) / float64(len(ins.Nts))) > 0.99 {
 			continue
 		}
 
@@ -105,59 +200,141 @@ reading:
 	return ret
 }
 
+func (id *InsertionData) Find(fname string, minLen int, minSeqs int) {
+	id.Insertions = LoadInsertions(fname, minLen, minSeqs)
+	id.Locations = byLocation(id.Insertions, 1)
+	id.LocationsStrict = byLocation(id.Insertions, 2)
+
+	for i, v := range id.Insertions {
+		id.Insertions[i].NumHere = id.Locations[v.Pos]
+		id.Insertions[i].StrictNumHere = id.LocationsStrict[v.Pos]
+	}
+}
+
+func (id *InsertionData) Save(fname string) {
+	fd, err := os.Create(fname)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer fd.Close()
+
+	fp := bufio.NewWriter(fd)
+	enc := gob.NewEncoder(fp)
+	err = enc.Encode(id)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fp.Flush()
+	fmt.Printf("Saved to %s\n", fname)
+}
+
+func (id *InsertionData) Load(fname string) {
+	fd, err := os.Open(fname)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer fd.Close()
+
+	fp := bufio.NewReader(fd)
+	dec := gob.NewDecoder(fp)
+	err = dec.Decode(id)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func (id *InsertionData) OutputInsertions(fname string) {
+	f, err := os.Create(fname)
+	if err != nil {
+		log.Fatal("Can't create file")
+	}
+	defer f.Close()
+	w := bufio.NewWriter(f)
+
+	fmt.Fprintf(w, "id pos pattern nseqs"+
+		" in_wh1 in_human num_here strict_num_here num_matches\n")
+	fmt.Fprintf(w, "int int str int bool bool int int int\n")
+
+	for _, ins := range id.Insertions {
+		fmt.Fprintf(w, "%d %d %s %d %t %t %d %d %d\n", ins.Id,
+			ins.Pos, string(ins.Nts), ins.NSeqs, ins.InWH1,
+			ins.InHuman, ins.NumHere, ins.StrictNumHere, len(ins.Matches))
+	}
+
+	w.Flush()
+	fmt.Printf("Wrote %s\n", fname)
+}
+
+func OutputMatchHeader(w *bufio.Writer) {
+	fmt.Fprintf(w, "id name pattern forwards full_match seqs "+
+		"num_here strict_num_here pos src_pos in_human in_wh1 forwards_h "+
+		"backwards_h score E hE\n")
+	fmt.Fprintf(w, "int str str bool str int int int int int "+
+		"bool bool int int float float float\n")
+}
+
+func (m *Match) Output(w *bufio.Writer, ins *Insertion) {
+	fullMatch := "-"
+	if m.Homology.FullMatch != nil {
+		fullMatch = string(m.Homology.FullMatch)
+	}
+
+	forwards := m.Dir == FORWARDS
+	fmt.Fprintf(w, "%d %s %s %t %s %d %d %d %d %d "+
+		"%t %t %d %d %f %g %g\n",
+		ins.Id, m.Name, string(ins.Nts), forwards, fullMatch,
+		ins.NSeqs, ins.NumHere, ins.StrictNumHere,
+		ins.Pos, m.SourcePos, ins.InHuman,
+		ins.InWH1, m.Homology.Forwards, m.Homology.Backwards,
+		m.Score, m.E, m.Homology.E)
+}
+
+func OutputMatches(insertions []Insertion, fname string) {
+	f, err := os.Create(fname)
+	if err != nil {
+		log.Fatal("Can't create file")
+	}
+	defer f.Close()
+	w := bufio.NewWriter(f)
+
+	OutputMatchHeader(w)
+	for _, ins := range insertions {
+		for _, m := range ins.Matches {
+			m.Output(w, &ins)
+		}
+	}
+	w.Flush()
+	fmt.Printf("Wrote %s\n", fname)
+}
+
+func (id *InsertionData) OutputMatches(fname string) {
+	OutputMatches(id.Insertions, fname)
+}
+
 func Summary(insertions []Insertion) {
 	fmt.Printf("%d insertions\n", len(insertions))
 
 	var total int
 	for i := 0; i < len(insertions); i++ {
-		total += len(insertions[i].nts)
+		total += len(insertions[i].Nts)
 	}
 	fmt.Printf("%d nts altogether (average length %.2f)\n",
 		total, float64(total)/float64(len(insertions)))
 }
 
 /*
-Call cb for every insertion found in nts forwards or backwards
+Call cb for insertion if it's found in nts forwards or backwards
 */
-func search(insertion *Insertion, genome *genomes.Genomes, which int,
-	tol float64, cb func(*Insertion, int, bool)) {
-
-	var search genomes.Search
-	nts := insertion.nts
-
-	for search.Init(genome, 0, nts, tol); !search.End(); search.Next() {
-		pos, _ := search.Get()
-		cb(insertion, pos, false)
-		return
-	}
-
-	rc := utils.ReverseComplement(insertion.nts)
-	for search.Init(genome, 0, rc, tol); !search.End(); search.Next() {
-		pos, _ := search.Get()
-		cb(insertion, pos, true)
-		return
+func Search(ins *Insertion, index string, cb func(*Insertion, int, bool)) {
+	for s := genomes.NewBidiIndexSearch(index, ins.Nts); !s.End(); s.Next() {
+		pos, _ := s.Get()
+		cb(ins, pos, s.IsForwards())
 	}
 }
 
-func findInVirus(name string,
-	insertions []Insertion, minLength int, mark bool, tol float64) {
-	virus := genomes.LoadGenomes(fmt.Sprintf("../fasta/%s.fasta", name),
-		"", false)
-
-	fname := fmt.Sprintf("%s-insertions.txt", name)
-	fd, err := os.Create(fname)
-	if err != nil {
-		log.Fatal("Can't create file")
-	}
-	defer fd.Close()
-
-	w := bufio.NewWriter(fd)
-
+func findInVirus(insertions []Insertion, minLength, maxLength int) {
 	reportFound := func(ins *Insertion) {
-		// fmt.Fprintf(w, "ins_%d:%s (%d seqs)\n", ins.pos, ins.nts, ins.nSeqs)
-		if mark {
-			ins.inWH1 = true
-		}
+		ins.InWH1 = true
 	}
 
 	var found, count int
@@ -165,22 +342,24 @@ func findInVirus(name string,
 	for i := 0; i < len(insertions); i++ {
 		ins := &insertions[i]
 
-		nts := ins.nts
+		nts := ins.Nts
 		if len(nts) < minLength {
+			continue
+		}
+		if len(nts) >= maxLength {
 			continue
 		}
 		count++
 
-		search(ins, virus, 0, tol, func(ins *Insertion,
-			pos int, backwards bool) {
+		Search(ins, "/fs/f/genomes/viruses/SARS2/index", func(ins *Insertion,
+			pos int, forwards bool) {
 			reportFound(ins)
 			found++
 		})
 	}
 
-	w.Flush()
-	fmt.Printf("Length %d: %d (/%d) were found in %s\n", minLength,
-		found, count, name)
+	fmt.Printf("Min length %d: %d (/%d) were found in SARS-CoV-2\n", minLength,
+		found, count)
 }
 
 func loadHuman() *genomes.Genomes {
@@ -194,23 +373,35 @@ func loadHuman() *genomes.Genomes {
 /*
 Mark the ones you find in human, only if they aren't already in WH1
 */
-func findInHuman(insertions []Insertion, minLength int, tol float64) {
-	g := loadHuman()
+func findInHuman(insertions []Insertion, minLength, maxLength int) {
 	for i := 0; i < len(insertions); i++ {
 		ins := &insertions[i]
-		nts := ins.nts
+		nts := ins.Nts
 
 		if len(nts) < minLength {
 			continue
 		}
 
-		if ins.inWH1 {
+		if len(nts) >= maxLength {
 			continue
 		}
 
-		search(ins, g, 0, tol, func(ins *Insertion, pos int, backwards bool) {
-			fmt.Printf("%d (length %d) is in human\n", ins.id, len(ins.nts))
-			ins.inHuman = true
+		if ins.InWH1 {
+			continue
+		}
+
+		Search(ins, "/fs/f/genomes/human/index", func(ins *Insertion,
+			pos int, forwards bool) {
+			fmt.Printf("%d (length %d) is in human\n", ins.Id, len(ins.Nts))
+			ins.InHuman = true
+			if forwards {
+				ins.DirInHuman = FORWARDS
+			} else {
+				ins.DirInHuman = BACKWARDS
+			}
+			// FIXME you could end the search as soon as you find one. But we
+			// won't do this now as it's running and has already got quite
+			// far... And it doesn't cost much.
 		})
 
 		if i%10 == 0 {
@@ -224,7 +415,7 @@ func makeIndex(insertions []Insertion) map[int]*Insertion {
 
 	for i := 0; i < len(insertions); i++ {
 		ins := &insertions[i]
-		insMap[ins.id] = ins
+		insMap[ins.Id] = ins
 	}
 
 	return insMap
@@ -258,14 +449,14 @@ loop:
 		ins := insMap[id]
 
 		if ins != nil && fields[2] == "human" {
-			ins.inHuman = true
-			ins.posInHuman = utils.Atoi(fields[3])
+			ins.InHuman = true
+			ins.PosInHuman = utils.Atoi(fields[3])
 
 			switch fields[4] {
 			case "forwards":
-				ins.dirInHuman = FORWARDS
+				ins.DirInHuman = FORWARDS
 			case "backwards":
-				ins.dirInHuman = BACKWARDS
+				ins.DirInHuman = BACKWARDS
 			}
 		}
 	}
@@ -277,7 +468,7 @@ loop:
 */
 
 type posCount struct {
-	pos   int
+	pos   utils.OneBasedPos
 	count int
 }
 
@@ -295,13 +486,21 @@ func (p posCounts) Swap(i, j int) {
 	p[i], p[j] = p[j], p[i]
 }
 
-func byLocation(insertions []Insertion, minLength int) {
-	positions := make(map[int]int)
+func byLocation(insertions []Insertion, minSeqs int) map[utils.OneBasedPos]int {
+	positions := make(map[utils.OneBasedPos]int)
 
 	for i := 0; i < len(insertions); i++ {
-		count, _ := positions[insertions[i].pos]
-		positions[insertions[i].pos] = count + 1
+		ins := &insertions[i]
+		if ins.NSeqs >= minSeqs {
+			count, _ := positions[ins.Pos]
+			positions[ins.Pos] = count + 1
+		}
 	}
+	return positions
+}
+
+func SaveLocations(insertions []Insertion, minLength int) map[utils.OneBasedPos]int {
+	positions := byLocation(insertions, 0)
 
 	posCounts := make(posCounts, 0, len(positions))
 	for k, v := range positions {
@@ -325,12 +524,13 @@ func byLocation(insertions []Insertion, minLength int) {
 
 	w.Flush()
 	fmt.Printf("Wrote locations.txt\n")
+	return positions
 }
 
 type filterFlag int
 
 const (
-	ANYTHING       filterFlag = 0
+	ANYTHING      filterFlag = 0
 	EXCLUDE_WH1              = 1
 	EXCLUDE_HUMAN            = 1 << 1
 )
@@ -340,22 +540,46 @@ type filterFunc func(*Insertion) bool
 
 func makeMinLengthFilter(minLength int) filterFunc {
 	return func(ins *Insertion) bool {
-		return len(ins.nts) >= minLength
+		return len(ins.Nts) >= minLength
 	}
 }
 
 func makeMaxLengthFilter(maxLength int) filterFunc {
 	return func(ins *Insertion) bool {
-		return len(ins.nts) <= maxLength
+		return len(ins.Nts) <= maxLength
+	}
+}
+
+func makeMinNumHereFilter(minimum int) filterFunc {
+	return func(ins *Insertion) bool {
+		return ins.NumHere >= minimum
+	}
+}
+
+func makeMinStrictNumHereFilter(minimum int) filterFunc {
+	return func(ins *Insertion) bool {
+		return ins.StrictNumHere >= minimum
+	}
+}
+
+func makePositionFilter(minPos, maxPos utils.OneBasedPos) filterFunc {
+	return func(ins *Insertion) bool {
+		if ins.Pos <= minPos {
+			return false
+		}
+		if ins.Pos >= maxPos {
+			return false
+		}
+		return true
 	}
 }
 
 func makeFlagFilter(flags filterFlag) filterFunc {
 	return func(ins *Insertion) bool {
-		if flags&EXCLUDE_WH1 != 0 && ins.inWH1 {
+		if flags&EXCLUDE_WH1 != 0 && ins.InWH1 {
 			return false
 		}
-		if flags&EXCLUDE_HUMAN != 0 && ins.inHuman {
+		if flags&EXCLUDE_HUMAN != 0 && ins.InHuman {
 			return false
 		}
 		return true
@@ -364,17 +588,66 @@ func makeFlagFilter(flags filterFlag) filterFunc {
 
 func makeMinSeqsFilter(minSeqs int) filterFunc {
 	return func(ins *Insertion) bool {
-		return ins.nSeqs >= minSeqs
+		return ins.NSeqs >= minSeqs
 	}
 }
 
 func makeCodonAlignFilter() filterFunc {
 	return func(ins *Insertion) bool {
-		if ins.inOrf {
-			return len(ins.nts)%3 == 0
-		} else {
-			return true
+		return len(ins.Nts)%3 == 0
+	}
+}
+
+func makeNotInWH1Filter() filterFunc {
+	// This is assuming your insertions aren't already marked with inWH1. If
+	// they are you can use the flag filter for more speed.
+	return func(ins *Insertion) bool {
+		for s := genomes.NewBidiIndexSearch("/fs/f/genomes/viruses/SARS2/index",
+			ins.Nts); !s.End(); s.Next() {
+			return false
 		}
+		return true
+	}
+}
+
+// Does s contain count or more repeats of length length?
+func HasRepeats(s []byte, count, length int) bool {
+	for offset := 0; offset < length; offset++ {
+		var (
+			prev []byte
+			n    int
+		)
+		for i := offset; i <= len(s)-length-offset; i += length {
+			sl := s[i : i+length]
+			if prev != nil {
+				if reflect.DeepEqual(prev, sl) {
+					n++
+				} else {
+					n = 0
+				}
+			}
+			if n == count-1 {
+				return true
+			}
+			prev = sl
+		}
+	}
+	return false
+}
+
+func makeSillyFilter() filterFunc {
+	pat := regexp.MustCompile(`G{6}|A{6}|T{6}|C{6}`)
+
+	return func(ins *Insertion) bool {
+		if pat.Find(ins.Nts) != nil {
+			return false
+		}
+
+		if HasRepeats(ins.Nts, 5, 2) {
+			return false
+		}
+
+		return true
 	}
 }
 
@@ -390,15 +663,17 @@ insertions:
 	for i := 0; i < len(insertions); i++ {
 		ins := &insertions[i]
 
-		for j := 0; j < len(filters); j++ {
-			if !filters[j](ins) {
-				continue insertions
+		if filters != nil {
+			for j := 0; j < len(filters); j++ {
+				if !filters[j](ins) {
+					continue insertions
+				}
 			}
 		}
 
 		if verbose {
 			fmt.Printf("%s: %d ins_%d %s (%d seqs)\n", name,
-				len(ins.nts), ins.pos, string(ins.nts), ins.nSeqs)
+				len(ins.Nts), ins.Pos, string(ins.Nts), ins.NSeqs)
 		}
 
 		cb(ins)
@@ -409,7 +684,7 @@ insertions:
 Output them all in one fasta file with NNN between each of them. Useful if
 you want to look at dinucleotide composition etc.
 */
-func outputCombinedFasta(fname string, name string,
+func OutputCombinedFasta(fname string, name string,
 	insertions []Insertion,
 	filters []filterFunc,
 	verbose bool) int {
@@ -419,7 +694,7 @@ func outputCombinedFasta(fname string, name string,
 
 	cb := func(ins *Insertion) {
 
-		nts = append(nts, ins.nts...)
+		nts = append(nts, ins.Nts...)
 		nts = append(nts, sep...)
 		count++
 	}
@@ -439,17 +714,17 @@ func outputCombinedFasta(fname string, name string,
 /*
 Put all the insertions matching the filters into a single fasta file with
 headers between each one. I think you should then be able to BLAST the
-whole lot. moreFilters should return true for *including* the insertion.
+whole lot.
 */
-func outputFasta(fname string, insertions []Insertion,
+func OutputFasta(fname string, insertions []Insertion,
 	filters []filterFunc, verbose bool) {
 
 	var orfs genomes.Orfs
 	genomes := genomes.NewGenomes(orfs, 0)
 
 	cb := func(ins *Insertion) {
-		genomes.Nts = append(genomes.Nts, ins.nts)
-		name := fmt.Sprintf("ins_%d_%d", ins.pos, ins.id)
+		genomes.Nts = append(genomes.Nts, ins.Nts)
+		name := fmt.Sprintf("ins_%d_%d", ins.Pos, ins.Id)
 		genomes.Names = append(genomes.Names, name)
 	}
 
@@ -472,11 +747,11 @@ func outputDinucs(fname string,
 	fmt.Fprintf(w, "id len G+C, CpG TpA CpGF insert human\n")
 
 	cb := func(ins *Insertion) {
-		dp := genomes.CalcProfile(ins.nts)
+		dp := genomes.CalcProfile(ins.Nts)
 
 		human := "unknown-if-human"
-		if len(ins.nts) >= 20 {
-			if ins.inHuman {
+		if len(ins.Nts) >= 20 {
+			if ins.InHuman {
 				human = "human"
 			} else {
 				human = "not-human"
@@ -484,8 +759,8 @@ func outputDinucs(fname string,
 		}
 
 		fmt.Fprintf(w, "%d %d %.3f %.3f %.3f %.3f %s %s\n",
-			ins.id, len(ins.nts), dp.GC, dp.CpG, dp.TpA, dp.CpGF,
-			string(ins.nts), human)
+			ins.Id, len(ins.Nts), dp.GC, dp.CpG, dp.TpA, dp.CpGF,
+			string(ins.Nts), human)
 	}
 	filterInsertions(insertions, filters, cb, verbose)
 	w.Flush()
@@ -494,13 +769,14 @@ func outputDinucs(fname string,
 func showLength(insertions []Insertion) {
 	for i := 0; i < len(insertions); i++ {
 		ins := &insertions[i]
-		if ins.inWH1 {
+		if ins.InWH1 {
 			continue
 		}
-		fmt.Printf("%d ins_%d %s\n", len(ins.nts), ins.pos, ins.nts)
+		fmt.Printf("%d ins_%d %s\n", len(ins.Nts), ins.Pos, ins.Nts)
 	}
 }
 
+/*
 func otherHCoVs(insertions []Insertion, tol float64) {
 	covs := [...]string{"229E", "NL63", "OC43", "HKU1", "WH1"}
 
@@ -508,26 +784,27 @@ func otherHCoVs(insertions []Insertion, tol float64) {
 	for i := 0; i < len(covs); i++ {
 		wg.Add(1)
 		go func(i int) {
-			findInVirus(covs[i], insertions, 10, false, tol)
+			findInVirus(covs[i], insertions, alse, tol)
 			wg.Done()
 		}(i)
 	}
 	wg.Wait()
 }
+*/
 
 func showHuman(insertions []Insertion) {
 	g := loadHuman()
 	for i := 0; i < len(insertions); i++ {
 		ins := &insertions[i]
 
-		if !ins.inHuman {
+		if !ins.InHuman {
 			continue
 		}
 
-		pos := ins.posInHuman
+		pos := ins.PosInHuman
 
 		var dir string
-		switch ins.dirInHuman {
+		switch ins.DirInHuman {
 		case FORWARDS:
 			dir = "forwards"
 		case BACKWARDS:
@@ -535,20 +812,20 @@ func showHuman(insertions []Insertion) {
 		}
 
 		fmt.Printf("%d ins_%d (%d nts %d sequences) found at %d %s\n",
-			ins.id, ins.pos, len(ins.nts), ins.nSeqs, pos, dir)
+			ins.Id, ins.Pos, len(ins.Nts), ins.NSeqs, pos, dir)
 
-		fmt.Println(string(ins.nts))
+		fmt.Println(string(ins.Nts))
 
 		var comparison []byte
-		if ins.dirInHuman == BACKWARDS {
-			rc := utils.ReverseComplement(ins.nts)
+		if ins.DirInHuman == BACKWARDS {
+			rc := utils.ReverseComplement(ins.Nts)
 			fmt.Println(string(rc))
 			comparison = rc
 		} else {
-			comparison = ins.nts
+			comparison = ins.Nts
 		}
 
-		humanBit := g.Nts[0][pos : pos+len(ins.nts)]
+		humanBit := g.Nts[0][pos : pos+len(ins.Nts)]
 
 		for i := 0; i < len(comparison); i++ {
 			if comparison[i] == humanBit[i] {
@@ -563,17 +840,21 @@ func showHuman(insertions []Insertion) {
 }
 
 func getCpG(ins *Insertion) float64 {
-	dp := genomes.CalcProfile(ins.nts)
+	dp := genomes.CalcProfile(ins.Nts)
 	return dp.CpG
 }
 
 func appendFCS(insertions []Insertion) []Insertion {
-	lastIns := &insertions[len(insertions)-1]
-	lastId := lastIns.id
+	lastId := 0
+
+	if len(insertions) > 0 {
+		lastIns := &insertions[len(insertions)-1]
+		lastId = lastIns.Id
+	}
 
 	insertions = append(insertions,
-		Insertion{lastId + 1, 0, []byte("CTCCTCGGCGGG"),
-			2, true, true, 0, UNKNOWN, true})
+		Insertion{lastId + 1, 23601, []byte("CTCCTCGGCGGG"),
+			2, false, false, 0, UNKNOWN, false, 50, 50, nil})
 
 	return insertions
 }
@@ -591,9 +872,9 @@ func findOrfs(insertions []Insertion) {
 
 	for i := 0; i < len(insertions); i++ {
 		ins := &insertions[i]
-		_, _, err := orfs.GetCodonOffset(ins.pos)
+		_, _, err := orfs.GetCodonOffset(int(ins.Pos) - 1)
 		in_orf := err == nil
-		fmt.Fprintf(w, "%d %t\n", ins.id, in_orf)
+		fmt.Fprintf(w, "%d %t\n", ins.Id, in_orf)
 	}
 
 	w.Flush()
@@ -620,101 +901,360 @@ loop:
 		ins := insMap[id]
 
 		if ins != nil {
-			insMap[id].inOrf = fields[1] == "true"
+			insMap[id].InOrf = fields[1] == "true"
 		}
 	}
 }
 
-func main() {
-	var tol float64
-	var verbose bool
+func testBlast() {
+	bc := stats.BlastDefaultConfig()
+	results := stats.Blast(bc, "bacteria/Treponema",
+		[]byte("GCGGTGGAGCATGGGGTTTAATTCG"), 1e-4, 1, stats.VERBOSE)
+	fmt.Println(results)
+}
 
-	flag.Float64Var(&tol, "tol", 0.0, "Tolerance")
-	flag.BoolVar(&verbose, "v", false, "Verbose")
-	flag.Parse()
+// Return the number of occurrences of alternative encodings of the FCS per
+// million nucleotides.
+func CountFCSAlternatives(wh1 *genomes.Genomes, source *Source) float64 {
+	if wh1 == nil {
+		wh1 = genomes.LoadGenomes("../fasta/WH1.fasta",
+			"../fasta/WH1.orfs", false)
+	}
 
-	insertions := LoadInsertions("insertions.txt", 6, 2)
-	/*
-	outputCombinedFasta("Insertions.fasta", "Insertions",
-		insertions, nil, false)
-	outputFasta("SplitInsertions.fasta", insertions, nil, false)
-	*/
+	// Count the actual FCS first, just to be sure
+	count, n := 0, 0
+	search := genomes.NewBidiIndexSearch(
+		source.Index, []byte("CTCCTCGGCGGG"))
+	n += search.GenomeLength()
+	for ; !search.End(); search.Next() {
+		count++
+	}
+	fmt.Printf("%s actual: %d\n", source.Name, count)
+	actual := float64(count*1e6) / float64(n)
 
-	/*
-		insertions := LoadInsertions(
-			"../simulated_insertions/fake_human.txt", 6, 0)
-	*/
-	// findInVirus("WH1", insertions, 6, true, tol)
+	// Now count the alternative encodings
+	var env genomes.Environment
+	env.Init(wh1, 23600, 12, 0)
+	alternatives := env.FindAlternatives(12, true)
 
-	// findInHuman(insertions, 20, tol)
-	// findOrfs(insertions)
-	insMap := makeIndex(insertions)
-	loadInHuman(insertions, insMap)
-	loadInOrfs(insertions, insMap)
-	insertions = appendFCS(insertions)
+	total, n := 0, 0
+	for _, alt := range alternatives {
+		count := 0
+		search := genomes.NewBidiIndexSearch(
+			source.Index, alt.Nts)
+		n += search.GenomeLength()
+		for count = 0; !search.End(); search.Next() {
+			count++
+		}
+		fmt.Printf("%s %s: %d\n", source.Name, string(alt.Nts), count)
+		total += count
+	}
 
+	ret := float64(total*1e6) / float64(n)
+	fmt.Printf("%s: actual=%f alts=%f\n", source.Name, actual, ret)
+	return ret
+}
+
+func CountPattern(sources []Source, pattern []byte) {
+	fname := fmt.Sprintf("%s.txt", string(pattern))
+	f, err := os.Create(fname)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer f.Close()
+	w := bufio.NewWriter(f)
+
+	for _, source := range sources {
+		search := genomes.NewBidiIndexSearch(source.Index, pattern)
+		var count int
+		for ; !search.End(); search.Next() {
+			count++
+		}
+
+		n := search.GenomeLength()
+		freq := float64(count*1e6) / float64(n)
+		fmt.Printf("%s: %d/%d %g per million\n",
+			source.Name, count, n, freq)
+		fmt.Fprintf(w, "%s %g\n", source.Name, freq)
+	}
+
+	w.Flush()
+	fmt.Printf("Wrote %s\n", fname)
+}
+
+func CountAndSave(id *InsertionData) {
+	id.Find("insertions2.txt", 6, 1)
+
+	insertions := id.Insertions
 	utils.Sort(len(insertions), true,
 		func(i, j int) {
 			insertions[i], insertions[j] = insertions[j], insertions[i]
 		},
 		nil,
 		func(i int) float64 {
-			return float64(len(insertions[i].nts))
+			return float64(len(insertions[i].Nts))
 		})
 
-	// showLength(insertions)
-	// byLocation(insertions, 9)
+	findInVirus(id.Insertions, 12, 200)
 
 	/*
-		outputCombinedFasta("InsertionsNotFromWH1.fasta", "NotWH1OrHuman",
-			insertions, 6, EXCLUDE_WH1, false)
+		filters := []filterFunc{
+			makeMinLengthFilter(12),
+			makeMaxLengthFilter(24),
+		}
+
+		fmt.Printf("Matching insertions\n")
+		sources := GetSources(BACTERIA)
+		CountInGenomes(nil, insertions, sources, filters, 0.0, BLAST|APPEND)
 	*/
+	// id.Save("insertions2.gob")
+}
 
-	// showHuman(insertions)
+// Note that if randomize it randomizes the actual insertion data
+func AddSource(data *InsertionData,
+	name string, save bool, iterations int,
+	actions MatchAction) {
+	sources := make([]Source, 0)
 
-	/*
-		outputCombinedFasta("InsertionsNotFromWH1OrHuman.fasta", "NotWH1OrHuman",
-			insertions, 6, EXCLUDE_WH1|EXCLUDE_HUMAN, verbose)
-
-	*/
-
-	/*
-	f := makeCodonAlignFilter()
-	notAligned := func(ins *Insertion) bool {
-		return !f(ins)
+	all := GetSources(ANIMAL | BACTERIA)
+	for _, source := range all {
+		if source.Name == name {
+			sources = append(sources, source)
+		}
 	}
-	*/
+
+	if len(sources) == 0 {
+		log.Fatal("Can't find %s\n", name)
+	}
 
 	filters := []filterFunc{
-		makeMinLengthFilter(6),
-		makeMaxLengthFilter(50),
-		// makeMinSeqsFilter(2),
-		// makeCodonAlignFilter(),
-		// notAligned,
-		// makeFlagFilter(EXCLUDE_WH1 | EXCLUDE_HUMAN),
+		makeMinLengthFilter(12),
+		makeMaxLengthFilter(24),
+		makePositionFilter(0, 29870),
+		makeSillyFilter(),
+		makeCodonAlignFilter(),
+		makeFlagFilter(EXCLUDE_WH1),
 	}
 
+	CountInGenomes(nil, data, sources, filters, 0.0, iterations, actions)
+
+	if save {
+		data.Save("insertions-new.gob")
+		fmt.Printf("Wrote insertions-new.gob\n")
+	}
+}
+
+func BlastFCS(sources []Source) {
+	pattern := []byte("TTATCAGACTCAGACTAATTCTCCTCGGCGGGCACGTAGTGTAGCTAGTCAA")
+	fcs := 20
+	fcsLen := 12
+	bc := stats.BlastDefaultConfig()
+	for leftMargin := 0; leftMargin < 20; leftMargin++ {
+		for rightMargin := 0; rightMargin < 20; rightMargin++ {
+			blastPat := pattern[fcs-leftMargin : fcs+fcsLen+rightMargin]
+			for _, source := range sources {
+				results := stats.Blast(bc, source.Path,
+					blastPat, 1, 1, stats.NOT_VERBOSE)
+				if len(results) == 1 {
+					fmt.Printf("%s %d %s %d len=%d %g\n", source.Name,
+						leftMargin,
+						string(blastPat),
+						rightMargin,
+						results[0].Length, results[0].E)
+				}
+			}
+		}
+	}
+}
+
+func UpdateHomology(wh1 *genomes.Genomes,
+	insertions []Insertion, sources []Source) {
+	fmt.Println("Updating homology...")
+	if wh1 == nil {
+		wh1 = genomes.LoadGenomes("../fasta/WH1.fasta",
+			"../fasta/WH1.orfs", false)
+	}
+
+	sourceMap := make(map[string]*Source)
+	for i, _ := range sources {
+		source := &sources[i]
+		sourceMap[source.Name] = source
+	}
+
+	for i, _ := range insertions {
+		ins := &insertions[i]
+		/*
+			if ins.Id != 12244 {
+				continue
+			}
+		*/
+		for _, match := range ins.Matches {
+			/*
+				if match.Name != "ANaesl" || match.SourcePos != 3055679 {
+					continue
+				}
+			*/
+			source := sourceMap[match.Name]
+
+			match.Homology = FindHomology(wh1, ins,
+				source, match.SourcePos, match.Dir == FORWARDS, true)
+		}
+		if i%100 == 0 {
+			fmt.Printf("Done %d/%d\n", i, len(insertions))
+		}
+	}
+}
+
+func findExpectedHomology() {
+	root := "/fs/f/genomes/bacteria/"
 	/*
-	fmt.Printf("Writing context.fastq\n")
-	outputFastq(insertions, filters, GetSources()[2:], "context.fastq")
+		bacteria := make([]string, 3)
+		for i, s := range []string{"ANaesl", "AVisc", "AIsrael"} {
+			bacteria[i] = root + s + fmt.Sprintf("/%s.fasta.gz", s)
+		}
+
+		fmt.Println("All Actinomyces")
+		FindExpectedHomologyFreq(int(1e6), bacteria...)
+
+		for _, b := range bacteria {
+			fmt.Println(b)
+			FindExpectedHomologyFreq(int(3e6), b)
+		}
 	*/
 
-	fmt.Printf("Counting sequences and odds ratios\n")
-	countInGenomes(insertions, filters, true)
+	root = "/fs/f/genomes/"
+	animals := []string{"cod", "human", "pangolin", "rabbit", "bat", "lizard"}
+	for _, animal := range animals {
+		fmt.Println(animal)
+		FindExpectedHomologyFreq(int(3e6),
+			root+animal+fmt.Sprintf("/%s.fasta.gz", animal))
+	}
+}
+
+func main() {
+	var (
+		data                 InsertionData
+		countCGG, blastFCS   bool
+		outputName           string
+		expectedHomology     bool
+		findHomology         bool
+		fcsAlternatives      bool
+		countFCSAlternatives bool
+		outputGob            bool
+		blast                bool
+		blastHomology        bool
+		randomize            bool
+		iterations           int
+		outputFasta          bool
+	)
+
+	flag.BoolVar(&countCGG, "cgg", false, "Count CGGCGG")
+	flag.BoolVar(&blastFCS, "fcs", false, "Blast FCS with context")
+	flag.BoolVar(&expectedHomology, "calc-ef", false, "Calculate expected"+
+		"homology frequency")
+	flag.StringVar(&outputName, "output", "", "Output")
+	flag.BoolVar(&findHomology, "homol", false, "Update homology")
+	flag.BoolVar(&fcsAlternatives,
+		"fcs-alt", false, "Look at FCS alternatives")
+	flag.BoolVar(&countFCSAlternatives,
+		"count-fcs-alt", false, "Count FCS alternatives")
+	flag.BoolVar(&outputGob, "output-gob", false, "Output the gob")
+	flag.BoolVar(&blast, "blast", false, "Blast the matches")
+	flag.BoolVar(&blastHomology,
+		"blast-h", false, "Blast the matches with homology")
+	flag.BoolVar(&randomize,
+		"random", false, "Randomize the insertions (!)")
+	flag.IntVar(&iterations,
+		"iterations", 1, "If randomizing how many times to do it")
+	flag.BoolVar(&outputFasta,
+		"output-fasta", false, "Output a fasta file")
+	flag.Parse()
+
+	if _, err := os.Stat("insertions2.gob"); err == nil {
+		data.Load("insertions2.gob")
+	} else {
+		CountAndSave(&data)
+	}
+
+	if outputName != "" {
+		var actions MatchAction = OUTPUT
+
+		if blast {
+			actions |= BLAST
+		}
+		if blastHomology {
+			actions |= BLAST_HOMOLOGY
+		}
+		if randomize {
+			actions |= RANDOMIZE
+		} else if iterations > 1 {
+			log.Fatal("More than one iteration with randomize is pointless")
+		}
+		AddSource(&data, outputName, false, iterations, actions)
+	}
+
+	if blastFCS {
+		sources := GetSources(BACTERIA)
+		BlastFCS(sources)
+	}
+
+	if expectedHomology {
+		findExpectedHomology()
+		return
+	}
+
+    if outputFasta {
+        filters := []filterFunc{
+            makeMinLengthFilter(12),
+            makeMaxLengthFilter(24),
+            makeMinSeqsFilter(1),
+            makeMinStrictNumHereFilter(1),
+            makeSillyFilter(),
+            makeCodonAlignFilter(),
+            makePositionFilter(0, 29870),
+        }
+        OutputFasta("../fasta/SplitInsertions.fasta",
+			data.Insertions, filters, false)
+        OutputCombinedFasta("../fasta/CombinedInsertions.fasta",
+			"Insertions", data.Insertions, filters, false)
+    }
 
 	/*
-		fmt.Printf("Counting in repeats\n")
-		countSatellites(insertions, filters, false)
+		findInVirus(data.Insertions, 12, 200)
+		findInHuman(data.Insertions, 12, 200)
+		data.Save("insertions2b.gob")
 	*/
 
-	/*
-		outputFasta("MaybeBac.fasta", "MaybeBac", insertions, filters, false)
-		outputCombinedFasta("MaybeBacCombined.fasta",
-			"MaybeBac", insertions, filters, false)
-	*/
+	if findHomology {
+		sources := GetSources(BACTERIA)
+		UpdateHomology(nil, data.Insertions, sources)
+		data.Save("insertions-new.gob")
+		fmt.Println("Wrote insertions-new.gob with updated homologies")
+	}
 
-	/*
-		outputDinucs("InsertionsNotFromWH1.txt",
-			insertions, 6, EXCLUDE_WH1, verbose)
-	*/
+	if countCGG {
+		sources := GetSources(ANIMAL | BACTERIA)
+		fmt.Println("CGGCGG")
+		CountPattern(sources, []byte("CGGCGG"))
+
+		fmt.Println("FCS")
+		CountPattern(sources, []byte("CTCCTCGGCGGG"))
+	}
+
+	if countFCSAlternatives {
+		sources := GetSources(BACTERIA)
+		for i, _ := range sources {
+			source := &sources[i]
+			CountFCSAlternatives(nil, source)
+		}
+	}
+
+	if fcsAlternatives {
+		CheckAlternatives()
+	}
+
+	if outputGob {
+		data.OutputMatches("matches.txt")
+		data.OutputInsertions("insertion-data.txt")
+	}
 }

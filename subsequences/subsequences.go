@@ -179,7 +179,6 @@ processing:
 }
 
 func findPattern(sources []Source, pattern []byte) {
-	var s genomes.Search
 	// fcs := []byte("CTCCTCGGCGGG")
 
 	// OR of the below occurring in Yeast based on individual nt frequencies is
@@ -192,7 +191,8 @@ func findPattern(sources []Source, pattern []byte) {
 		var count int
 		source := sources[i]
 		g := genomes.LoadGenomes(source.fname, "", true)
-		for s.Init(g, 0, pattern, 0.0); !s.End(); s.Next() {
+		for s := genomes.NewLinearSearch(g, 0,
+			pattern, 0.0); !s.End(); s.Next() {
 			count++
 		}
 		total := g.Length()
@@ -263,15 +263,11 @@ func montecarlo(length int, nTrials int, index string, verbose bool) int {
 	}
 
 	initSearch := func(haystack *genomes.Genomes,
-		pat []byte) genomes.SearchIf {
+		pat []byte) genomes.Search {
 		if index != "" {
-			var is genomes.IndexSearch
-			is.Init(index, pat)
-			return &is
+			return genomes.NewIndexSearch(index, pat)
 		} else {
-			var rs genomes.Search
-			rs.Init(haystack, 0, pat, 0.0)
-			return &rs
+			return genomes.NewLinearSearch(haystack, 0, pat, 0.0)
 		}
 	}
 
@@ -325,7 +321,7 @@ func main() {
 		sources = getSources()
 	} else {
 		sources = make([]Source, 1)
-		name := utils.BasicName(source)
+		name, _ := utils.SplitExt(source)
 		sources[0] = Source{name, source}
 	}
 

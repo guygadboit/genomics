@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"genomics/genomes"
+	"genomics/hotspots"
 	"genomics/mutations"
 	"io"
 	"log"
@@ -35,7 +36,7 @@ func loadGenomes(fnames []string) []*genomes.Genomes {
 func findNucDistro(g []*genomes.Genomes) *mutations.NucDistro {
 	nd := mutations.NewNucDistro(nil)
 	for i := 0; i < len(g); i++ {
-		nd.Count(g[i])
+		nd.Count(mutations.NewGenomeIterator(g[i]))
 	}
 	return nd
 }
@@ -75,11 +76,11 @@ func showOrgMaps(genomes []*genomes.Genomes) {
 
 	w := bufio.NewWriter(f)
 	for _, g := range genomes {
-		_, _, _, _, sites := FindRestrictionMap(g)
+		_, _, _, _, sites, _ := FindRestrictionMap(g)
 		fmt.Fprintf(w, "%s: [", g.Names[0])
 		for i, site := range sites {
 			fmt.Fprintf(w, "%d", site)
-			if i < len(sites) -1 {
+			if i < len(sites)-1 {
 				fmt.Fprintf(w, ",")
 			} else {
 				fmt.Fprintf(w, "]\n")
@@ -90,6 +91,35 @@ func showOrgMaps(genomes []*genomes.Genomes) {
 	fmt.Println("Wrote restriction_maps.txt")
 }
 
+func CalcOR(g *genomes.Genomes) float64 {
+	ct := hotspots.CalculateCT(g)
+	return ct.CalcOR()
+}
+
+func ShowMaps(fnames []string) {
+	typeNames := []string{"BsaI", "BsmBI"}
+	for _, arg := range flag.Args() {
+		g := genomes.LoadGenomes(arg, "", false)
+		for i := 0; i < g.NumGenomes(); i++ {
+			fmt.Printf("%s\n", g.Names[i])
+			count, maxLength, unique, _,
+				positions, types := FindRestrictionMap(g)
+			var sticky string
+			if unique {
+				sticky = "unique sticky ends"
+			} else {
+				sticky = "non-unique sticky ends"
+			}
+			fmt.Printf("%d segments; max len is %d; %s; positions: ",
+				count, maxLength, sticky)
+			for i, pos := range positions {
+				fmt.Printf("%d (%s), ", pos+1, typeNames[types[i]-1])
+			}
+			fmt.Printf("\n")
+		}
+	}
+}
+
 func main() {
 	var nTrials, nMuts, nThreads, nEdits int
 	var test, countSites bool
@@ -97,6 +127,7 @@ func main() {
 	var testRecombo bool
 	var orgMaps bool
 	var resultsName string
+	var showMaps bool
 
 	flag.IntVar(&nTrials, "n", 10000, "Number of trials")
 	flag.IntVar(&nMuts, "m", 0, "Number of mutations (0 means auto)")
@@ -110,10 +141,16 @@ func main() {
 	flag.BoolVar(&orgMaps, "maps", false, "Show restriction maps before "+
 		"any simulated mutation")
 	flag.StringVar(&resultsName, "o", "results.txt", "Output filename")
+	flag.BoolVar(&showMaps, "show", false, "Just show maps of genomes")
 	flag.Parse()
 
 	if test {
 		Test()
+		return
+	}
+
+	if showMaps {
+		ShowMaps(flag.Args())
 		return
 	}
 
@@ -131,9 +168,9 @@ func main() {
 		"BtSY2",
 		"ChimericAncestor",
 		"BANAL-20-236",
-		"BANAL-20-52",
 		"BANAL-20-103",
 		"RaTG13",
+		"BANAL-20-52",
 	}
 
 	g := loadGenomes(fnames)

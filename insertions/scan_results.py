@@ -1,16 +1,16 @@
 import numpy as np
 import matplotlib as mp
 import matplotlib.pyplot as plot
-from pdb import set_trace as brk
 from collections import namedtuple, OrderedDict
+from pdb import set_trace as brk
 
 
-Count = namedtuple("Count", "num OR OR2")
+Count = namedtuple("Count", "num E")
 
 
 def parse_field(f):
 	numbers = f.split(",")
-	return Count(int(numbers[0]), float(numbers[1]), float(numbers[2]))
+	return Count(int(numbers[0]), float(numbers[1]))
 
 
 def is_dinucleotide_repeat(pattern):
@@ -29,7 +29,7 @@ def parse():
 	global species
 	ret = {}
 
-	with open("./or-results.txt") as fp:
+	with open("./results.txt") as fp:
 		for i, line in enumerate(fp):
 			line = line.strip()
 			fields = line.split()
@@ -58,50 +58,12 @@ def summary(results):
 	z = []
 
 	for k, v in results.items():
-		interesting = False
-		for count in v[2:]:
-			# if count.OR >= 10 and count.OR2 >= 10 and count.num > 1:
-			if count.OR2 >= 10 and count.num > 1:
-				interesting = True
-				break
+		for f in v._fields[2:]:
+			count = getattr(v, f)
+			print("{} {} {} {} {}".format(v.id, f, count.num, count.E)
 
-		if interesting or True:
-			for f in v._fields[2:]:
-				count = getattr(v, f)
-				print("{} {} {} {} {} ({}) {} (Human: {},{})".format(v.id, f,
-					count.num, count.OR, count.OR2,
-					len(v.pattern), v.pattern,
-					v.Human.OR, v.Human.OR2))
-
-				x[v.id] = True
-				y[f] = True
-				z.append(getattr(v, f).OR2)
-
-
-	mp.style.use("ggplot")
-	fig = plot.figure(figsize=(10, 10))
-	ax = fig.add_subplot(111, projection="3d")
-
-	x_labels = list(x.keys())
-	y_labels = list(y.keys())
-
-	_x = np.arange(len(x_labels))
-	_y = np.arange(len(y_labels))
-	_xx, _yy = np.meshgrid(_x, _y)
-	x_points, y_points = _xx.ravel(), _yy.ravel()
-
-	ax.bar3d(x_points, y_points,[0.0] * len(z), 1, 1, z, shade=True)
-
-	xticks = [x + 0.5 for x in range(len(x_labels))]
-	ax.set_xticks(xticks, minor=False)
-	ax.set_xticklabels(x_labels, rotation=45)
-
-	yticks = [y + 0.5 for y in range(len(y_labels))]
-	ax.set_yticks(yticks, minor=False)
-	ax.set_yticklabels(y_labels, rotation=90)
-
-	ax.set_title('Title')
-# 	plot.show()
+			x[v.id] = True
+			y[f] = True
 
 def longest_matches(results):
 	by_length = []

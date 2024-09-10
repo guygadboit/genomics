@@ -42,7 +42,7 @@ func (c *Classifier) Init() {
 	// Find the places where any of them have a site
 	sites := make(map[int]bool)
 	for i := 0; i < c.relatives.NumGenomes(); i++ {
-		_, _, _, _, s := FindRestrictionMap(c.relatives.Filter(i))
+		_, _, _, _, s, _ := FindRestrictionMap(c.relatives.Filter(i))
 		for _, site := range s {
 			sites[site] = true
 		}

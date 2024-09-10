@@ -32,11 +32,8 @@ const (
 	NOT_IN_ORF
 )
 
-// Let's use this type for OneBased positions and regular ints for zero based.
-type OneBasedPos int
-
 type Mutation struct {
-	Pos     OneBasedPos
+	Pos     utils.OneBasedPos
 	From    byte
 	To      byte
 	Silence Silence
@@ -89,7 +86,7 @@ func ParseMutations(s string) []Mutation {
 	fields := strings.Split(s, ",")
 	for _, f := range fields {
 		n := len(f)
-		mut := Mutation{OneBasedPos(utils.Atoi(f[1 : n-1])),
+		mut := Mutation{utils.OneBasedPos(utils.Atoi(f[1 : n-1])),
 			f[0], f[n-1], UNKNOWN}
 		ret = append(ret, mut)
 	}
@@ -108,7 +105,7 @@ func ParseAAMutations(s string) []AAMutation {
 		gene := subFields[0]
 		f := subFields[1]
 		n := len(f)
-		mut := AAMutation{Mutation{OneBasedPos(utils.Atoi(f[1 : n-1])),
+		mut := AAMutation{Mutation{utils.OneBasedPos(utils.Atoi(f[1 : n-1])),
 			f[0], f[n-1], UNKNOWN}, gene}
 		ret = append(ret, mut)
 	}
@@ -250,7 +247,7 @@ func (r *Record) Parse(line string) {
 
 type Database struct {
 	Records        []Record
-	MutationIndex  map[OneBasedPos]IdSet
+	MutationIndex  map[utils.OneBasedPos]IdSet
 	AccessionIndex map[string]Id
 }
 
@@ -264,7 +261,7 @@ func (d *Database) Add(r *Record) {
 }
 
 func (d *Database) BuildMutationIndex() {
-	d.MutationIndex = make(map[OneBasedPos]IdSet)
+	d.MutationIndex = make(map[utils.OneBasedPos]IdSet)
 
 	for i, r := range d.Records {
 		for _, mut := range r.NucleotideChanges {

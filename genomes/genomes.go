@@ -8,8 +8,8 @@ import (
 	"io"
 	"log"
 	"os"
-	"slices"
 	"regexp"
+	"slices"
 	"strings"
 )
 
@@ -92,6 +92,62 @@ loop:
 	return ret
 }
 
+// Load genomes from a clu file
+func LoadClu(fname string, orfsName string) *Genomes {
+	pat := regexp.MustCompile(`[GACT-]+`)
+
+	var nameIt int
+	nts := make(map[string][]byte)
+	names := make([]string, 0)
+
+	utils.Lines(fname, func(line string, err error) bool {
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		fields := strings.Fields(line)
+		if len(fields) < 2 {
+			// There should be the line with the * and then a blank line
+			// between each block of sequence lines. So reset the counter for
+			// which genome we're looking at every time we see one of these
+			nameIt = 0
+			return true
+		}
+
+		name, data := fields[0], []byte(fields[1])
+		if !pat.Match(data) {
+			return true
+		}
+
+		// On the first block we're growing names as we go.
+		if len(names) < nameIt+1 {
+			names = append(names, name)
+			nts[name] = make([]byte, 0)
+			if len(names) != nameIt+1 {
+				log.Fatal("Invalid clu file")
+			}
+		} else {
+			name = names[nameIt]
+		}
+
+		nts[name] = append(nts[name], data...)
+		nameIt++
+		return true
+	})
+
+	var orfs Orfs
+	if orfsName != "" {
+		orfs = LoadOrfs(orfsName)
+	}
+	ret := NewGenomes(orfs, len(names))
+	ret.Names = names
+
+	for i, name := range names {
+		ret.Nts[i] = nts[name]
+	}
+	return ret
+}
+
 func (g *Genomes) CheckOrfs() error {
 	var bad bool
 	for _, orf := range g.Orfs {
@@ -99,7 +155,7 @@ func (g *Genomes) CheckOrfs() error {
 			bad = true
 			break
 		}
-		if orf.End < 0 || orf.End >= g.Length() {
+		if orf.End < 0 || orf.End > g.Length() {
 			bad = true
 			break
 		}
@@ -498,16 +554,6 @@ func (g *Genomes) SubSequenceSimilarity(a, b int,
 	return float64(same) / float64(total)
 }
 
-func shorten(s string, length int) string {
-	words := strings.Split(s, " ")
-	w := words[0]
-	if len(w) > length {
-		return w[0:length]
-	} else {
-		return w
-	}
-}
-
 // Return a string with * where they're all the same or ' ' when not.
 func (g *Genomes) compare(start, end int, which ...int) string {
 	n := end - start
@@ -576,7 +622,7 @@ func ParseHighlightFile(fname string,
 		if oneBased {
 			pos -= 1
 		}
-		ret = append(ret, Highlight{pos, pos+1, hChar})
+		ret = append(ret, Highlight{pos, pos + 1, hChar})
 		return true
 	})
 	return ret, err
@@ -628,7 +674,7 @@ func (g *Genomes) saveCluStyle(fname string,
 	trans := make([]Translation, len(which))
 	var index, nextIndex int
 	for i, w := range which {
-		names[i] = shorten(g.Names[w], 16)
+		names[i] = utils.Shorten(g.Names[w], 16)
 		if withTranslation {
 			trans[i] = Translate(g, w)
 		}

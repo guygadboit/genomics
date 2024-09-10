@@ -4,12 +4,16 @@ import (
 	"fmt"
 	"genomics/database"
 	"genomics/utils"
+	"time"
 )
 
 func main() {
 	db := database.NewDatabase()
 
+	cutoff := utils.Date(2020, 1, 30)
 	ids := db.Filter(nil, func(r *database.Record) bool {
+		return r.CollectionDate.Compare(cutoff) < 0
+
 		if r.Host != "Human" {
 			return false
 		}
@@ -32,6 +36,9 @@ func main() {
 
 	for _, id := range sorted {
 		r := &db.Records[id]
-		fmt.Println(r.Summary())
+		// fmt.Println(r.Summary())
+		fmt.Println(r.CollectionDate.Format(time.DateOnly),
+			r.SubmissionDate.Format(time.DateOnly),
+			r.GisaidAccession, r.Country, r.Region)
 	}
 }

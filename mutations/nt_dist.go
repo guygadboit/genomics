@@ -2,9 +2,9 @@ package mutations
 
 import (
 	"fmt"
-	"math/rand"
 	"genomics/genomes"
 	"genomics/utils"
+	"math/rand"
 )
 
 // Counts for each nucleotide in a genome
@@ -13,26 +13,59 @@ type NucDistro struct {
 	total int
 }
 
-func (nd *NucDistro) Count(g *genomes.Genomes) {
-	for i := 0; i < g.NumGenomes(); i++ {
-		for j := 0; j < g.Length(); j++ {
-			nt := g.Nts[i][j]
-            if !utils.IsRegularNt(nt) {
-                continue
-            }
+type NtIterator interface {
+	Start()
+	Get() byte
+	Next()
+	End() bool
+}
 
-			count, _ := nd.nts[nt]
-			nd.nts[nt] = count + 1
-			nd.total += 1
-		}
+type GenomeIterator struct {
+	g    *genomes.Genomes
+	i, j int
+}
+
+func (gi *GenomeIterator) Start() {
+	gi.i, gi.j = 0, 0
+}
+
+func (gi *GenomeIterator) Get() byte {
+	return gi.g.Nts[gi.i][gi.j]
+}
+
+func (gi *GenomeIterator) Next() {
+	gi.j++
+	if gi.j == gi.g.Length() {
+		gi.j = 0
+		gi.i++
 	}
 }
 
-func NewNucDistro(g *genomes.Genomes) *NucDistro {
-	ret := NucDistro{nts: make(map[byte]int)}
-	if g != nil {
-		ret.Count(g)
+func (gi *GenomeIterator) End() bool {
+	return gi.i == gi.g.NumGenomes()
+}
+
+func NewGenomeIterator(g *genomes.Genomes) NtIterator {
+	ret := GenomeIterator{g, 0, 0}
+	return &ret
+}
+
+func (nd *NucDistro) Count(it NtIterator) {
+	for it.Start(); !it.End(); it.Next() {
+		nt := it.Get()
+		if !utils.IsRegularNt(nt) {
+			continue
+		}
+
+		count, _ := nd.nts[nt]
+		nd.nts[nt] = count + 1
+		nd.total += 1
 	}
+}
+
+func NewNucDistro(it NtIterator) *NucDistro {
+	ret := NucDistro{nts: make(map[byte]int)}
+	ret.Count(it)
 	return &ret
 }
 

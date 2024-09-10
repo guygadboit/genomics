@@ -63,9 +63,50 @@ def make_graph_files(results):
 					print(result.count, result.max_length, file=fp)
 
 
+def writeOR(name):
+	names = ("{}-ORs".format(name), "{}-passing-ORs".format(name))
+	with open(names[0], "w") as all_fp:
+		with open(names[1], "w") as passing_fp:
+			yield
+			while True:
+				OR, acceptable = yield
+				if OR is None:
+					break
+				if OR == 0.0:
+					continue
+
+				print(OR, file=all_fp)
+				if acceptable:
+					print(OR, file=passing_fp)
+
+	titles = ["All", "Passing"]
+	colours = ["blue", "red"]
+	for i, sub_name in enumerate(names):
+		title = titles[i]
+		colour = colours[i]
+		with open("{}.gpi".format(sub_name), "w") as fp:
+			print("""set boxwidth 0.05 absolute
+set style fill solid 1.0 noborder
+
+bin_width = 0.1
+bin_number(x) = floor(x/bin_width)
+rounded(x) = bin_width * (bin_number(x) + 0.8)
+
+set title "Distribution of Hotspot ORs on simulated {name} mutants"
+set arrow from 1,0 rto graph 0,1 nohead filled lc "red"
+
+# set arrow from 4.07,0 rto graph 0,0.5 backhead filled lc "magenta"
+set arrow from 2.85,0 rto graph 0,0.5 backhead filled lc "black"
+
+plot '{sub_name}' using (rounded($1)):(1) smooth \
+		frequency with boxes title "{title}" linecolor "{colour}" """.format(
+		**locals()), file=fp)
+
+
 def rates(results, max_count=None,
-		  exact_count=None, require_not_interleaved=False):
+		  exact_count=None, require_not_interleaved=False, ors=False):
 	for k, v in results.items():
+		if ors: w = writeOR(k); next(w)
 		good, total = 0, 0
 		for result in v:
 			acceptable = result.acceptable
@@ -86,7 +127,17 @@ def rates(results, max_count=None,
 
 			if acceptable:
 				good += 1
+
+			if ors:
+				w.send((result.OR, acceptable))
+
 			total += 1
+
+		if ors:
+			try:
+				w.send((None, None))
+			except StopIteration:
+				pass
 
 		print("{}: {}/{} {:.4g}%".format(k, good,
 			total, float(good * 100) / total))
@@ -196,6 +247,7 @@ def main():
 	ap.add_argument("-e", "--exact-count", type=int)
 	ap.add_argument("-i", "--require-not-interleaved", action="store_true")
 	ap.add_argument("-x", "--extras", action="store_true")
+	ap.add_argument("--ors", action="store_true")
 
 	args = ap.parse_args()
 	results = parse_all_results(args.fname[0])
@@ -211,9 +263,9 @@ def main():
 
 	if args.max_count or args.exact_count or args.require_not_interleaved:
 		rates(results, args.max_count,
-			args.exact_count, args.require_not_interleaved)
+			args.exact_count, args.require_not_interleaved, args.ors)
 	elif args.rates:
-		rates(results)
+		rates(results, args.ors)
 
 	print()
 	added_removed(results)

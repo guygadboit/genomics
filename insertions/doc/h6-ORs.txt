@@ -1,0 +1,7 @@
+A.Israelii 6 0.0 0.0 0.0
+A.Viscosus 6 0.0 0.0 0.0
+A.Naeslundii 6 22.08973768982973 8.047238173366146 13.376415094339622
+T.Denticola 6 0.0 0.0 0.0
+P.Gingivalis 6 0.0 0.0 0.0
+T.Forsythia 6 0.0 0.0 0.0
+A.Actin. 6 0.0 0.0 0.0

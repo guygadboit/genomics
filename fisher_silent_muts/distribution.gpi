@@ -6,11 +6,11 @@ bin_number(x) = floor(x/bin_width)
 rounded(x) = bin_width * (bin_number(x) + 0.8)
 
 # set title "Original calculation. All combinations of related pairs."
-# set title "Distribution of ORs (improved calculation) on pairs of SARS2r-CoVs"
+set title "Distribution of ORs (improved calculation) on simulated mutants 6 segments < 8k"
 set arrow from 1,0 rto graph 0,1 nohead filled lc "red"
 
 # set arrow from 4.07,0 rto graph 0,0.5 backhead filled lc "black"
-# set arrow from 2.85,0 rto graph 0,0.5 backhead filled lc "black"
+set arrow from 2.85,0 rto graph 0,0.5 backhead filled lc "black"
 # set arrow from 3.73,0 rto graph 0,0.5 backhead filled lc "black"
 
 plot 'ORs' using (rounded($1)):(1) smooth frequency with boxes notitle

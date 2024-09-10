@@ -1,0 +1,13 @@
+set style fill solid
+set xtics rotate by -90
+
+set term svg
+set output "6-ORs.svg"
+
+set title "OR of frequency of >=6 nt sequence identity outside insertion matches"
+
+set arrow from graph 0, first 1 rto graph 1,0 nohead filled lc "red"
+
+plot "h6-ORs.txt" using 3:xtic(1) with histogram title "Cod", \
+	"h6-ORs.txt" using 4:xtic(1) with histogram title "Human", \
+	"h6-ORs.txt" using 5:xtic(1) with histogram title "Randomized Self"

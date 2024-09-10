@@ -18,7 +18,7 @@ xmlns:xlink="http://www.w3.org/1999/xlink">
 
 <abstract>
     <simpara>
-        A well-known <link xlink:href="https://www.biorxiv.org/content/10.1101/2022.10.18.512756v2">preprint</link> argued (among other things) that there was an anomalously high concentration of silent mutations in BsaI/BsmBI recognition sites in the SARS-CoV-2 genome when compared to RaTG13 and BANAL-20-52, and estimated p-values for the significance of both comparisons. Although the calculated significances (of p=9&#xd7;10<superscript>-8</superscript> and p=0.004) are overestimates, corrected and controlled calculations still yield some significance (p=7.66&#xd7;10<superscript>-5</superscript> and p=0.035). It remains unclear whether these observations are better explained by a natural or lab origin hypothesis.
+        A well-known <link xlink:href="https://www.biorxiv.org/content/11.1101/2022.10.18.512756v2">preprint</link> argued (among other things) that there was an anomalously high concentration of silent mutations in BsaI/BsmBI recognition sites in the SARS-CoV-2 genome when compared to RaTG13 and BANAL-20-52, and estimated p-values for the significance of both comparisons. Although the calculated significances (of p=9&#xd7;10<superscript>-8</superscript> and p=0.004) are overestimates, corrected and controlled calculations still yield some significance (p=7.66&#xd7;10<superscript>-5</superscript> and p=0.035). It remains unclear whether these observations are better explained by a natural or lab origin hypothesis.
     </simpara>
 </abstract>
 

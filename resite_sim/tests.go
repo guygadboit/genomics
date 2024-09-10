@@ -13,13 +13,13 @@ func testMutations(genome *genomes.Genomes) {
 	genome.Save("B52", "B52-test.fasta", 0)
 	fmt.Printf("Saved as B52-test.fasta\n")
 
-	nd := mutations.NewNucDistro(genome)
+	nd := mutations.NewNucDistro(mutations.NewGenomeIterator(genome))
 
 	var mutant *genomes.Genomes
 	for {
 		mutant = genome.Clone()
 		mutations.MutateSilent(mutant, nd, 1, 700)
-		count, maxLength, unique, interleaved, _ :=
+		count, maxLength, unique, interleaved, _, _ :=
 			FindRestrictionMap(mutant)
 		if unique && maxLength < 8000 {
 			fmt.Println(count, maxLength, unique, interleaved)

@@ -1,9 +1,13 @@
-set title "$name dinucleotide profile"
-set term png
-set output "$name.png"
+set title "$title dinucleotide profile"
+
+# set term png
+# set output "$name.png"
+
+set term svg
+set output "$name.svg"
 
 set style fill solid
 set boxwidth 0.5
 set yrange [0:4]
 
-plot "$name.dat" using 2:xtic(1) with boxes notitle
+plot "$name.dat" using 2:xtic(1) with boxes lc "$colour" notitle

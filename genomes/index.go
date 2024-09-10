@@ -61,7 +61,7 @@ func (index *Index) save() {
 		fd, err := os.OpenFile(fname,
 			os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
 		if err != nil {
-			log.Fatal("Can't open file")
+			log.Fatalf("Can't open file %s", fname)
 		}
 		defer fd.Close()
 
@@ -187,11 +187,15 @@ func (s *IndexSearch) Init(root string, needle []byte) {
 	s.needle = needle
 	n := len(needle)
 
+	if n >= 200 {
+		// It will probably just crash your computer
+		log.Fatal("Refusing to build an index this long.")
+	}
+
 	s.index = &Index{root: root}
 	s.index.loadMetadata()
 
 	m := s.index.wordLen
-
 	depth := n / m
 
 	// Capacity of +1 because if there is an overhang we will add another list
@@ -277,53 +281,14 @@ func (s *IndexSearch) Get() (int, error) {
 	return 0, errors.New("Off end")
 }
 
+func (s *IndexSearch) IsForwards() bool {
+	return true
+}
+
 func (s *IndexSearch) End() bool {
 	return s.end
 }
 
 func (s *IndexSearch) GenomeLength() int {
 	return s.index.genomeLen
-}
-
-/*
-Bidirectional IndexSearch (looks for the pattern and then for its reverse
-complement)
-*/
-type BidiIndexSearch struct {
-	forwards  IndexSearch
-	backwards IndexSearch
-}
-
-func (s *BidiIndexSearch) Init(root string, needle []byte) {
-	s.forwards.Init(root, needle)
-	s.backwards.Init(root, utils.ReverseComplement(needle))
-}
-
-func (s *BidiIndexSearch) Start() {
-	s.forwards.Start()
-	s.backwards.Start()
-}
-
-func (s *BidiIndexSearch) Next() {
-	if !s.forwards.End() {
-		s.forwards.Next()
-	} else {
-		s.backwards.Next()
-	}
-}
-
-func (s *BidiIndexSearch) Get() (int, error) {
-	if !s.forwards.End() {
-		return s.forwards.Get()
-	} else {
-		return s.backwards.Get()
-	}
-}
-
-func (s *BidiIndexSearch) End() bool {
-	return s.backwards.End()
-}
-
-func (s *BidiIndexSearch) GenomeLength() int {
-	return s.forwards.index.genomeLen
 }

@@ -1,0 +1,13 @@
+set style fill solid
+set xtics rotate by -90
+
+set term svg
+set output "3-ORs.svg"
+
+set title "OR of frequency of >=3 nt sequence identity outside insertion matches"
+
+set arrow from graph 0, first 1 rto graph 1,0 nohead filled lc "red"
+
+plot "h3-ORs.txt" using 3:xtic(1) with histogram title "Cod", \
+	"h3-ORs.txt" using 4:xtic(1) with histogram title "Human", \
+	"h3-ORs.txt" using 5:xtic(1) with histogram title "Randomized Self"

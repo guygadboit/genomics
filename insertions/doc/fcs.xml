@@ -1,0 +1,1953 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE article>
+<article xmlns="http://docbook.org/ns/docbook" version="5.0"
+xmlns:xlink="http://www.w3.org/1999/xlink">
+<articleinfo>
+    <author>
+        <firstname>
+            Guy
+        </firstname>
+        <surname>
+            Gadboit
+        </surname>
+    </author>
+</articleinfo>
+<title>
+    Insertions in human SARS-CoV-2 samples shed light on the origin of the furin cleavage site.
+</title>
+
+<abstract>
+    <simpara>
+        Since the start of the COVID-19 pandemic several million SARS-CoV-2
+        sequences have been uploaded to GISAID. Some of these sequences contain
+        insertions relative to Wuhan-Hu-1, and some of those insertions match
+        sequences in species of bacteria in the predominant human oral
+        microbiota including with significant sequence identity outside the
+        insertion itself (p=0.00013, p=0.08 for &#x2265;3bp and &#x2265;6bp of adjacent sequence identity respectively).
+        The furin cleavage site insertion
+        also matches a species of bacterium in this set with 6bp of sequence identity
+        adjacent to the insertion (E=3&#xd7;10<superscript>-4</superscript>). This implies that the particular nucleotides encoding the furin cleavage
+    site have a
+    natural origin not an artificial one, and may also be a clue to how
+    the pandemic started.
+    </simpara>
+</abstract>
+
+<section>
+    <title>Introduction</title>
+    <simpara>
+        The most notable difference between the genome of SARS-CoV-2 and that of
+        its close relatives is a 12-nucleotide insertion of the sequence
+        CTCCTCGGCGGG at position 23601, which results in a furin cleavage site
+        between the S1 and S2 domains of the spike protein<citation>7</citation>.
+    </simpara>
+    <simpara>
+        It is thought to be an important determinant of transmissibility<citation>7</citation> and may have been critical to helping the virus start a pandemic.
+    </simpara>
+    <simpara>
+        It is heavily implicated in concerns that the virus may have had an artificial origin due to a documented research interest in this subject<citation>4</citation> that can be linked to work that was likely taking place in Wuhan, where the pandemic is thought to have started<citation>28</citation>.
+    </simpara>
+    <simpara>
+        However, insertions into coronaviruses like this do happen naturally, and many have occurred since the virus has been circulating in the human population<citation>14</citation><citation>15</citation>. We are able to observe this due to the unprecedented number of viral sequences from human samples that have been gathered during the pandemic.
+    </simpara>
+    <simpara>
+        This gives us a reference point for comparison. Although we are missing crucial early data about the very first SARS-CoV-2 sequences, and do not have any without the FCS insert, there are aspects of the later insertions that can nevertheless give us some important clues.
+    </simpara>
+
+    <para>
+        <figure>
+            <title>Alignment of SARS-CoV-2 furin cleavage site</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="./fcs_insertion.svg"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
+    </para>
+</section>
+
+<section>
+    <title>Where do insertions come from?</title>
+    <simpara>
+        For an insertion to happen, a minimum requirement is that the sequence being inserted has to be present, as RNA, in the same place where viral replication is happening, which, in the case of coronaviruses, is inside host cells, either within double-membraned vesicles or in the "convoluted membrane" near them<citation>13</citation>.
+    </simpara>
+    <simpara>
+        Insertions are rare events, in part because the conditions in which source RNA is present in the location where viral RNA is being copied are rare. Some insertions have been traced to the host genome<citation>11</citation>, and others to other circulating endemic coronaviruses (HCoVs)<citation>14</citation>. Others are from distal parts of the SARS-CoV-2 genome itself<citation>15</citation>.
+    </simpara>
+    <simpara>
+        But those sources leave many insertions unaccounted for. SARS-CoV-2 enters the body and first starts infecting cells at mucosal surfaces which are inhabited by a diverse community of trillions of bacteria<citation>23</citation>.
+    </simpara>
+    <simpara>
+        A clue that under some circumstances bacteria might be contributing short genetic sequences is to look at dinucleotide composition <citation>24</citation>. The following graphs show the dinucleotide composition of the insertions from human sequences in GISAID (filtered as described <link linkend="quant_sig">below</link>) together with that of some potential sources. Note that the CG content of the insertions is higher than that in either the human genome or that of other HCoVs, consistent with some of their having come from bacteria like the three <emphasis>actinomyces</emphasis> species on the right-hand graphs.
+    </simpara>
+    <para>
+        <figure>
+            <title>Dinucleotide compositions of insertions and potential sources</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="./CG.svg"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
+    </para>
+    <simpara>
+        This is a clue, but we shall see in later sections stronger statistical
+        associations between the insertions and bacteria in the human oral
+        microbiota, adding weight to this hypothesis.
+    </simpara>
+    <simpara>
+        It is not known what the exact mechanism is by
+        which bacterial RNA might end up in the same place at the same time as
+        SARS-CoV-2 replication. One possibility is that the bacteria themselves get inside the cell. <emphasis>Tannerella forsythia</emphasis> and <emphasis>treponema denticola</emphasis> for example invade epithelial cells<citation>16</citation><citation>20</citation>, which may also increase their susceptibility to SARS-CoV-2 infection<citation>17</citation><citation>18</citation><citation>19</citation>.
+    </simpara>
+    <simpara>
+        When bacteria replicate inside cells they use RNA primers of about 12 nucleotides in length<citation>21</citation> (which actually seems a very "popular" size for these insertions, including the furin cleavage site itself). Although you would expect the bacterial cell membrane to isolate it from any viral replication that might be occurring in the same cell, there may be situations in which the bacterium has recently been lysed.
+    </simpara>
+    <simpara>
+    SARS-CoV-2 can also sometimes infect phagocytic immune cells<citation>25</citation>, which might already contain bacteria or material from them. Normally that should be contained within the lysosome, but there may be circumstances in which that containment breaks down.
+    </simpara>
+    <simpara>
+        Another possibility is that SARS-CoV-2 is actually infecting bacteria<citation>22</citation> although I consider this less likely as coronaviruses are highly adapted to replicate inside eukaryotic cells<citation>13</citation>.
+        </simpara>
+</section>
+
+<section>
+    <title>Matches in gram-positive actinomyces</title>
+    <simpara>
+        Out of the over 700<citation>1</citation> species of oral bacteria, we are going to focus on three of them: <emphasis>actinomyces naeslundii</emphasis>, <emphasis>actinomyces viscosus</emphasis> and <emphasis>actinomyces israelii</emphasis>.
+    </simpara>
+    <simpara>
+        A number of insertions from GISAID match in these species with between 3 and 6 nucleotides of sequence identity outside the match. Here is an example from <emphasis>actinomyces naeslundii</emphasis>:
+    </simpara>
+    <figure id="fig1">
+        <title>Insertion at 22204</title>
+        <mediaobject>
+            <imageobject>
+                <imagedata fileref="./26632.svg"/>
+            </imageobject>
+        </mediaobject>
+    </figure>
+    <simpara>
+        The pattern highlighted in red is the insertion into SARS-CoV-2, shown here in context, in other words, inserted at position 22204. The other genome aligned with it is that of <emphasis>actinomyces naeslundii</emphasis>, shown as its reverse complement in this example, because the insertion matches on the negative strand. The pattern highlighted in blue shows that there are five nucleotides of sequence identity on one side of the insertion. These nucleotides shown in blue are not part of the insertion itself, but they match in both genomes outside it, at the place where they align.
+    </simpara>
+    <simpara>
+        The exact mechanism by which these insertions happen is not known<citation>11</citation>. It is likely to involve template-switching events, similar to those involved in recombination, which may be made more likely by adjacent sequence similarity<citation>12</citation>, as seen in this example. Further analysis below has found a significantly elevated frequency of adjacent sequence similarity between SARS-CoV-2 and the hypothesized origin of some of these insertions.
+    </simpara>
+    <simpara>
+        A widely used program called BLAST<citation>2</citation> generates a value called an <emphasis>E-value</emphasis> which is supposed to be an estimate of how often we would expect to find a particular sequence in a genome, or set of genomes, by chance. In this case the E-value of the 12 nucleotides of the insertion itself in this genome is 0.31. This is not highly significant. You would not expect it to be as such a short pattern is reasonably likely to match in a 3152123-nucleotide-long bacterial genome. However, the E-value for all 17 nucleotides, including the 5 nucleotides before the insert, is much more significant, at 0.000244.
+    </simpara>
+    <simpara>
+        Both E-values are included in the table of examples below: that for the insertion itself, and for the insertion plus the sequence identity outside it. Note that an E-value is always a function of two things: what you are looking for, and where you are looking for it. The smaller the needle, or the larger the haystack, the more times you will expect to find it (i.e. the higher an E you will get) "just by chance".</simpara>
+    <simpara>
+        Also included in the table are the number of insertions found at each position. The higher the number the more likely this is to be a real insertion and not some kind of sequencing artefact. This is because it's likely that the SARS-CoV-2 genome will only "tolerate" insertions in particular locations. It is also possible that particular locations are more susceptible to insertions due to RNA structure. But whatever the reasons are, sequencing artefacts would be unlikely to cluster by location, because something that wasn't a real insertion wouldn't be expected to have any association with location.
+    </simpara>
+    <simpara>
+        The number of sequences in GISAID in which each insertion appeared is also included. The more sequences an insertion appears in, the more likely it is to be a real insertion and not an artefact.
+    </simpara>
+    <para>
+    <informaltable id="table">
+        <tgroup cols="10">
+            <colspec/>
+            <colspec colwidth="8em"/>
+            <colspec colwidth="12em"/>
+            <colspec/>
+            <colspec/>
+            <colspec/>
+            <colspec/>
+            <colspec/>
+            <colspec/>
+            <colspec/>
+            <thead>
+                <row>
+                    <entry>Species</entry>
+                    <entry>Insertion</entry>
+                    <entry>Entire Match</entry>
+                    <entry>Number of insertions here</entry>
+                    <entry>Number of sequences</entry>
+                    <entry>Position</entry>
+                    <entry>Number of matching nts ahead</entry>
+                    <entry>Number of matching nts behind</entry>
+                    <entry>E (insertion only)</entry>
+                    <entry>E (entire match)</entry>
+                </row>
+            </thead>
+            <tbody>
+
+
+	<row>
+		   <entry><emphasis>naesl.</emphasis></entry>
+		   <entry>CACCGACTGCCC</entry>
+		   <entry>CACCGACTGCCCAGCCCA</entry>
+		   <entry>1</entry>
+		   <entry>1</entry>
+		   <entry>4118</entry>
+		   <entry>0</entry>
+		   <entry>6</entry>
+		   <entry>0.31</entry>
+		   <entry>0.000244</entry>
+	</row>
+
+	<row>
+		   <entry><emphasis>naesl.</emphasis></entry>
+		   <entry>TGGCGGCGGCGG</entry>
+		   <entry>CGAGCTTGGCGGCGGCGG</entry>
+		   <entry>288</entry>
+		   <entry>3</entry>
+		   <entry>22204</entry>
+		   <entry>6</entry>
+		   <entry>0</entry>
+		   <entry>0.31</entry>
+		   <entry>0.000244</entry>
+	</row>
+
+	<row>
+		   <entry><emphasis>naesl.</emphasis></entry>
+		   <entry>CAGTGTGAAGAA</entry>
+		   <entry>CAGTGTGAAGAACAGGT</entry>
+		   <entry>288</entry>
+		   <entry>1</entry>
+		   <entry>22204</entry>
+		   <entry>0</entry>
+		   <entry>5</entry>
+		   <entry>0.31</entry>
+		   <entry>0.000803</entry>
+	</row>
+
+	<row>
+		   <entry><emphasis>israel.</emphasis></entry>
+		   <entry>GTCCTGGCTGGG</entry>
+		   <entry>ATCATGTCCTGGCTGGG</entry>
+		   <entry>36</entry>
+		   <entry>1</entry>
+		   <entry>27300</entry>
+		   <entry>0</entry>
+		   <entry>5</entry>
+		   <entry>0.39</entry>
+		   <entry>0.001</entry>
+	</row>
+
+	<row>
+		   <entry><emphasis>israel.</emphasis></entry>
+		   <entry>GTCCACGGTCTG</entry>
+		   <entry>GTCCACGGTCTGCCTC</entry>
+		   <entry>4</entry>
+		   <entry>5</entry>
+		   <entry>23603</entry>
+		   <entry>4</entry>
+		   <entry>0</entry>
+		   <entry>0.39</entry>
+		   <entry>0.003</entry>
+	</row>
+
+	<row>
+		   <entry><emphasis>visc.</emphasis></entry>
+		   <entry>GCGTGCCGTGCA</entry>
+		   <entry>AGCAGCGTGCCGTGCA</entry>
+		   <entry>261</entry>
+		   <entry>1</entry>
+		   <entry>18</entry>
+		   <entry>4</entry>
+		   <entry>0</entry>
+		   <entry>0.34</entry>
+		   <entry>0.003</entry>
+	</row>
+
+	<row>
+		   <entry><emphasis>visc.</emphasis></entry>
+		   <entry>CACGGGCGGCGG</entry>
+		   <entry>TGCGCACGGGCGGCGG</entry>
+		   <entry>288</entry>
+		   <entry>2</entry>
+		   <entry>22204</entry>
+		   <entry>0</entry>
+		   <entry>4</entry>
+		   <entry>0.34</entry>
+		   <entry>0.003</entry>
+	</row>
+
+	<row>
+		   <entry><emphasis>israel.</emphasis></entry>
+		   <entry>TCCTGCCGCTGT</entry>
+		   <entry>GTGTTCCTGCCGCTGT</entry>
+		   <entry>100</entry>
+		   <entry>1</entry>
+		   <entry>21608</entry>
+		   <entry>0</entry>
+		   <entry>4</entry>
+		   <entry>0.39</entry>
+		   <entry>0.003</entry>
+	</row>
+
+	<row>
+		   <entry><emphasis>naesl.</emphasis></entry>
+		   <entry>CGGGCGACGCGG</entry>
+		   <entry>TCGGGCGACGCGGAGT</entry>
+		   <entry>85</entry>
+		   <entry>2</entry>
+		   <entry>22198</entry>
+		   <entry>3</entry>
+		   <entry>1</entry>
+		   <entry>0.31</entry>
+		   <entry>0.003</entry>
+	</row>
+
+	<row>
+		   <entry><emphasis>naesl.</emphasis></entry>
+		   <entry>GCACACCGTGCG</entry>
+		   <entry>TGAGCACACCGTGCG</entry>
+		   <entry>1</entry>
+		   <entry>1</entry>
+		   <entry>20382</entry>
+		   <entry>3</entry>
+		   <entry>0</entry>
+		   <entry>0.31</entry>
+		   <entry>0.008</entry>
+	</row>
+
+	<row>
+		   <entry><emphasis>israel.</emphasis></entry>
+		   <entry>GCACCAGCACCT</entry>
+		   <entry>CTGGCACCAGCACCT</entry>
+		   <entry>4</entry>
+		   <entry>2</entry>
+		   <entry>15827</entry>
+		   <entry>0</entry>
+		   <entry>3</entry>
+		   <entry>0.39</entry>
+		   <entry>0.009</entry>
+	</row>
+
+	<row>
+		   <entry><emphasis>israel.</emphasis></entry>
+		   <entry>TCCGAGCCCACG</entry>
+		   <entry>TCCGAGCCCACGCAG</entry>
+		   <entry>1</entry>
+		   <entry>1</entry>
+		   <entry>14314</entry>
+		   <entry>3</entry>
+		   <entry>0</entry>
+		   <entry>0.39</entry>
+		   <entry>0.009</entry>
+	</row>
+
+	<row>
+		   <entry><emphasis>visc.</emphasis></entry>
+		   <entry>GGGCTGGGCGGG</entry>
+		   <entry>GCGGGGCTGGGCGGG</entry>
+		   <entry>288</entry>
+		   <entry>1</entry>
+		   <entry>22204</entry>
+		   <entry>0</entry>
+		   <entry>3</entry>
+		   <entry>0.34</entry>
+		   <entry>0.008</entry>
+	</row>
+
+	<row>
+		   <entry><emphasis>visc.</emphasis></entry>
+		   <entry>CCGCTCGCGTCG</entry>
+		   <entry>TCGCCGCTCGCGTCG</entry>
+		   <entry>29</entry>
+		   <entry>2</entry>
+		   <entry>26184</entry>
+		   <entry>3</entry>
+		   <entry>0</entry>
+		   <entry>0.34</entry>
+		   <entry>0.008</entry>
+	</row>
+
+	<row>
+		   <entry><emphasis>israel.</emphasis></entry>
+		   <entry>AGCGCGGCTGGG</entry>
+		   <entry>GTCAGCGCGGCTGGGT</entry>
+		   <entry>2</entry>
+		   <entry>1</entry>
+		   <entry>26043</entry>
+		   <entry>3</entry>
+		   <entry>1</entry>
+		   <entry>0.39</entry>
+		   <entry>0.003</entry>
+	</row>
+
+	<row>
+		   <entry><emphasis>visc.</emphasis></entry>
+		   <entry>GGAGCGCGCGAG</entry>
+		   <entry>GCGGGAGCGCGCGAG</entry>
+		   <entry>288</entry>
+		   <entry>1</entry>
+		   <entry>22204</entry>
+		   <entry>0</entry>
+		   <entry>3</entry>
+		   <entry>0.34</entry>
+		   <entry>0.008</entry>
+	</row>
+
+	<row>
+		   <entry><emphasis>israel.</emphasis></entry>
+		   <entry>GCTGAGGAACGC</entry>
+		   <entry>CGGGCTGAGGAACGC</entry>
+		   <entry>2</entry>
+		   <entry>1</entry>
+		   <entry>27240</entry>
+		   <entry>3</entry>
+		   <entry>0</entry>
+		   <entry>0.39</entry>
+		   <entry>0.009</entry>
+	</row>
+
+	<row>
+		   <entry><emphasis>naesl.</emphasis></entry>
+		   <entry>AGTCTTCGCTGG</entry>
+		   <entry>AAGTCTTCGCTGGAGA</entry>
+		   <entry>2</entry>
+		   <entry>19</entry>
+		   <entry>6425</entry>
+		   <entry>1</entry>
+		   <entry>3</entry>
+		   <entry>0.31</entry>
+		   <entry>0.003</entry>
+	</row>
+
+	<row>
+		   <entry><emphasis>visc.</emphasis></entry>
+		   <entry>CTGGCGCGCGTC</entry>
+		   <entry>GACCTGGCGCGCGTCT</entry>
+		   <entry>472</entry>
+		   <entry>1</entry>
+		   <entry>17</entry>
+		   <entry>3</entry>
+		   <entry>1</entry>
+		   <entry>0.34</entry>
+		   <entry>0.003</entry>
+	</row>
+
+	<row>
+		   <entry><emphasis>visc.</emphasis></entry>
+		   <entry>CAGTGCGGCTTG</entry>
+		   <entry>GACCAGTGCGGCTTGCC</entry>
+		   <entry>1</entry>
+		   <entry>1</entry>
+		   <entry>6628</entry>
+		   <entry>3</entry>
+		   <entry>2</entry>
+		   <entry>0.34</entry>
+		   <entry>0.000889</entry>
+	</row>
+
+	<row>
+		   <entry><emphasis>naesl.</emphasis></entry>
+		   <entry>TGGCTGAGCCGG</entry>
+		   <entry>TGATGGCTGAGCCGG</entry>
+		   <entry>3</entry>
+		   <entry>1</entry>
+		   <entry>25057</entry>
+		   <entry>0</entry>
+		   <entry>3</entry>
+		   <entry>0.31</entry>
+		   <entry>0.008</entry>
+	</row>
+
+	<row>
+		   <entry><emphasis>visc.</emphasis></entry>
+		   <entry>CTCTCGCTGCGC</entry>
+		   <entry>CAGCTCTCGCTGCGC</entry>
+		   <entry>72</entry>
+		   <entry>1</entry>
+		   <entry>24</entry>
+		   <entry>0</entry>
+		   <entry>3</entry>
+		   <entry>0.34</entry>
+		   <entry>0.008</entry>
+	</row>
+
+	<row>
+		   <entry><emphasis>naesl.</emphasis></entry>
+		   <entry>GGCGGCGGCGAG</entry>
+		   <entry>GATGGCGGCGGCGAG</entry>
+		   <entry>1</entry>
+		   <entry>2</entry>
+		   <entry>11581</entry>
+		   <entry>3</entry>
+		   <entry>0</entry>
+		   <entry>0.31</entry>
+		   <entry>0.008</entry>
+	</row>
+
+	<row>
+		   <entry><emphasis>naesl.</emphasis></entry>
+		   <entry>CCACGGTCTGGT</entry>
+		   <entry>CCACGGTCTGGTTCG</entry>
+		   <entry>4</entry>
+		   <entry>1</entry>
+		   <entry>23605</entry>
+		   <entry>3</entry>
+		   <entry>0</entry>
+		   <entry>0.31</entry>
+		   <entry>0.008</entry>
+	</row>
+
+	<row>
+		   <entry><emphasis>israel.</emphasis></entry>
+		   <entry>GCTCAGCGTCAG</entry>
+		   <entry>ACCGCTCAGCGTCAG</entry>
+		   <entry>2</entry>
+		   <entry>2</entry>
+		   <entry>610</entry>
+		   <entry>0</entry>
+		   <entry>3</entry>
+		   <entry>0.39</entry>
+		   <entry>0.009</entry>
+	</row>
+
+	<row>
+		   <entry><emphasis>naesl.</emphasis></entry>
+		   <entry>GTTCATGCCGCT</entry>
+		   <entry>GTGGTTCATGCCGCT</entry>
+		   <entry>42</entry>
+		   <entry>6</entry>
+		   <entry>21607</entry>
+		   <entry>0</entry>
+		   <entry>3</entry>
+		   <entry>0.31</entry>
+		   <entry>0.008</entry>
+	</row>
+
+	<row>
+		   <entry><emphasis>israel.</emphasis></entry>
+		   <entry>GCGCCTCCGCCC</entry>
+		   <entry>TGCGCCTCCGCCCTGT</entry>
+		   <entry>261</entry>
+		   <entry>1</entry>
+		   <entry>18</entry>
+		   <entry>1</entry>
+		   <entry>3</entry>
+		   <entry>0.39</entry>
+		   <entry>0.003</entry>
+	</row>
+
+	<row>
+		   <entry><emphasis>israel.</emphasis></entry>
+		   <entry>TCACGCCGCTGT</entry>
+		   <entry>TGTTCACGCCGCTGT</entry>
+		   <entry>100</entry>
+		   <entry>16</entry>
+		   <entry>21608</entry>
+		   <entry>0</entry>
+		   <entry>3</entry>
+		   <entry>0.39</entry>
+		   <entry>0.009</entry>
+	</row>
+
+	<row>
+		   <entry><emphasis>naesl.</emphasis></entry>
+		   <entry>CCCGGGAGCCGG</entry>
+		   <entry>ATTCCCGGGAGCCGG</entry>
+		   <entry>18</entry>
+		   <entry>3</entry>
+		   <entry>22193</entry>
+		   <entry>0</entry>
+		   <entry>3</entry>
+		   <entry>0.31</entry>
+		   <entry>0.008</entry>
+	</row>
+            </tbody>
+
+
+        </tgroup>
+    </informaltable>
+    </para>
+</section>
+
+<section id="quant_sig">
+    <title>Quantifying the significance of the adjacent sequence identity</title>
+    <simpara>
+        Since these insertions are mostly short (12 nucleotides) many of them will match in other genomes, which may or may not be possible alternative candidates for where they originated. We can look at how much sequence identity we find <emphasis>outside and adjacent to</emphasis> the insertions in these matches in these other genomes, and use this as a reference to estimate how unusual the level of sequence identity found in the bacterial matches is.
+    </simpara>
+    <simpara>
+        Two genomes were chosen for comparison: that of atlantic cod (<emphasis>gadus morhua</emphasis> NC_044048.1), because this is surely not a source for insertions into human sequences in GISAID, and the human genome (<emphasis>homo sapiens</emphasis> NC_000001.11) which probably is a source for some of them.
+    </simpara>
+    <simpara>
+        The complete set of 90771 insertions were first filtered according to
+        the following criteria:
+    </simpara>
+    <para>
+        <orderedlist>
+            <listitem>
+                <simpara>
+                    Minimum length 12 nucleotides (12 is the length we are interested in, any shorter will add noise by increasing the number of random matches).
+                </simpara>
+            </listitem>
+            <listitem>
+                <simpara>
+                    Maximum length 24 nucleotides (we're interested in shorter insertions).
+                </simpara>
+            </listitem>
+            <listitem>
+                <simpara>
+                    Position less than 29870 ("insertions" right at the end are more likely to be artefacts).
+                </simpara>
+            </listitem>
+            <listitem>
+                <simpara>
+                    Not a mononucleotide repeat (these will match in genomes like cod or human with high sequence identity outside).
+                </simpara>
+            </listitem>
+            <listitem>
+                <simpara>
+                    Does not contain a dinucleotide repeat of 5 or more repeats (same reason we excluded mononucleotide repeats).
+                </simpara>
+            </listitem>
+            <listitem>
+                <simpara>
+                    Length is a multiple of 3 (inserts that aren't a multiple of 3 will break the coding sequence downstream of them and are therefore more likely to be artefacts).
+                </simpara>
+            </listitem>
+            <listitem>
+                <simpara>
+                    Is not an exact match in Wuhan-Hu-1 (we're looking for other sources besides Wuhan-Hu-1).
+                </simpara>
+            </listitem>
+            <listitem>
+                <simpara>
+                    Appears in two or more GISAID sequences (artefacts are less likely to do this).
+                </simpara>
+            </listitem>
+            <listitem>
+                <simpara>
+                    Shares its location with two or more other inserts that
+                    appear in two or more GISAID sequences (artefacts are much less likely to do this).
+                </simpara>
+            </listitem>
+        </orderedlist>
+    </para>
+
+    <simpara>
+        After filtering, there were 2727 insertions, and 144044 matches in cod,
+        and 235614 in human
+        (these numbers are much bigger than 2727 because the same insert often
+        matches in multiple places). The following frequencies of different
+        amounts of sequence identity either side of the matches were found:
+    </simpara>
+
+    <para>
+<informaltable>
+	<tgroup cols="3">
+		<thead>
+			<row>
+				<entry>Min number of matching nucleotides outside the insertion</entry>
+				<entry>Occurrences in cod</entry>
+				<entry>Occurrences in human</entry>
+			</row>
+		</thead>
+		<tbody>
+			<row>
+				<entry>3</entry>
+				<entry>1312/144044</entry>
+				<entry>7174/235614</entry>
+			</row>
+
+			<row>
+				<entry>4</entry>
+				<entry>404/144044</entry>
+				<entry>2380/235614</entry>
+			</row>
+
+			<row>
+				<entry>5</entry>
+				<entry>123/144044</entry>
+				<entry>629/235614</entry>
+			</row>
+
+			<row>
+				<entry>6</entry>
+				<entry>41/144044</entry>
+				<entry>184/235614</entry>
+			</row>
+</tbody>
+	</tgroup>
+</informaltable>
+    <simpara>
+        An additional "control" called "randomized self" was constructed as follows: for each of the insertions that matched the filters described above, the nucleotides in it were replaced with a random string of nucleotides the same length (made by picking randomly from the distribution of the four bases found in all of the insertions matching the filters). This was then treated as if it had been an insertion in the same location as the original. Those randomized insertions were matched up in each of the <emphasis>actinomyces</emphasis> genomes and the frequencies of 3, 4, 5 and 6 nucleotide-long sequence identities outside the "insertions" counted. 
+    </simpara>
+    <simpara>
+        The rationale here is that we are trying to measure whether the content of the insertion reveals anything about its origin. By randomizing the content, but keeping everything else the same, we can get a measure of how often we would expect to find rates of 3, 4, 5, and 6 nucleotide sequence identity outside the insertion under the null hypothesis that the insertion did not originate in the genome we're looking at.
+    </simpara>
+    <simpara>
+        Because those rates are quite low, the randomization process was repeated 500 times for each genome. Those expected frequencies were used to calculate the odds ratios and p-values in the "Comparison with randomized self" columns in the table below. 
+    </simpara>
+
+    </para>
+    <simpara>
+        There were significant results for all three <emphasis>actinomyces</emphasis> species, with the highest significance found for <emphasis>a.naeslundii</emphasis>.
+    </simpara>
+
+    <para>
+        <informaltable>
+            <tgroup cols="5">
+                <thead>
+                    <row>
+                        <entry>
+                            Minimum number of matching nucleotides outside the insertion
+                        </entry>
+                        <entry>
+                            Occurrences in <emphasis>a.naeslundii</emphasis>
+                        </entry>
+                        <entry>
+                            Comparison with cod
+                        </entry>
+                        <entry>
+                            Comparison with human
+                        </entry>
+                        <entry>
+                            Comparison with randomized self
+                        </entry>
+                    </row>
+                </thead>
+                <tbody>
+                    <row><entry>3</entry>
+                        <entry>15/160</entry>
+                        <entry>OR=11.25/p=3.4&#xd7;10<superscript>11</superscript></entry>
+                        <entry>OR=3.29/p=0.00013</entry>
+                        <entry>OR=3.30/p=0.00013</entry>
+                    </row>
+                    <row><entry>4</entry>
+                        <entry>4/160</entry>
+                        <entry>OR=9.12/p=0.0012</entry>
+                        <entry>OR=2.51/p=0.08</entry>
+                        <entry>OR=3.27/p=0.038</entry>
+                    </row>
+                    <row><entry>5</entry>
+                        <entry>1/160</entry>
+                        <entry>OR=7.36/p=0.13</entry>
+                        <entry>OR=2.35/p=0.35</entry>
+                        <entry>OR=3.00/p=0.29</entry>
+                    </row>
+                    <row><entry>6</entry>
+                        <entry>1/160</entry>
+                        <entry>OR=22.09/p=0.046</entry>
+                        <entry>OR=8.05/p=0.12</entry>
+                        <entry>OR=13.38/p=0.076</entry>
+                    </row>
+                </tbody>
+            </tgroup>
+        </informaltable>
+        <informaltable>
+            <tgroup cols="5">
+                <thead>
+                    <row>
+                        <entry>
+                            Minimum number of matching nucleotides outside the insertion
+                        </entry>
+                        <entry>
+                            Occurrences in <emphasis>a.israelii</emphasis>
+                        </entry>
+                        <entry>
+                            Comparison with cod
+                        </entry>
+                        <entry>
+                            Comparison with human
+                        </entry>
+                        <entry>
+                            Comparison with randomized self
+                        </entry>
+                    </row>
+                </thead>
+                <tbody>
+                    <row><entry>3</entry>
+                        <entry>10/193</entry>
+                        <entry>OR=5.94/p=1.4&#xd7;10<superscript>5</superscript></entry>
+                        <entry>OR=1.74/p=0.073</entry>
+                        <entry>OR=1.64/p=0.097</entry>
+                    </row>
+                    <row><entry>4</entry>
+                        <entry>2/193</entry>
+                        <entry>OR=3.72/p=0.1</entry>
+                        <entry>OR=1.03/p=0.58</entry>
+                        <entry>OR=1.24/p=0.48</entry>
+                    </row>
+                    <row><entry>5</entry>
+                        <entry>0/193</entry>
+                        <entry>OR=0.00/p=1</entry>
+                        <entry>OR=0.00/p=1</entry>
+                        <entry>OR=0.00/p=1</entry>
+                    </row>
+                    <row><entry>6</entry>
+                        <entry>0/193</entry>
+                        <entry>OR=0.00/p=1</entry>
+                        <entry>OR=0.00/p=1</entry>
+                        <entry>OR=0.00/p=1</entry>
+                    </row>
+                </tbody>
+            </tgroup>
+        </informaltable>
+        <informaltable>
+            <tgroup cols="5">
+                <thead>
+                    <row>
+                        <entry>
+                            Minimum number of matching nucleotides outside the insertion
+                        </entry>
+                        <entry>
+                            Occurrences in <emphasis>a.viscosus</emphasis>
+                        </entry>
+                        <entry>
+                            Comparison with cod
+                        </entry>
+                        <entry>
+                            Comparison with human
+                        </entry>
+                        <entry>
+                            Comparison with randomized self
+                        </entry>
+                    </row>
+                </thead>
+                <tbody>
+                    <row><entry>3</entry>
+                        <entry>6/191</entry>
+                        <entry>OR=3.53/p=0.0086</entry>
+                        <entry>OR=1.03/p=0.53</entry>
+                        <entry>OR=1.02/p=0.54</entry>
+                    </row>
+                    <row><entry>4</entry>
+                        <entry>3/191</entry>
+                        <entry>OR=5.67/p=0.017</entry>
+                        <entry>OR=1.56/p=0.3</entry>
+                        <entry>OR=2.04/p=0.19</entry>
+                    </row>
+                    <row><entry>5</entry>
+                        <entry>1/191</entry>
+                        <entry>OR=6.16/p=0.15</entry>
+                        <entry>OR=1.97/p=0.4</entry>
+                        <entry>OR=2.39/p=0.34</entry>
+                    </row>
+                    <row><entry>6</entry>
+                        <entry>0/191</entry>
+                        <entry>OR=0.00/p=1</entry>
+                        <entry>OR=0.00/p=1</entry>
+                        <entry>OR=0.00/p=1</entry>
+                    </row>
+                </tbody>
+            </tgroup>
+        </informaltable>
+    </para>
+    <simpara>
+        The odds ratios above are presented graphically below, together with additional results (not listed in the tables) for <emphasis>treponema denticola</emphasis>, <emphasis>porphyromonas gingivalis</emphasis>, <emphasis>tannerella forsythia</emphasis> and <emphasis>aggregatibacter actinomycetemcomitans</emphasis>. In each graph the odds ratio of 1.0 is marked with a red line. The higher the odds ratio the more adjacent sequence identity we found in the places the insertions matched between that species of bacterium and that reference.
+    </simpara>
+    <simpara>
+        It's interesting that the more "alien" genome of cod provides the lowest
+        adjacent sequence identity. We might expect this compared to human
+        because it's likely some insertions actually are coming from the human
+        genome. But randomized insertions in bacteria still score generally
+        higher than the actual insertions in cod. This is likely due to more
+        "compatibility" between codon usage and/or dinucleotide bias in the
+        bacterial genomes and that of SARS-CoV-2.
+    </simpara>
+    <para>
+        <figure>
+            <title>ORs for comparisons with cod, human and randomized self</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="./fig1.svg"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
+    </para>
+
+    <simpara>
+        These results indicate with some confidence that <emphasis>a.naeslundii</emphasis> (or something closely related to it) is a source of the some of the insertions in the human sequences found in GISAID since the start of the pandemic. It looks as though <emphasis>a.israelii</emphasis> and <emphasis>a.viscosus</emphasis> may also have contributed some, although these results have lower significance. However, if <emphasis>a.naeslundii</emphasis> can contribute insertions, it is likely that the other two can as well, even if this has happened too infrequently so far to be detectable with high confidence.
+    </simpara>
+
+    </section>
+
+<section>
+    <title>The furin cleavage site insertion</title>
+    <simpara>
+        The FCS is a 12 nucleotide insertion of the sequence
+        CTCCTCGGCGGG at position 23601, very similar to those in the table
+        above, that has six contiguous nucleotides of sequence identity with
+        <emphasis>
+        actinomyces israelii
+    </emphasis>
+    on one side of the site.
+    </simpara>
+    <figure id="fig2">
+        <title>Furin cleavage site insertion</title>
+        <mediaobject>
+            <imageobject>
+                <imagedata fileref="./fcs.svg"/>
+            </imageobject>
+        </mediaobject>
+    </figure>
+    <simpara>
+        The E-value for the insertion in <emphasis>actinomyces israelii</emphasis> together with the six matching nucleotides is 3&#xd7;10<superscript>-4</superscript>. The additional matching "TG" separated from the six-nucleotide adjacent identity (CACGTA) has not been used in this analysis as in the insertions and controls I am only counting strictly adjacent identity.
+    </simpara>
+    <simpara>
+        This is a significant match, and the full 18 nucleotide sequence is not
+        found anywhere in the human genome <footnote>or in those of raccoon dog (<emphasis>nyctereutes procyonoides</emphasis>), bat (<emphasis>myotis davidii</emphasis>), or pangolin (<emphasis>manis javanica</emphasis>)</footnote>. The best match in human is 14 of the 18, with an E value of 21. Note however that you can
+        expect to find <emphasis>any</emphasis> 18 nucleotide sequence about 2.74% of the time in a genome as large as the
+    human one, and you will find these 18 nucleotides in lots of other places if
+    you BLAST against all of the genomes known to science (but with high
+    E-values, because the "haystack" is so big). The key point here is that we
+    have a three-way assocation. Other insertions in actual human sequences, and
+    the additional matching nucleotides outside them, show a highly significant
+    association with these bacteria. That independent observation leads us to a much
+    smaller haystack.
+    </simpara>
+    <simpara>
+        It is hard to estimate an absolute confidence level for the proposition that the FCS actually did originate in <emphasis>actinomyces israelii</emphasis>. But we can use the odds ratio estimated above as a Bayes factor for a weaker hypothesis (which does not rely on E values at all). We have 6 nucleotides of sequence identity after the FCS insertion, which is ~10 times more likely under the hypothesis that it came from the same source as multiple other insertions in human sequences since the start of the pandemic than that it came from somewhere else and the adjacent sequence identity is just a coincidence.
+    </simpara>
+    <simpara>
+        Informally we can express this as: if all those insertions that look just like the FCS came from these (or similar) bacteria, then why not the FCS itself? Suddenly it doesn't look very unusual at all any more.
+    </simpara>
+</section>
+
+<section>
+    <title>Possible origin of high frequency of CTCCTCGGCGGG in <emphasis>actinomyces</emphasis></title>	
+    <simpara>
+        The furin cleavage site pattern (CTCCTCGGCGGG) appears 9 times in <emphasis>a.naeslundii</emphasis>, 19 times in <emphasis>a.israelii</emphasis> and 10 times in <emphasis>a.viscosus</emphasis>. The BLAST E-values are 0.31, 0.39 and 0.34. In other words, it appears 29 times, 48 times and 29 times more often than we might expect in each of these three genomes respectively, and far more frequently than it does in the genomes of, for example, human, or other mammals.
+    </simpara>
+    <simpara>
+        This fact by itself doesn't mean it originated in any of these genomes (the reasons for thinking it might have have already been discussed). But it's worth investigating, and it might help us to understand whether, if the origin is not <emphasis>a.israelii</emphasis>, it might still be more likely to be a related bacterial source than something else.
+    </simpara>
+    <para>
+        <figure>
+            <title>Frequency of CTCCTCGGCGGG in genomes of interest</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="./fig2.svg"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
+    </para>
+    <simpara>
+        All 19 occurrences of the pattern in <emphasis>a.naeslundii</emphasis> are frame-aligned and code for either the amino acid sequence Leu-Leu-Gly-Gly or, more often, Pro-Ala-Glu-Glu, since the pattern more often appears on the negative strand (or in a reverse complement coding sequence on the positive strand). As the alignment below shows, there is generally little sequence identity outside the pattern itself.
+    </simpara>
+    <para>
+        <figure>
+            <title>Alignment of occurrences of CTCCTCGGCGGG in <emphasis>a.israelii</emphasis></title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="./fig3.svg"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
+    </para>
+    <para>
+        <informaltable>
+            <tgroup cols="3">
+                <thead>
+                    <row>
+                        <entry>Location</entry>
+                        <entry>Strand</entry>
+                        <entry>Amino acid</entry>
+                    </row>
+                </thead>
+                <tbody>
+                    <row>
+                        <entry>1821627</entry>
+                        <entry>+</entry>
+                        <entry>Pro-Ala-Glu-Glu</entry>
+                    </row>
+                    <row>
+                        <entry>2341829</entry>
+                        <entry>+</entry>
+                        <entry>Pro-Ala-Glu-Glu</entry>
+                    </row>
+                    <row>
+                        <entry>2405018</entry>
+                        <entry>+</entry>
+                        <entry>Leu-Leu-Gly-Gly</entry>
+                    </row>
+                    <row>
+                        <entry>2751737</entry>
+                        <entry>+</entry>
+                        <entry>Pro-Ala-Glu-Glu</entry>
+                    </row>
+                    <row>
+                        <entry>3383987</entry>
+                        <entry>+</entry>
+                        <entry>Pro-Ala-Glu-Glu</entry>
+                    </row>
+                    <row>
+                        <entry>3582148</entry>
+                        <entry>+</entry>
+                        <entry>Pro-Ala-Glu-Glu</entry>
+                    </row>
+                    <row>
+                        <entry>3634022</entry>
+                        <entry>+</entry>
+                        <entry>Pro-Ala-Glu-Glu</entry>
+                    </row>
+                    <row>
+                        <entry>3810985</entry>
+                        <entry>+</entry>
+                        <entry>Leu-Leu-Gly-Gly</entry>
+                    </row>
+                    <row>
+                        <entry>3927580</entry>
+                        <entry>+</entry>
+                        <entry>Pro-Ala-Glu-Glu</entry>
+                    </row>
+                    <row>
+                        <entry>3884975</entry>
+                        <entry>-</entry>
+                        <entry>Pro-Ala-Glu-Glu</entry>
+                    </row>
+                    <row>
+                        <entry>2529147</entry>
+                        <entry>-</entry>
+                        <entry>Pro-Ala-Glu-Glu</entry>
+                    </row>
+                    <row>
+                        <entry>2030306</entry>
+                        <entry>-</entry>
+                        <entry>Pro-Ala-Glu-Glu</entry>
+                    </row>
+                    <row>
+                        <entry>1903246</entry>
+                        <entry>-</entry>
+                        <entry>Pro-Ala-Glu-Glu</entry>
+                    </row>
+                    <row>
+                        <entry>929102</entry>
+                        <entry>-</entry>
+                        <entry>Pro-Ala-Glu-Glu</entry>
+                    </row>
+                    <row>
+                        <entry>857634</entry>
+                        <entry>-</entry>
+                        <entry>Pro-Ala-Glu-Glu</entry>
+                    </row>
+                    <row>
+                        <entry>424543</entry>
+                        <entry>-</entry>
+                        <entry>Pro-Ala-Glu-Glu</entry>
+                    </row>
+                    <row>
+                        <entry>291519</entry>
+                        <entry>-</entry>
+                        <entry>Pro-Ala-Glu-Glu</entry>
+                    </row>
+                </tbody>
+            </tgroup>
+        </informaltable>
+    </para>
+    <simpara>
+        The two facts that all the occurrences of the pattern are frame-aligned, and that there is little to no sequence identity between them outside the pattern, make it much more likely that the high frequency is a consequence of codon usage bias than because the pattern is, for example, part of a transposable element.
+    </simpara>
+    <simpara>
+        This means that although we have a significant match for the pattern and adjacent sequence identity in <emphasis>a.naeslundii</emphasis>, it is quite likely that equally good matches would appear in other species of bacteria with similar codon usage bias.
+    </simpara>
+    <simpara>
+        We know that <emphasis>a.naeslundii</emphasis> is present in an environment were we also find SARS-CoV-2&#x2014;the human mouth&#x2014;but we can't rule out that similar bacteria don't occupy another niche where we might find the virus in another animal.
+    </simpara>
+    <simpara>
+        However the hypothesis that SARS-CoV-2 acquired the FCS in a human host after a zoonotic infection from a bat is certainly a highly plausible one.
+    </simpara>
+</section>
+
+<section>
+    <title>Comparison with alternative FCS encodings</title>
+    <simpara>
+        Some variants of the lab leak hypothesis contend that the FCS might be an <emphasis>artificial</emphasis> insert in the sense that the particular choice of nucleotides encoding it was not made by nature, but by an engineer sitting at a computer. It has even been suggested that they were human codon-optimized <citation>3</citation>.
+    </simpara>
+    <simpara>
+        If the FCS was chosen like that it would be a coincidence if it showed the relationship to other natural insertions and to these <emphasis>actinomyces</emphasis> species that it does.
+    </simpara>
+    <simpara>
+        We can quantify this by running the same set of tests on alternative ways that 12 nucleotides could have been inserted to encode the same protein at this location. For example, instead of CTCCTCGGCGGG, the engineer might have chosen to insert CACCTCGGAGGG at the same location instead. The protein would then have still been Ser-Pro-Arg-Arg-Ala at that point. Altogether there are 575 other ways of encoding a 12 nucleotide insert to get the same FCS. It's likely that some of them will match up in our <emphasis>actinomyces</emphasis> genomes, but will they show the same sequence identity outside the places where they match?
+    </simpara>
+    <simpara>
+        Out of the 576 ways of encoding the same FCS, only one matches
+        <emphasis>
+        actinomyces israelii
+    </emphasis>
+        with higher adjacent sequence identity than the actual furin cleavage
+        site
+        insert. 157 of the 576 are equally as or more "human codon optimized" than
+        CTCCTCGGCGGG, using a simple
+        scoring system in which each codon, aligned as they are in SARS-CoV-2,
+        gets
+        a score equal to its inverse rank in the human codon frequency table. In
+        other words, the least frequent codon for a particular amino acid scores
+        0,
+        the next least frequent 1, etc.
+    </simpara>
+    <simpara>
+        None of those that are equally or more codon-optimized has as much adjacent sequence identity in <emphasis>a.israelii</emphasis> as the actual insert.
+    </simpara>
+    <simpara>
+        In other words: P(the observed FCS encoding)|(origin in <emphasis>a.israelii</emphasis>) &gt; P(the observed FCS encoding)|(origin not in <emphasis>a.israelii</emphasis>) by a factor of 575. P(the observed FCS encoding)|(lab origin with human codon optimization) &gt; P(the observed FCS encoding)|(not human codon optimized) by a factor of 3.7 (576/157). This gives us an overall Bayes factor in favour of the <emphasis>a.israelii</emphasis> hypothesis compared to the lab human-codon optimization hypothesis of 156.
+    </simpara>
+    <simpara>
+        This table shows some of the alternative encodings of the FCS that rank as equally or more human-codon optimized, sorted by total adjacent sequence identity between SARS-CoV-2 and <emphasis>a.israelii</emphasis> either side of the insertion. The complete table is in the supplement.
+    </simpara>
+    <para>
+        <informaltable>
+            <tgroup cols="3">
+                <thead>
+                    <row>
+                        <entry>FCS encoding</entry>
+                        <entry>Total adjacent sequence identity of best match in <emphasis>a.israelii</emphasis></entry>
+                        <entry>Human codon optimization score</entry>
+                    </row>
+                </thead>
+                <tbody>
+                    <row><entry>CTCCTCGGCGGG (actual FCS insertion)</entry><entry>6</entry><entry>8</entry></row>
+                    <row><entry>CTCCCCGGCGGG</entry><entry>5</entry><entry>9</entry></row>
+                    <row><entry>CTCCCCGCCGGG</entry><entry>5</entry><entry>8</entry></row>
+                    <row><entry>CTCCAAGACGGG</entry><entry>5</entry><entry>9</entry></row>
+                    <row><entry>CGCCCCGCAGGG</entry><entry>5</entry><entry>9</entry></row>
+                    <row><entry>CCCCAAGGAGGG</entry><entry>5</entry><entry>9</entry></row>
+                    <row><entry>CTCCCAGAAGAG</entry><entry>5</entry><entry>13</entry></row>
+                    <row><entry>CTCCCCGGCGCG</entry><entry>4</entry><entry>8</entry></row>
+                    <row><entry>CTCCAAGGAGGG</entry><entry>4</entry><entry>9</entry></row>
+                    <row><entry>CTCCGAGGAGGG</entry><entry>4</entry><entry>8</entry></row>
+                    <row><entry>CACCCCGGCGCG</entry><entry>4</entry><entry>8</entry></row>
+                    <row><entry>CACCACGGAGGG</entry><entry>4</entry><entry>8</entry></row>
+                    <row><entry>CGCCCCGGAGGG</entry><entry>4</entry><entry>10</entry></row>
+                    <row><entry>CGCCCCGGCGCG</entry><entry>4</entry><entry>8</entry></row>
+                    <row><entry>CGCCAAGGCGGG</entry><entry>4</entry><entry>8</entry></row>
+                    <row><entry>CGCCCAGGCGGG</entry><entry>4</entry><entry>10</entry></row>
+                    <row><entry>CGCCCCGCCGGG</entry><entry>4</entry><entry>8</entry></row>
+                    <row><entry>CACCCCGCCGGG</entry><entry>4</entry><entry>8</entry></row>
+                    <row><entry>etc... 140 rows deleted (see supplement)</entry><entry></entry><entry></entry></row>
+                </tbody>
+            </tgroup>
+        </informaltable>
+    </para>
+</section>
+
+<section>
+    <title>Frequency of CGGCGG in insertions</title>
+    <simpara>
+        The use of the CGG codon for Arginine is very rare in coronaviruses, but in the furin cleavage site there are two of them. This has been used to make a case for an artificial origin<citation>3</citation>, and also for a host insertion from human<citation>9</citation>.
+    </simpara>
+    <simpara>
+        We can get a better sense for how unusual it is now that we have so much data on other insertions by counting how often it occurs <emphasis>in them</emphasis> compared to alternatives that would also be capable of coding for Arginine-Arginine if aligned.
+    </simpara>
+    <simpara>
+        In all insertions between 6 and 200 nucleotides in length from the latest set downloaded on 2024-09-11, there are 104 occurrences of the pattern CGGCGG out of a total of 4081 6-nucleotide strings that could also code for Arg-Arg, which is a rate of 2.6%, only just under the 1/36 (or 2.8%) that you would expect if all possible synonyms for Arg-Arg were used evenly.
+    </simpara>
+    <simpara>
+        If we filter the insertions by the same criteria used for the analysis of matches <link linkend="quant_sig">above</link>, which was intended to reduce noise by excluding insertions more likely to be artefacts, we find an even higher rate: 16 out of 339, which is 4.72%. The reason for this relatively high frequency of CGGCGG is likely to be explained by the high GC content and/or codon usage bias of insertion sources.
+    </simpara>
+    <simpara>
+        A complete list of these insertions is included in the supplementary material.
+    </simpara>
+</section>
+
+<section>
+    <title>Association with FCSes in feline coronaviruses</title>
+    <simpara>
+    It has been <link xlink:href="https://yurideigin.medium.com/why-ralph-barics-testimony-strengthens-the-case-for-a-covid-19-lab-origin-81cf9c2acf71">argued</link> that the leading Proline in the FCS may strengthen the case for a lab origin due to an interest in feline coronaviruses.
+    </simpara>
+    <simpara>
+        While that is an interesting idea, the presence of a single amino acid cannot be considered strong evidence for anything: there are only 20 amino acids to choose from and not all of them will be functional in that location. Perhaps only a handful are.
+    </simpara>
+</section>
+
+<section>
+    <title>Association with Human ENaC α subunit</title>
+    <simpara>
+        It has been argued<citation>26</citation> that the match between the amino acid sequence RRARSVAS in SARS-CoV-2, the initial RRA part of which is contributed by the FCS insert, and an identical protein pattern in a furin cleavage site in the human genome suggests a deliberate insertion.
+    </simpara>
+    <simpara>
+        This is an alternative hypothesis to the feline coronavirus one, and I believe incompatible with it. But it has a similar problem. The E-value given by BLAST<citation>2</citation> for finding RRARSVAS in the human genome is about 0.3. So whatever you might think of the case made for<citation>26</citation> or against<citation>27</citation> this feature's assocation with engineering, the likelihood of finding it by chance in the human genome is not low, and that it should have a similar function where it does appear is not particularly surprising.
+    </simpara>
+</section>
+
+<section>
+    <title>Contamination</title>
+    <simpara>
+        Contamination of the samples which yielded the sequences in GISAID with these bacteria is not just a possibility. It is a near certainty. But the assembly software should have removed any inserts that did not show considerable read depth with the surrounding genome. We are looking at short inserts, much shorter than the usual read length, so this ought to be minimized. We should gain some additional confidence from the filtering described <link linkend="quant_sig">above</link>. However a limitation of this work is that I have not been able to investigate any raw reads directly.
+    </simpara>
+</section>
+
+<section>
+    <title>Methods</title>
+    <simpara>
+        The insert data was obtained from the website <link xlink:href="https://cov-spectrum.org">https://cov-spectrum.org</link>, setting the filters to World/All Times, waiting for it to load, and copying out all the insertions. After basic reformatting that data is included in the supplement.
+    </simpara>
+    <simpara>
+        Alignments were done with Clustal Omega 1.2.4 and E-values calculated with BLAST 2.16.0. All the other code used for the searching, matching and calculations is available <link xlink:href="https://github.com/guygadboit/genomics">here</link> but I've tried to include everything you need to check the results as data files in the supplement.
+    </simpara>
+</section>
+
+<section>
+    <title>Discussion</title>
+    <simpara>
+        SARS-CoV-2 is the only known sarbecovirus to have a furin cleavage site<citation>4</citation>. This is known to have been an area of active research interest. Proposals to insert furin cleavage sites artificially into SARS-related coronaviruses have been published<citation>3</citation>, and even if that specific project may not have been funded, it is hard to argue that such work may not have been taking place at the Wuhan Institute of Virology around the time that SARS-CoV-2 was first observed in Wuhan.
+    </simpara>
+    <simpara>
+        But it's important to temper this evidence with the consideration that the reason FCS insertion is an area of research interest in the first place is because it's something that can and does happen naturally<citation>6</citation>. If the virus had some completely arbitrary feature that was associated only with research, and not with nature, that would be different. The FCS is likely to confer an evolutionary advantage<citation>7</citation> and that fact alone makes its presence consistent with a natural origin.
+    </simpara>
+    <simpara>
+        The finding that the FCS has a significant association with a possible insertion source (bacteria in the human oral microbiota) that is shared by other insertions in human sequences that have happened since the pandemic started lends support to the idea that it also shares their origin. In other words: that it is a natural insertion that may have occurred in a human host. Under some lab origin scenarios, this association has to be attributed to coincidence. But it is worth listing some of the possibilities and discussing them in turn.
+    </simpara>
+        <simpara>
+        <emphasis role="strong">A: Zoonosis from bat to human, then FCS acquisition.</emphasis>
+            Research has found 2.7% seropositivity for SARS-related
+            coronaviruses in people living in close proximity to the habitats of
+            the bats who have these viruses <citation>8</citation> . Although relatively rare, and usually with little consequence, if one of
+        these infections resulted in the acquisition of the FCS, it could start
+        a pandemic. The current finding adds support for this hypothesis.
+        </simpara>
+        <simpara>
+        <emphasis role="strong">B: FCS acquisition in an intermediate host.</emphasis>
+            Another possibility is that the virus jumped from a bat to another host (for example a raccoon dog) where it acquired the FCS. We have found here an association between the FCS insert and other inserts acquired in humans, but we were only able to infer this because we have several million SARS-CoV-2 sequences from human hosts in GISAID. In contrast, we have 0 sequences from raccoon dogs (or any other putative intermediate host).
+        </simpara>
+        <simpara>
+        <emphasis role="strong">C: FCS acquisition in a bat.</emphasis>
+            It is possible that the FCS was acquired in a bat, although out of at least 1535 known sarbecoviruses<citation>10</citation>, most of them in bats, an FCS has so far not been found. But it's difficult to know how often we should have expected to find it. And, just as for scenario B above, we don't have the millions of individual sequences from these hosts we would need to see whether the FCS shared any characteristics with other insertions that we have for humans.
+        </simpara>
+        <simpara>
+        <emphasis role="strong">D: FCS acquisition in a lab.</emphasis>
+            The current finding makes insertion of a "designed" FCS (according
+            to such criteria as copying feline or human FCSes or
+            codon-optimizing for humans) less likely. However other lab
+            scenarios are possible: the FCS might have been copied
+            into a bat virus from a related virus in which it had been found
+            naturally (perhaps in another host, for example a Pangolin) or it
+            might just be that a natural bat virus with an FCS was found in
+            samples that had been collected from bat caves and either cultured
+            or recovered with reverse genetics. Certainly if such a virus had been found, it would
+            have been at the top of the "interesting" list and therefore quite
+            likely to have been recovered in this way.
+        </simpara>
+    <simpara>
+        Our findings here lend support to Scenario A over the others and also tend to equate Scenarios B to D. It has been previously argued that the apparent artifice of the FCS: its unusual (for a sarbecovirus) codons, or perhaps the leading proline, imply engineering. But as we have seen, the codons are not unusual for an <emphasis>insert</emphasis> into a human-circulating coronavirus, and the particular insert has a high association with a natural origin.
+    </simpara>
+    <simpara>
+        I therefore don't think there is a case for an artificial origin based
+        on any characteristics of the FCS insert. Everything about it looks more
+        natural than artificial. But there may still be a case just based on its
+        existence.
+    </simpara>
+</section>
+
+<section>
+    <title>Conclusion</title>
+    <simpara>
+        That it's better not to jump one. I have made several hypotheses here, which
+        are given varying degrees of support by the findings:
+    </simpara>
+    <itemizedlist>
+        <listitem>
+            <simpara>
+                That bacteria contribute insertions.
+            </simpara>
+        </listitem>
+        <listitem>
+            <simpara>
+                That insertions are "similarity-assisted" (i.e. that adjacent sequence identity helps them to happen).
+            </simpara>
+        </listitem>
+        <listitem>
+            <simpara>
+                That the FCS insert may be a similarity-assisted insertion from <emphasis>a.israelii</emphasis> or something closely related to it.
+            </simpara>
+        </listitem>
+        <listitem>
+            <simpara>
+                That the pandemic started after a zoonotic virus acquired the FCS in a human host.
+            </simpara>
+        </listitem>
+    </itemizedlist>
+</section>
+
+<bibliography>
+    <title>References</title>
+    <bibliomixed>
+        <abbrev>1</abbrev>
+        <authorgroup>
+            <author>
+                <personname>
+                    <firstname>Kah Yan</firstname>
+                    <surname>How</surname>
+                </personname>
+            </author>
+            <author>
+                <personname>
+                    <firstname>Keang Peng</firstname>
+                    <surname>Song</surname>
+                </personname>
+            </author>
+            <author>
+                <personname>
+                    <firstname>Kok Gan</firstname>
+                    <surname>Chan</surname>
+                </personname>
+            </author>
+        </authorgroup>
+        <title>
+            Porphyromonas gingivalis: An Overview of Periodontopathic Pathogen below the Gum Line.
+        </title>
+    </bibliomixed>
+
+    <bibliomixed>
+        <abbrev>2</abbrev>
+        <authorgroup>
+            <author>
+                <personname>
+                    <firstname>C.</firstname><surname>Camacho</surname>
+                </personname>
+            </author>
+            <author>
+                <personname>
+                    <firstname>G.</firstname><surname>Coulouris</surname>
+                </personname>
+            </author>
+            <author>
+                <personname>
+                    <firstname>V.</firstname><surname>Avagyan</surname>
+                </personname>
+            </author>
+            <author>
+                <personname>
+                    <firstname>N.</firstname><surname>Ma</surname>
+                </personname>
+            </author>
+            <author>
+                <personname>
+                    <firstname>J.</firstname><surname>Papadopoulos</surname>
+                </personname>
+            </author>
+            <author>
+                <personname>
+                    <firstname>K.</firstname><surname>Bealer</surname>
+                </personname>
+            </author>
+            <author>
+                <personname>
+                    <firstname>T.L.</firstname><surname>Madden</surname>
+                </personname>
+            </author>
+        </authorgroup>
+        <title>
+            BLAST+: architecture and applications
+        </title>
+        <pubdate>
+            2009
+        </pubdate>
+        <publishername>
+            BMC Bioinformatics, 10, 421
+        </publishername>
+    </bibliomixed>
+    <bibliomixed>
+        <abbrev>3</abbrev>
+        <author>
+            <personname>
+                <firstname>S.</firstname><surname>Quay</surname>
+            </personname>
+        </author>
+        <title>
+            A Bayesian analysis concludes beyond a reasonable doubt that SARS-CoV-2 is not a natural zoonosis but instead is laboratory derived
+        </title>
+    </bibliomixed>
+    <bibliomixed>
+        <abbrev>4</abbrev>
+        <authorgroup>
+            <author>
+                <personname>
+                    <firstname>Daoyu</firstname><surname>Zhang</surname>
+                </personname>
+            </author>
+            <author>
+                <personname>
+                    <firstname>Gilles</firstname><surname>Demaneuf</surname>
+                </personname>
+            </author>
+            <author>
+                <personname>
+                    <firstname>Billy</firstname><surname>Bostickson</surname>
+                </personname>
+            </author>
+            <author>
+                <personname>
+                    <firstname>Monali</firstname><surname>Rahalkar</surname>
+                </personname>
+            </author>
+        </authorgroup>
+        <title>
+            DRASTIC - An Analysis of Project DEFUSE
+        </title>
+    </bibliomixed>
+    <bibliomixed>
+        <abbrev>5</abbrev>
+        <authorgroup>
+            <author>
+                <personname>
+                    <firstname>Yujia Alina</firstname><surname>Chan</surname>
+                </personname>
+            </author>
+            <author>
+                <personname>
+                    <firstname>Shing Hei</firstname><surname>Zhan</surname>
+                </personname>
+            </author>
+        </authorgroup>
+        <title>
+            The Emergence of the Spike Furin Cleavage Site in SARS-CoV-2
+        </title>
+    </bibliomixed>
+    <bibliomixed>
+        <abbrev>6</abbrev>
+        <authorgroup>
+            <author>
+                <personname>
+                    <firstname>Yiran</firstname><surname>Wu</surname>
+                </personname>
+            </author>
+            <author>
+                <personname>
+                    <firstname>Suwen</firstname><surname>Zhao</surname>
+                </personname>
+            </author>
+        </authorgroup>
+        <title>
+            Furin cleavage sites naturally occur in coronaviruses
+        </title>
+    </bibliomixed>
+    <bibliomixed>
+        <abbrev>7</abbrev>
+        <author>
+            <personname>
+                <firstname>Thomas</firstname><surname>Peacock et al.</surname>
+            </personname>
+        </author>
+        <title>
+            The furin cleavage site in the SARS-CoV-2 spike protein is required for transmission in ferrets
+        </title>
+    </bibliomixed>
+    <bibliomixed>
+        <abbrev>8</abbrev>
+        <author>
+            <personname>
+                <firstname>Ning</firstname><surname>Wang et al.</surname>
+            </personname>
+        </author>
+        <title>
+            Serological Evidence of Bat SARS-Related Coronavirus Infection
+            in Humans, China
+        </title>
+    </bibliomixed>
+    <bibliomixed>
+        <abbrev>9</abbrev>
+        <author>
+            <personname>
+                <firstname>Antonio</firstname><surname>Romeu</surname>
+            </personname>
+        </author>
+        <title>
+            Probable human origin of the SARS-CoV-2 polybasic furin cleavage motif
+        </title>
+    </bibliomixed>
+    <bibliomixed>
+        <abbrev>10</abbrev>
+        <author>
+            <personname>
+                <firstname>Bo</firstname><surname>Liu et al.</surname>
+            </personname>
+        </author>
+        <title>
+            A comprehensive dataset of animal-associated sarbecoviruses
+        </title>
+    </bibliomixed>
+    <bibliomixed>
+        <abbrev>11</abbrev>
+        <authorgroup>
+            <author>
+                <personname>
+                    <firstname>Yiyan</firstname>
+                    <surname>Yang</surname>
+                </personname>
+            </author>
+            <author>
+                <personname>
+                    <firstname>Keith</firstname>
+                    <surname>Dufault-Thompson</surname>
+                </personname>
+            </author>
+            <author>
+                <personname>
+                    <firstname>Rafaela</firstname>
+                    <surname>Salgado Fontenele</surname>
+                </personname>
+            </author>
+            <author>
+                <personname>
+                    <firstname>Xiaofang</firstname>
+                    <surname>Jiang</surname>
+                </personname>
+            </author>
+        </authorgroup>
+        <title>
+            Putative Host-Derived Insertions in the Genomes of Circulating
+            SARS-CoV-2 Variants
+        </title>
+    </bibliomixed>
+    <bibliomixed>
+        <abbrev>12</abbrev>
+        <authorgroup>
+            <author>
+                <personname>
+                    <firstname>Heather L.</firstname>
+                    <surname>Wells</surname>
+                </personname>
+            </author>
+            <author>
+                <personname>
+                    <firstname>Cassandra M.</firstname>
+                    <surname>Bonavita</surname>
+                </personname>
+            </author>
+            <author>
+                <personname>
+                    <firstname>Isamara</firstname>
+                    <surname>Navarrete-Macias</surname>
+                </personname>
+            </author>
+            <author>
+                <personname>
+                    <firstname>Blake</firstname>
+                    <surname>Vilchez</surname>
+                </personname>
+            </author>
+            <author>
+                <personname>
+                    <firstname>Angela L.</firstname>
+                    <surname>Rasmussen</surname>
+                </personname>
+            </author>
+            <author>
+                <personname>
+                    <firstname>Simon J.</firstname>
+                    <surname>Anthony</surname>
+                </personname>
+            </author>
+            </authorgroup>
+            <title>
+                The coronavirus recombination pathway
+            </title>
+        </bibliomixed>
+        <bibliomixed>
+            <abbrev>13</abbrev>
+            <title>
+                SARS-Coronavirus Replication Is Supported
+                by a Reticulovesicular Network of Modified
+                Endoplasmic Reticulum
+            </title>
+            <authorgroup>
+                <author>
+                    <personname>
+                        <firstname>Kèvin</firstname>
+                        <surname>Knoops</surname>
+                    </personname>
+                </author>
+                <author>
+                    <personname>
+                        <firstname>Marjolein</firstname>
+                        <surname>Kikkert</surname>
+                    </personname>
+                </author>
+                <author>
+                    <personname>
+                        <firstname>Sjoerd</firstname>
+                        <surname>H. E. van den Worm</surname>
+                    </personname>
+                </author>
+                <author>
+                    <personname>
+                        <firstname>Jessika</firstname>
+                        <surname>C. Zevenhoven-Dobbe</surname>
+                    </personname>
+                </author>
+                <author>
+                    <personname>
+                        <firstname>Yvonne</firstname>
+                        <surname>van der Meer</surname>
+                    </personname>
+                </author>
+                <author>
+                    <personname>
+                        <firstname>Abraham</firstname>
+                        <surname>J. Koster</surname>
+                    </personname>
+                </author>
+                <author>
+                    <personname>
+                        <firstname>A.</firstname>
+                        <surname>Mieke Mommaas1</surname>
+                    </personname>
+                </author>
+                <author>
+                    <personname>
+                        <firstname>Eric</firstname>
+                        <surname>J. Snijder</surname>
+                    </personname>
+                </author>
+            </authorgroup>
+        </bibliomixed>
+        <bibliomixed>
+            <abbrev>14</abbrev>
+            <title>Omicron variant of SARS-CoV-2 harbors a unique insertion mutation of putative viral or human genomic origin.</title>
+            <authorgroup>
+                <author>
+                    <personname>
+                        <firstname>A</firstname>
+                        <surname>Venkatakrishnan</surname>
+                    </personname>
+                </author>
+                <author>
+                    <personname>
+                        <firstname>P</firstname>
+                        <surname>Anand</surname>
+                    </personname>
+                </author>
+                <author>
+                    <personname>
+                        <firstname>PJ</firstname>
+                        <surname>Lenehan</surname>
+                    </personname>
+                </author>
+                <author>
+                    <personname>
+                        <firstname>R</firstname>
+                        <surname>Suratekar</surname>
+                    </personname>
+                </author>
+                <author>
+                    <personname>
+                        <firstname>B</firstname>
+                        <surname>Raghunathan</surname>
+                    </personname>
+                </author>
+                <author>
+                    <personname>
+                        <firstname>MJ</firstname>
+                        <surname>Niesen</surname>
+                    </personname>
+                </author>
+                <author>
+                    <personname>
+                        <firstname>V</firstname>
+                        <surname>Soundararajan</surname>
+                    </personname>
+                </author>
+            </authorgroup>
+        </bibliomixed>
+        <bibliomixed>
+            <abbrev>15</abbrev>
+            <title>
+                Putative host origins of RNA insertions in SARS-CoV-2 genomes
+            </title>
+            <authorgroup>
+                <author>
+                    <personname>
+                        <firstname>Thomas</firstname>
+                        <surname>P. Peacock</surname>
+                    </personname>
+                </author>
+                <author>
+                    <personname>
+                        <firstname>David</firstname>
+                        <surname>L. V. Bauer</surname>
+                    </personname>
+                </author>
+            </authorgroup>
+        </bibliomixed>
+        <bibliomixed>
+            <abbrev>16</abbrev>
+            <title>The intriguing strategies of Tannerella forsythia’s host interaction</title>
+            <authorgroup>
+                <author>
+                    <personname>
+                        <firstname>Christina</firstname>
+                        <surname>Schäffer</surname>
+                    </personname>
+                </author>
+                <author>
+                    <personname>
+                        <firstname>Oleh</firstname>
+                        <surname>Andrukhov</surname>
+                    </personname>
+                </author>
+            </authorgroup>
+        </bibliomixed>
+        <bibliomixed>
+            <abbrev>17</abbrev>
+            <title>Covid-19 and SARS-CoV-2 infection in periodontology: A narrative review</title>
+            <author>
+                <personname>
+                    <firstname>Agnieszka</firstname>
+                    <surname>Drozdzik</surname>
+                </personname>
+            </author>
+        </bibliomixed>
+        <bibliomixed>
+            <abbrev>18</abbrev>
+            <title>
+                SARS-CoV-2 infection causes periodontal fibrotic pathogenesis through deregulating mitochondrial beta-oxidation
+            </title>
+            <authorgroup>
+                <author>
+                    <personname>
+                        <firstname>Yan</firstname>
+                        <surname>Gao</surname>
+                    </personname>
+                </author>
+                <author>
+                    <personname>
+                        <firstname>Wai</firstname>
+                        <surname>Ling Kok</surname>
+                    </personname>
+                </author>
+                <author>
+                    <personname>
+                        <firstname>Vikram</firstname>
+                        <surname>Sharma</surname>
+                    </personname>
+                </author>
+                <author>
+                    <personname>
+                        <firstname>Charlotte</firstname>
+                        <surname>Sara Illsley</surname>
+                    </personname>
+                </author>
+                <author>
+                    <personname>
+                        <firstname>Sally</firstname>
+                        <surname>Hanks</surname>
+                    </personname>
+                </author>
+                <author>
+                    <personname>
+                        <firstname>Christopher</firstname>
+                        <surname>Tredwin</surname>
+                    </personname>
+                </author>
+                <author>
+                    <personname>
+                        <firstname>Bing</firstname>
+                        <surname>Hu</surname>
+                    </personname>
+                </author>
+            </authorgroup>
+        </bibliomixed>
+        <bibliomixed>
+            <abbrev>19</abbrev>
+            <title>Periodontal tissues are targets for Sars-Cov-2: a post-mortem study</title>
+            <authorgroup>
+                <author>
+                    <personname>
+                        <firstname>Bruno</firstname>
+                        <surname>Fernandes Matuck</surname>
+                    </personname>
+                </author>
+                <author>
+                    <personname>
+                        <firstname>Marisa</firstname>
+                        <surname>Dolhnikoff</surname>
+                    </personname>
+                </author>
+                <author>
+                    <personname>
+                        <firstname>Gilvan</firstname>
+                        <surname>V. A. Maia</surname>
+                    </personname>
+                </author>
+                <author>
+                    <personname>
+                        <firstname>Daniel</firstname>
+                        <surname>Isaac Sendy et al.</surname>
+                    </personname>
+                </author>
+            </authorgroup>
+        </bibliomixed>
+        <bibliomixed>
+            <abbrev>20</abbrev>
+            <title>The fate of Treponema denticola within human gingival epithelial cells</title>
+            <authorgroup>
+                <author>
+                    <personname>
+                        <firstname>J.</firstname>
+                        <surname>Shin</surname>
+                    </personname>
+                </author>
+                <author>
+                    <personname>
+                        <firstname>Y.</firstname>
+                        <surname>Choi</surname>
+                    </personname>
+                </author>
+            </authorgroup>
+        </bibliomixed>
+        <bibliomixed>
+            <abbrev>21</abbrev>
+            <title>Principles and Concepts of DNA Replication in Bacteria, Archaea, and Eukarya</title>
+            <authorgroup>
+                <author>
+                    <personname>
+                        <firstname>Michael</firstname>
+                        <surname>O’Donnell</surname>
+                    </personname>
+                </author>
+                <author>
+                    <personname>
+                        <firstname>Lance</firstname>
+                        <surname>Langston</surname>
+                    </personname>
+                </author>
+                <author>
+                    <personname>
+                        <firstname>Bruce</firstname>
+                        <surname>Stillman</surname>
+                    </personname>
+                </author>
+            </authorgroup>
+        </bibliomixed>
+        <bibliomixed>
+            <abbrev>22</abbrev>
+            <title>Could SARS-CoV-2 Have Bacteriophage Behavior or Induce the Activity of Other Bacteriophages?</title>
+            <authorgroup>
+                <author>
+                    <personname>
+                        <firstname>Carlo</firstname>
+                        <surname>Brogna</surname>
+                    </personname>
+                </author>
+                <author>
+                    <personname>
+                        <firstname>Barbara</firstname>
+                        <surname>Brogna et al.</surname>
+                    </personname>
+                </author>
+            </authorgroup>
+        </bibliomixed>
+        <bibliomixed>
+            <abbrev>23</abbrev>
+            <title>Commensal Bacteria: An Emerging Player in Defense Against Respiratory Pathogens</title>
+            <authorgroup>
+                <author>
+                    <personname>
+                        <firstname>Rabia</firstname>
+                        <surname>Khan</surname>
+                    </personname>
+                </author>
+                <author>
+                    <personname>
+                        <firstname>Fernanda</firstname>
+                        <surname>Cristina Petersen</surname>
+                    </personname>
+                </author>
+                <author>
+                    <personname>
+                        <firstname>Sudhanshu</firstname>
+                        <surname>Shekhar</surname>
+                    </personname>
+                </author>
+            </authorgroup>
+        </bibliomixed>
+        <bibliomixed>
+            <abbrev>24</abbrev>
+            <title>Compositional differences within and between eukaryotic genomes</title>
+            <authorgroup>
+                <author>
+                    <personname>
+                        <firstname>Samuel</firstname>
+                        <surname>Karlin</surname>
+                    </personname>
+                </author>
+                <author>
+                    <personname>
+                        <firstname>Jan</firstname>
+                        <surname>Mrázek</surname>
+                    </personname>
+                </author>
+            </authorgroup>
+        </bibliomixed>
+        <bibliomixed>
+            <abbrev>25</abbrev>
+            <title>Inflammasome activation in infected macrophages drives COVID-19 pathology</title>
+            <authorgroup>
+                <author>
+                    <personname>
+                        <firstname>Esen</firstname>
+                        <surname>Sefik</surname>
+                    </personname>
+                </author>
+                <author>
+                    <personname>
+                        <firstname>Rihao</firstname>
+                        <surname>Qu</surname>
+                    </personname>
+                </author>
+                <author>
+                    <personname>
+                        <firstname>Caroline</firstname>
+                        <surname>Junqueira et al.</surname>
+                    </personname>
+                </author>
+            </authorgroup>
+        </bibliomixed>
+        <bibliomixed>
+            <abbrev>26</abbrev>
+            <title>A call for an independent inquiry into the origin of the SARS-CoV-2 virus</title>
+            <authorgroup>
+                <author>
+                    <personname>
+                        <firstname>Neil</firstname>
+                        <surname>L. Harrison</surname>
+                    </personname>
+                </author>
+                <author>
+                    <personname>
+                        <firstname>Jeffrey</firstname>
+                        <surname>D. Sachs</surname>
+                    </personname>
+                </author>
+            </authorgroup>
+        </bibliomixed>
+        <bibliomixed>
+            <abbrev>27</abbrev>
+            <title>SARS-CoV-2 furin cleavage site was not engineered</title>
+            <author>
+                <personname>
+                    <firstname>Robert</firstname>
+                    <surname>F.Garry</surname>
+                </personname>
+            </author>
+        </bibliomixed>
+        <bibliomixed>
+            <abbrev>28</abbrev>
+            <title>The emergence, genomic diversity and global spread of SARS-CoV-2</title>
+            <authorgroup>
+                <author>
+                    <personname>
+                        <firstname>Juan</firstname>
+                        <surname>Li</surname>
+                    </personname>
+                </author>
+                <author>
+                    <personname>
+                        <firstname>Shengjie</firstname>
+                        <surname>Lai</surname>
+                    </personname>
+                </author>
+                <author>
+                    <personname>
+                        <firstname>George</firstname>
+                        <surname>F. Gao</surname>
+                    </personname>
+                </author>
+                <author>
+                    <personname>
+                        <firstname>Weifeng</firstname>
+                        <surname>Shi</surname>
+                    </personname>
+                </author>
+            </authorgroup>
+        </bibliomixed>
+    </bibliography>
+</article>
