@@ -78,6 +78,7 @@ func (muts AAMutations) ToString() string {
 	return strings.Join(s, ",")
 }
 
+// Parses a string like "A17858G,C17747T". No spaces allowed!
 func ParseMutations(s string) []Mutation {
 	ret := make([]Mutation, 0)
 	if s == "" {

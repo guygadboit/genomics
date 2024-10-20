@@ -10,26 +10,17 @@ import (
 func main() {
 	db := database.NewDatabase()
 
+	muts := database.ParseMutations("T18060C,T8782C,C28144T")	// α1, α2, α3
+	// muts := database.ParseMutations("A17858G,C17747T")	// ν1 and ν2
+	ids := db.SearchByMuts(muts, len(muts))
+	fmt.Printf("Found %d with those muts\n", len(ids))
+
+	/*
 	cutoff := utils.Date(2020, 1, 30)
-	ids := db.Filter(nil, func(r *database.Record) bool {
+	ids = db.Filter(ids, func(r *database.Record) bool {
 		return r.CollectionDate.Compare(cutoff) < 0
-
-		if r.Host != "Human" {
-			return false
-		}
-		if r.Country != "Egypt" {
-			return false
-		}
-
-		for _, mut := range r.AAChanges {
-			if mut.Gene == "ORF1a" && (mut.Pos == 124 || mut.Pos == 125) {
-				fmt.Println(mut)
-				return true
-			}
-		}
-
-		return false
 	})
+	*/
 
 	sorted := utils.FromSet(ids)
 	db.Sort(sorted, database.COLLECTION_DATE)
