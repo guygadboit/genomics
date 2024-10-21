@@ -1013,7 +1013,7 @@ func CountAndSave(id *InsertionData) {
 // Note that if randomize it randomizes the actual insertion data
 func AddSource(data *InsertionData,
 	name string, save bool, iterations int,
-	actions MatchAction) {
+	tol float64, actions MatchAction) {
 	sources := make([]Source, 0)
 
 	all := GetSources(ANIMAL | BACTERIA)
@@ -1036,7 +1036,7 @@ func AddSource(data *InsertionData,
 		makeFlagFilter(EXCLUDE_WH1),
 	}
 
-	CountInGenomes(nil, data, sources, filters, 0.0, iterations, actions)
+	CountInGenomes(nil, data, sources, filters, tol, iterations, actions)
 
 	if save {
 		data.Save("insertions-new.gob")
@@ -1146,6 +1146,7 @@ func main() {
 		randomize            bool
 		iterations           int
 		outputFasta          bool
+		tol					float64
 	)
 
 	flag.BoolVar(&countCGG, "cgg", false, "Count CGGCGG")
@@ -1168,6 +1169,7 @@ func main() {
 		"iterations", 1, "If randomizing how many times to do it")
 	flag.BoolVar(&outputFasta,
 		"output-fasta", false, "Output a fasta file")
+	flag.Float64Var(&tol, "tol", 0.0, "Tolerance")
 	flag.Parse()
 
 	if _, err := os.Stat("insertions2.gob"); err == nil {
@@ -1190,7 +1192,7 @@ func main() {
 		} else if iterations > 1 {
 			log.Fatal("More than one iteration with randomize is pointless")
 		}
-		AddSource(&data, outputName, false, iterations, actions)
+		AddSource(&data, outputName, false, iterations, tol, actions)
 	}
 
 	if blastFCS {
