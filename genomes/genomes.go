@@ -453,6 +453,28 @@ func (g *Genomes) RemoveGaps() int {
 	return ret
 }
 
+/*
+Just remove all gaps from each genome thus breaking the alignment. Returns an
+array of split genomes.
+*/
+func (g *Genomes) Dealign() []*Genomes {
+	ret := make([]*Genomes, g.NumGenomes())
+
+	for i := 0; i < g.NumGenomes(); i++ {
+		var orfs Orfs
+		ret[i] = NewGenomes(orfs, 1)
+		nts := make([]byte, 0)
+		for j := 0; j < len(g.Nts[i]); j++ {
+			if g.Nts[i][j] != '-' {
+				nts = append(nts, g.Nts[i][j])
+			}
+		}
+		ret[i].Nts[0] = nts
+		ret[i].Names[0] = g.Names[i]
+	}
+	return ret
+}
+
 func (g *Genomes) HaveOrfs() bool {
 	return len(g.Orfs) > 0
 }
