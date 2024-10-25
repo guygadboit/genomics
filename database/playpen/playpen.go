@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"genomics/database"
 	"genomics/utils"
+	"strings"
 	"time"
 )
 
@@ -77,29 +78,69 @@ var DiamondPrincess []string = []string{
 	"EPI_ISL_416632",
 }
 
+var Outliers []string = []string{
+	"EPI_ISL_406592",
+	"EPI_ISL_414588",
+	"EPI_ISL_412900",
+	"EPI_ISL_408487",
+	"EPI_ISL_408483 ",
+	"EPI_ISL_406595",
+}
+
+func interestingMuts(r *database.Record) string {
+	muts := database.ParseMutations("T18060C,T8782C,C28144T,"+
+		"C28657T,T9477A,C28863T,G25979T")
+
+	interesting := map[database.Mutation]string{
+		muts[0]: "α1",
+		muts[1]: "α2",
+		muts[2]: "α3",
+		muts[3]: "α1a",
+		muts[4]: "α1b",
+		muts[5]: "α1c",
+		muts[6]: "α1d",
+	}
+	ret := make([]string, 0)
+	for _, mut := range r.NucleotideChanges {
+		mut.Silence = database.UNKNOWN
+		mut.From, mut.To = mut.To, mut.From
+		name, there := interesting[mut]
+		if there {
+			ret = append(ret, name)
+		}
+	}
+	return strings.Join(ret, ",")
+}
+
 func main() {
 	db := database.NewDatabase()
 
 	// dp := utils.ToSet(DiamondPrincess)
-	muts := database.ParseMutations("T18060C,T8782C,C28144T")	// α1, α2, α3
+	muts := database.ParseMutations("T18060C,T8782C,C28144T,"+
+		"C28657T,T9477A,C28863T,G25979T")
 	// muts := database.ParseMutations("A17858G,C17747T")	// ν1 and ν2
-	ids := db.SearchByMuts(muts, len(muts))
+	// ids := db.SearchByMuts(muts, len(muts))
+	ids := db.SearchByMuts(muts, 1)
 	fmt.Printf("Found %d with those muts\n", len(ids))
 
 	// cutoff := utils.Date(2020, 1, 30)
+	// outliers := utils.ToSet(Outliers)
+	/*
 	ids = db.Filter(ids, func(r *database.Record) bool {
-		return r.Host == "Human" && r.Country == "China"
+		return r.Host == "Human" // && outliers[r.GisaidAccession]
 		// return r.CollectionDate.Compare(cutoff) < 0
 	})
+	*/
 
 	sorted := utils.FromSet(ids)
 	db.Sort(sorted, database.COLLECTION_DATE)
 
 	for _, id := range sorted {
 		r := &db.Records[id]
-		fmt.Println(r.Summary())
+		// fmt.Println(r.Summary(), interestingMuts(r))
 		fmt.Println(r.CollectionDate.Format(time.DateOnly),
 			r.SubmissionDate.Format(time.DateOnly),
-			r.GisaidAccession, r.Country, r.Region)
+			r.GisaidAccession, r.Country, r.Region,
+			r.DeletionsSummary(), r.Host, interestingMuts(r))
 	}
 }

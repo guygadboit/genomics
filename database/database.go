@@ -114,7 +114,11 @@ func ParseAAMutations(s string) []AAMutation {
 }
 
 type Range struct {
-	Start, End int
+	Start, End utils.OneBasedPos
+}
+
+func (r *Range) ToString() string {
+	return fmt.Sprintf("%d-%d", r.Start, r.End)
 }
 
 func ParseRanges(s string) []Range {
@@ -126,14 +130,14 @@ func ParseRanges(s string) []Range {
 	for _, f := range fields {
 		subFields := strings.Split(f, "-")
 
-		start := utils.Atoi(subFields[0])
-		var end int
+		start := utils.OneBasedPos(utils.Atoi(subFields[0]))
+		var end utils.OneBasedPos
 
 		switch len(subFields) {
 		case 1:
 			end = start
 		case 2:
-			end = utils.Atoi(subFields[1])
+			end = utils.OneBasedPos(utils.Atoi(subFields[1]))
 		default:
 			log.Fatalf("Invalid range %s\n", f)
 		}
@@ -214,6 +218,14 @@ func (r *Record) Summary() string {
 		r.AAChanges.ToString(),
 		len(r.Insertions),
 		len(r.Deletions))
+}
+
+func (r *Record) DeletionsSummary() string {
+	s := make([]string, len(r.Deletions))
+	for i, d := range r.Deletions {
+		s[i] = fmt.Sprintf("D%s", d.ToString())
+	}
+	return strings.Join(s, ",")
 }
 
 func Atoi(s string) int {
