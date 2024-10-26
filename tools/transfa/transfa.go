@@ -8,6 +8,7 @@ import (
 	"genomics/utils"
 	"log"
 	"os"
+	"slices"
 )
 
 type Mode int
@@ -54,13 +55,49 @@ func translate(g *genomes.Genomes, w *bufio.Writer) {
 	}
 }
 
-func showCodons(g *genomes.Genomes, w *bufio.Writer) {
+type CodonFreq struct {
+	nts   string
+	count int
+}
+
+func showCodons(g *genomes.Genomes, w *bufio.Writer, showFreq bool) {
+	counts := make(map[string]int)
+
 	for i := 0; i < g.NumGenomes(); i++ {
 		fmt.Fprintf(w, ">%s\n", g.Names[i])
 		t := genomes.Translate(g, i)
 		for _, codon := range t {
+			counts[codon.Nts]++
 			fmt.Fprintf(w, "%d %s %c\n",
 				codon.Pos, string(codon.Nts), codon.Aa)
+		}
+	}
+
+	if showFreq {
+		fmt.Fprintln(w, "Codon Usage Table")
+		for k, v := range genomes.ReverseCodonTable {
+			fmt.Fprintf(w, "%c\n", k)
+			values := make([]CodonFreq, 0)
+			total := 0
+			for _, alt := range v {
+				c := counts[alt]
+				values = append(values, CodonFreq{alt, c})
+				total += c
+			}
+			slices.SortFunc(values, func(a, b CodonFreq) int {
+				if a.count < b.count {
+					return 1
+				}
+				if a.count > b.count {
+					return -1
+				}
+				return 0
+			})
+
+			for _, v := range values {
+				fmt.Fprintf(w, "%s: %d (%.2f)\n",
+					v.nts, v.count, float64(v.count)/float64(total))
+			}
 		}
 	}
 }
@@ -75,7 +112,8 @@ func main() {
 	var (
 		modeName, orfs, outName string
 		offset                  int
-		reverse					bool
+		reverse                 bool
+		freq                    bool
 	)
 
 	flag.StringVar(&modeName, "mode", "translate", "Translation mode")
@@ -83,6 +121,8 @@ func main() {
 	flag.StringVar(&outName, "o", "", "Output filename")
 	flag.IntVar(&offset, "offset", 0, "Frame offset (0, 1 or 2)")
 	flag.BoolVar(&reverse, "reverse", false, "Treat as reverse complement")
+	flag.BoolVar(&freq, "freq", false, "Show codon usage table "+
+		"(if mode is codons)")
 	flag.Parse()
 
 	g := genomes.LoadGenomes(flag.Arg(0), orfs, false)
@@ -120,7 +160,9 @@ func main() {
 	case TRANSLATE:
 		writeFile(outName, g, translate)
 	case CODONS:
-		writeFile(outName, g, showCodons)
+		writeFile(outName, g, func(g *genomes.Genomes, w *bufio.Writer) {
+			showCodons(g, w, freq)
+		})
 	case DONT:
 		g.SaveClu(outName, nil)
 	}
