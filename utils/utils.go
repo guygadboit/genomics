@@ -186,6 +186,16 @@ func IsRegularPattern(nts []byte) bool {
 	return true
 }
 
+// Is it just a mononucleotide repeat?
+func IsSilly(pattern []byte) bool {
+	for i := 1; i < len(pattern); i++ {
+		if pattern[i] != pattern[i-1] {
+			return false
+		}
+	}
+	return true
+}
+
 // Given two sequences return the number of differences between them. They are
 // assumed to be the same length. Only count "regular" nts, not gaps etc.
 func NumMuts(a []byte, b []byte) int {
