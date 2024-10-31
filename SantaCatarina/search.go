@@ -237,8 +237,18 @@ func main() {
 	*/
 
 	cutoff := utils.Date(2020, 12, 31)
+	interesting := utils.ToSet([]string{
+		"EPI_ISL_417917",
+		"EPI_ISL_417919",
+		"EPI_ISL_417920",
+		"EPI_ISL_417918",
+	})
+
 	ids := db.Filter(nil, func(r *database.Record) bool {
 		if r.Host != "Human" {
+			return false
+		}
+		if !interesting[r.GisaidAccession] {
 			return false
 		}
 		/*
@@ -259,6 +269,11 @@ func main() {
 
 	idSlice := utils.FromSet(ids)
 	slices.Sort(idSlice)
+
+	maskGenomes := g.Filter(mask...)
+	CountOutgroupMatches(db, idSlice,
+		g, maskGenomes, false, "Interesting", 1, 1)
+	return
 
 	expected := FindAllOdds(g, mask)
 	PlotSignificant(db, idSlice, g, 10, 1e-4, true,

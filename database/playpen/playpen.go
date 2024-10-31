@@ -115,6 +115,11 @@ func interestingMuts(r *database.Record) string {
 func main() {
 	db := database.NewDatabase()
 
+	for i, _ := range db.Records {
+		fmt.Println(db.Records[i].GisaidAccession)
+	}
+	return
+
 	// dp := utils.ToSet(DiamondPrincess)
 	muts := database.ParseMutations("T18060C,T8782C,C28144T,"+
 		"C28657T,T9477A,C28863T,G25979T")
