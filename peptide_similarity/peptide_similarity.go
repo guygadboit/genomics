@@ -8,7 +8,7 @@ import (
 
 type PeptideSet map[string]bool
 
-func GetPeptides(virus *genomes.Genomes, merLen int) PeptideSet {
+func getPeptides(virus *genomes.Genomes, merLen int) PeptideSet {
 	ret := make(PeptideSet)
 	for i := 0; i < virus.Length()-merLen; i++ {
 		prot := string(virus.Nts[0][i : i+merLen])
@@ -18,20 +18,37 @@ func GetPeptides(virus *genomes.Genomes, merLen int) PeptideSet {
 }
 
 func Search(peptides PeptideSet, host *genomes.Genomes, merLen int) int {
-	ret := 0
+	matches := make(PeptideSet)
 	for i := 0; i < host.Length()-merLen; i++ {
 		prot := string(host.Nts[0][i : i+merLen])
 		if peptides[prot] {
-			ret++
+			matches[prot] = true
 		}
 	}
-	return ret
+	return len(matches)
 }
 
-func main() {
-	root := "/fs/f/genomes/"
+var ROOT string = "/fs/f/genomes/"
 
-	hosts := []string{
+func GetPeptides(name string, merLen int, spikeOnly bool) PeptideSet {
+	var insert string
+	if spikeOnly {
+		insert = "S-"
+	}
+	fname := ROOT + fmt.Sprintf("viruses/%s/%s-%sprot.fasta.gz",
+		name, name, insert)
+
+	vg := genomes.LoadGenomes(fname, "", true)
+	return getPeptides(vg, merLen)
+}
+
+type Library struct {
+	hosts   []string
+	viruses []string
+}
+
+func (l *Library) Init() {
+	l.hosts = []string{
 		"human",
 		"mouse",
 		"chimpanzee",
@@ -39,46 +56,50 @@ func main() {
 		"pangolin",
 	}
 
-	viruses := []string{
+	l.viruses = []string{
 		"SARS2",
 		"OC43",
 		"BANAL-20-52",
 		"RaTG13",
 		"SARS1",
 	}
+}
 
-	getPeptides := func(name string, merLen int) PeptideSet {
-		vg := genomes.LoadGenomes(
-			root+fmt.Sprintf("viruses/%s/%s-prot.fasta.gz",
-				name, name), "", true)
-		return GetPeptides(vg, merLen)
+func (l *Library) Intersections(merLen int, spikeOnly bool) {
+	sc2 := GetPeptides(l.viruses[0], merLen, spikeOnly)
+	for i, v := range l.viruses {
+		if i == 0 {
+			continue
+		}
+		peptides := GetPeptides(v, merLen, spikeOnly)
+		ix := len(utils.Intersection(sc2, peptides))
+		pct := float64(ix*100) / float64(len(peptides))
+		fmt.Printf("SC2 vs %s: %d/%d (%.2f%%) %d-mers in common\n",
+			v, ix, len(peptides), pct, merLen)
 	}
+}
 
-	for merLen := 5; merLen <= 9; merLen++ {
-		sc2 := getPeptides("SARS2", merLen)
-		for i, v := range viruses {
-			if i == 0 {
-				continue
-			}
-			peptides := getPeptides(v, merLen)
-			ix := len(utils.Intersection(sc2, peptides))
-			pct := float64(ix*100) / float64(len(peptides))
-			fmt.Printf("SC2 vs %s: %d/%d (%.2f%%) %d-mers in common\n",
-				v, ix, len(peptides), pct, merLen)
+func (l *Library) HostMatches(merLen int, spikeOnly bool) {
+	for _, v := range l.viruses {
+		peptides := GetPeptides(v, merLen, spikeOnly)
+
+		for _, h := range l.hosts {
+			hg := genomes.LoadGenomes(
+				ROOT+fmt.Sprintf("%s/%s-prot.fasta.gz", h, h), "", true)
+			count := Search(peptides, hg, merLen)
+
+			total := len(peptides)
+			pctOutside := (float64(total - count) * 100) / float64(total)
+			fmt.Printf("%d %s %s %d/%d %.2f\n", merLen,
+				v, h, count, total, pctOutside)
 		}
 	}
-	return
+}
 
-	for merLen := 6; merLen <= 9; merLen++ {
-		for _, v := range viruses {
-			peptides := getPeptides(v, merLen)
+func main() {
+	var l Library
+	l.Init()
 
-			for _, h := range hosts {
-				hg := genomes.LoadGenomes(
-					root+fmt.Sprintf("%s/%s-prot.fasta.gz", h, h), "", true)
-				count := Search(peptides, hg, merLen)
-				fmt.Printf("%d %s %s %d\n", merLen, v, h, count)
-			}
-		}
-	}
+	l.Intersections(5, false)
+	l.HostMatches(5, false)
 }
