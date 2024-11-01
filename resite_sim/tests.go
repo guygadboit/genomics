@@ -13,7 +13,8 @@ func testMutations(genome *genomes.Genomes) {
 	genome.Save("B52", "B52-test.fasta", 0)
 	fmt.Printf("Saved as B52-test.fasta\n")
 
-	nd := mutations.NewNucDistro(mutations.NewGenomeIterator(genome))
+	nd := mutations.NewNucDistro(mutations.NewGenomeIterator(genome),
+		mutations.NT_ALPHABET)
 
 	var mutant *genomes.Genomes
 	for {

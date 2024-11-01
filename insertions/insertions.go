@@ -119,7 +119,7 @@ func (id *InsertionData) GetNucDistro(
 		return id.NucDistro
 	}
 	it := InsertionNtIterator{id, filters, 0, 0}
-	id.NucDistro = mutations.NewNucDistro(&it)
+	id.NucDistro = mutations.NewNucDistro(&it, mutations.NT_ALPHABET)
 	fmt.Println(id.NucDistro)
 	return id.NucDistro
 }

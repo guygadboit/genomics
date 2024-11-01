@@ -34,7 +34,7 @@ func loadGenomes(fnames []string) []*genomes.Genomes {
 }
 
 func findNucDistro(g []*genomes.Genomes) *mutations.NucDistro {
-	nd := mutations.NewNucDistro(nil)
+	nd := mutations.NewNucDistro(nil, mutations.NT_ALPHABET)
 	for i := 0; i < len(g); i++ {
 		nd.Count(mutations.NewGenomeIterator(g[i]))
 	}

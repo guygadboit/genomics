@@ -765,3 +765,52 @@ func (g *Genomes) ConvertPosition(which int, pos int) int {
 	}
 	return pos + gaps
 }
+
+func (g *Genomes) IsProtein() bool {
+	var prot int
+	for _, nt := range g.Nts[0] {
+		// Look for "nts" that are amino acids not real nucleotides
+		switch nt {
+		case '*':
+			fallthrough
+		case 'D':
+			fallthrough
+		case 'E':
+			fallthrough
+		case 'F':
+			fallthrough
+		case 'H':
+			fallthrough
+		case 'I':
+			fallthrough
+		case 'K':
+			fallthrough
+		case 'L':
+			fallthrough
+		case 'M':
+			fallthrough
+		case 'N':
+			fallthrough
+		case 'P':
+			fallthrough
+		case 'Q':
+			fallthrough
+		case 'R':
+			fallthrough
+		case 'S':
+			fallthrough
+		case 'V':
+			fallthrough
+		case 'W':
+			fallthrough
+		case 'Y':
+			prot++
+		}
+		if prot > 10 {
+			// Seen 10. That'll do
+			return true
+		}
+	}
+	// Genome was very short. Did we see any?
+	return prot > 0
+}
