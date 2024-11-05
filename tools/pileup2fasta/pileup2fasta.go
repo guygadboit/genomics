@@ -43,8 +43,8 @@ func main() {
 	nts := g.Nts[1]
 	var j int
 	for i := 0; i < g.Length(); i++ {
-		if j < len(pileup) && pileup[j].Pos == i {
-			nts[i] = pileup[j].Reads[0].Nt
+		if j < len(pileup.Records) && pileup.Records[j].Pos == i {
+			nts[i] = pileup.Records[j].Reads[0].Nt
 			j++
 		} else {
 			nts[i] = '-'
