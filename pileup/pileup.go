@@ -2,44 +2,27 @@ package pileup
 
 import (
 	"genomics/utils"
+	"slices"
 	"strings"
-	"fmt"
 )
 
-type Record struct {
-	Pos   int
+type Read struct {
 	Nt    byte
 	Depth int
 }
 
-type Pileup []Record
-
-type Counter map[byte]int
-
-func (c Counter) findMax() (byte, int, int) {
-	var bestByte byte
-	var bestCount int
-
-	for k, v := range c {
-		if v > bestCount {
-			bestByte = k
-			bestCount = v
-		}
-	}
-
-	var numTie int
-	for _, v := range c {
-		if v == bestCount {
-			numTie++
-		}
-	}
-
-	return bestByte, bestCount, numTie
+type Record struct {
+	Pos   int
+	Reads []Read // Sorted by highest depth first
 }
 
-func parseReadBases(s string) (byte, int, int) {
+type Pileup []Record
+
+type counter map[byte]int
+
+func parseReadBases(s string) []Read {
 	s = strings.ToUpper(s)
-	counts := make(Counter)
+	counts := make(counter)
 	for _, c := range []byte(s) {
 		switch c {
 		case 'A':
@@ -52,7 +35,23 @@ func parseReadBases(s string) (byte, int, int) {
 			counts[c]++
 		}
 	}
-	return counts.findMax()
+
+	ret := make([]Read, 0, len(counts))
+	for k, v := range counts {
+		ret = append(ret, Read{k, v})
+	}
+
+	slices.SortFunc(ret, func(a, b Read) int {
+		if a.Depth < b.Depth {
+			return 1
+		}
+		if a.Depth > b.Depth {
+			return -1
+		}
+		return 0
+	})
+
+	return ret
 }
 
 func Parse(fname string) (Pileup, error) {
@@ -67,14 +66,11 @@ func Parse(fname string) (Pileup, error) {
 		fields := strings.Split(line, "\t")
 
 		pos := utils.Atoi(fields[1]) - 1
-		nt, depth, numTie := parseReadBases(fields[4])
+		reads := parseReadBases(fields[4])
 
-		if nt != 0 {
-			record := Record{pos, nt, depth}
+		if len(reads) != 0 {
+			record := Record{pos, reads}
 			ret = append(ret, record)
-			if numTie > 1 {
-				fmt.Printf("%d-way ambiguity at %d\n", numTie, pos+1)
-			}
 		}
 		return true
 	})
