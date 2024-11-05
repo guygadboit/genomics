@@ -73,7 +73,7 @@ func parseReadBases(s string) []Read {
 	return ret
 }
 
-func Parse(fname string) (Pileup, error) {
+func Parse(fname string) (*Pileup, error) {
 	var err error
 	var ret Pileup
 	ret.Init()
@@ -95,8 +95,8 @@ func Parse(fname string) (Pileup, error) {
 	})
 
 	if err != nil {
-		return ret, err
+		return nil, err
 	}
 
-	return ret, nil
+	return &ret, nil
 }

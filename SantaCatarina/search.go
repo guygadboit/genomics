@@ -7,6 +7,7 @@ import (
 	"genomics/genomes"
 	"genomics/mutations"
 	"genomics/utils"
+	"genomics/pileup"
 	"log"
 	"math/rand"
 	"os"
@@ -205,6 +206,10 @@ func main() {
 	*/
 	g := genomes.LoadGenomes("./RelativesPlusKhosta.fasta",
 		"../fasta/WH1.orfs", false)
+
+	pileup, _ := pileup.Parse("/fs/f/tmp/Malaysia/pileup")
+	MatchReads(g, pileup)
+	return
 	/*
 		g := genomes.LoadGenomes("../fasta/all.fasta", "../fasta/WH1.orfs", false)
 	*/
