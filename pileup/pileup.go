@@ -1,4 +1,4 @@
-package main
+package pileup
 
 import (
 	"genomics/utils"
@@ -7,9 +7,9 @@ import (
 )
 
 type Record struct {
-	pos   int
-	nt    byte
-	depth int
+	Pos   int
+	Nt    byte
+	Depth int
 }
 
 type Pileup []Record

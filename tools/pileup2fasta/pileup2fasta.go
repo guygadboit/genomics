@@ -12,6 +12,7 @@ import (
 	"flag"
 	"fmt"
 	"genomics/genomes"
+	"genomics/pileup"
 	"log"
 )
 
@@ -29,7 +30,7 @@ func main() {
 
 	g := genomes.LoadGenomes(reference, "", false)
 
-	pileup, err := Parse(flag.Args()[0])
+	pileup, err := pileup.Parse(flag.Args()[0])
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -42,8 +43,8 @@ func main() {
 	nts := g.Nts[1]
 	var j int
 	for i := 0; i < g.Length(); i++ {
-		if j < len(pileup) && pileup[j].pos == i {
-			nts[i] = pileup[j].nt
+		if j < len(pileup) && pileup[j].Pos == i {
+			nts[i] = pileup[j].Nt
 			j++
 		} else {
 			nts[i] = '-'
