@@ -9,7 +9,20 @@ def output_sample(sample):
 		root = ET.fromstring(s)
 	except:
 		return
-	rr_name, epi_name = None, None
+
+	interested = False
+	for on in root.iter("Organism"):
+		a = on.attrib
+		if a.get("taxonomy_id") == "2697049":
+			interested = True
+			break
+
+	if not interested:
+		return
+
+	rr_name, epi_name, collection_date, location = None, None, None, None
+
+
 	for Id in root.iter("Id"):
 		a = Id.attrib
 		if a.get("is_primary") == "1":
@@ -17,9 +30,14 @@ def output_sample(sample):
 		elif a.get("db_label") == "Sample name":
 			epi_name = Id.text
 
-		if epi_name:
-			if epi_name.startswith("EPI_ISL"):
-				print(epi_name, rr_name)
+	for At in root.iter("Attribute"):
+		a = At.attrib
+		if a.get("attribute_name") == "collection_date":
+			collection_date = At.text
+		elif a.get("attribute_name") == "geo_loc_name":
+			location = At.text
+
+		print(collection_date, location, epi_name, rr_name)
 
 
 def find_sras(fname):
