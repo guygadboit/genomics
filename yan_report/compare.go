@@ -46,7 +46,12 @@ func LoadShortNames() []string {
 
 func CompareAll(g *genomes.Genomes) {
 	shortNames := LoadShortNames()
-	for _, orf := range g.Orfs {
+
+	orfs := make([]genomes.Orf, len(g.Orfs))
+	copy(orfs, g.Orfs)
+	orfs = append(orfs, genomes.Orf{11842, 12091, "nsp7"})
+
+	for _, orf := range orfs {
 		results := make([]Result, 0)
 		for i := 1; i < g.NumGenomes(); i++ {
 			result := CompareOrf(g, 0, i, orf)

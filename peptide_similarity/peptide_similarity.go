@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"path"
 	"genomics/genomes"
 	"genomics/utils"
 )
@@ -49,11 +50,15 @@ type Library struct {
 
 func (l *Library) Init() {
 	l.hosts = []string{
+		"bacteria/AIsrael",
+		"bacteria/Streptomyces",
 		"human",
 		"mouse",
+		/*
 		"chimpanzee",
 		"rabbit",
 		"pangolin",
+		*/
 	}
 
 	l.viruses = []string{
@@ -84,8 +89,9 @@ func (l *Library) HostMatches(merLen int, spikeOnly bool) {
 		peptides := GetPeptides(v, merLen, spikeOnly)
 
 		for _, h := range l.hosts {
+			_, bn := path.Split(h)
 			hg := genomes.LoadGenomes(
-				ROOT+fmt.Sprintf("%s/%s-prot.fasta.gz", h, h), "", true)
+				ROOT+fmt.Sprintf("%s/%s-prot.fasta.gz", h, bn), "", true)
 			count := Search(peptides, hg, merLen)
 
 			total := len(peptides)
@@ -100,6 +106,6 @@ func main() {
 	var l Library
 	l.Init()
 
-	l.Intersections(5, false)
-	l.HostMatches(5, false)
+	l.Intersections(7, false)
+	l.HostMatches(7, false)
 }
