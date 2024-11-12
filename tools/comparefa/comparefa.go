@@ -172,6 +172,46 @@ func (c *Comparison) OneLineSummary() {
 		S, N, NO, S+N+NO)
 }
 
+type Transition struct {
+	from, to byte
+}
+
+type TransitionCount struct {
+	t     Transition
+	count int
+}
+
+func (c *Comparison) ShowTransitions() {
+	transitions := make(map[Transition]int)
+	for _, ntm := range c.NtMuts {
+		t := Transition{ntm.A, ntm.B}
+		transitions[t]++
+	}
+
+	counts := make([]TransitionCount, 0, len(transitions))
+	total := 0
+	for k, v := range transitions {
+		counts = append(counts, TransitionCount{k, v})
+		total += v
+	}
+
+	slices.SortFunc(counts, func(a, b TransitionCount) int {
+		if a.count < b.count {
+			return 1
+		}
+		if a.count > b.count {
+			return -1
+		}
+		return 0
+	})
+
+	fmt.Printf("Transitions")
+	for _, c := range counts {
+		rate := float64(c.count) / float64(total)
+		fmt.Printf("%c->%c %d %.2f\n", c.t.from, c.t.to, c.count, rate)
+	}
+}
+
 type PosSet map[int]bool
 
 func (c *Comparison) GraphData(fname string) {
@@ -345,17 +385,20 @@ func compareProtein(g *genomes.Genomes, a, b int) Comparison {
 }
 
 func main() {
-	var orfName string
-	var include string
-	var saveTrans string
-	var oneLine bool
-	var keepGaps bool
-	var graphData bool
-	var silentOnly bool
-	var protein bool
-	var highlightString string
-	var highlightFile string
-	var showIndels bool
+	var (
+		orfName         string
+		include         string
+		saveTrans       string
+		oneLine         bool
+		keepGaps        bool
+		graphData       bool
+		silentOnly      bool
+		protein         bool
+		highlightString string
+		highlightFile   string
+		showIndels      bool
+		showTransitions bool
+	)
 
 	flag.StringVar(&orfName, "orfs", "", "ORFs")
 	flag.StringVar(&include, "i", "", "Genomes to include (unset means all)")
@@ -370,6 +413,7 @@ func main() {
 	flag.StringVar(&highlightFile, "highlight-file",
 		"", "1-based positions to highlight one per line in a file")
 	flag.BoolVar(&showIndels, "indels", false, "Show indels")
+	flag.BoolVar(&showTransitions, "trans", false, "Show transition counts")
 	flag.Parse()
 
 	var g *genomes.Genomes
@@ -428,6 +472,9 @@ func main() {
 			c.GraphData(fname)
 			fmt.Printf("Wrote %s\n", fname)
 			RunGnuplot(fname, g, which[0], which[1])
+		}
+		if showTransitions {
+			c.ShowTransitions()
 		}
 	}
 
