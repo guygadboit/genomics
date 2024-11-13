@@ -182,34 +182,52 @@ type TransitionCount struct {
 }
 
 func (c *Comparison) ShowTransitions() {
-	transitions := make(map[Transition]int)
-	for _, ntm := range c.NtMuts {
-		t := Transition{ntm.A, ntm.B}
-		transitions[t]++
-	}
-
-	counts := make([]TransitionCount, 0, len(transitions))
-	total := 0
-	for k, v := range transitions {
-		counts = append(counts, TransitionCount{k, v})
-		total += v
-	}
-
-	slices.SortFunc(counts, func(a, b TransitionCount) int {
-		if a.count < b.count {
-			return 1
+	makeTransitions := func(silentOnly bool) map[Transition]int {
+		transitions := make(map[Transition]int)
+		for _, ntm := range c.NtMuts {
+			if !silentOnly || ntm.Silence != NON_SILENT {
+				t := Transition{ntm.A, ntm.B}
+				transitions[t]++
+			}
 		}
-		if a.count > b.count {
-			return -1
-		}
-		return 0
-	})
-
-	fmt.Printf("Transitions")
-	for _, c := range counts {
-		rate := float64(c.count) / float64(total)
-		fmt.Printf("%c->%c %d %.2f\n", c.t.from, c.t.to, c.count, rate)
+		return transitions
 	}
+
+	makeCounts := func(t map[Transition]int) ([]TransitionCount, int) {
+		ret := make([]TransitionCount, 0, len(t))
+		total := 0
+		for k, v := range t {
+			ret = append(ret, TransitionCount{k, v})
+			total += v
+		}
+
+		slices.SortFunc(ret, func(a, b TransitionCount) int {
+			if a.count < b.count {
+				return 1
+			}
+			if a.count > b.count {
+				return -1
+			}
+			return 0
+		})
+		return ret, total
+	}
+
+	showCounts := func(counts []TransitionCount, total int) {
+		for _, c := range counts {
+			rate := float64(c.count) / float64(total)
+			fmt.Printf("%c->%c %d/%d %.2f\n", c.t.from,
+				c.t.to, c.count, total, rate)
+		}
+	}
+
+	fmt.Println("Transitions (all)")
+	counts, total := makeCounts(makeTransitions(false))
+	showCounts(counts, total)
+
+	fmt.Println("Transitions (silent only)")
+	counts, total = makeCounts(makeTransitions(true))
+	showCounts(counts, total)
 }
 
 type PosSet map[int]bool
