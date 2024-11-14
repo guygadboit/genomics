@@ -256,6 +256,8 @@ func (c *Comparison) GraphData(fname string) {
 	g := c.Genomes
 
 	var s, ns, ins, del int
+	var nsRatio float64
+
 	for i := 0; i < g.Length(); i++ {
 		if silent[i] {
 			s++
@@ -266,7 +268,12 @@ func (c *Comparison) GraphData(fname string) {
 		} else if deletions[i] {
 			del++
 		}
-		fmt.Fprintf(w, "%d %d %d %d\n", s, ns, ins, del)
+		if s > 0 {
+			nsRatio = float64(ns)/float64(s)
+		}
+		
+		// The ratio goes in the data file but isn't plotted by default
+		fmt.Fprintf(w, "%d %d %d %d %.4f\n", s, ns, ins, del, nsRatio)
 	}
 
 	w.Flush()
@@ -282,6 +289,10 @@ func RunGnuplot(fname string, g *genomes.Genomes, a, b int) {
 
 	w := bufio.NewWriter(f)
 
+	/*
+	We don't plot the ratio by default, but the data is there in the file in
+	column 5. So if you want to plot that, just edit the gpi script afterwards
+	*/
 	fmt.Fprintf(w, `
 set title "%s vs %s"
 set xlabel "nucleotide offset"
