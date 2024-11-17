@@ -12,12 +12,15 @@ type Range struct {
 	start, end int
 }
 
-func extractRanges(g *genomes.Genomes, ranges []Range) [][]byte {
+func extractRanges(g *genomes.Genomes, ranges []Range, reverse bool) [][]byte {
 	ret := make([][]byte, len(g.Nts))
 	for i := 0; i < g.NumGenomes(); i++ {
 		for _, r := range ranges {
-			ret[i] = append(ret[i],
-				genomes.TranslateAlignedShort(g.Nts[i][r.start:r.end])...)
+			seq := g.Nts[i][r.start:r.end]
+			if reverse {
+				seq = utils.ReverseComplement(seq)
+			}
+			ret[i] = append(ret[i], genomes.TranslateAlignedShort(seq)...)
 		}
 	}
 	return ret
@@ -33,14 +36,18 @@ func checkRanges(g *genomes.Genomes, ranges []Range) {
 }
 
 func main() {
-	var fasta string
-	var outName, format string
-	var removeGaps bool
+	var (
+		fasta           string
+		outName, format string
+		removeGaps      bool
+		reverse         bool
+	)
 
 	flag.StringVar(&fasta, "fasta", "", "fasta file (nucleotides)")
 	flag.StringVar(&outName, "o", "output.fasta", "output file")
 	flag.StringVar(&format, "format", "fasta", "output format")
 	flag.BoolVar(&removeGaps, "g", false, "remove gaps")
+	flag.BoolVar(&reverse, "r", false, "reverse")
 	flag.Parse()
 
 	ranges := make([]Range, 0)
@@ -59,7 +66,7 @@ func main() {
 	}
 
 	checkRanges(g, ranges)
-	aas := extractRanges(g, ranges)
+	aas := extractRanges(g, ranges, reverse)
 
 	var orfs genomes.Orfs
 	p := genomes.Genomes{aas, g.Names, orfs}
