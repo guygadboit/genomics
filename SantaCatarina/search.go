@@ -8,6 +8,7 @@ import (
 	"genomics/mutations"
 	"genomics/utils"
 	"genomics/pileup"
+	"flag"
 	"log"
 	"math/rand"
 	"os"
@@ -199,6 +200,13 @@ func PlotSignificant(
 func main() {
 	rand.Seed(9879)
 
+	var (
+		minDepth	int
+	)
+
+	flag.IntVar(&minDepth, "d", 1, "Min depth")
+	flag.Parse()
+
 	/*
 		g := genomes.LoadGenomes("../fasta/more_relatives.fasta",
 			"../fasta/WH1.orfs", false)
@@ -207,8 +215,23 @@ func main() {
 	g := genomes.LoadGenomes("./RelativesPlusKhosta.fasta",
 		"../fasta/WH1.orfs", false)
 
-	pileup, _ := pileup.Parse("/fs/f/tmp/RawReads/Sweden/pileup")
-	MatchReads(g, pileup, 6)
+	names := []string{"SRR11092059",
+		"SRR11092060", "SRR11092061",
+		"SRR11092062", "SRR11092063"}
+	pileups := make([]*pileup.Pileup, len(names))
+	for i, name := range names {
+		pileups[i], _ = pileup.Parse(
+			fmt.Sprintf("/fs/j/tmp/SeafoodReads/%s/pileup", name))
+		fmt.Printf("Loaded %s\n", name)
+	}
+
+	MatchMulti(g, 1, 5, pileups...)
+	return
+
+	for _, arg := range flag.Args() {
+		pileup, _ := pileup.Parse(arg)
+		MatchReads(g, pileup, minDepth)
+	}
 	return
 	/*
 		g := genomes.LoadGenomes("../fasta/all.fasta", "../fasta/WH1.orfs", false)

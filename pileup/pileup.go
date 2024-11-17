@@ -33,8 +33,12 @@ func (p *Pileup) Add(pos int, reads []Read) {
 	p.Index[pos] = len(p.Records)-1
 }
 
-func (p *Pileup) Get(pos int) Record {
-	return p.Records[p.Index[pos]]
+func (p *Pileup) Get(pos int) *Record {
+	recPos, there := p.Index[pos]
+	if !there {
+		return nil
+	}
+	return &p.Records[recPos]
 }
 
 type counter map[byte]int
