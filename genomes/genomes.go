@@ -696,7 +696,7 @@ func (g *Genomes) saveCluStyle(fname string,
 	trans := make([]Translation, len(which))
 	var index, nextIndex int
 	for i, w := range which {
-		names[i] = utils.Shorten(g.Names[w], 16)
+		names[i] = utils.Shorten(g.Names[w], 15)
 		if withTranslation {
 			trans[i] = Translate(g, w)
 		}
