@@ -4,13 +4,19 @@ import (
 	"fmt"
 	"genomics/genomes"
 	"genomics/pileup"
+	"genomics/utils"
 	"slices"
+	"strings"
 )
 
+/*
+Represents a match between a subpopulation of one genome and WH1
+*/
 type Match struct {
 	genome        int
-	numMatches    int // the number of matches in the reads
-	opportunities int // number of places where genome differs from WH1
+	numMatches    int                 // the number of matches in the reads
+	opportunities int                 // number of places where genome differs from WH1
+	positions     []utils.OneBasedPos // where the matches are
 }
 
 func (m *Match) Ratio() float64 {
@@ -91,11 +97,20 @@ func MatchMulti(ref *genomes.Genomes,
 	}
 }
 
+func makeString(p []utils.OneBasedPos) string {
+	s := make([]string, len(p))
+	for i, pos := range p {
+		s[i] = fmt.Sprintf("%d", pos)
+	}
+	return strings.Join(s, " ")
+}
+
 func MatchReads(g *genomes.Genomes, pu *pileup.Pileup, minDepth int) {
 	alt := Alternatives(g, pu, minDepth)
 
 	counts := make(map[int]int)
 	totals := make(map[int]int)
+	positions := make(map[int][]utils.OneBasedPos)
 
 	for i := 0; i < g.Length(); i++ {
 		rec := alt.Get(i)
@@ -110,6 +125,7 @@ func MatchReads(g *genomes.Genomes, pu *pileup.Pileup, minDepth int) {
 				totals[j]++
 				if read.Nt == g.Nts[j][i] {
 					counts[j]++
+					positions[j] = append(positions[j], utils.OneBasedPos(i+1))
 				}
 			}
 		}
@@ -117,7 +133,7 @@ func MatchReads(g *genomes.Genomes, pu *pileup.Pileup, minDepth int) {
 
 	matches := make([]Match, g.NumGenomes()-1)
 	for i := 1; i < g.NumGenomes(); i++ {
-		matches[i-1] = Match{i, counts[i], totals[i]}
+		matches[i-1] = Match{i, counts[i], totals[i], positions[i]}
 	}
 	slices.SortFunc(matches, func(a, b Match) int {
 		if a.Ratio() < b.Ratio() {
@@ -130,7 +146,8 @@ func MatchReads(g *genomes.Genomes, pu *pileup.Pileup, minDepth int) {
 	})
 
 	for _, m := range matches {
-		fmt.Printf("%d: %d/%d %.4f\n",
-			m.genome, m.numMatches, m.opportunities, m.Ratio())
+		fmt.Printf("%d: %d/%d %s %.4f\n",
+			m.genome, m.numMatches,
+			m.opportunities, makeString(m.positions), m.Ratio())
 	}
 }

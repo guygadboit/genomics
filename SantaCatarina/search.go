@@ -215,6 +215,7 @@ func main() {
 	g := genomes.LoadGenomes("./RelativesPlusKhosta.fasta",
 		"../fasta/WH1.orfs", false)
 
+	/*
 	names := []string{"SRR11092059",
 		"SRR11092060", "SRR11092061",
 		"SRR11092062", "SRR11092063"}
@@ -227,6 +228,7 @@ func main() {
 
 	MatchMulti(g, 1, 5, pileups...)
 	return
+	*/
 
 	for _, arg := range flag.Args() {
 		pileup, _ := pileup.Parse(arg)
