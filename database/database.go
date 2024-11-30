@@ -21,6 +21,7 @@ const (
 	GOB_NAME = ROOT + "gisaid2020.gob"
 )
 
+// These are actually just indexes into Database.Records
 type Id int
 
 type Silence int
@@ -273,6 +274,10 @@ func (d *Database) Add(r *Record) {
 	d.Records = append(d.Records, *r)
 }
 
+func (d *Database) Get(id Id) *Record {
+	return &d.Records[id]
+}
+
 func (d *Database) BuildMutationIndex() {
 	d.MutationIndex = make(map[utils.OneBasedPos]IdSet)
 
@@ -297,12 +302,13 @@ func (d *Database) BuildAccessionIndex() {
 type IdSet map[Id]bool
 
 // minMatches is the minimum number of matches-- so 1 for "Any" or len(muts)
-// for "All"
-func (d *Database) SearchByMuts(muts []Mutation, minMatches int) IdSet {
+// for "All".
+func (d *Database) SearchByMutPosition(pos []utils.OneBasedPos,
+	minMatches int) IdSet {
 	matches := make(map[Id]int) // How many matches for each record?
 
-	for _, mut := range muts {
-		found, there := d.MutationIndex[mut.Pos]
+	for _, pos := range pos {
+		found, there := d.MutationIndex[pos]
 		if there {
 			for k, _ := range found {
 				matches[k]++
@@ -310,8 +316,8 @@ func (d *Database) SearchByMuts(muts []Mutation, minMatches int) IdSet {
 		}
 	}
 
-	if minMatches > len(muts) {
-		minMatches = len(muts)
+	if minMatches > len(pos) {
+		minMatches = len(pos)
 	}
 
 	ret := make(IdSet)

@@ -5,7 +5,7 @@ import (
 	"genomics/database"
 	"genomics/utils"
 	"strings"
-	"time"
+	"slices"
 )
 
 var DiamondPrincess []string = []string{
@@ -112,40 +112,79 @@ func interestingMuts(r *database.Record) string {
 	return strings.Join(ret, ",")
 }
 
+type RdRPMutation struct {
+	database.Mutation
+	ids	[]database.Id
+}
+
+func RdRPVariants(db *database.Database) {
+	// The RdRP is nsp7, nsp8 and nsp12. Find all sequences with variations
+	// anywhere in there.
+	positions := make([]utils.OneBasedPos, 0)
+
+	addRange := func(start, end utils.OneBasedPos) {
+		for i := start; i <= end; i++ {
+			positions = append(positions, i)
+		}
+	}
+
+	addRange(11843, 12091)	// nsp7
+	addRange(12094, 12685)	// nsp8
+	addRange(13442, 16236)	// nsp12
+
+	posSet := utils.ToSet(positions)
+	ids := db.SearchByMutPosition(positions, 1)
+
+	// Now group them by the actual unique mutations. Make an index of mutation
+	// to ids that have it.
+	index := make(map[database.Mutation]database.IdSet)
+
+	for id, _ := range ids {
+		r := db.Get(id)
+		for _, mut := range r.NucleotideChanges {
+
+			// Don't print out anything referring to other muts these records
+			// may have that aren't in nsp7/8/12
+			if !posSet[mut.Pos] {
+				continue
+			}
+			_, there := index[mut]
+			if !there {
+				index[mut] = make(database.IdSet)
+			}
+			index[mut][id] = true
+		}
+	}
+
+	// Now make that into something we can sort
+	muts := make([]RdRPMutation, 0, len(index))
+	for k, v := range index {
+		muts = append(muts, RdRPMutation{k, utils.FromSet(v)})
+	}
+
+	slices.SortFunc(muts, func(a, b RdRPMutation) int {
+		ka, kb := len(a.ids), len(b.ids)
+		if ka < kb {
+			return 1
+		}
+		if ka > kb {
+			return -1
+		}
+		return 0
+	})
+
+	for _, mut := range muts {
+		fmt.Printf("%s in %d sequences\n", mut.ToString(), len(mut.ids))
+
+		db.Sort(mut.ids, database.COLLECTION_DATE)
+		for _, id := range mut.ids {
+			r := db.Get(id)
+			fmt.Println(r.ToString())
+		}
+	}
+}
+
 func main() {
 	db := database.NewDatabase()
-
-	for i, _ := range db.Records {
-		fmt.Println(db.Records[i].GisaidAccession)
-	}
-	return
-
-	// dp := utils.ToSet(DiamondPrincess)
-	muts := database.ParseMutations("T18060C,T8782C,C28144T,"+
-		"C28657T,T9477A,C28863T,G25979T")
-	// muts := database.ParseMutations("A17858G,C17747T")	// ν1 and ν2
-	// ids := db.SearchByMuts(muts, len(muts))
-	ids := db.SearchByMuts(muts, 1)
-	fmt.Printf("Found %d with those muts\n", len(ids))
-
-	// cutoff := utils.Date(2020, 1, 30)
-	// outliers := utils.ToSet(Outliers)
-	/*
-	ids = db.Filter(ids, func(r *database.Record) bool {
-		return r.Host == "Human" // && outliers[r.GisaidAccession]
-		// return r.CollectionDate.Compare(cutoff) < 0
-	})
-	*/
-
-	sorted := utils.FromSet(ids)
-	db.Sort(sorted, database.COLLECTION_DATE)
-
-	for _, id := range sorted {
-		r := &db.Records[id]
-		// fmt.Println(r.Summary(), interestingMuts(r))
-		fmt.Println(r.CollectionDate.Format(time.DateOnly),
-			r.SubmissionDate.Format(time.DateOnly),
-			r.GisaidAccession, r.Country, r.Region,
-			r.DeletionsSummary(), r.Host, interestingMuts(r))
-	}
+	RdRPVariants(db)
 }
