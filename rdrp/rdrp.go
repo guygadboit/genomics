@@ -8,16 +8,19 @@ import (
 )
 
 type RdRPMutation struct {
-	database.Mutation
-	Ids []database.Id
+	database.Mutation               // A mutation in the RdRP
+	Ids               []database.Id // The ids that have it, sorted by date
 }
 
 type RdRPMutations struct {
 	Db   *database.Database
 	Muts []RdRPMutation
+
+	// What RdRP muts does each id (that has any) have?
+	ById map[database.Id][]database.Mutation
 }
 
-func RdRPVariants(db *database.Database) RdRPMutations {
+func NewRdRPMutations(db *database.Database) *RdRPMutations {
 	// The RdRP is nsp7, nsp8 and nsp12. Find all sequences with variations
 	// anywhere in there.
 	positions := make([]utils.OneBasedPos, 0)
@@ -43,8 +46,8 @@ func RdRPVariants(db *database.Database) RdRPMutations {
 		r := db.Get(id)
 		for _, mut := range r.NucleotideChanges {
 
-			// Don't print out anything referring to other muts these records
-			// may have that aren't in nsp7/8/12
+			// Don't save anything referring to other muts these records may
+			// have that aren't in nsp7/8/12
 			if !posSet[mut.Pos] {
 				continue
 			}
@@ -79,10 +82,24 @@ func RdRPVariants(db *database.Database) RdRPMutations {
 		db.Sort(muts[i].Ids, database.COLLECTION_DATE)
 	}
 
-	return RdRPMutations{db, muts}
+	ret := &RdRPMutations{db, muts, nil}
+	ret.findById()
+	return ret
 }
 
-func (m RdRPMutations) Print() {
+func (m *RdRPMutations) findById() {
+	m.ById = make(map[database.Id][]database.Mutation)
+	for _, rmut := range m.Muts {
+		for _, id := range rmut.Ids {
+			if _, there := m.ById[id]; !there {
+				m.ById[id] = make([]database.Mutation, 0)
+			}
+			m.ById[id] = append(m.ById[id], rmut.Mutation)
+		}
+	}
+}
+
+func (m *RdRPMutations) Print() {
 	for _, mut := range m.Muts {
 		fmt.Printf("%s in %d sequences\n", mut.ToString(), len(mut.Ids))
 		for _, id := range mut.Ids {
@@ -92,8 +109,48 @@ func (m RdRPMutations) Print() {
 	}
 }
 
+func (m *RdRPMutations) PrintById() {
+	type record struct {
+		id   database.Id
+		muts []database.Mutation
+	}
+	records := make([]record, 0)
+
+	for k, v := range m.ById {
+		nsMuts := make([]database.Mutation, 0)
+		for _, mut := range v {
+			if mut.Silence == database.NON_SILENT {
+				nsMuts = append(nsMuts, mut)
+			}
+		}
+		records = append(records, record{k, nsMuts})
+	}
+
+	slices.SortFunc(records, func(a, b record) int {
+		ka, kb := len(a.muts), len(b.muts)
+		if ka < kb {
+			return 1
+		}
+		if ka > kb {
+			return -1
+		}
+		return 0
+	})
+	for _, rec := range records {
+		r := m.Db.Get(rec.id)
+		fmt.Printf("%s (%s): %d NS RdRP mutations\n",
+			r.ToString(), r.Host, len(rec.muts))
+
+		for _, mut := range rec.muts {
+			fmt.Printf("%s ", mut.ToString())
+		}
+		fmt.Printf("\n")
+	}
+}
+
 func main() {
 	db := database.NewDatabase()
-	muts := RdRPVariants(db)
-	muts.Print()
+	muts := NewRdRPMutations(db)
+	// muts.Print()
+	muts.PrintById()
 }
