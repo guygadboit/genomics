@@ -4,16 +4,20 @@ import (
 	"fmt"
 	"genomics/database"
 	"genomics/utils"
-	"strings"
 	"slices"
 )
 
 type RdRPMutation struct {
 	database.Mutation
-	ids	[]database.Id
+	ids []database.Id
 }
 
-func RdRPVariants(db *database.Database) {
+type RdRPMutations struct {
+	db   *database.Database
+	muts []RdRPMutation
+}
+
+func RdRPVariants(db *database.Database) RdRPMutations {
 	// The RdRP is nsp7, nsp8 and nsp12. Find all sequences with variations
 	// anywhere in there.
 	positions := make([]utils.OneBasedPos, 0)
@@ -24,9 +28,9 @@ func RdRPVariants(db *database.Database) {
 		}
 	}
 
-	addRange(11843, 12091)	// nsp7
-	addRange(12094, 12685)	// nsp8
-	addRange(13442, 16236)	// nsp12
+	addRange(11843, 12091) // nsp7
+	addRange(12094, 12685) // nsp8
+	addRange(13442, 16236) // nsp12
 
 	posSet := utils.ToSet(positions)
 	ids := db.SearchByMutPosition(positions, 1)
@@ -58,6 +62,7 @@ func RdRPVariants(db *database.Database) {
 		muts = append(muts, RdRPMutation{k, utils.FromSet(v)})
 	}
 
+	// Sort them by the ones that occur the most often.
 	slices.SortFunc(muts, func(a, b RdRPMutation) int {
 		ka, kb := len(a.ids), len(b.ids)
 		if ka < kb {
@@ -69,12 +74,16 @@ func RdRPVariants(db *database.Database) {
 		return 0
 	})
 
-	for _, mut := range muts {
+	return RdRPMutations{db, muts}
+}
+
+func (m RdRPMutations) Print() {
+	for _, mut := range m.muts {
 		fmt.Printf("%s in %d sequences\n", mut.ToString(), len(mut.ids))
 
-		db.Sort(mut.ids, database.COLLECTION_DATE)
+		m.db.Sort(mut.ids, database.COLLECTION_DATE)
 		for _, id := range mut.ids {
-			r := db.Get(id)
+			r := m.db.Get(id)
 			fmt.Println(r.ToString())
 		}
 	}
@@ -82,5 +91,6 @@ func RdRPVariants(db *database.Database) {
 
 func main() {
 	db := database.NewDatabase()
-	RdRPVariants(db)
+	muts := RdRPVariants(db)
+	muts.Print()
 }
