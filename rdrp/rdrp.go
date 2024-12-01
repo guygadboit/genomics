@@ -9,12 +9,12 @@ import (
 
 type RdRPMutation struct {
 	database.Mutation
-	ids []database.Id
+	Ids []database.Id
 }
 
 type RdRPMutations struct {
-	db   *database.Database
-	muts []RdRPMutation
+	Db   *database.Database
+	Muts []RdRPMutation
 }
 
 func RdRPVariants(db *database.Database) RdRPMutations {
@@ -64,7 +64,7 @@ func RdRPVariants(db *database.Database) RdRPMutations {
 
 	// Sort them by the ones that occur the most often.
 	slices.SortFunc(muts, func(a, b RdRPMutation) int {
-		ka, kb := len(a.ids), len(b.ids)
+		ka, kb := len(a.Ids), len(b.Ids)
 		if ka < kb {
 			return 1
 		}
@@ -78,12 +78,12 @@ func RdRPVariants(db *database.Database) RdRPMutations {
 }
 
 func (m RdRPMutations) Print() {
-	for _, mut := range m.muts {
-		fmt.Printf("%s in %d sequences\n", mut.ToString(), len(mut.ids))
+	for _, mut := range m.Muts {
+		fmt.Printf("%s in %d sequences\n", mut.ToString(), len(mut.Ids))
 
-		m.db.Sort(mut.ids, database.COLLECTION_DATE)
-		for _, id := range mut.ids {
-			r := m.db.Get(id)
+		m.Db.Sort(mut.Ids, database.COLLECTION_DATE)
+		for _, id := range mut.Ids {
+			r := m.Db.Get(id)
 			fmt.Println(r.ToString())
 		}
 	}
