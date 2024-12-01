@@ -74,14 +74,17 @@ func RdRPVariants(db *database.Database) RdRPMutations {
 		return 0
 	})
 
+	// And within each RdRPMutation, sort the ids by date
+	for i, _ := range muts {
+		db.Sort(muts[i].Ids, database.COLLECTION_DATE)
+	}
+
 	return RdRPMutations{db, muts}
 }
 
 func (m RdRPMutations) Print() {
 	for _, mut := range m.Muts {
 		fmt.Printf("%s in %d sequences\n", mut.ToString(), len(mut.Ids))
-
-		m.Db.Sort(mut.Ids, database.COLLECTION_DATE)
 		for _, id := range mut.Ids {
 			r := m.Db.Get(id)
 			fmt.Println(r.ToString())
