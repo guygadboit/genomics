@@ -259,7 +259,7 @@ func (r *Record) Parse(line string) {
 	r.ToBeExcluded = Atoi(fields[18])
 }
 
-type AAMutationKey struct {
+type AAMutationPos struct {
 	Gene string
 	pos  utils.OneBasedPos
 }
@@ -267,8 +267,51 @@ type AAMutationKey struct {
 type Database struct {
 	Records         []Record
 	MutationIndex   map[utils.OneBasedPos]IdSet
-	AAMutationIndex map[AAMutationKey]IdSet
+	AAMutationIndex map[AAMutationPos]IdSet
 	AccessionIndex  map[string]Id
+}
+
+type NtMutationIndexSearch struct {
+	keys  []utils.OneBasedPos
+	index map[utils.OneBasedPos]IdSet
+}
+
+func NewNtMutationIndexSearch(db *Database,
+	keys []utils.OneBasedPos) *NtMutationIndexSearch {
+	return &NtMutationIndexSearch{keys, db.MutationIndex}
+}
+
+func (mi *NtMutationIndexSearch) Get(i int) (IdSet, bool) {
+	matches, there := mi.index[mi.keys[i]]
+	return matches, there
+}
+
+func (mi *NtMutationIndexSearch) NumKeys() int {
+	return len(mi.keys)
+}
+
+type AAMutationIndexSearch struct {
+	keys  []AAMutationPos
+	index map[AAMutationPos]IdSet
+}
+
+func NewAAMutationIndexSearch(db *Database,
+	keys []AAMutationPos) *AAMutationIndexSearch {
+	return &AAMutationIndexSearch{keys, db.AAMutationIndex}
+}
+
+type MutationIndexSearch interface {
+	Get(i int) (IdSet, bool)
+	NumKeys() int
+}
+
+func (mi *AAMutationIndexSearch) Get(i int) (IdSet, bool) {
+	matches, there := mi.index[mi.keys[i]]
+	return matches, there
+}
+
+func (mi *AAMutationIndexSearch) NumKeys() int {
+	return len(mi.keys)
 }
 
 func (d *Database) Init() {
@@ -286,7 +329,7 @@ func (d *Database) Get(id Id) *Record {
 
 func (d *Database) BuildMutationIndices() {
 	d.MutationIndex = make(map[utils.OneBasedPos]IdSet)
-	d.AAMutationIndex = make(map[AAMutationKey]IdSet)
+	d.AAMutationIndex = make(map[AAMutationPos]IdSet)
 
 	for i, r := range d.Records {
 		for _, mut := range r.NucleotideChanges {
@@ -297,7 +340,7 @@ func (d *Database) BuildMutationIndices() {
 		}
 
 		for _, mut := range r.AAChanges {
-			key := AAMutationKey{mut.Gene, mut.Pos}
+			key := AAMutationPos{mut.Gene, mut.Pos}
 			if _, there := d.AAMutationIndex[key]; !there {
 				d.AAMutationIndex[key] = make(IdSet)
 			}
@@ -316,14 +359,12 @@ func (d *Database) BuildAccessionIndex() {
 
 type IdSet map[Id]bool
 
-// minMatches is the minimum number of matches-- so 1 for "Any" or len(muts)
-// for "All".
-func (d *Database) SearchByMutPosition(pos []utils.OneBasedPos,
+func (d *Database) searchByMutPosition(search MutationIndexSearch,
 	minMatches int) IdSet {
 	matches := make(map[Id]int) // How many matches for each record?
 
-	for _, pos := range pos {
-		found, there := d.MutationIndex[pos]
+	for i := 0; i < search.NumKeys(); i++ {
+		found, there := search.Get(i)
 		if there {
 			for k, _ := range found {
 				matches[k]++
@@ -331,8 +372,8 @@ func (d *Database) SearchByMutPosition(pos []utils.OneBasedPos,
 		}
 	}
 
-	if minMatches > len(pos) {
-		minMatches = len(pos)
+	if minMatches > search.NumKeys() {
+		minMatches = search.NumKeys()
 	}
 
 	ret := make(IdSet)
@@ -343,6 +384,20 @@ func (d *Database) SearchByMutPosition(pos []utils.OneBasedPos,
 	}
 
 	return ret
+}
+
+// minMatches is the minimum number of matches-- so 1 for "Any" or len(muts)
+// for "All".
+func (d *Database) SearchByMutPosition(pos []utils.OneBasedPos,
+	minMatches int) IdSet {
+	search := NewNtMutationIndexSearch(d, pos)
+	return d.searchByMutPosition(search, minMatches)
+}
+
+func (d *Database) SearchByAAMutPosition(pos []AAMutationPos,
+	minMatches int) IdSet {
+	search := NewAAMutationIndexSearch(d, pos)
+	return d.searchByMutPosition(search, minMatches)
 }
 
 func (d *Database) GetByAccession(accNum ...string) []Id {
