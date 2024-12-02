@@ -150,7 +150,8 @@ func (m *RdRPMutations) PrintById() {
 
 func main() {
 	db := database.NewDatabase()
-	muts := NewRdRPMutations(db)
+	ShowSequences(db)
+	// muts := NewRdRPMutations(db)
 	// muts.Print()
-	muts.PrintById()
+	// muts.PrintById()
 }
