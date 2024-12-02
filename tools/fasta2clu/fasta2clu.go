@@ -15,7 +15,7 @@ func main() {
 	flag.StringVar(&include, "i", "", "Genomes to include")
 	flag.StringVar(&exclude, "e", "", "Genomes to exclude")
 	flag.StringVar(&outName, "o", "output.clu", "Output filename")
-	flag.StringVar(&subSeq, "r", "", "range")
+	flag.StringVar(&subSeq, "r", "", "range (one-based)")
 	flag.StringVar(&highlightString, "highlights",
 		"", "1-based positions to highlight separated with ,")
 	flag.Parse()
@@ -34,7 +34,7 @@ func main() {
 
 	if subSeq != "" {
 		limits := utils.ParseInts(subSeq, ":")
-		start := clamp(limits[0])
+		start := clamp(limits[0]-1)
 		end := clamp(limits[1])
 		for i, nts := range g.Nts {
 			g.Nts[i] = nts[start:end]
