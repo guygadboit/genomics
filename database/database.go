@@ -259,10 +259,16 @@ func (r *Record) Parse(line string) {
 	r.ToBeExcluded = Atoi(fields[18])
 }
 
+type AAMutationKey struct {
+	Gene string
+	pos  utils.OneBasedPos
+}
+
 type Database struct {
-	Records        []Record
-	MutationIndex  map[utils.OneBasedPos]IdSet
-	AccessionIndex map[string]Id
+	Records         []Record
+	MutationIndex   map[utils.OneBasedPos]IdSet
+	AAMutationIndex map[AAMutationKey]IdSet
+	AccessionIndex  map[string]Id
 }
 
 func (d *Database) Init() {
@@ -278,15 +284,24 @@ func (d *Database) Get(id Id) *Record {
 	return &d.Records[id]
 }
 
-func (d *Database) BuildMutationIndex() {
+func (d *Database) BuildMutationIndices() {
 	d.MutationIndex = make(map[utils.OneBasedPos]IdSet)
+	d.AAMutationIndex = make(map[AAMutationKey]IdSet)
 
 	for i, r := range d.Records {
 		for _, mut := range r.NucleotideChanges {
-			if d.MutationIndex[mut.Pos] == nil {
+			if _, there := d.MutationIndex[mut.Pos]; !there {
 				d.MutationIndex[mut.Pos] = make(IdSet)
 			}
 			d.MutationIndex[mut.Pos][Id(i)] = true
+		}
+
+		for _, mut := range r.AAChanges {
+			key := AAMutationKey{mut.Gene, mut.Pos}
+			if _, there := d.AAMutationIndex[key]; !there {
+				d.AAMutationIndex[key] = make(IdSet)
+			}
+			d.AAMutationIndex[key][Id(i)] = true
 		}
 	}
 }
@@ -400,7 +415,7 @@ loop:
 		record.Parse(line)
 		d.Add(&record)
 	}
-	d.BuildMutationIndex()
+	d.BuildMutationIndices()
 	d.BuildAccessionIndex()
 }
 
