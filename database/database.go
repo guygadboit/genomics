@@ -24,20 +24,11 @@ const (
 // These are actually just indexes into Database.Records
 type Id int
 
-type Silence int
-
-const (
-	UNKNOWN Silence = iota
-	SILENT
-	NON_SILENT
-	NOT_IN_ORF
-)
-
 type Mutation struct {
 	Pos     utils.OneBasedPos
 	From    byte
 	To      byte
-	Silence Silence
+	Silence utils.Silence
 }
 
 type Mutations []Mutation
@@ -46,9 +37,9 @@ type AAMutations []AAMutation
 func (m *Mutation) ToString() string {
 	var silence string
 	switch m.Silence {
-	case SILENT:
+	case utils.SILENT:
 		silence = "*"
-	case NOT_IN_ORF:
+	case utils.NOT_IN_ORF:
 		silence = "@"
 	}
 	return fmt.Sprintf("%c%d%c%s", m.From, m.Pos, m.To, silence)
@@ -89,7 +80,7 @@ func ParseMutations(s string) []Mutation {
 	for _, f := range fields {
 		n := len(f)
 		mut := Mutation{utils.OneBasedPos(utils.Atoi(f[1 : n-1])),
-			f[0], f[n-1], UNKNOWN}
+			f[0], f[n-1], utils.UNKNOWN}
 		ret = append(ret, mut)
 	}
 	return ret
@@ -108,7 +99,7 @@ func ParseAAMutations(s string) []AAMutation {
 		f := subFields[1]
 		n := len(f)
 		mut := AAMutation{Mutation{utils.OneBasedPos(utils.Atoi(f[1 : n-1])),
-			f[0], f[n-1], UNKNOWN}, gene}
+			f[0], f[n-1], utils.UNKNOWN}, gene}
 		ret = append(ret, mut)
 	}
 	return ret
@@ -195,7 +186,7 @@ func (r *Record) ToString() string {
 		r.CollectionDate.Format(time.DateOnly), r.Country, r.Region, r.City)
 }
 
-func (r *Record) FilterNucleotideChanges(silence ...Silence) Mutations {
+func (r *Record) FilterNucleotideChanges(silence ...utils.Silence) Mutations {
 	ret := make(Mutations, 0)
 	for _, c := range r.NucleotideChanges {
 		for _, s := range silence {
@@ -470,8 +461,6 @@ loop:
 		record.Parse(line)
 		d.Add(&record)
 	}
-	d.BuildMutationIndices()
-	d.BuildAccessionIndex()
 }
 
 // Return whichever muts in muts this record has
@@ -546,19 +535,19 @@ func (d *Database) Filter(ids IdSet, fun func(r *Record) bool) IdSet {
 }
 
 func (d *Database) DetermineSilence(reference *genomes.Genomes) {
-	cache := make(map[Mutation]Silence)
+	cache := make(map[Mutation]utils.Silence)
 
-	determine := func(mut Mutation) Silence {
+	determine := func(mut Mutation) utils.Silence {
 		silence, there := cache[mut]
 		if !there {
 			isSilent, _, err := genomes.IsSilentWithReplacement(reference,
 				int(mut.Pos)-1, 0, 0, []byte{mut.To})
 			if err != nil {
-				silence = NOT_IN_ORF
+				silence = utils.NOT_IN_ORF
 			} else if isSilent {
-				silence = SILENT
+				silence = utils.SILENT
 			} else {
-				silence = NON_SILENT
+				silence = utils.NON_SILENT
 			}
 			cache[mut] = silence
 		}

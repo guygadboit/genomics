@@ -17,6 +17,15 @@ import (
 // Let's use this type for OneBased positions and regular ints for zero based.
 type OneBasedPos int
 
+// Use this everywhere you need to say if mutations are silent or not
+type Silence int
+const (
+	UNKNOWN Silence = iota
+	SILENT
+	NON_SILENT
+	NOT_IN_ORF
+)
+
 /*
 Anything iterable and if you do it like this you can easily use it in for
 loops.
