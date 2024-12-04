@@ -252,7 +252,7 @@ func (r *Record) Parse(line string) {
 
 type AAMutationPos struct {
 	Gene string
-	pos  utils.OneBasedPos
+	Pos  utils.OneBasedPos
 }
 
 type Database struct {
@@ -296,6 +296,7 @@ type MutationIndexSearch interface {
 	NumKeys() int
 }
 
+// Return the ids that match the i'th search term
 func (mi *AAMutationIndexSearch) Get(i int) (IdSet, bool) {
 	matches, there := mi.index[mi.keys[i]]
 	return matches, there
@@ -389,6 +390,28 @@ func (d *Database) SearchByAAMutPosition(pos []AAMutationPos,
 	minMatches int) IdSet {
 	search := NewAAMutationIndexSearch(d, pos)
 	return d.searchByMutPosition(search, minMatches)
+}
+
+func (d *Database) SearchByAAMut(muts AAMutations, minMatches int) IdSet {
+	pos := make([]AAMutationPos, len(muts))
+	for i, mut := range muts {
+		pos[i].Gene = mut.Gene
+		pos[i].Pos = mut.Pos
+	}
+	search := NewAAMutationIndexSearch(d, pos)
+	ids := d.searchByMutPosition(search, minMatches)
+	required := utils.ToSet(muts)
+	ret := make(IdSet)
+
+	for id, _ := range ids {
+		r := d.Get(id)
+		got := utils.ToSet(r.AAChanges)
+		ix := utils.Intersection(required, got)
+		if len(ix) >= minMatches {
+			ret[id] = true
+		}
+	}
+	return ret
 }
 
 func (d *Database) GetByAccession(accNum ...string) []Id {
