@@ -119,7 +119,7 @@ func (m *RdRPMutations) PrintById() {
 	for k, v := range m.ById {
 		nsMuts := make([]database.Mutation, 0)
 		for _, mut := range v {
-			if mut.Silence == database.NON_SILENT {
+			if mut.Silence == utils.NON_SILENT {
 				nsMuts = append(nsMuts, mut)
 			}
 		}

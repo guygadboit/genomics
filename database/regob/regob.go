@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"genomics/database"
 	"genomics/genomes"
+	"strings"
 )
 
 func main() {
@@ -25,9 +26,18 @@ func main() {
 
 	if fromFasta {
 		fmt.Printf("Adding in SARS2 relatives from FASTA file\n")
-		g := genomes.LoadGenomes("../../fasta/SARS2-relatives.fasta",
+		g := genomes.LoadGenomes("../../fasta/all_relatives.fasta",
 			"../../fasta/WH1.orfs", false)
-		database.AddFromGenomes(&db, g, nil)
+
+		getHost := func(i int) string {
+			if strings.Contains(g.Names[i], "Pangolin") {
+				return "Pangolin"
+			} else {
+				return "Bat"
+			}
+		}
+
+		database.AddFromGenomes(&db, g, getHost)
 	}
 
 	db.BuildMutationIndices()
