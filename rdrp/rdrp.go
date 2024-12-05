@@ -36,14 +36,14 @@ func NewRdRPMutations(db *database.Database) *RdRPMutations {
 	addRange(13442, 16236) // nsp12
 
 	posSet := utils.ToSet(positions)
-	ids := db.SearchByMutPosition(positions, 1)
+	matches := db.SearchByMutPosition(positions, 1)
 
 	// Now group them by the actual unique mutations. Make an index of mutation
 	// to ids that have it.
 	index := make(map[database.Mutation]database.IdSet)
 
-	for id, _ := range ids {
-		r := db.Get(id)
+	for _, match := range matches {
+		r := db.Get(match.Id)
 		for _, mut := range r.NucleotideChanges {
 
 			// Don't save anything referring to other muts these records may
@@ -55,7 +55,7 @@ func NewRdRPMutations(db *database.Database) *RdRPMutations {
 			if !there {
 				index[mut] = make(database.IdSet)
 			}
-			index[mut][id] = true
+			index[mut][match.Id] = true
 		}
 	}
 

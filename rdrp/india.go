@@ -37,12 +37,11 @@ func ShowSequences(db *database.Database) {
 
 	muts := GetAAChanges(db)
 
-	matches := utils.FromSet(db.SearchByAAMut(utils.FromSet(muts), len(muts)))
-	db.Sort(matches, database.COLLECTION_DATE)
+	matches := db.SearchByAAMut(utils.FromSet(muts), 10)
 
 	for _, match := range matches {
-		r := db.Get(match)
-		fmt.Println(r.ToString(), r.Host)
+		r := db.Get(match.Id)
+		fmt.Printf("%s (%s) %d\n", r.ToString(), r.Host, match.NumMatches)
 	}
 
 	// OK now look for how many other sequences in the DB share anything with

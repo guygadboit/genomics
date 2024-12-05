@@ -267,6 +267,11 @@ type NtMutationIndexSearch struct {
 	index map[utils.OneBasedPos]IdSet
 }
 
+type MutationSearchResult struct {
+	Id	Id				// the sequence
+	NumMatches	int		// the number of keys it matched
+}
+
 func NewNtMutationIndexSearch(db *Database,
 	keys []utils.OneBasedPos) *NtMutationIndexSearch {
 	return &NtMutationIndexSearch{keys, db.MutationIndex}
@@ -352,7 +357,7 @@ func (d *Database) BuildAccessionIndex() {
 type IdSet map[Id]bool
 
 func (d *Database) searchByMutPosition(search MutationIndexSearch,
-	minMatches int) IdSet {
+	minMatches int) []MutationSearchResult {
 	matches := make(map[Id]int) // How many matches for each record?
 
 	for i := 0; i < search.NumKeys(); i++ {
@@ -368,12 +373,22 @@ func (d *Database) searchByMutPosition(search MutationIndexSearch,
 		minMatches = search.NumKeys()
 	}
 
-	ret := make(IdSet)
+	ret := make([]MutationSearchResult, 0)
 	for k, v := range matches {
 		if v >= minMatches {
-			ret[k] = true
+			ret = append(ret, MutationSearchResult{k, v})
 		}
 	}
+
+	slices.SortFunc(ret, func(a, b MutationSearchResult) int {
+		if a.NumMatches < b.NumMatches {
+			return 1
+		}
+		if a.NumMatches > b.NumMatches {
+			return -1
+		}
+		return 0
+	})
 
 	return ret
 }
@@ -381,37 +396,26 @@ func (d *Database) searchByMutPosition(search MutationIndexSearch,
 // minMatches is the minimum number of matches-- so 1 for "Any" or len(muts)
 // for "All".
 func (d *Database) SearchByMutPosition(pos []utils.OneBasedPos,
-	minMatches int) IdSet {
+	minMatches int) []MutationSearchResult {
 	search := NewNtMutationIndexSearch(d, pos)
 	return d.searchByMutPosition(search, minMatches)
 }
 
 func (d *Database) SearchByAAMutPosition(pos []AAMutationPos,
-	minMatches int) IdSet {
+	minMatches int) []MutationSearchResult {
 	search := NewAAMutationIndexSearch(d, pos)
 	return d.searchByMutPosition(search, minMatches)
 }
 
-func (d *Database) SearchByAAMut(muts AAMutations, minMatches int) IdSet {
+func (d *Database) SearchByAAMut(muts AAMutations,
+	minMatches int) []MutationSearchResult {
 	pos := make([]AAMutationPos, len(muts))
 	for i, mut := range muts {
 		pos[i].Gene = mut.Gene
 		pos[i].Pos = mut.Pos
 	}
 	search := NewAAMutationIndexSearch(d, pos)
-	ids := d.searchByMutPosition(search, minMatches)
-	required := utils.ToSet(muts)
-	ret := make(IdSet)
-
-	for id, _ := range ids {
-		r := d.Get(id)
-		got := utils.ToSet(r.AAChanges)
-		ix := utils.Intersection(required, got)
-		if len(ix) >= minMatches {
-			ret[id] = true
-		}
-	}
-	return ret
+	return d.searchByMutPosition(search, minMatches)
 }
 
 func (d *Database) GetByAccession(accNum ...string) []Id {
