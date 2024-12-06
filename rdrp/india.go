@@ -73,4 +73,10 @@ func ShowSequences(db *database.Database) {
 		fmt.Println(r.GisaidAccession,
 			len(r.AAChanges), len(r.NucleotideChanges))
 	}
+
+	/*
+	It turns out these have gazillions of G->T mutations, causing all this, and
+	that is because some lab in India needs to fix their machine! So nothing
+	really happening with all this.
+	*/
 }
