@@ -16,8 +16,9 @@ var interesting []string = []string{
 	"EPI_ISL_10716750",
 }
 
-// Get the intersection of the AA Changes in these sequences
-func GetAAChanges(db *database.Database) map[database.AAMutation]bool {
+// Get the intersection of the AA Changes in these sequences. Return them
+// indexed by gene.
+func GetAAChanges(db *database.Database) map[string]database.AAMutations {
 	ids := db.GetByAccession(interesting...)
 
 	var muts map[database.AAMutation]bool
@@ -29,23 +30,36 @@ func GetAAChanges(db *database.Database) map[database.AAMutation]bool {
 			muts = utils.Intersection(muts, utils.ToSet(r.AAChanges))
 		}
 	}
-	return muts
+
+	ret := make(map[string]database.AAMutations)
+	for mut, _ := range muts {
+		if _, there := ret[mut.Gene]; !there {
+			ret[mut.Gene] = make(database.AAMutations, 0)
+		}
+		ret[mut.Gene] = append(ret[mut.Gene], mut)
+	}
+	return ret
 }
 
 func ShowSequences(db *database.Database) {
 	ids := db.GetByAccession(interesting...)
 
-	muts := GetAAChanges(db)
+	allMuts := GetAAChanges(db)
+	for gene, muts := range allMuts {
+		fmt.Printf("Gene %s has %d muts\n", gene, len(muts))
 
-	matches := db.SearchByAAMut(utils.FromSet(muts), 10)
+		for _, mut := range muts {
+			fmt.Printf("%s ", mut.ToString())
+		}
+		fmt.Println()
 
-	for _, match := range matches {
-		r := db.Get(match.Id)
-		fmt.Printf("%s (%s) %d\n", r.ToString(), r.Host, match.NumMatches)
+		matches := db.SearchByAAMut(muts, 1)
+		for _, match := range matches {
+			r := db.Get(match.Id)
+			fmt.Printf("%s (%s) %d\n", r.ToString(), r.Host, match.NumMatches)
+		}
+		fmt.Println()
 	}
-
-	// OK now look for how many other sequences in the DB share anything with
-	// these guys, sorted by the most matches first. YOU ARE HERE
 
 	return
 
