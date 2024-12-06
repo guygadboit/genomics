@@ -509,17 +509,17 @@ func (g *Genomes) SequenceSimilarity(a, b int) float64 {
 }
 
 func (g *Genomes) ToVector(which int) []float64 {
-	ret := make([]float64, g.Length())
+	ret := make([]float64, g.Length()*4)
 	for i := 0; i < g.Length(); i++ {
 		switch g.Nts[which][i] {
 		case 'A':
 			ret[i] = 1.0
 		case 'G':
-			ret[i] = 2.0
+			ret[i+1] = 1.0
 		case 'T':
-			ret[i] = 3.0
+			ret[i+2] = 1.0
 		case 'C':
-			ret[i] = 4.0
+			ret[i+3] = 1.0
 		}
 	}
 	return ret
@@ -534,10 +534,12 @@ func (g *Genomes) Centroid() []float64 {
 	for i := 0; i < g.NumGenomes(); i++ {
 		utils.VecAdd(ret, g.ToVector(i))
 	}
-	n := float64(g.NumGenomes())
-	for i := 0; i < g.Length(); i++ {
+
+	n := float64(len(ret))
+	for i := 0; i < len(ret); i++ {
 		ret[i] /= n
 	}
+
 	return ret
 }
 
