@@ -6,14 +6,8 @@ import (
 	"genomics/utils"
 )
 
-// These are those Indian sequences with the 42 NS muts in the RdRP
 var interesting []string = []string{
-	"EPI_ISL_10716753",
-	"EPI_ISL_10716749",
-	"EPI_ISL_10716805",
-	"EPI_ISL_10716754",
-	"EPI_ISL_10716752",
-	"EPI_ISL_10716750",
+	"EPI_ISL_1133157",
 }
 
 // Get the intersection of the AA Changes in these sequences. Return them
@@ -46,6 +40,7 @@ func ShowSequences(db *database.Database) {
 
 	allMuts := GetAAChanges(db)
 	for gene, muts := range allMuts {
+		mutsSet := utils.ToSet(muts)
 		fmt.Printf("Gene %s has %d muts\n", gene, len(muts))
 
 		for _, mut := range muts {
@@ -56,7 +51,23 @@ func ShowSequences(db *database.Database) {
 		matches := db.SearchByAAMut(muts, 1)
 		for _, match := range matches {
 			r := db.Get(match.Id)
-			fmt.Printf("%s (%s) %d\n", r.ToString(), r.Host, match.NumMatches)
+			ourMuts := utils.ToSet(r.AAChanges)
+			ix := utils.FromSet(utils.Intersection(mutsSet, ourMuts))
+
+			if len(ix) == 0 {
+				continue
+			}
+
+			fmt.Printf("%s (%s) %d\n", r.ToString(), r.Host, len(ix))
+
+			utils.SortByKey(ix, func(mut database.AAMutation) int {
+				return int(byte(mut.Gene[0]))*10000 + int(mut.Pos)
+			}, false)
+			for _, mut := range ix {
+				fmt.Printf("%s ", mut.ToString())
+			}
+			fmt.Println()
+
 		}
 		fmt.Println()
 	}
@@ -73,10 +84,4 @@ func ShowSequences(db *database.Database) {
 		fmt.Println(r.GisaidAccession,
 			len(r.AAChanges), len(r.NucleotideChanges))
 	}
-
-	/*
-	It turns out these have gazillions of G->T mutations, causing all this, and
-	that is because some lab in India needs to fix their machine! So nothing
-	really happening with all this.
-	*/
 }

@@ -12,6 +12,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"slices"
 )
 
 // Let's use this type for OneBased positions and regular ints for zero based.
@@ -291,4 +292,25 @@ func BaseName(fname string) string {
 			return ret
 		}
 	}
+}
+
+func SortByKey[S ~[]E, E any](x S, key func(a E) int, reverse bool) {
+	slices.SortFunc(x, func(a, b E) int {
+		kA := key(a)
+		kB := key(b)
+
+		if reverse {
+			kA, kB = kB, kA
+		}
+
+		if kA < kB {
+			return 1
+		}
+
+		if kA < kB {
+			return -1
+		}
+
+		return 0
+	})
 }
