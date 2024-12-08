@@ -10,7 +10,13 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"regexp"
 )
+
+func GnuplotEscape(s string) string {
+	pat := regexp.MustCompile(`_`)
+	return string(pat.ReplaceAll([]byte(s), []byte(`\\\_`)))
+}
 
 func RunGnuplot(fname string, g *genomes.Genomes, a, b int) {
 	gpName := "comparefa-plot.gpi"
@@ -26,6 +32,11 @@ func RunGnuplot(fname string, g *genomes.Genomes, a, b int) {
 		We don't plot the ratio by default, but the data is there in the file in
 		column 5. So if you want to plot that, just edit the gpi script afterwards
 	*/
+
+	cleanName := func(s string) string {
+		return GnuplotEscape(utils.Shorten(s, 16))
+	}
+
 	fmt.Fprintf(w, `
 set title "%s vs %s"
 set xlabel "nucleotide offset"
@@ -35,7 +46,7 @@ plot "cumulative-muts.txt" using 1 title "silent" with lines, \
 	"cumulative-muts.txt" using 2 title "non-silent" with lines, \
 	"cumulative-muts.txt" using 3 title "insertions" with lines, \
 	"cumulative-muts.txt" using 4 title "deletions" with lines
-`, utils.Shorten(g.Names[a], 8), utils.Shorten(g.Names[b], 8))
+`, cleanName(g.Names[a]), cleanName(g.Names[b]))
 	w.Flush()
 
 	cmd := exec.Command("gnuplot", "--persist", gpName)
