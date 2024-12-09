@@ -7,7 +7,7 @@ import (
 )
 
 var interesting []string = []string{
-	"EPI_ISL_1133157",
+	"EPI_ISL_1704070",
 }
 
 // Get the intersection of the AA Changes in these sequences. Return them
