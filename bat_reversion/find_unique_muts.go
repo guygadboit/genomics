@@ -115,7 +115,7 @@ func minSimilarity(g *genomes.Genomes, which ...int) float64 {
 // Return the number that share the same thing under that criterion, and the
 // min SS
 func (a Alleles) checkPangolin(codon genomes.Codon,
-	g *genomes.Genomes) (int, float64) {
+	g *genomes.Genomes, incSC2 bool) (int, float64) {
 	orfs := g.Orfs
 
 outer:
@@ -124,7 +124,11 @@ outer:
 			continue
 		}
 		for _, index := range v {
-			if !strings.Contains(g.Names[index], "Pangolin") {
+			ok := strings.Contains(g.Names[index], "Pangolin")
+			if incSC2 {
+				ok = ok || (index == 0)
+			}
+			if !ok {
 				continue outer
 			}
 		}
@@ -242,10 +246,13 @@ func pangolinControls(codon genomes.Codon,
 }
 
 func main() {
-	var numSharers int
-	var unique bool
-	var fasta, orfs string
-	var pangolins, controls bool
+	var (
+		numSharers          int
+		unique              bool
+		fasta, orfs         string
+		pangolins, controls bool
+		incSC2              bool
+	)
 
 	flag.IntVar(&numSharers, "n", 1,
 		"Number of genomes sharing same unusual thing")
@@ -256,6 +263,7 @@ func main() {
 	flag.StringVar(&orfs, "orfs", "../fasta/WH1.orfs",
 		"ORFs file to use")
 	flag.BoolVar(&pangolins, "pangolin", false, "Pangolin special")
+	flag.BoolVar(&incSC2, "psc2", false, "Include SC2 in Pangolin special")
 	flag.BoolVar(&controls, "control", false, "Pangolin controls")
 	flag.Parse()
 
@@ -286,7 +294,7 @@ func main() {
 
 		ref := translations[0][i]
 		if pangolins {
-			alleles.checkPangolin(ref, g)
+			alleles.checkPangolin(ref, g, incSC2)
 		} else if controls {
 			pangolinControls(ref, alleles, g)
 		} else if unique {

@@ -525,12 +525,8 @@ func (g *Genomes) ToVector(which int) []float64 {
 	return ret
 }
 
-/*
-If each genome was a vector, where -, A, G, T, C == 0, 1, 2, 4, 5 return the
-position of the centroid
-*/
 func (g *Genomes) Centroid() []float64 {
-	ret := make([]float64, g.Length())
+	ret := make([]float64, g.Length() * 4)
 	for i := 0; i < g.NumGenomes(); i++ {
 		utils.VecAdd(ret, g.ToVector(i))
 	}
