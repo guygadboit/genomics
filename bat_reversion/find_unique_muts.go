@@ -134,10 +134,22 @@ outer:
 		}
 		minSS := minSimilarity(g, v...)
 		if len(v) >= 5 {
+			var sharedWithSC2 string
+			if incSC2 {
+				if v[0] == 0 {
+					sharedWithSC2 = " *and SC2*"
+				}
+			}
 			orf, pos, _ := orfs.GetOrfRelative(codon.Pos)
 			fmt.Printf("%d Pangolins minSS: %.2f got "+
-				"%s:%d%c, bats something else\n",
-				len(v), minSS, orfs[orf].Name, pos/3+1, k)
+				"%s:%d%c, bats something else%s\n",
+				len(v), minSS, orfs[orf].Name, pos/3+1, k, sharedWithSC2)
+
+			if sharedWithSC2 != "" {
+				for _, index := range v {
+					fmt.Printf("%d: %s\n", index, g.Names[index])
+				}
+			}
 		}
 		return len(v), minSS
 	}
