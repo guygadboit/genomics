@@ -14,10 +14,10 @@ import (
 
 type Alleles map[byte][]int
 
-func joinInts(ints []int, sep string) string {
-	s := make([]string, len(ints))
-	for i, v := range ints {
-		s[i] = fmt.Sprintf("%d", v)
+func joinBytes(bytes []byte, sep string) string {
+	s := make([]string, len(bytes))
+	for i, v := range bytes {
+		s[i] = fmt.Sprintf("%c", v)
 	}
 	return strings.Join(s, sep)
 }
@@ -33,40 +33,39 @@ func (q QuirkMap) Combine(other QuirkMap) {
 }
 
 // Look for alleles where n viruses share one thing, and everybody else has
-// the same other thing.
+// the same other thing (or a combination of n other things)
 func (a Alleles) checkNearlyUnique(codon genomes.Codon,
 	g *genomes.Genomes, n int) QuirkMap {
 	ret := make(QuirkMap)
 
-	if len(a) != 2 {
+	if len(a) > n+1 {
 		return ret
 	}
 
-	var us, them byte
-	common := make([]int, n)
+	var outlier int	// The index of the outlier
+	var us byte	// The allele the outlier has
+	alternatives := make([]byte, 0, n)	// What the others have
 
 	for k, v := range a {
 		if k == '-' {
 			continue
 		}
-		if len(v) <= n {
-			us = k
-			copy(common, v)
+		if len(v) == 1 {
+			outlier, us = v[0], k
 		} else {
-			them = k
+			alternatives = append(alternatives, k)
 		}
 	}
 
-	if us != 0 && them != 0 {
+	if us != 0 && len(alternatives) != 0 {
 		orfs := g.Orfs
 		orf, pos, _ := orfs.GetOrfRelative(codon.Pos)
 
-		fmt.Printf("%s:%d: %s got %c, everyone else has %c\n",
-			orfs[orf].Name, pos/3+1, joinInts(common, ","), us, them)
+		fmt.Printf("%s:%d: %d got %c, everyone else has %s\n",
+			orfs[orf].Name, pos/3+1, outlier, us,
+			joinBytes(alternatives, ","))
 
-		for _, v := range common {
-			ret[v] += 1
-		}
+		ret[outlier] += 1
 	}
 	return ret
 }
@@ -266,8 +265,7 @@ func main() {
 		incSC2              bool
 	)
 
-	flag.IntVar(&numSharers, "n", 1,
-		"Number of genomes sharing same unusual thing")
+	flag.IntVar(&numSharers, "n", 1, "Maximum number of alternatives")
 	flag.BoolVar(&unique, "u", false,
 		"Just check for unique whatever the others have")
 	flag.StringVar(&fasta, "fasta", "../fasta/SARS2-relatives.fasta",
