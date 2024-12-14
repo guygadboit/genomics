@@ -297,6 +297,14 @@ func main() {
 			}
 			codon := translations[j][i]
 			aa := codon.Aa
+
+			/*
+			// Uncomment this to treat deletions as not being different alleles
+			if aa == '-' {
+				continue
+			}
+			*/
+
 			_, there := alleles[aa]
 			if !there {
 				alleles[aa] = make([]int, 0)
