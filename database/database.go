@@ -610,6 +610,13 @@ func (d *Database) Reconstruct(id Id,
 
 	for _, ins := range record.Insertions {
 		pos := ins.Pos - 1
+
+		// Sometimes they do seem to record an insertion at 0. Not sure why. We
+		// can't insert at -1
+		if pos < 0 {
+			pos = 0
+		}
+
 		n := len(ins.Sequence)
 		fmt.Printf("Insertion at %d length %d\n", pos, n)
 
