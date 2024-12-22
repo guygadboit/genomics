@@ -102,7 +102,7 @@ func interestingMuts(r *database.Record) string {
 	}
 	ret := make([]string, 0)
 	for _, mut := range r.NucleotideChanges {
-		mut.Silence = database.UNKNOWN
+		mut.Silence = utils.UNKNOWN
 		mut.From, mut.To = mut.To, mut.From
 		name, there := interesting[mut]
 		if there {
@@ -133,14 +133,14 @@ func RdRPVariants(db *database.Database) {
 	addRange(13442, 16236)	// nsp12
 
 	posSet := utils.ToSet(positions)
-	ids := db.SearchByMutPosition(positions, 1)
+	matches := db.SearchByMutPosition(positions, 1)
 
 	// Now group them by the actual unique mutations. Make an index of mutation
 	// to ids that have it.
 	index := make(map[database.Mutation]database.IdSet)
 
-	for id, _ := range ids {
-		r := db.Get(id)
+	for _, match := range matches {
+		r := db.Get(match.Id)
 		for _, mut := range r.NucleotideChanges {
 
 			// Don't print out anything referring to other muts these records
@@ -152,7 +152,7 @@ func RdRPVariants(db *database.Database) {
 			if !there {
 				index[mut] = make(database.IdSet)
 			}
-			index[mut][id] = true
+			index[mut][match.Id] = true
 		}
 	}
 
@@ -184,7 +184,30 @@ func RdRPVariants(db *database.Database) {
 	}
 }
 
+func Pangolin(db *database.Database) {
+	positions := []utils.OneBasedPos{8782}
+	matches := db.SearchByMutPosition(positions, 1)
+	for _, m := range matches {
+		var matched bool
+		r := db.Get(m.Id)
+		if r.Host != "Human" {
+			continue
+		}
+		for _, mut := range r.NucleotideChanges {
+			if mut.From == 'C' && mut.To == 'T' {
+				matched = true
+				break
+			}
+		}
+		if !matched {
+			continue
+		}
+		fmt.Println(r.ToString())
+	}
+}
+
 func main() {
 	db := database.NewDatabase()
-	RdRPVariants(db)
+	// RdRPVariants(db)
+	Pangolin(db)
 }
