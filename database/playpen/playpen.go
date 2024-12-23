@@ -206,8 +206,30 @@ func Pangolin(db *database.Database) {
 	}
 }
 
+func D614(db *database.Database) {
+	ids := utils.FromSet(db.Filter(nil, func(r *database.Record) bool {
+		if r.Host != "Human" {
+			return false
+		}
+		for _, m := range r.AAChanges {
+			if m.Gene == "S" && m.Pos == 614 && m.From == 'D' && m.To == 'G' {
+				return false
+			}
+		}
+		return true
+	}))
+
+	db.Sort(ids, database.COLLECTION_DATE)
+
+	for _, id := range ids {
+		r := db.Get(id)
+		fmt.Printf("%s %d\n", r.ToString(), len(r.AAChanges))
+	}
+}
+
 func main() {
 	db := database.NewDatabase()
 	// RdRPVariants(db)
-	Pangolin(db)
+	// Pangolin(db)
+	D614(db)
 }
