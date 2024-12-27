@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"genomics/utils"
 	"strings"
@@ -84,21 +85,34 @@ func ParseReads(fname string, minScore int) *ReadSet {
 	})
 
 	ret.BuildNameIndex()
-	fmt.Printf("Loaded %s\n", fname)
 	return &ret
 }
 
 func main() {
-	tiger := ParseReads(
-		"/fs/j/genomes/raw_reads/SRR10168376/tiger-output.sam", -40)
-	cat := ParseReads(
-		"/fs/j/genomes/raw_reads/SRR10168376/cat-output.sam", -40)
+	var (
+		minScore int
+		verbose  bool
+	)
 
-		/*
-	tigerBetter := tiger.Better(cat, true)
-	fmt.Printf("%d are better in tiger than cat\n", len(tigerBetter.Reads))
-	*/
+	flag.IntVar(&minScore, "min", -40, "Minimum score")
+	flag.BoolVar(&verbose, "v", false, "verbose")
+	flag.Parse()
 
-	catBetter := cat.Better(tiger, true)
-	fmt.Printf("%d are better in cat than tiger\n", len(catBetter.Reads))
+	args := flag.Args()
+
+	if len(args) != 2 {
+		fmt.Printf("Need two sam files")
+		flag.PrintDefaults()
+		return
+	}
+
+	aN, bN := args[0], args[1]
+	a := ParseReads(aN, minScore)
+	b := ParseReads(bN, minScore)
+
+	aBetter := a.Better(b, verbose)
+	fmt.Printf("%d are better in %s than %s\n", len(aBetter.Reads), aN, bN)
+
+	bBetter := b.Better(a, verbose)
+	fmt.Printf("%d are better in %s than %s\n", len(bBetter.Reads), bN, aN)
 }
