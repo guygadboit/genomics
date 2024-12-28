@@ -350,7 +350,7 @@ func main() {
 	*/
 
 	muts := database.ParseMutations("A5706G")
-	br := db.SearchByMuts(muts, 1)
+	br := db.SearchByMutPosition(muts, 1)
 	br = db.Filter(br, func(r *database.Record) bool {
 		return r.CollectionDate.Year() == 2020 && r.Country == "Brazil"
 	})

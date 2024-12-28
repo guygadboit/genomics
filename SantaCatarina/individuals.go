@@ -17,10 +17,10 @@ func CheckRecord(r *database.Record,
 	silent bool) (stats.ContingencyTable, database.Mutations) {
 	var muts database.Mutations
 	if silent {
-		muts = r.FilterNucleotideChanges(database.SILENT)
+		muts = r.FilterNucleotideChanges(utils.SILENT)
 	} else {
 		// Silent and non-silent, but we ignore NOT_IN_ORF
-		muts = r.FilterNucleotideChanges(database.SILENT, database.NON_SILENT)
+		muts = r.FilterNucleotideChanges(utils.SILENT, utils.NON_SILENT)
 	}
 
 	matches := OutgroupMatches(g, 1, muts)
