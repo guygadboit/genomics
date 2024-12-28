@@ -1132,11 +1132,27 @@ func findExpectedHomology() {
 }
 
 func ShowCGGInsertions(id *InsertionData) {
+	total := 0
 	for _, ins := range id.Insertions {
 		if strings.Contains(string(ins.Nts), "CGGCGG") {
 			fmt.Printf("%d %s\n", len(ins.Nts), ins.ToString())
 		}
+		if len(ins.Nts) == 12 {
+			total++
+		}
 	}
+	fmt.Printf("%d total\n", total)
+}
+
+func CGGMC(its int) {
+	success := 0
+	for i := 0; i < its; i++ {
+		nts := utils.RandomNts(12)
+		if strings.Contains(string(nts), "CGGCGG") {
+			success++
+		}
+	}
+	fmt.Printf("%d/%d = %f\n", success, its, float64(success)/float64(its))
 }
 
 func main() {
