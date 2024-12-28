@@ -1131,6 +1131,14 @@ func findExpectedHomology() {
 	}
 }
 
+func ShowCGGInsertions(id *InsertionData) {
+	for _, ins := range id.Insertions {
+		if strings.Contains(string(ins.Nts), "CGGCGG") {
+			fmt.Printf("%d %s\n", len(ins.Nts), ins.ToString())
+		}
+	}
+}
+
 func main() {
 	var (
 		data                 InsertionData
@@ -1235,6 +1243,7 @@ func main() {
 	}
 
 	if countCGG {
+		ShowCGGInsertions(&data)
 		sources := GetSources(ANIMAL | BACTERIA)
 		fmt.Println("CGGCGG")
 		CountPattern(sources, []byte("CGGCGG"))
