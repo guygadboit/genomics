@@ -637,6 +637,15 @@ func (t Translation) TranslateLong(index, start, end int) (int, []byte) {
 	return index, ret
 }
 
+func (t Translation) ToString() string {
+	var ret string
+
+	for _, c := range t {
+		ret += string(c.Aa)
+	}
+	return ret
+}
+
 /*
 Do genomes a and b in an alignment code for the same thing between pos and
 pos+length? Return silent, and the number of muts

@@ -812,3 +812,14 @@ func (g *Genomes) IsProtein() bool {
 	// Genome was very short. Did we see any?
 	return prot > 0
 }
+
+/*
+Truncate the sequence between start and end (and get rid of the orfs, which are
+now probably invalid)
+*/
+func (g *Genomes) Truncate(start, end int) {
+	for i := 0; i < g.NumGenomes(); i++ {
+		g.Nts[i] = g.Nts[i][start:end]
+	}
+	g.Orfs = []Orf{{0, g.Length(), ""}}
+}
