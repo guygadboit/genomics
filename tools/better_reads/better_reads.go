@@ -45,11 +45,11 @@ func (r *ReadSet) Better(others *ReadSet, verbose bool) *ReadSet {
 
 			if verbose {
 				if otherRead == nil {
-					fmt.Printf("Unique. Score=%d\n", r.Score)
+					fmt.Printf("%s is unique. Score=%d\n", r.Name, r.Score)
 					numUnique++
 				} else {
 					difference := r.Score - otherRead.Score
-					fmt.Printf("Better. %d > %d by %d\n",
+					fmt.Printf("%s is better. %d > %d by %d\n", r.Name,
 						r.Score, otherRead.Score, difference)
 					total += difference
 				}
