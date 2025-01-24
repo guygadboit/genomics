@@ -12,6 +12,7 @@ import (
 	"strings"
 )
 
+// For each amino acid, the list of genomes that have it
 type Alleles map[byte][]int
 
 func joinBytes(bytes []byte, sep string) string {
@@ -256,6 +257,16 @@ func pangolinControls(codon genomes.Codon,
 	}
 }
 
+func LoadShortNames() []string {
+	ret := make([]string, 0)
+	utils.Lines("../fasta/short_names.txt", func(line string, err error) bool {
+		fields := strings.Split(line, " ")
+		ret = append(ret, fields[1])
+		return true
+	})
+	return ret
+}
+
 func main() {
 	var (
 		numSharers          int
@@ -326,5 +337,10 @@ func main() {
 
 	if len(quirks) > 0 {
 		graphData(quirks, g)
+
+		shortNames := LoadShortNames()
+		for k, v := range quirks {
+			fmt.Printf("%s has %d quirks\n", shortNames[k], v)
+		}
 	}
 }
