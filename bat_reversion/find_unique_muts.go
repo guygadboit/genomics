@@ -33,6 +33,12 @@ func (q QuirkMap) Combine(other QuirkMap) {
 	}
 }
 
+func (q QuirkMap) Summary() {
+	for k, v := range q {
+		fmt.Printf("%s has %d quirks\n", SHORT_NAMES[k], v)
+	}
+}
+
 // Look for alleles where n viruses share one thing, and everybody else has
 // the same other thing (or a combination of n other things)
 func (a Alleles) checkNearlyUnique(codon genomes.Codon,
@@ -43,9 +49,9 @@ func (a Alleles) checkNearlyUnique(codon genomes.Codon,
 		return ret
 	}
 
-	var outlier int	// The index of the outlier
-	var us byte	// The allele the outlier has
-	alternatives := make([]byte, 0, n)	// What the others have
+	var outlier int                    // The index of the outlier
+	var us byte                        // The allele the outlier has
+	alternatives := make([]byte, 0, n) // What the others have
 
 	for k, v := range a {
 		if k == '-' {
@@ -267,6 +273,12 @@ func LoadShortNames() []string {
 	return ret
 }
 
+var SHORT_NAMES []string
+
+func init() {
+	SHORT_NAMES = LoadShortNames()
+}
+
 func main() {
 	var (
 		numSharers          int
@@ -274,6 +286,7 @@ func main() {
 		fasta, orfs         string
 		pangolins, controls bool
 		incSC2              bool
+		uniqueNts           bool
 	)
 
 	flag.IntVar(&numSharers, "n", 1, "Maximum number of alternatives")
@@ -286,10 +299,17 @@ func main() {
 	flag.BoolVar(&pangolins, "pangolin", false, "Pangolin special")
 	flag.BoolVar(&incSC2, "psc2", false, "Include SC2 in Pangolin special")
 	flag.BoolVar(&controls, "control", false, "Pangolin controls")
+	flag.BoolVar(&uniqueNts, "nts", false, "Show unique nts")
 	flag.Parse()
 
 	g := genomes.LoadGenomes(fasta, orfs, false)
 	g.RemoveGaps()
+
+	if uniqueNts {
+		quirks := UniqueNts(g)
+		quirks.Summary()
+		return
+	}
 
 	quirks := make(QuirkMap)
 
@@ -308,10 +328,10 @@ func main() {
 			aa := codon.Aa
 
 			/*
-			// Uncomment this to treat deletions as not being different alleles
-			if aa == '-' {
-				continue
-			}
+				// Uncomment this to treat deletions as not being different alleles
+				if aa == '-' {
+					continue
+				}
 			*/
 
 			_, there := alleles[aa]
@@ -337,10 +357,6 @@ func main() {
 
 	if len(quirks) > 0 {
 		graphData(quirks, g)
-
-		shortNames := LoadShortNames()
-		for k, v := range quirks {
-			fmt.Printf("%s has %d quirks\n", shortNames[k], v)
-		}
+		quirks.Summary()
 	}
 }
