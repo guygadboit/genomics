@@ -12,30 +12,54 @@ import (
 	"strings"
 )
 
-// For each amino acid, the list of genomes that have it
-type Alleles map[byte][]int
+// In a given location, for each codon, the list of genomes that have it.
+type Alleles map[genomes.Codon][]int
 
-func joinBytes(bytes []byte, sep string) string {
-	s := make([]string, len(bytes))
-	for i, v := range bytes {
-		s[i] = fmt.Sprintf("%c", v)
+func joinCodons(codons []genomes.Codon, sep string) string {
+	s := make([]string, len(codons))
+	for i, v := range codons {
+		s[i] = v.ToString()
 	}
 	return strings.Join(s, sep)
 }
 
+// True if any of the codons in others code for the same AA as codon
+func IsSilent(codon genomes.Codon, others []genomes.Codon) bool {
+	for _, other := range others {
+		if other.Aa == codon.Aa {
+			return true
+		}
+	}
+	return false
+}
+
 // Counts how many "quirks" (differences from the others) in each genome. Maps
 // a genome index to a count
-type QuirkMap map[int]int
+type QuirkMap struct {
+	Silent    map[int]int
+	NonSilent map[int]int
+}
+
+func (q *QuirkMap) Init() {
+	q.Silent = make(map[int]int)
+	q.NonSilent = make(map[int]int)
+}
 
 func (q QuirkMap) Combine(other QuirkMap) {
-	for k, v := range other {
-		q[k] += v
+	for k, v := range other.Silent {
+		q.Silent[k] += v
+	}
+	for k, v := range other.NonSilent {
+		q.NonSilent[k] += v
 	}
 }
 
 func (q QuirkMap) Summary() {
-	for k, v := range q {
-		fmt.Printf("%s has %d quirks\n", SHORT_NAMES[k], v)
+	for k, v := range q.Silent {
+		fmt.Printf("%s has %d silent quirks\n", SHORT_NAMES[k], v)
+	}
+	for k, v := range q.NonSilent {
+		fmt.Printf("%s has %d non-silent quirks\n", SHORT_NAMES[k], v)
 	}
 }
 
@@ -43,18 +67,19 @@ func (q QuirkMap) Summary() {
 // the same other thing (or a combination of n other things)
 func (a Alleles) checkNearlyUnique(codon genomes.Codon,
 	g *genomes.Genomes, n int) QuirkMap {
-	ret := make(QuirkMap)
+	var ret QuirkMap
+	ret.Init()
 
 	if len(a) > n+1 {
 		return ret
 	}
 
-	var outlier int                    // The index of the outlier
-	var us byte                        // The allele the outlier has
-	alternatives := make([]byte, 0, n) // What the others have
+	var outlier int                             // The index of the outlier
+	var us genomes.Codon                        // The allele the outlier has
+	alternatives := make([]genomes.Codon, 0, n) // What the others have
 
 	for k, v := range a {
-		if k == '-' {
+		if k.Aa == '-' {
 			continue
 		}
 		if len(v) == 1 {
@@ -64,15 +89,19 @@ func (a Alleles) checkNearlyUnique(codon genomes.Codon,
 		}
 	}
 
-	if us != 0 && len(alternatives) != 0 {
+	if us.Aa != 0 && len(alternatives) != 0 {
 		orfs := g.Orfs
 		orf, pos, _ := orfs.GetOrfRelative(codon.Pos)
 
-		fmt.Printf("%s:%d: %d got %c, everyone else has %s\n",
-			orfs[orf].Name, pos/3+1, outlier, us,
-			joinBytes(alternatives, ","))
+		fmt.Printf("%s:%d: %d got %s, everyone else has %s\n",
+			orfs[orf].Name, pos/3+1, outlier, us.ToString(),
+			joinCodons(alternatives, ","))
 
-		ret[outlier] += 1
+		if IsSilent(us, alternatives) {
+			ret.Silent[outlier] += 1
+		} else {
+			ret.NonSilent[outlier] += 1
+		}
 	}
 	return ret
 }
@@ -81,21 +110,35 @@ func (a Alleles) checkNearlyUnique(codon genomes.Codon,
 // have the same thing there as each other or are variously different.
 func (a Alleles) checkUnique2(codon genomes.Codon,
 	g *genomes.Genomes) QuirkMap {
-	ret := make(QuirkMap)
+	var ret QuirkMap
+	ret.Init()
 	orfs := g.Orfs
 
 	for k, v := range a {
-		if k == '-' {
+		if k.Aa == '-' {
 			continue
 		}
-		if len(v) == 1 {
-			orf, pos, _ := orfs.GetOrfRelative(codon.Pos)
-			fmt.Printf("%d got %s:%d%c, everyone else something else\n",
-				v[0], orfs[orf].Name, pos/3+1, k)
+		if len(v) != 1 {
+			continue
+		}
 
-			if orfs[orf].Name == "S" {
-				ret[v[0]] += 1
+		outlier := v[0]
+
+		orf, pos, _ := orfs.GetOrfRelative(codon.Pos)
+		fmt.Printf("%d got %s:%d%s, everyone else something else\n",
+			outlier, orfs[orf].Name, pos/3+1, k.ToString())
+
+		alternatives := make([]genomes.Codon, 0, 0)
+		for other, _ := range a {
+			if other != k {
+				alternatives = append(alternatives, other)
 			}
+		}
+
+		if IsSilent(k, alternatives) {
+			ret.Silent[outlier] += 1
+		} else {
+			ret.NonSilent[outlier] += 1
 		}
 	}
 	return ret
@@ -119,14 +162,15 @@ func minSimilarity(g *genomes.Genomes, which ...int) float64 {
 
 // Look for alleles that the pangolin CoVs all share which the bat ones don't.
 // Return the number that share the same thing under that criterion, and the
-// min SS
+// min SS. FIXME check through this-- haven't done much after porting it to use
+// codons.
 func (a Alleles) checkPangolin(codon genomes.Codon,
 	g *genomes.Genomes, incSC2 bool) (int, float64) {
 	orfs := g.Orfs
 
 outer:
 	for k, v := range a {
-		if k == '-' {
+		if k.Aa == '-' {
 			continue
 		}
 		for _, index := range v {
@@ -178,7 +222,7 @@ func (a Alleles) checkPangolinControl(codon genomes.Codon,
 
 outer:
 	for k, v := range a {
-		if k == '-' {
+		if k.Aa == '-' {
 			continue
 		}
 		for _, index := range v {
@@ -210,7 +254,8 @@ func graphData(qm QuirkMap, g *genomes.Genomes) {
 
 	w := bufio.NewWriter(f)
 
-	for k, v := range qm {
+	// FIXME just doing Silent here
+	for k, v := range qm.Silent {
 		vec := g.ToVector(k)
 		d := utils.VecDistance(vec, centroid)
 		fmt.Fprintln(w, v, d, k)
@@ -286,7 +331,6 @@ func main() {
 		fasta, orfs         string
 		pangolins, controls bool
 		incSC2              bool
-		uniqueNts           bool
 	)
 
 	flag.IntVar(&numSharers, "n", 1, "Maximum number of alternatives")
@@ -299,19 +343,13 @@ func main() {
 	flag.BoolVar(&pangolins, "pangolin", false, "Pangolin special")
 	flag.BoolVar(&incSC2, "psc2", false, "Include SC2 in Pangolin special")
 	flag.BoolVar(&controls, "control", false, "Pangolin controls")
-	flag.BoolVar(&uniqueNts, "nts", false, "Show unique nts")
 	flag.Parse()
 
 	g := genomes.LoadGenomes(fasta, orfs, false)
 	g.RemoveGaps()
 
-	if uniqueNts {
-		quirks := UniqueNts(g)
-		quirks.Summary()
-		return
-	}
-
-	quirks := make(QuirkMap)
+	var quirks QuirkMap
+	quirks.Init()
 
 	translations := make([]genomes.Translation, g.NumGenomes())
 	for i := 0; i < g.NumGenomes(); i++ {
@@ -325,20 +363,18 @@ func main() {
 				continue
 			}
 			codon := translations[j][i]
-			aa := codon.Aa
-
 			/*
 				// Uncomment this to treat deletions as not being different alleles
-				if aa == '-' {
+				if codon.Aa == '-' {
 					continue
 				}
 			*/
 
-			_, there := alleles[aa]
+			_, there := alleles[codon]
 			if !there {
-				alleles[aa] = make([]int, 0)
+				alleles[codon] = make([]int, 0)
 			}
-			alleles[aa] = append(alleles[aa], j)
+			alleles[codon] = append(alleles[codon], j)
 		}
 
 		ref := translations[0][i]
@@ -355,8 +391,11 @@ func main() {
 		}
 	}
 
-	if len(quirks) > 0 {
+	quirks.Summary()
+	/*
+	// FIXME graph both
+	if len(quirks.Silent) > 0 {
 		graphData(quirks, g)
-		quirks.Summary()
 	}
+	*/
 }

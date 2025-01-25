@@ -557,6 +557,10 @@ func (c *Codon) Init(pos int, nts string) {
 	c.Aa = aa
 }
 
+func (c Codon) ToString() string {
+	return fmt.Sprintf("%s (%c)", c.Nts, c.Aa)
+}
+
 type Translation []Codon
 
 func Translate(genome *Genomes, which int) Translation {
