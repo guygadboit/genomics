@@ -56,10 +56,9 @@ func (q QuirkMap) Combine(other QuirkMap) {
 
 func (q QuirkMap) Summary() {
 	for k, v := range q.Silent {
-		fmt.Printf("%s has %d silent quirks\n", SHORT_NAMES[k], v)
-	}
-	for k, v := range q.NonSilent {
-		fmt.Printf("%s has %d non-silent quirks\n", SHORT_NAMES[k], v)
+		name := SHORT_NAMES[k]
+		ns := q.NonSilent[k]
+		fmt.Printf("%s has %d silent and %d non-silent quirks\n", name, v, ns)
 	}
 }
 
@@ -69,10 +68,6 @@ func (a Alleles) checkNearlyUnique(codon genomes.Codon,
 	g *genomes.Genomes, n int) QuirkMap {
 	var ret QuirkMap
 	ret.Init()
-
-	if len(a) > n+1 {
-		return ret
-	}
 
 	var outlier int                             // The index of the outlier
 	var us genomes.Codon                        // The allele the outlier has
