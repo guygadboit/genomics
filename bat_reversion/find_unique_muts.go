@@ -119,9 +119,6 @@ func (a Alleles) checkUnique2(codon genomes.Codon,
 
 		outlier := v[0]
 
-		orf, pos, _ := orfs.GetOrfRelative(codon.Pos)
-		fmt.Printf("%d got %s:%d%s, everyone else something else\n",
-			outlier, orfs[orf].Name, pos/3+1, k.ToString())
 
 		alternatives := make([]genomes.Codon, 0, 0)
 		for other, _ := range a {
@@ -130,11 +127,19 @@ func (a Alleles) checkUnique2(codon genomes.Codon,
 			}
 		}
 
+		var silent string
+
 		if IsSilent(k, alternatives) {
 			ret.Silent[outlier] += 1
+			silent = "(silent)"
 		} else {
 			ret.NonSilent[outlier] += 1
+			silent = "(non-silent)"
 		}
+
+		orf, pos, _ := orfs.GetOrfRelative(codon.Pos)
+		fmt.Printf("%d got %s:%d%s, everyone else something else %s\n",
+			outlier, orfs[orf].Name, pos/3+1, k.ToString(), silent)
 	}
 	return ret
 }

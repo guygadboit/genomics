@@ -558,7 +558,7 @@ func (c *Codon) Init(pos int, nts string) {
 }
 
 func (c Codon) ToString() string {
-	return fmt.Sprintf("%s (%c)", c.Nts, c.Aa)
+	return fmt.Sprintf("%c (%s)", c.Aa, c.Nts)
 }
 
 type Translation []Codon
