@@ -8,6 +8,7 @@ import (
 	"genomics/utils"
 	"log"
 	"math/rand"
+	"path/filepath"
 	"os"
 	"strings"
 )
@@ -54,11 +55,13 @@ func (q QuirkMap) Combine(other QuirkMap) {
 	}
 }
 
-func (q QuirkMap) Summary() {
+func (q QuirkMap) Summary(names []string) {
 	for k, v := range q.Silent {
-		name := SHORT_NAMES[k]
+		name := names[k]
 		ns := q.NonSilent[k]
-		fmt.Printf("%s has %d silent and %d non-silent quirks\n", name, v, ns)
+		ratio := float64(ns)/float64(v)
+		fmt.Printf("dN/dS: %.2f: %s has %d silent and %d non-silent quirks.\n",
+			ratio, name, v, ns)
 	}
 }
 
@@ -72,6 +75,10 @@ func (a Alleles) checkNearlyUnique(codon genomes.Codon,
 	var outlier int                             // The index of the outlier
 	var us genomes.Codon                        // The allele the outlier has
 	alternatives := make([]genomes.Codon, 0, n) // What the others have
+
+	if len(a) > n+1 {
+		return ret
+	}
 
 	for k, v := range a {
 		if k.Aa == '-' {
@@ -119,7 +126,6 @@ func (a Alleles) checkUnique2(codon genomes.Codon,
 
 		outlier := v[0]
 
-
 		alternatives := make([]genomes.Codon, 0, 0)
 		for other, _ := range a {
 			if other != k {
@@ -136,6 +142,9 @@ func (a Alleles) checkUnique2(codon genomes.Codon,
 			ret.NonSilent[outlier] += 1
 			silent = "(non-silent)"
 		}
+
+		// TODO: just print out what the alternatives are, and how much they
+		// differ by.
 
 		orf, pos, _ := orfs.GetOrfRelative(codon.Pos)
 		fmt.Printf("%d got %s:%d%s, everyone else something else %s\n",
@@ -331,6 +340,7 @@ func main() {
 		fasta, orfs         string
 		pangolins, controls bool
 		incSC2              bool
+		spikeOnly			bool
 	)
 
 	flag.IntVar(&numSharers, "n", 1, "Maximum number of alternatives")
@@ -343,8 +353,10 @@ func main() {
 	flag.BoolVar(&pangolins, "pangolin", false, "Pangolin special")
 	flag.BoolVar(&incSC2, "psc2", false, "Include SC2 in Pangolin special")
 	flag.BoolVar(&controls, "control", false, "Pangolin controls")
+	flag.BoolVar(&spikeOnly, "spike", false, "Spike only")
 	flag.Parse()
 
+	useShortNames := filepath.Base(fasta) == "SARS2-relatives.fasta"
 	g := genomes.LoadGenomes(fasta, orfs, false)
 	g.RemoveGaps()
 
@@ -357,6 +369,13 @@ func main() {
 	}
 
 	for i := 0; i < len(translations[0]); i++ {
+		if spikeOnly {
+			t := translations[0]
+			if t[i].Pos < 21562 || t[i].Pos >= 25384 {
+				continue
+			}
+		}
+
 		alleles := make(Alleles)
 		for j := 0; j < g.NumGenomes(); j++ {
 			if i >= len(translations[j]) {
@@ -391,7 +410,13 @@ func main() {
 		}
 	}
 
-	quirks.Summary()
+	var names []string
+	if useShortNames {
+		names = SHORT_NAMES
+	} else {
+		names = g.Names
+	}
+	quirks.Summary(names)
 	/*
 	// FIXME graph both
 	if len(quirks.Silent) > 0 {
