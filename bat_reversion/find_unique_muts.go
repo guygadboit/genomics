@@ -129,8 +129,16 @@ func (a Alleles) checkUnique2(codon genomes.Codon,
 		alternatives := make([]genomes.Codon, 0, 0)
 		for other, _ := range a {
 			if other != k {
-				alternatives = append(alternatives, other)
+				if other.Aa != '-' {
+					alternatives = append(alternatives, other)
+				}
 			}
+		}
+
+		// This might happen if the outlier has an insertion. We don't want to
+		// count insertions or deletions here.
+		if len(alternatives) == 0 {
+			continue
 		}
 
 		var silent string
@@ -145,7 +153,6 @@ func (a Alleles) checkUnique2(codon genomes.Codon,
 
 		// TODO: just print out what the alternatives are, and how much they
 		// differ by.
-
 		orf, pos, _ := orfs.GetOrfRelative(codon.Pos)
 		fmt.Printf("%d got %s:%d%s, everyone else something else %s\n",
 			outlier, orfs[orf].Name, pos/3+1, k.ToString(), silent)
