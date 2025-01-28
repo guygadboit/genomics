@@ -118,7 +118,7 @@ func (c *Comparison) Summary(showIndels bool) {
 	}
 	fmt.Printf("%d amino acids changed\n", len(c.Muts))
 
-	fmt.Println("\nNucleotide changes")
+	fmt.Printf("\n%d nucleotides changed\n", len(c.NtMuts))
 	for _, mut := range c.NtMuts {
 		fmt.Println(mut.ToString())
 	}
