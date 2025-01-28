@@ -508,25 +508,53 @@ func (g *Genomes) SequenceSimilarity(a, b int) float64 {
 	return float64(same) / float64(total)
 }
 
+// If your genomes are actually proteins, use this
+func (g *Genomes) ToAAVector(which int) []float64 {
+	ret := make([]float64, g.Length()*20)
+	aas := "ACDEFGHIKLMNPQRSTVWY"
+	for i := 0; i < g.Length(); i++ {
+		aa := g.Nts[which][i]
+		pos := strings.Index(aas, string(aa))
+		if pos == -1 {
+			continue
+		}
+		ret[i*20+pos] = 1.0
+	}
+	return ret
+}
+
+func (g *Genomes) AACentroid() []float64 {
+	ret := make([]float64, g.Length()*20)
+	for i := 0; i < g.NumGenomes(); i++ {
+		utils.VecAdd(ret, g.ToAAVector(i))
+	}
+
+	n := float64(len(ret))
+	for i := 0; i < len(ret); i++ {
+		ret[i] /= n
+	}
+	return ret
+}
+
 func (g *Genomes) ToVector(which int) []float64 {
 	ret := make([]float64, g.Length()*4)
 	for i := 0; i < g.Length(); i++ {
 		switch g.Nts[which][i] {
 		case 'A':
-			ret[i] = 1.0
+			ret[i*4] = 1.0
 		case 'G':
-			ret[i+1] = 1.0
+			ret[i*4+1] = 1.0
 		case 'T':
-			ret[i+2] = 1.0
+			ret[i*4+2] = 1.0
 		case 'C':
-			ret[i+3] = 1.0
+			ret[i*4+3] = 1.0
 		}
 	}
 	return ret
 }
 
 func (g *Genomes) Centroid() []float64 {
-	ret := make([]float64, g.Length() * 4)
+	ret := make([]float64, g.Length()*4)
 	for i := 0; i < g.NumGenomes(); i++ {
 		utils.VecAdd(ret, g.ToVector(i))
 	}

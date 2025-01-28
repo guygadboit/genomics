@@ -76,7 +76,29 @@ func LoadShortNames() []string {
 	return ret
 }
 
+func swap() {
+	g := genomes.LoadGenomes("rbm.fasta", "", false)
+	g = g.Swap(0, 8)
+	g.SaveMulti("rbm-ratfirst.fasta")
+
+	g = genomes.LoadGenomes("rbd.fasta", "", false)
+	g = g.Swap(0, 8)
+	g.SaveMulti("rbd-ratfirst.fasta")
+}
+
+func centroid() {
+	g := genomes.LoadGenomes("rbm.fasta", "", false)
+	c := g.AACentroid()
+	for i := 0; i < g.NumGenomes(); i++ {
+		d := utils.VecDistance(g.ToAAVector(i), c)
+		fmt.Printf("%d: %.4f\n", i, d)
+	}
+}
+
 func main() {
+	centroid()
+	return
+
 	g := genomes.LoadGenomes("../fasta/SARS2-relatives.fasta",
 		"../fasta/WH1.orfs", false)
 	g.Names = LoadShortNames()

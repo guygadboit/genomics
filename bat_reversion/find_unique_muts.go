@@ -348,7 +348,15 @@ func removeExclusions(exclude string, g *genomes.Genomes) *genomes.Genomes {
 			inc = append(inc, i)
 		}
 	}
-	fmt.Println(inc)
+
+	newShortNames := make([]string, 0, len(SHORT_NAMES))
+	for i := 0; i < len(SHORT_NAMES); i++ {
+		if !exc[i] {
+			newShortNames = append(newShortNames, SHORT_NAMES[i])
+		}
+	}
+	SHORT_NAMES = newShortNames
+
 	return g.Filter(inc...)
 }
 
