@@ -8,8 +8,8 @@ import (
 	"genomics/utils"
 	"log"
 	"math/rand"
-	"path/filepath"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -59,7 +59,7 @@ func (q QuirkMap) Summary(names []string) {
 	for k, v := range q.Silent {
 		name := names[k]
 		ns := q.NonSilent[k]
-		ratio := float64(ns)/float64(v)
+		ratio := float64(ns) / float64(v)
 		fmt.Printf("dN/dS: %.2f: %s has %d silent and %d non-silent quirks.\n",
 			ratio, name, v, ns)
 	}
@@ -340,6 +340,18 @@ func init() {
 	SHORT_NAMES = LoadShortNames()
 }
 
+func removeExclusions(exclude string, g *genomes.Genomes) *genomes.Genomes {
+	exc := utils.ToSet(utils.ParseInts(exclude, ","))
+	inc := make([]int, 0, g.NumGenomes()-len(exc))
+	for i := 0; i < g.NumGenomes(); i++ {
+		if !exc[i] {
+			inc = append(inc, i)
+		}
+	}
+	fmt.Println(inc)
+	return g.Filter(inc...)
+}
+
 func main() {
 	var (
 		numSharers          int
@@ -347,7 +359,8 @@ func main() {
 		fasta, orfs         string
 		pangolins, controls bool
 		incSC2              bool
-		spikeOnly			bool
+		spikeOnly           bool
+		exclude             string
 	)
 
 	flag.IntVar(&numSharers, "n", 1, "Maximum number of alternatives")
@@ -361,10 +374,16 @@ func main() {
 	flag.BoolVar(&incSC2, "psc2", false, "Include SC2 in Pangolin special")
 	flag.BoolVar(&controls, "control", false, "Pangolin controls")
 	flag.BoolVar(&spikeOnly, "spike", false, "Spike only")
+	flag.StringVar(&exclude, "exclude", "", "Indices to exclude")
 	flag.Parse()
 
 	useShortNames := filepath.Base(fasta) == "SARS2-relatives.fasta"
 	g := genomes.LoadGenomes(fasta, orfs, false)
+
+	if exclude != "" {
+		g = removeExclusions(exclude, g)
+	}
+
 	g.RemoveGaps()
 
 	var quirks QuirkMap
@@ -425,9 +444,9 @@ func main() {
 	}
 	quirks.Summary(names)
 	/*
-	// FIXME graph both
-	if len(quirks.Silent) > 0 {
-		graphData(quirks, g)
-	}
+		// FIXME graph both
+		if len(quirks.Silent) > 0 {
+			graphData(quirks, g)
+		}
 	*/
 }
