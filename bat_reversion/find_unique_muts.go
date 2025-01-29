@@ -36,26 +36,36 @@ func IsSilent(codon genomes.Codon, others []genomes.Codon) bool {
 
 // Counts how many "quirks" (differences from the others) in each genome. Maps
 // a genome index to a count
-type QuirkMap struct {
-	Silent    map[int]int
-	NonSilent map[int]int
+type SimpleQuirkMap map[int]int
+
+func (q SimpleQuirkMap) Combine(other SimpleQuirkMap) {
+	for k, v := range other {
+		q[k] += v
+	}
 }
 
-func (q *QuirkMap) Init() {
+func (q SimpleQuirkMap) Summary(names []string) {
+	for k, v := range q {
+		fmt.Printf("%d %s has %d quirks\n", v, names[k], v)
+	}
+}
+
+type CodonQuirkMap struct {
+	Silent    SimpleQuirkMap
+	NonSilent SimpleQuirkMap
+}
+
+func (cq *CodonQuirkMap) Init() {
 	q.Silent = make(map[int]int)
 	q.NonSilent = make(map[int]int)
 }
 
-func (q QuirkMap) Combine(other QuirkMap) {
-	for k, v := range other.Silent {
-		q.Silent[k] += v
-	}
-	for k, v := range other.NonSilent {
-		q.NonSilent[k] += v
-	}
+func (cq CodonQuirkMap) Combine(other CodonQuirkMap) {
+	cw.Silent.Combine(other.Silent)
+	cw.NonSilent.Combine(other.NonSilent)
 }
 
-func (q QuirkMap) Summary(names []string) {
+func (cq CodonQuirkMap) Summary(names []string) {
 	for k, v := range q.Silent {
 		name := names[k]
 		ns := q.NonSilent[k]
@@ -65,20 +75,30 @@ func (q QuirkMap) Summary(names []string) {
 	}
 }
 
+type QuirkMap interface {
+	Combine(other QuirkMap)
+	Summary(names []string)
+}
+
 // Look for alleles where n viruses share one thing, and everybody else has
-// the same other thing (or a combination of n other things)
+// the same other thing (or a combination of n other things). So need some
+// function of a codon that either pulls out the Aa or the Nts as being what
+// we're comparing. Well, actually that's already in the alleles. You've
+// already grouped them according either to the AA (in the old code) or the
+// whole struct (in the new version, which this version basically is).
 func (a Alleles) checkNearlyUnique(codon genomes.Codon,
 	g *genomes.Genomes, n int) QuirkMap {
+
+	if len(a) > n+1 {
+		return ret
+	}
+
 	var ret QuirkMap
 	ret.Init()
 
 	var outlier int                             // The index of the outlier
 	var us genomes.Codon                        // The allele the outlier has
 	alternatives := make([]genomes.Codon, 0, n) // What the others have
-
-	if len(a) > n+1 {
-		return ret
-	}
 
 	for k, v := range a {
 		if k.Aa == '-' {
