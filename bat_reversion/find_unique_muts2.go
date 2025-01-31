@@ -2,18 +2,21 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"genomics/genomes"
 )
 
 // The alleles in a given location
 type Alleles struct {
+	g   *genomes.Genomes
 	Pos int
 	Nts map[string][]int // For the nts in a given codon, which genomes have it?
 	Aas map[byte][]int   // For a given AA, which genomes have it?
 }
 
-func NewAlleles(pos int) *Alleles {
+func NewAlleles(g *genomes.Genomes, pos int) *Alleles {
 	var ret Alleles
+	ret.g = g
 	ret.Pos = pos
 	ret.Nts = make(map[string][]int)
 	ret.Aas = make(map[byte][]int)
@@ -42,8 +45,9 @@ func Translate(g *genomes.Genomes) []genomes.Translation {
 	return ret
 }
 
-func GetAlleles(translations []genomes.Translation, codonPos int) *Alleles {
-	ret := NewAlleles(codonPos)
+func GetAlleles(g *genomes.Genomes,
+	translations []genomes.Translation, codonPos int) *Alleles {
+	ret := NewAlleles(g, codonPos)
 	for i, _ := range translations {
 		codon := translations[i][codonPos]
 		ret.Add(&codon, i)
@@ -92,13 +96,14 @@ func (a *Alleles) FindSoleOutlierAa() int {
 }
 
 // True if any of the codons in others code for the same AA as codon
-func IsSilent(outlier string, others []string) bool {
+func IsSilent(outlier string, others []string) (bool, byte) {
+	us := genomes.CodonTable[outlier]
 	for _, other := range others {
-		if genomes.CodonTable[outlier] == genomes.CodonTable[other] {
-			return true
+		if us == genomes.CodonTable[other] {
+			return true, us
 		}
 	}
-	return false
+	return false, us
 }
 
 func (a *Alleles) FindUniqueNts() (int, bool) {
@@ -119,7 +124,20 @@ func (a *Alleles) FindUniqueNts() (int, bool) {
 	if index == -1 {
 		return -1, false
 	}
-	return index, IsSilent(outlier, others)
+
+	silent, aa := IsSilent(outlier, others)
+
+	silentString := ""
+	if silent {
+		silentString = " (silent)"
+	}
+
+	orfs := a.g.Orfs
+	orf, pos, _ := orfs.GetOrfRelative(a.Pos)
+	fmt.Printf("%s:%d: %d got %s (%c)%s, everyone else something else.\n",
+		orfs[orf].Name, pos/3+1, index, outlier, aa, silentString)
+
+	return index, silent
 }
 
 func (a *Alleles) FindSoleOutlierNts() int {
@@ -191,9 +209,9 @@ func main() {
 
 	g := genomes.LoadGenomes(fasta, orfs, false)
 	translations := Translate(g)
-	var results Results
-	for i, _ := range translations {
-		alleles := GetAlleles(translations, i)
+	results := make(Results, g.NumGenomes())
+	for _, codon := range translations[0] {
+		alleles := GetAlleles(g, translations, codon.Pos)
 		alleles.Count(g, results)
 	}
 }
