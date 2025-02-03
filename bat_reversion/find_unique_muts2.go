@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"genomics/genomes"
+	"genomics/utils"
 )
 
 // The alleles in a given location
@@ -86,9 +87,28 @@ type Result struct {
 // One fo each genome
 type Results []Result
 
+func SummarizeResults(results Results) {
+	fmt.Printf("Index UniqueAas SoleOutlierAas UniqueSilentCodons " +
+		"UniqueNonSilentCodons SoleOutlierSilentCodons " +
+		"SoleOutlierNonSilentCodons dN/dS Codons\n")
+	for i, result := range results {
+		ratio := float64(
+			result.UniqueNonSilentCodons) / float64(result.UniqueSilentCodons)
+
+		fmt.Printf("%d: %d %d %d %d %d %d %.3f\n", i,
+			result.UniqueAas,
+			result.SoleOutlierAas,
+			result.UniqueSilentCodons,
+			result.UniqueNonSilentCodons,
+			result.SoleOutlierSilentCodons,
+			result.SoleOutlierNonSilentCodons,
+			ratio)
+	}
+}
+
 // If there is a unique Aa in there, return the genome that has it. Otherwise
 // -1
-func (a *Alleles) FindUniqueAa() int {
+func (a *Alleles) FindUniqueAa(showWhich map[int]bool) int {
 	index := -1
 	var us byte
 
@@ -103,10 +123,12 @@ func (a *Alleles) FindUniqueAa() int {
 		return -1
 	}
 
-	orfs := a.g.Orfs
-	orf, pos, _ := orfs.GetOrfRelative(a.Pos)
-	fmt.Printf("Unique Aa: %s:%d: %d got %c, "+
-		"everyone else something else.\n", orfs[orf].Name, pos/3+1, index, us)
+	if showWhich[index] {
+		orfs := a.g.Orfs
+		orf, pos, _ := orfs.GetOrfRelative(a.Pos)
+		fmt.Printf("Unique Aa: %s:%d: %d got %c, "+
+			"everyone else something else.\n", orfs[orf].Name, pos/3+1, index, us)
+	}
 	return index
 }
 
@@ -126,10 +148,11 @@ func silentString(silent bool) string {
 	}
 }
 
-func (a *Alleles) FindSoleOutlierAa() int {
+func (a *Alleles) FindSoleOutlierAa(showWhich map[int]bool) int {
 	others := make(map[byte]bool)
-	var us, alt byte
+	var us byte
 	index := -1
+	var alt byte = '-'
 
 	for k, v := range a.Aas {
 		if len(v) == 1 {
@@ -148,10 +171,12 @@ func (a *Alleles) FindSoleOutlierAa() int {
 		return index
 	}
 
-	orfs := a.g.Orfs
-	orf, pos, _ := orfs.GetOrfRelative(a.Pos)
-	fmt.Printf("SoleOutlier Aa: %s:%d: %d got %c, "+
-		"everyone else %c.\n", orfs[orf].Name, pos/3+1, index, us, alt)
+	if showWhich[index] {
+		orfs := a.g.Orfs
+		orf, pos, _ := orfs.GetOrfRelative(a.Pos)
+		fmt.Printf("SoleOutlier Aa: %s:%d: %d got %c, "+
+			"everyone else %c.\n", orfs[orf].Name, pos/3+1, index, us, alt)
+	}
 
 	return index
 }
@@ -167,11 +192,20 @@ func IsSilent(outlier string, others []string) (bool, byte) {
 	return false, us
 }
 
-func (a *Alleles) FindUniqueNts() (int, bool) {
+func (a *Alleles) FindUniqueNts(showWhich map[int]bool) (int, bool) {
 	index := -1
 
 	var outlier string
 	others := make([]string, 0)
+
+	{
+		orfs := a.g.Orfs
+		orf, pos, _ := orfs.GetOrfRelative(a.Pos)
+		if orf == 0 && pos/3+1 == 50 {
+			// TODO you are here Why no S50L coming up as unique?
+			fmt.Printf("Ok\n")
+		}
+	}
 
 	for nts, v := range a.Nts {
 		if len(v) == 1 {
@@ -188,16 +222,18 @@ func (a *Alleles) FindUniqueNts() (int, bool) {
 
 	silent, aa := IsSilent(outlier, others)
 
-	orfs := a.g.Orfs
-	orf, pos, _ := orfs.GetOrfRelative(a.Pos)
-	fmt.Printf("Unique Nts: %s:%d: %d got %s (%c) (%s), "+
-		"everyone else something else.\n",
-		orfs[orf].Name, pos/3+1, index, outlier, aa, silentString(silent))
+	if showWhich[index] {
+		orfs := a.g.Orfs
+		orf, pos, _ := orfs.GetOrfRelative(a.Pos)
+		fmt.Printf("Unique Nts: %s:%d: %d got %s (%c) (%s), "+
+			"everyone else something else.\n",
+			orfs[orf].Name, pos/3+1, index, outlier, aa, silentString(silent))
+	}
 
 	return index, silent
 }
 
-func (a *Alleles) FindSoleOutlierNts() (int, bool) {
+func (a *Alleles) FindSoleOutlierNts(showWhich map[int]bool) (int, bool) {
 	others := make(map[string]bool)
 	index := -1
 	var outlier, alt string
@@ -223,29 +259,33 @@ func (a *Alleles) FindSoleOutlierNts() (int, bool) {
 	altAa := translate(alt)
 	silent := aa == altAa
 
-	orfs := a.g.Orfs
-	orf, pos, _ := orfs.GetOrfRelative(a.Pos)
-	fmt.Printf("SoleOutlier Nts: %s:%d: %d got %s (%c), "+
-		"everyone else %s (%c) (%s).\n",
-		orfs[orf].Name, pos/3+1, index, outlier, aa, alt, altAa, silentString(silent))
+	if showWhich[index] {
+		orfs := a.g.Orfs
+		orf, pos, _ := orfs.GetOrfRelative(a.Pos)
+		fmt.Printf("SoleOutlier Nts: %s:%d: %d got %s (%c), "+
+			"everyone else %s (%c) (%s).\n",
+			orfs[orf].Name, pos/3+1, index, outlier,
+			aa, alt, altAa, silentString(silent))
+	}
 
 	return index, silent
 }
 
 // Update results with the counts based on the alleles at a particular location
-func (a *Alleles) Count(g *genomes.Genomes, results Results) {
+func (a *Alleles) Count(g *genomes.Genomes,
+	results Results, showWhich map[int]bool) {
 
-	index := a.FindUniqueAa()
+	index := a.FindUniqueAa(showWhich)
 	if index != -1 {
 		results[index].UniqueAas++
 	}
 
-	index = a.FindSoleOutlierAa()
+	index = a.FindSoleOutlierAa(showWhich)
 	if index != -1 {
 		results[index].SoleOutlierAas++
 	}
 
-	index, silent := a.FindUniqueNts()
+	index, silent := a.FindUniqueNts(showWhich)
 	if index != -1 {
 		if silent {
 			results[index].UniqueSilentCodons++
@@ -254,7 +294,7 @@ func (a *Alleles) Count(g *genomes.Genomes, results Results) {
 		}
 	}
 
-	index, silent = a.FindSoleOutlierNts()
+	index, silent = a.FindSoleOutlierNts(showWhich)
 	if index != -1 {
 		if silent {
 			results[index].SoleOutlierSilentCodons++
@@ -271,7 +311,8 @@ func main() {
 		pangolins, controls bool
 		spikeOnly           bool
 		exclude             string
-		printAlleles		bool
+		printAlleles        bool
+		showWhichS          string
 	)
 
 	flag.BoolVar(&unique, "u", false,
@@ -285,7 +326,10 @@ func main() {
 	flag.BoolVar(&spikeOnly, "spike", false, "Spike only")
 	flag.StringVar(&exclude, "exclude", "", "Indices to exclude")
 	flag.BoolVar(&printAlleles, "print", false, "Print all alleles")
+	flag.StringVar(&showWhichS, "show", "", "Only show specified genomes")
 	flag.Parse()
+
+	showWhich := utils.ToSet(utils.ParseInts(showWhichS, ","))
 
 	g := genomes.LoadGenomes(fasta, orfs, false)
 	translations := Translate(g)
@@ -295,8 +339,7 @@ func main() {
 		if printAlleles {
 			alleles.Print()
 		}
-		alleles.Count(g, results)
+		alleles.Count(g, results, showWhich)
 	}
-
-	// TODO: Print a summary of counts at the end.
+	SummarizeResults(results)
 }
