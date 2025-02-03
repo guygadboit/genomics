@@ -14,6 +14,22 @@ type Alleles struct {
 	Aas map[byte][]int   // For a given AA, which genomes have it?
 }
 
+func (a *Alleles) Print() {
+	orfs := a.g.Orfs
+	orf, pos, _ := orfs.GetOrfRelative(a.Pos)
+
+	fmt.Printf("%s:%d: ", orfs[orf].Name, pos/3+1)
+	for k, v := range a.Nts {
+		fmt.Printf("%s: ", k)
+		fmt.Println(v)
+	}
+	for k, v := range a.Aas {
+		fmt.Printf("%c ", k)
+		fmt.Println(v)
+	}
+	fmt.Printf("\n")
+}
+
 func NewAlleles(g *genomes.Genomes, pos int) *Alleles {
 	var ret Alleles
 	ret.g = g
@@ -255,6 +271,7 @@ func main() {
 		pangolins, controls bool
 		spikeOnly           bool
 		exclude             string
+		printAlleles		bool
 	)
 
 	flag.BoolVar(&unique, "u", false,
@@ -267,6 +284,7 @@ func main() {
 	flag.BoolVar(&controls, "control", false, "Pangolin controls")
 	flag.BoolVar(&spikeOnly, "spike", false, "Spike only")
 	flag.StringVar(&exclude, "exclude", "", "Indices to exclude")
+	flag.BoolVar(&printAlleles, "print", false, "Print all alleles")
 	flag.Parse()
 
 	g := genomes.LoadGenomes(fasta, orfs, false)
@@ -274,6 +292,9 @@ func main() {
 	results := make(Results, g.NumGenomes())
 	for i, _ := range translations[0] {
 		alleles := GetAlleles(g, translations, i)
+		if printAlleles {
+			alleles.Print()
+		}
 		alleles.Count(g, results)
 	}
 
