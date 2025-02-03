@@ -28,20 +28,46 @@ func FindAlleles(g *genomes.Genomes, length int) []Allele {
 	return ret
 }
 
+func (a *Allele) IsUnique(which int) (bool, string) {
+	for k, v := range a.Nts {
+		if len(v) == 1 && v[0] == which {
+			return true, k
+		}
+	}
+	return false, ""
+}
+
+func (a *Allele) Majority() string {
+	ret := ""
+	best := -1
+	for k, v := range a.Nts {
+		if len(v) > best {
+			best = v
+			ret = k
+		}
+	}
+	return ret
+}
+
 // In all the places where which has a unique allele, show what the others have
 func ShowUnique(alleles []Allele, which int) {
 	for _, a := range alleles {
-		for us, v := range a.Nts {
-			if len(v) == 1 && v[0] == which {
-				for k, v := range a.Nts {
-					if k == us {
-						continue
-					}
-					fmt.Printf("%d:%s %s: %d\n", a.Pos, us, k, len(v))
+		if unique, us := a.IsUnique(which); unique {
+			for k, v := range a.Nts {
+				if k == us {
+					continue
 				}
-				fmt.Println()
-				break
+				fmt.Printf("%d:%s %s: %d\n", a.Pos, us, k, len(v))
 			}
+			fmt.Println()
+		}
+	}
+}
+
+func MakeAncestor(g *genomes.Genomes, alleles []Allele, which int) {
+	for _, a := range alleles {
+		if a.IsUnique(which) {
+			majority := Majority(a)
 		}
 	}
 }
@@ -49,6 +75,6 @@ func ShowUnique(alleles []Allele, which int) {
 func main() {
 	g := genomes.LoadGenomes("../fasta/SARS2-relatives.fasta",
 		"../fasta/WH1.orfs", false)
-	alleles := FindAlleles(g, 10)
+	alleles := FindAlleles(g, 1)
 	ShowUnique(alleles, 0)
 }
