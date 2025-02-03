@@ -24,6 +24,9 @@ func NewAlleles(g *genomes.Genomes, pos int) *Alleles {
 }
 
 func (a *Alleles) Add(codon *genomes.Codon, genomeIndex int) {
+	if codon.Aa == '-' {
+		return
+	}
 	_, there := a.Nts[codon.Nts]
 	if !there {
 		a.Nts[codon.Nts] = make([]int, 0)
@@ -56,11 +59,12 @@ func GetAlleles(g *genomes.Genomes,
 }
 
 type Result struct {
-	UniqueAas             int
-	SoleOutlierAas        int
-	UniqueSilentCodons    int
-	UniqueNonSilentCodons int
-	SoleOutlierCodons     int
+	UniqueAas                  int
+	SoleOutlierAas             int
+	UniqueSilentCodons         int
+	UniqueNonSilentCodons      int
+	SoleOutlierSilentCodons    int
+	SoleOutlierNonSilentCodons int
 }
 
 // One fo each genome
@@ -69,12 +73,25 @@ type Results []Result
 // If there is a unique Aa in there, return the genome that has it. Otherwise
 // -1
 func (a *Alleles) FindUniqueAa() int {
-	for _, v := range a.Aas {
+	index := -1
+	var us byte
+
+	for k, v := range a.Aas {
 		if len(v) == 1 {
-			return v[0]
+			index = v[0]
+			us = k
+			break
 		}
 	}
-	return -1
+	if index == -1 {
+		return -1
+	}
+
+	orfs := a.g.Orfs
+	orf, pos, _ := orfs.GetOrfRelative(a.Pos)
+	fmt.Printf("Unique Aa: %s:%d: %d got %c, "+
+		"everyone else something else.\n", orfs[orf].Name, pos/3+1, index, us)
+	return index
 }
 
 func translate(nts string) byte {
@@ -95,20 +112,32 @@ func silentString(silent bool) string {
 
 func (a *Alleles) FindSoleOutlierAa() int {
 	others := make(map[byte]bool)
-	ret := -1
+	var us, alt byte
+	index := -1
 
 	for k, v := range a.Aas {
 		if len(v) == 1 {
-			ret = v[0]
+			index = v[0]
+			us = k
 		} else {
 			others[k] = true
+			alt = k
 			if len(others) > 1 {
 				return -1
 			}
 		}
 	}
 
-	return ret
+	if index == -1 {
+		return index
+	}
+
+	orfs := a.g.Orfs
+	orf, pos, _ := orfs.GetOrfRelative(a.Pos)
+	fmt.Printf("SoleOutlier Aa: %s:%d: %d got %c, "+
+		"everyone else %c.\n", orfs[orf].Name, pos/3+1, index, us, alt)
+
+	return index
 }
 
 // True if any of the codons in others code for the same AA as codon
@@ -146,7 +175,7 @@ func (a *Alleles) FindUniqueNts() (int, bool) {
 	orfs := a.g.Orfs
 	orf, pos, _ := orfs.GetOrfRelative(a.Pos)
 	fmt.Printf("Unique Nts: %s:%d: %d got %s (%c) (%s), "+
-	"everyone else something else.\n",
+		"everyone else something else.\n",
 		orfs[orf].Name, pos/3+1, index, outlier, aa, silentString(silent))
 
 	return index, silent
@@ -164,14 +193,14 @@ func (a *Alleles) FindSoleOutlierNts() (int, bool) {
 		} else {
 			others[nts] = true
 			if len(others) > 1 {
-				return -1
+				return -1, false
 			}
 			alt = nts
 		}
 	}
 
 	if index == -1 {
-		return -1
+		return -1, false
 	}
 
 	aa := translate(outlier)
@@ -181,7 +210,7 @@ func (a *Alleles) FindSoleOutlierNts() (int, bool) {
 	orfs := a.g.Orfs
 	orf, pos, _ := orfs.GetOrfRelative(a.Pos)
 	fmt.Printf("SoleOutlier Nts: %s:%d: %d got %s (%c), "+
-	"everyone else %s (%c) (%s).\n",
+		"everyone else %s (%c) (%s).\n",
 		orfs[orf].Name, pos/3+1, index, outlier, aa, alt, altAa, silentString(silent))
 
 	return index, silent
@@ -209,9 +238,13 @@ func (a *Alleles) Count(g *genomes.Genomes, results Results) {
 		}
 	}
 
-	index = a.FindSoleOutlierNts()
+	index, silent = a.FindSoleOutlierNts()
 	if index != -1 {
-		results[index].SoleOutlierCodons++
+		if silent {
+			results[index].SoleOutlierSilentCodons++
+		} else {
+			results[index].SoleOutlierNonSilentCodons++
+		}
 	}
 }
 
@@ -243,4 +276,6 @@ func main() {
 		alleles := GetAlleles(g, translations, i)
 		alleles.Count(g, results)
 	}
+
+	// TODO: Print a summary of counts at the end.
 }
