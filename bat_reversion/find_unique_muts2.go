@@ -132,28 +132,15 @@ func SummarizeResults(results Results) {
 
 // If there is a unique Aa in there, return the genome that has it. Otherwise
 // -1
-func (a *Alleles) FindUniqueAa(showWhich map[int]bool) int {
-	index := -1
-	var us byte
-
+func (a *Alleles) FindUniqueAa(showWhich map[int]bool, cb FoundCB) {
 	for k, v := range a.Aas {
 		if len(v) == 1 {
-			index = v[0]
-			us = k
-			break
+			index := v[0]
+			others := a.GetOtherAas(index)
+			a.HandleMatch(showWhich, index, "UniqueAA", "", k, nil, others)
+			cb(index, false)
 		}
 	}
-	if index == -1 {
-		return -1
-	}
-
-	if showWhich[index] {
-		orfs := a.g.Orfs
-		orf, pos, _ := orfs.GetOrfRelative(a.Pos)
-		fmt.Printf("Unique Aa: %s:%d: %d got %c, "+
-			"everyone else something else.\n", orfs[orf].Name, pos/3+1, index, us)
-	}
-	return index
 }
 
 func translate(nts string) byte {
@@ -240,14 +227,14 @@ func (a *Alleles) HandleMatch(showWhich map[int]bool, index int,
 	silent := true
 	if outlierNts != "" && otherNts != nil && len(otherNts) > 1 {
 		if IsSilent(outlierNts, otherNts) {
-			silentString = "silent"
+			silentString = " (silent)"
 		} else {
-			silentString = "nonsilent"
+			silentString = " (nonsilent)"
 			silent = false
 		}
 	}
 
-	fmt.Printf("%s: %s:%d: %d got %s, everyone else %s (%s).\n", prefix,
+	fmt.Printf("%s: %s:%d: %d got %s, everyone else %s%s.\n", prefix,
 		orfs[orf].Name, pos/3+1, index, us, others, silentString)
 
 	return silent
@@ -315,16 +302,16 @@ func (a *Alleles) Count(g *genomes.Genomes,
 	results Results, showWhich map[int]bool) {
 
 		/*
-	index := a.FindUniqueAa(showWhich)
-	if index != -1 {
-		results[index].UniqueAas++
-	}
 
 	index = a.FindSoleOutlierAa(showWhich)
 	if index != -1 {
 		results[index].SoleOutlierAas++
 	}
 	*/
+
+	a.FindUniqueAa(showWhich, func(index int, silent bool) {
+		results[index].UniqueAas++
+	})
 
 	a.FindUniqueNts(showWhich, func(index int, silent bool) {
 		if silent {
