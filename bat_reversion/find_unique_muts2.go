@@ -201,8 +201,11 @@ func (a *Alleles) FindUniqueNts(showWhich map[int]bool) (int, bool) {
 	{
 		orfs := a.g.Orfs
 		orf, pos, _ := orfs.GetOrfRelative(a.Pos)
-		if orf == 0 && pos/3+1 == 50 {
-			// TODO you are here Why no S50L coming up as unique?
+		if orf == 2 && pos/3+1 == 50 {
+			// TODO you are here Why no S50L coming up as unique? It's because
+			// 42 also has a unique allele here. So how? Restrict to showWhich?
+			// That might be the simplest. But really you'd have to make it
+			// only do one at a time in that case. Not ideal.
 			fmt.Printf("Ok\n")
 		}
 	}

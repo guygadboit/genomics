@@ -243,6 +243,9 @@ func Sample[T comparable](s []T, count int) []T {
 
 // Parse a , etc. separated list of ints like 0,2,3
 func ParseInts(s string, sep string) []int {
+	if s == "" {
+		return make([]int, 0)
+	}
 	fields := strings.Split(s, sep)
 	ret := make([]int, len(fields))
 	for i, f := range fields {
