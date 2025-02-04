@@ -44,3 +44,16 @@ func Difference[T comparable](a map[T]bool, b map[T]bool) map[T]bool {
 	}
 	return ret
 }
+
+/*
+Return an item from the set. Generally you'd only do this if it only had one
+thing in it, which is the only time there's a unique and non-arbitrary answer.
+*/
+func SetItem[T comparable](a map[T]bool) T {
+	for k, _ := range a {
+		return k
+	}
+
+	var ret T
+	return ret
+}

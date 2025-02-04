@@ -31,24 +31,24 @@ func (a *Alleles) Print() {
 	fmt.Printf("\n")
 }
 
-func (a *Alleles) GetOtherNts(index int) []string {
-	ret := make([]string, 0)
+func (a *Alleles) GetOtherNts(index int) map[string]bool {
+	ret := make(map[string]bool)
 	for k, v := range a.Nts {
 		for _, gi := range v {
 			if gi != index {
-				ret = append(ret, k)
+				ret[k] = true
 			}
 		}
 	}
 	return ret
 }
 
-func (a *Alleles) GetOtherAas(index int) []byte {
-	ret := make([]byte, 0)
+func (a *Alleles) GetOtherAas(index int) map[byte]bool {
+	ret := make(map[byte]bool)
 	for k, v := range a.Aas {
 		for _, gi := range v {
 			if gi != index {
-				ret = append(ret, k)
+				ret[k] = true
 			}
 		}
 	}
@@ -151,43 +151,24 @@ func translate(nts string) byte {
 	return ret
 }
 
-func (a *Alleles) FindSoleOutlierAa(showWhich map[int]bool) int {
-	others := make(map[byte]bool)
-	var us byte
-	index := -1
-	var alt byte = '-'
-
+func (a *Alleles) FindSoleOutlierAa(showWhich map[int]bool, cb FoundCB) {
 	for k, v := range a.Aas {
 		if len(v) == 1 {
-			index = v[0]
-			us = k
-		} else {
-			others[k] = true
-			alt = k
-			if len(others) > 1 {
-				return -1
+			index := v[0]
+			others := a.GetOtherAas(index)
+			if len(others) == 1 {
+				silent := a.HandleMatch(showWhich, index, "SoleOutlierAA",
+					"", k, nil, others)
+				cb(index, silent)
 			}
 		}
 	}
-
-	if index == -1 {
-		return index
-	}
-
-	if showWhich[index] {
-		orfs := a.g.Orfs
-		orf, pos, _ := orfs.GetOrfRelative(a.Pos)
-		fmt.Printf("SoleOutlier Aa: %s:%d: %d got %c, "+
-			"everyone else %c.\n", orfs[orf].Name, pos/3+1, index, us, alt)
-	}
-
-	return index
 }
 
 // True if any of the codons in others code for the same AA as codon
-func IsSilent(outlier string, others []string) bool {
+func IsSilent(outlier string, others map[string]bool) bool {
 	us := translate(outlier)
-	for _, other := range others {
+	for other, _ := range others {
 		if us == genomes.CodonTable[other] {
 			return true
 		}
@@ -198,7 +179,7 @@ func IsSilent(outlier string, others []string) bool {
 // Prints it out and returns if it is silent
 func (a *Alleles) HandleMatch(showWhich map[int]bool, index int,
 	prefix string, outlierNts string, outlierAa byte,
-	otherNts []string, otherAa []byte) bool {
+	otherNts map[string]bool, otherAa map[byte]bool) bool {
 
 	if !showWhich[index] {
 		return true
@@ -212,15 +193,23 @@ func (a *Alleles) HandleMatch(showWhich map[int]bool, index int,
 		us = outlierNts
 	}
 	if outlierAa != 0 {
-		us += fmt.Sprintf(" (%c)", outlierAa)
+		if us != "" {
+			us += fmt.Sprintf(" (%c)", outlierAa)
+		} else {
+			us = string(outlierAa)
+		}
 	}
 
 	others := "something else"
 	if otherNts != nil && len(otherNts) == 1 {
-		others = otherNts[0]
+		others = utils.SetItem(otherNts)
 	}
-	if otherAa != nil && len(otherAa) > 0 {
-		others += fmt.Sprintf(" (%c)", otherAa[0])
+	if otherAa != nil && len(otherAa) == 1 {
+		if others != "" {
+			others += fmt.Sprintf(" (%c)", utils.SetItem(otherAa))
+		} else {
+			others = string(utils.SetItem(otherAa))
+		}
 	}
 
 	var silentString string
@@ -240,74 +229,37 @@ func (a *Alleles) HandleMatch(showWhich map[int]bool, index int,
 	return silent
 }
 
-
 type FoundCB func(index int, silent bool)
 
 func (a *Alleles) FindUniqueNts(showWhich map[int]bool, cb FoundCB) {
-	index := -1
-
 	for nts, v := range a.Nts {
 		if len(v) == 1 {
-			index = v[0]
+			index := v[0]
 			others := a.GetOtherNts(index)
-			silent := a.HandleMatch(showWhich, 
+			silent := a.HandleMatch(showWhich,
 				index, "UniqueNts", nts, translate(nts), others, nil)
 			cb(index, silent)
 		}
 	}
 }
 
-/*
-func (a *Alleles) FindSoleOutlierNts(showWhich map[int]bool) (int, bool) {
-	others := make(map[string]bool)
-	index := -1
-	var outlier, alt string
-
+func (a *Alleles) FindSoleOutlierNts(showWhich map[int]bool, cb FoundCB) {
 	for nts, v := range a.Nts {
 		if len(v) == 1 {
-			index = v[0]
-			outlier = nts
-		} else {
-			others[nts] = true
-			if len(others) > 1 {
-				return -1, false
+			index := v[0]
+			others := a.GetOtherNts(index)
+			if len(others) == 1 {
+				silent := a.HandleMatch(showWhich, index, "SoleOutlierNts",
+					nts, translate(nts), others, nil)
+				cb(index, silent)
 			}
-			alt = nts
 		}
 	}
-
-	if index == -1 {
-		return -1, false
-	}
-
-	aa := translate(outlier)
-	altAa := translate(alt)
-	silent := aa == altAa
-
-	if showWhich[index] {
-		orfs := a.g.Orfs
-		orf, pos, _ := orfs.GetOrfRelative(a.Pos)
-		fmt.Printf("SoleOutlier Nts: %s:%d: %d got %s (%c), "+
-			"everyone else %s (%c) (%s).\n",
-			orfs[orf].Name, pos/3+1, index, outlier,
-			aa, alt, altAa, silentString(silent))
-	}
-
-	return index, silent
 }
-*/
 
 // Update results with the counts based on the alleles at a particular location
 func (a *Alleles) Count(g *genomes.Genomes,
 	results Results, showWhich map[int]bool) {
-
-		/*
-
-	index = a.FindSoleOutlierAa(showWhich)
-	if index != -1 {
-		results[index].SoleOutlierAas++
-	}
-	*/
 
 	a.FindUniqueAa(showWhich, func(index int, silent bool) {
 		results[index].UniqueAas++
@@ -321,17 +273,17 @@ func (a *Alleles) Count(g *genomes.Genomes,
 		}
 	})
 
-	/*
+	a.FindSoleOutlierAa(showWhich, func(index int, silent bool) {
+		results[index].SoleOutlierAas++
+	})
 
-	index, silent = a.FindSoleOutlierNts(showWhich)
-	if index != -1 {
+	a.FindSoleOutlierNts(showWhich, func(index int, silent bool) {
 		if silent {
 			results[index].SoleOutlierSilentCodons++
 		} else {
 			results[index].SoleOutlierNonSilentCodons++
 		}
-	}
-	*/
+	})
 }
 
 func main() {
@@ -356,12 +308,22 @@ func main() {
 	flag.BoolVar(&spikeOnly, "spike", false, "Spike only")
 	flag.StringVar(&exclude, "exclude", "", "Indices to exclude")
 	flag.BoolVar(&printAlleles, "print", false, "Print all alleles")
-	flag.StringVar(&showWhichS, "show", "0", "Only show specified genomes")
+	flag.StringVar(&showWhichS, "show", "all", "Only show specified genomes")
 	flag.Parse()
 
-	showWhich := utils.ToSet(utils.ParseInts(showWhichS, ","))
-
 	g := genomes.LoadGenomes(fasta, orfs, false)
+
+	var showWhich map[int]bool
+	if showWhichS == "all" {
+		indices := make([]int, g.NumGenomes())
+		for i := 0; i < g.NumGenomes(); i++ {
+			indices[i] = i
+		}
+		showWhich = utils.ToSet(indices)
+	} else {
+		showWhich = utils.ToSet(utils.ParseInts(showWhichS, ","))
+	}
+
 	translations := Translate(g)
 	results := make(Results, g.NumGenomes())
 	for i, _ := range translations[0] {
