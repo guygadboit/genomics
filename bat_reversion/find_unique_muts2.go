@@ -140,14 +140,6 @@ func translate(nts string) byte {
 	return ret
 }
 
-func silentString(silent bool) string {
-	if silent {
-		return "silent"
-	} else {
-		return "nonsilent"
-	}
-}
-
 func (a *Alleles) FindSoleOutlierAa(showWhich map[int]bool) int {
 	others := make(map[byte]bool)
 	var us byte
@@ -182,37 +174,68 @@ func (a *Alleles) FindSoleOutlierAa(showWhich map[int]bool) int {
 }
 
 // True if any of the codons in others code for the same AA as codon
-func IsSilent(outlier string, others []string) (bool, byte) {
+func IsSilent(outlier string, others []string) bool {
 	us := translate(outlier)
 	for _, other := range others {
 		if us == genomes.CodonTable[other] {
-			return true, us
+			return true
 		}
 	}
-	return false, us
+	return false
 }
 
-func (a *Alleles) FindUniqueNts(showWhich map[int]bool) (int, bool) {
+func (al *Alleles) PrintMatch(a *Allele, showWhich map[int]bool, index int,
+	prefix string, outlierNts string, outlierAa byte,
+	otherNts []string, otherAa []byte) {
+
+	if !showWhich[index] {
+		return
+	}
+
+	orfs := a.g.Orfs
+	orf, pos, _ := orfs.GetOrfRelative(a.Pos)
+
+	var us string
+	if outlierNts != "" {
+		us = outlierNts
+	}
+	if outlierAA != 0 {
+		us += fmt.Sprintf(" (%c)", outlierAa)
+	}
+
+	others = "something else"
+	if otherNts != nil && len(otherNts) == 1 {
+		others = otherNts[0]
+	}
+	if otherAa != nil && len(otherAa) > 0 {
+		others += fmt.Sprintf(" (%c)", otherAa[0])
+	}
+
+	var silentString string
+	if outlierNts != "" && otherNts != nil && len(otherNts) > 1 {
+		if IsSilent(outlierNts, otherNts) {
+			silentString = "silent"
+		} else {
+			silentString = "nonsilent"
+		}
+	}
+
+	fmt.Printf("%s: %s:%d: %d got %s, everyone else %s (%s).\n", prefix,
+		orfs[orf].Name, pos/3+1, index, us, others, silentString)
+}
+
+type FoundCB func(index int silent bool)
+
+func (a *Alleles) FindUniqueNts(showWhich map[int]bool, cb FoundCB) {
 	index := -1
 
 	var outlier string
 	others := make([]string, 0)
 
-	{
-		orfs := a.g.Orfs
-		orf, pos, _ := orfs.GetOrfRelative(a.Pos)
-		if orf == 2 && pos/3+1 == 50 {
-			// TODO you are here Why no S50L coming up as unique? It's because
-			// 42 also has a unique allele here. So how? Restrict to showWhich?
-			// That might be the simplest. But really you'd have to make it
-			// only do one at a time in that case. Not ideal.
-			fmt.Printf("Ok\n")
-		}
-	}
-
 	for nts, v := range a.Nts {
 		if len(v) == 1 {
 			index = v[0]
+			// Call the CB here FIXME YOU ARE HERE
 			outlier = nts
 			break
 		} else {
@@ -223,7 +246,7 @@ func (a *Alleles) FindUniqueNts(showWhich map[int]bool) (int, bool) {
 		return -1, false
 	}
 
-	silent, aa := IsSilent(outlier, others)
+	silent := IsSilent(outlier, others)
 
 	if showWhich[index] {
 		orfs := a.g.Orfs
