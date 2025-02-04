@@ -31,6 +31,30 @@ func (a *Alleles) Print() {
 	fmt.Printf("\n")
 }
 
+func (a *Alleles) GetOtherNts(index int) []string {
+	ret := make([]string, 0)
+	for k, v := range a.Nts {
+		for _, gi := range v {
+			if gi != index {
+				ret = append(ret, k)
+			}
+		}
+	}
+	return ret
+}
+
+func (a *Alleles) GetOtherAas(index int) []byte {
+	ret := make([]byte, 0)
+	for k, v := range a.Aas {
+		for _, gi := range v {
+			if gi != index {
+				ret = append(ret, k)
+			}
+		}
+	}
+	return ret
+}
+
 func NewAlleles(g *genomes.Genomes, pos int) *Alleles {
 	var ret Alleles
 	ret.g = g
@@ -184,12 +208,13 @@ func IsSilent(outlier string, others []string) bool {
 	return false
 }
 
-func (al *Alleles) PrintMatch(a *Allele, showWhich map[int]bool, index int,
+// Prints it out and returns if it is silent
+func (a *Alleles) HandleMatch(showWhich map[int]bool, index int,
 	prefix string, outlierNts string, outlierAa byte,
-	otherNts []string, otherAa []byte) {
+	otherNts []string, otherAa []byte) bool {
 
 	if !showWhich[index] {
-		return
+		return true
 	}
 
 	orfs := a.g.Orfs
@@ -199,11 +224,11 @@ func (al *Alleles) PrintMatch(a *Allele, showWhich map[int]bool, index int,
 	if outlierNts != "" {
 		us = outlierNts
 	}
-	if outlierAA != 0 {
+	if outlierAa != 0 {
 		us += fmt.Sprintf(" (%c)", outlierAa)
 	}
 
-	others = "something else"
+	others := "something else"
 	if otherNts != nil && len(otherNts) == 1 {
 		others = otherNts[0]
 	}
@@ -212,53 +237,40 @@ func (al *Alleles) PrintMatch(a *Allele, showWhich map[int]bool, index int,
 	}
 
 	var silentString string
+	silent := true
 	if outlierNts != "" && otherNts != nil && len(otherNts) > 1 {
 		if IsSilent(outlierNts, otherNts) {
 			silentString = "silent"
 		} else {
 			silentString = "nonsilent"
+			silent = false
 		}
 	}
 
 	fmt.Printf("%s: %s:%d: %d got %s, everyone else %s (%s).\n", prefix,
 		orfs[orf].Name, pos/3+1, index, us, others, silentString)
+
+	return silent
 }
 
-type FoundCB func(index int silent bool)
+
+type FoundCB func(index int, silent bool)
 
 func (a *Alleles) FindUniqueNts(showWhich map[int]bool, cb FoundCB) {
 	index := -1
 
-	var outlier string
-	others := make([]string, 0)
-
 	for nts, v := range a.Nts {
 		if len(v) == 1 {
 			index = v[0]
-			// Call the CB here FIXME YOU ARE HERE
-			outlier = nts
-			break
-		} else {
-			others = append(others, nts)
+			others := a.GetOtherNts(index)
+			silent := a.HandleMatch(showWhich, 
+				index, "UniqueNts", nts, translate(nts), others, nil)
+			cb(index, silent)
 		}
 	}
-	if index == -1 {
-		return -1, false
-	}
-
-	silent := IsSilent(outlier, others)
-
-	if showWhich[index] {
-		orfs := a.g.Orfs
-		orf, pos, _ := orfs.GetOrfRelative(a.Pos)
-		fmt.Printf("Unique Nts: %s:%d: %d got %s (%c) (%s), "+
-			"everyone else something else.\n",
-			orfs[orf].Name, pos/3+1, index, outlier, aa, silentString(silent))
-	}
-
-	return index, silent
 }
 
+/*
 func (a *Alleles) FindSoleOutlierNts(showWhich map[int]bool) (int, bool) {
 	others := make(map[string]bool)
 	index := -1
@@ -296,11 +308,13 @@ func (a *Alleles) FindSoleOutlierNts(showWhich map[int]bool) (int, bool) {
 
 	return index, silent
 }
+*/
 
 // Update results with the counts based on the alleles at a particular location
 func (a *Alleles) Count(g *genomes.Genomes,
 	results Results, showWhich map[int]bool) {
 
+		/*
 	index := a.FindUniqueAa(showWhich)
 	if index != -1 {
 		results[index].UniqueAas++
@@ -310,15 +324,17 @@ func (a *Alleles) Count(g *genomes.Genomes,
 	if index != -1 {
 		results[index].SoleOutlierAas++
 	}
+	*/
 
-	index, silent := a.FindUniqueNts(showWhich)
-	if index != -1 {
+	a.FindUniqueNts(showWhich, func(index int, silent bool) {
 		if silent {
 			results[index].UniqueSilentCodons++
 		} else {
 			results[index].UniqueNonSilentCodons++
 		}
-	}
+	})
+
+	/*
 
 	index, silent = a.FindSoleOutlierNts(showWhich)
 	if index != -1 {
@@ -328,6 +344,7 @@ func (a *Alleles) Count(g *genomes.Genomes,
 			results[index].SoleOutlierNonSilentCodons++
 		}
 	}
+	*/
 }
 
 func main() {
@@ -352,7 +369,7 @@ func main() {
 	flag.BoolVar(&spikeOnly, "spike", false, "Spike only")
 	flag.StringVar(&exclude, "exclude", "", "Indices to exclude")
 	flag.BoolVar(&printAlleles, "print", false, "Print all alleles")
-	flag.StringVar(&showWhichS, "show", "", "Only show specified genomes")
+	flag.StringVar(&showWhichS, "show", "0", "Only show specified genomes")
 	flag.Parse()
 
 	showWhich := utils.ToSet(utils.ParseInts(showWhichS, ","))
