@@ -136,8 +136,8 @@ func (c *Comparison) Summary(showIndels bool) {
 	}
 
 	S, N, NO := c.SilentCount()
-    ratio := float64(N)/float64(S)
-    fmt.Printf("Silent: %d Non-Silent: %d Non-Orf: %d N/S: %.2f Total: %d\n",
+	ratio := float64(N) / float64(S)
+	fmt.Printf("Silent: %d Non-Silent: %d Non-Orf: %d N/S: %.2f Total: %d\n",
 		S, N, NO, ratio, S+N+NO)
 	fmt.Printf("Insertions: %d Deletions: %d\n",
 		len(c.Insertions), len(c.Deletions))
@@ -234,9 +234,10 @@ func (c *Comparison) GraphData(fname string) {
 	silent := make(PosSet)
 	nonSilent := make(PosSet)
 	for _, m := range c.NtMuts {
-		if m.Silence == utils.NON_SILENT {
+		switch m.Silence {
+		case utils.NON_SILENT:
 			nonSilent[m.Pos] = true
-		} else {
+		case utils.SILENT:
 			silent[m.Pos] = true
 		}
 	}
