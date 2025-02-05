@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"genomics/genomes"
 	"genomics/utils"
+	"strings"
 )
 
 // The alleles in a given location
@@ -286,6 +287,52 @@ func (a *Alleles) Count(g *genomes.Genomes,
 	})
 }
 
+func minSimilarity(g *genomes.Genomes, which ...int) float64 {
+	ret := 1.0
+	for _, i := range which {
+		for _, j := range which {
+			if i == j {
+				continue
+			}
+			ss := g.SequenceSimilarity(i, j)
+			if ss < ret {
+				ret = ss
+			}
+		}
+	}
+	return ret
+}
+
+/*
+Look for alleles that are shared at least minInside times within the group
+(which will probably be PCoVs or controls), and not outside it.
+*/
+func (a *Alleles) CheckGroup(minInside int, group map[int]bool) {
+	for k, v := range a.Aas {
+		vs := utils.ToSet(v)
+		if !utils.IsSubset(vs, group) {
+			continue
+		}
+		if len(v) >= minInside {
+			minSS := minSimilarity(a.g, v...)
+			orfs := a.g.Orfs
+			orf, pos, _ := orfs.GetOrfRelative(a.Pos)
+			fmt.Printf("%s:%d %d Pangolins minSS:%.2f got %c, bats "+
+				"something else\n", orfs[orf].Name, pos/3+1, len(v), minSS, k)
+		}
+	}
+}
+
+func GetPangolins(g *genomes.Genomes) map[int]bool {
+	ret := make(map[int]bool)
+	for i := 0; i < g.NumGenomes(); i++ {
+		if strings.Contains(g.Names[i], "Pangolin") {
+			ret[i] = true
+		}
+	}
+	return ret
+}
+
 func main() {
 	var (
 		unique              bool
@@ -298,11 +345,11 @@ func main() {
 	)
 
 	flag.BoolVar(&unique, "u", false,
-		"Just check for unique whatever the others have")
+	"Just check for unique whatever the others have")
 	flag.StringVar(&fasta, "fasta", "../fasta/SARS2-relatives.fasta",
-		"Fasta file to use")
+	"Fasta file to use")
 	flag.StringVar(&orfs, "orfs", "../fasta/WH1.orfs",
-		"ORFs file to use")
+	"ORFs file to use")
 	flag.BoolVar(&pangolins, "pangolin", false, "Pangolin special")
 	flag.BoolVar(&controls, "control", false, "Pangolin controls")
 	flag.BoolVar(&spikeOnly, "spike", false, "Spike only")
@@ -328,10 +375,17 @@ func main() {
 	results := make(Results, g.NumGenomes())
 	for i, _ := range translations[0] {
 		alleles := GetAlleles(g, translations, i)
+
 		if printAlleles {
 			alleles.Print()
 		}
-		alleles.Count(g, results, showWhich)
+		if pangolins {
+			alleles.CheckGroup(5, GetPangolins(g))
+		} else {
+			alleles.Count(g, results, showWhich)
+		}
 	}
-	SummarizeResults(results)
+	if len(results) > 0 {
+		SummarizeResults(results)
+	}
 }

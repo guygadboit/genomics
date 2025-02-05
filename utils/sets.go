@@ -45,6 +45,11 @@ func Difference[T comparable](a map[T]bool, b map[T]bool) map[T]bool {
 	return ret
 }
 
+func IsSubset[T comparable](a map[T]bool, b map[T]bool) bool {
+	d := Difference(b, a)
+	return len(d) == 0
+}
+
 /*
 Return an item from the set. Generally you'd only do this if it only had one
 thing in it, which is the only time there's a unique and non-arbitrary answer.
