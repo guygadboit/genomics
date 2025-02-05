@@ -308,7 +308,8 @@ func minSimilarity(g *genomes.Genomes, which ...int) float64 {
 Look for alleles that are shared at least minInside times within the group
 (which will probably be PCoVs or controls), and not outside it.
 */
-func (a *Alleles) CheckGroup(minInside int, group map[int]bool, name string) {
+func (a *Alleles) CheckGroup(minInside int,
+	group map[int]bool, name string) (bool, float64) {
 	for k, v := range a.Aas {
 		vs := utils.ToSet(v)
 		if !utils.IsSubset(vs, group) {
@@ -321,8 +322,10 @@ func (a *Alleles) CheckGroup(minInside int, group map[int]bool, name string) {
 			fmt.Printf("%s:%d %d %s minSS:%.2f got %c, bats "+
 				"something else\n", orfs[orf].Name, pos/3+1,
 				len(v), name, minSS, k)
+			return true, minSS
 		}
 	}
+	return false, 0
 }
 
 func GetPangolins(g *genomes.Genomes) map[int]bool {
@@ -349,6 +352,22 @@ func GetControls(g *genomes.Genomes) map[int]bool {
 	}
 
 	return ret
+}
+
+func PangolinControls(alleles *Alleles, g *genomes.Genomes) {
+	var matches int
+	var total, count float64
+	for i := 0; i < 1000; i++ {
+		controls := GetControls(g)
+		if matched, minSS := alleles.CheckGroup(5,
+			controls, "Controls"); matched {
+			matches++
+			total += minSS
+			count++
+		}
+	}
+	fmt.Printf("Matched %d out of 1000 minSS %.2f\n",
+		matches, total/count)
 }
 
 func main() {
@@ -401,7 +420,7 @@ func main() {
 		if pangolins {
 			alleles.CheckGroup(5, GetPangolins(g), "Pangolins")
 		} else if controls {
-			alleles.CheckGroup(5, GetControls(g), "Controls")
+			PangolinControls(alleles, g)
 		} else {
 			alleles.Count(g, results, showWhich)
 			haveResults = true
