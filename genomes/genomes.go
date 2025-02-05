@@ -841,27 +841,30 @@ func (g *Genomes) IsProtein() bool {
 	return prot > 0
 }
 
-
+/*
+FIXME: this won't work properly in lots of cases, like if you truncate not on a
+codon boundary, or in the middle of an ORF or something!
+*/
 func TruncateOrfs(orfs Orfs, start, end int) Orfs {
-    ret := make(Orfs, 0)
-    newLen := end - start
-    for _, orf := range orfs {
-        newStart := orf.Start - start
+	ret := make(Orfs, 0)
+	newLen := end - start
+	for _, orf := range orfs {
+		newStart := orf.Start - start
 
-        if newStart < 0 {
-            continue
-        }
+		if newStart < 0 {
+			continue
+		}
 
-        newEnd := orf.End - start
-        if newEnd > newLen {
-            newEnd = newLen
-        }
-        if newEnd <= newStart {
-            continue
-        }
-        ret = append(ret, Orf{newStart, newEnd, orf.Name})
-    }
-    return ret
+		newEnd := orf.End - start
+		if newEnd > newLen {
+			newEnd = newLen
+		}
+		if newEnd <= newStart {
+			continue
+		}
+		ret = append(ret, Orf{newStart, newEnd, orf.Name})
+	}
+	return ret
 }
 
 /*
@@ -871,5 +874,5 @@ func (g *Genomes) Truncate(start, end int) {
 	for i := 0; i < g.NumGenomes(); i++ {
 		g.Nts[i] = g.Nts[i][start:end]
 	}
-    g.Orfs = TruncateOrfs(g.Orfs, start, end)
+	g.Orfs = TruncateOrfs(g.Orfs, start, end)
 }
