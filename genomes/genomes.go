@@ -841,13 +841,35 @@ func (g *Genomes) IsProtein() bool {
 	return prot > 0
 }
 
+
+func TruncateOrfs(orfs Orfs, start, end int) Orfs {
+    ret := make(Orfs, 0)
+    newLen := end - start
+    for _, orf := range orfs {
+        newStart := orf.Start - start
+
+        if newStart < 0 {
+            continue
+        }
+
+        newEnd := orf.End - start
+        if newEnd > newLen {
+            newEnd = newLen
+        }
+        if newEnd <= newStart {
+            continue
+        }
+        ret = append(ret, Orf{newStart, newEnd, orf.Name})
+    }
+    return ret
+}
+
 /*
-Truncate the sequence between start and end (and get rid of the orfs, which are
-now probably invalid)
+Truncate the sequence between start and end, including adjusting the Orfs
 */
 func (g *Genomes) Truncate(start, end int) {
 	for i := 0; i < g.NumGenomes(); i++ {
 		g.Nts[i] = g.Nts[i][start:end]
 	}
-	g.Orfs = []Orf{{0, g.Length(), ""}}
+    g.Orfs = TruncateOrfs(g.Orfs, start, end)
 }

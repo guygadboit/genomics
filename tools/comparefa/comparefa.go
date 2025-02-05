@@ -56,6 +56,16 @@ plot "cumulative-muts.txt" using 1 title "silent" with lines, \
 	}
 }
 
+func parseRestrict(g *genomes.Genomes, restrict string) (int, int) {
+    for _, orf := range g.Orfs {
+        if orf.Name == restrict {
+            return orf.Start, orf.End
+        }
+    }
+    ints := utils.ParseInts(restrict, ":")
+    return ints[0]-1, ints[1]
+}
+
 func main() {
 	var (
 		orfName         string
@@ -70,6 +80,7 @@ func main() {
 		highlightFile   string
 		showIndels      bool
 		showTransitions bool
+        restrict        string
 	)
 
 	flag.StringVar(&orfName, "orfs", "", "ORFs")
@@ -86,6 +97,7 @@ func main() {
 		"", "1-based positions to highlight one per line in a file")
 	flag.BoolVar(&showIndels, "indels", false, "Show indels")
 	flag.BoolVar(&showTransitions, "trans", false, "Show transition counts")
+    flag.StringVar(&restrict, "restrict", "", "Restrict to range")
 	flag.Parse()
 
 	var g *genomes.Genomes
@@ -109,6 +121,11 @@ func main() {
 		fmt.Fprintln(os.Stderr, "Maybe need -gaps?")
 		log.Fatal(err)
 	}
+
+    if restrict != "" {
+        start, end := parseRestrict(g, restrict)
+        g.Truncate(start, end)
+    }
 
 	var which []int
 	if include != "" {

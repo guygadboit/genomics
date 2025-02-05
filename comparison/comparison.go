@@ -136,8 +136,9 @@ func (c *Comparison) Summary(showIndels bool) {
 	}
 
 	S, N, NO := c.SilentCount()
-	fmt.Printf("Silent: %d Non-Silent: %d Non-Orf: %d Total: %d\n",
-		S, N, NO, S+N+NO)
+    ratio := float64(N)/float64(S)
+    fmt.Printf("Silent: %d Non-Silent: %d Non-Orf: %d N/S: %.2f Total: %d\n",
+		S, N, NO, ratio, S+N+NO)
 	fmt.Printf("Insertions: %d Deletions: %d\n",
 		len(c.Insertions), len(c.Deletions))
 
