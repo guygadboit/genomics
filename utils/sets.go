@@ -46,7 +46,7 @@ func Difference[T comparable](a map[T]bool, b map[T]bool) map[T]bool {
 }
 
 func IsSubset[T comparable](a map[T]bool, b map[T]bool) bool {
-	d := Difference(b, a)
+	d := Difference(a, b)
 	return len(d) == 0
 }
 

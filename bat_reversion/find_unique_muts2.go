@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"genomics/genomes"
 	"genomics/utils"
+	"math/rand"
 	"strings"
 )
 
@@ -307,7 +308,7 @@ func minSimilarity(g *genomes.Genomes, which ...int) float64 {
 Look for alleles that are shared at least minInside times within the group
 (which will probably be PCoVs or controls), and not outside it.
 */
-func (a *Alleles) CheckGroup(minInside int, group map[int]bool) {
+func (a *Alleles) CheckGroup(minInside int, group map[int]bool, name string) {
 	for k, v := range a.Aas {
 		vs := utils.ToSet(v)
 		if !utils.IsSubset(vs, group) {
@@ -317,8 +318,9 @@ func (a *Alleles) CheckGroup(minInside int, group map[int]bool) {
 			minSS := minSimilarity(a.g, v...)
 			orfs := a.g.Orfs
 			orf, pos, _ := orfs.GetOrfRelative(a.Pos)
-			fmt.Printf("%s:%d %d Pangolins minSS:%.2f got %c, bats "+
-				"something else\n", orfs[orf].Name, pos/3+1, len(v), minSS, k)
+			fmt.Printf("%s:%d %d %s minSS:%.2f got %c, bats "+
+				"something else\n", orfs[orf].Name, pos/3+1,
+				len(v), name, minSS, k)
 		}
 	}
 }
@@ -330,6 +332,22 @@ func GetPangolins(g *genomes.Genomes) map[int]bool {
 			ret[i] = true
 		}
 	}
+	return ret
+}
+
+func GetControls(g *genomes.Genomes) map[int]bool {
+	n := len(GetPangolins(g))
+	total := g.NumGenomes()
+	ret := make(map[int]bool)
+
+	for i := 0; i < n; {
+		v := rand.Intn(total)
+		if !ret[v] {
+			ret[v] = true
+			i++
+		}
+	}
+
 	return ret
 }
 
@@ -345,11 +363,11 @@ func main() {
 	)
 
 	flag.BoolVar(&unique, "u", false,
-	"Just check for unique whatever the others have")
+		"Just check for unique whatever the others have")
 	flag.StringVar(&fasta, "fasta", "../fasta/SARS2-relatives.fasta",
-	"Fasta file to use")
+		"Fasta file to use")
 	flag.StringVar(&orfs, "orfs", "../fasta/WH1.orfs",
-	"ORFs file to use")
+		"ORFs file to use")
 	flag.BoolVar(&pangolins, "pangolin", false, "Pangolin special")
 	flag.BoolVar(&controls, "control", false, "Pangolin controls")
 	flag.BoolVar(&spikeOnly, "spike", false, "Spike only")
@@ -373,6 +391,7 @@ func main() {
 
 	translations := Translate(g)
 	results := make(Results, g.NumGenomes())
+	var haveResults bool
 	for i, _ := range translations[0] {
 		alleles := GetAlleles(g, translations, i)
 
@@ -380,12 +399,15 @@ func main() {
 			alleles.Print()
 		}
 		if pangolins {
-			alleles.CheckGroup(5, GetPangolins(g))
+			alleles.CheckGroup(5, GetPangolins(g), "Pangolins")
+		} else if controls {
+			alleles.CheckGroup(5, GetControls(g), "Controls")
 		} else {
 			alleles.Count(g, results, showWhich)
+			haveResults = true
 		}
 	}
-	if len(results) > 0 {
+	if haveResults {
 		SummarizeResults(results)
 	}
 }
