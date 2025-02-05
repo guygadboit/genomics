@@ -15,7 +15,7 @@ outer:
 		for j := 0; j < g.NumGenomes(); j++ {
 			if onlySilent {
 				if j > 0 {
-					_, isSilent, _ := genomes.IsSilent(g, i, 1, 0, j)
+					isSilent, _, _ := genomes.IsSilent(g, i, 1, 0, j)
 					if !isSilent {
 						continue outer
 					}
