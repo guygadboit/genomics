@@ -841,10 +841,6 @@ func (g *Genomes) IsProtein() bool {
 	return prot > 0
 }
 
-/*
-FIXME: this won't work properly in lots of cases, like if you truncate not on a
-codon boundary, or in the middle of an ORF or something!
-*/
 func TruncateOrfs(orfs Orfs, start, end int) Orfs {
 	ret := make(Orfs, 0)
 	newLen := end - start
@@ -852,7 +848,8 @@ func TruncateOrfs(orfs Orfs, start, end int) Orfs {
 		newStart := orf.Start - start
 
 		if newStart < 0 {
-			continue
+			newStart *= -1
+			newStart += newStart%3
 		}
 
 		newEnd := orf.End - start

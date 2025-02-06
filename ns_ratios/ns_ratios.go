@@ -9,7 +9,11 @@ import (
 func main() {
 	g := genomes.LoadGenomes("../fasta/SARS2-relatives-short-names.fasta",
 		"../fasta/WH1.orfs", false)
-	g.Truncate(21562, 25384) // spike only
+	g.Truncate(21567, 25164) // spike only
+
+	trans := genomes.Translate(g, 0)
+	fmt.Println(trans.ToString())
+	return
 
     /*
     // Interestingly none of these have nearly as high a S/N

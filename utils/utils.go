@@ -317,3 +317,11 @@ func SortByKey[S ~[]E, E any](x S, key func(a E) int, reverse bool) {
 		return 0
 	})
 }
+
+func Ceil3(x int) int {
+	rem := x % 3
+	if rem == 0 {
+		return x
+	}
+	return x + (3 - rem)
+}
