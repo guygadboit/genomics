@@ -21,6 +21,7 @@ func main() {
 	flag.Parse()
 
 	g := genomes.LoadGenomes(fasta, orfs, false)
+	g.RemoveGaps()
 
 	if spikeOnly {
 		S, err := g.Orfs.Find("S")

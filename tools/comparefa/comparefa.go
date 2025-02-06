@@ -116,6 +116,10 @@ func main() {
 		}
 	}
 
+	if orfName == "" {
+		g.Orfs = []genomes.Orf{genomes.Orf{0, g.Length(), ""}}
+	}
+
 	err := g.CheckOrfs()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Maybe need -gaps?")
