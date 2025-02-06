@@ -11,10 +11,11 @@ import (
 
 // The alleles in a given location
 type Alleles struct {
-	g   *genomes.Genomes
-	Pos int
-	Nts map[string][]int // For the nts in a given codon, which genomes have it?
-	Aas map[byte][]int   // For a given AA, which genomes have it?
+	g         *genomes.Genomes
+	Pos       int
+	Nts       map[string][]int // For the nts in a given codon, which genomes have it?
+	Aas       map[byte][]int   // For a given AA, which genomes have it?
+	Diversity int              // Number of diff. encodings of majority allele
 }
 
 func (a *Alleles) Print() {
@@ -83,6 +84,25 @@ func (a *Alleles) Add(codon *genomes.Codon, genomeIndex int) {
 	a.Aas[codon.Aa] = append(a.Aas[codon.Aa], genomeIndex)
 }
 
+func (a *Alleles) CalcDiversity() {
+	var majorityAa byte
+	var best int
+	for k, v := range a.Aas {
+		if len(v) > best {
+			best = len(v)
+			majorityAa = k
+		}
+	}
+
+	var diversity int
+	for k, _ := range a.Nts {
+		if translate(k) == majorityAa {
+			diversity++
+		}
+	}
+	a.Diversity = diversity
+}
+
 func Translate(g *genomes.Genomes) []genomes.Translation {
 	ret := make([]genomes.Translation, g.NumGenomes())
 	for i := 0; i < g.NumGenomes(); i++ {
@@ -98,6 +118,7 @@ func GetAlleles(g *genomes.Genomes,
 		codon := translations[i][codonIndex]
 		ret.Add(&codon, i)
 	}
+	ret.CalcDiversity()
 	return ret
 }
 
@@ -225,8 +246,9 @@ func (a *Alleles) HandleMatch(showWhich map[int]bool, index int,
 		}
 	}
 
-	fmt.Printf("%s: %s:%d: %d got %s, everyone else %s%s.\n", prefix,
-		orfs[orf].Name, pos/3+1, index, us, others, silentString)
+	fmt.Printf("%s: %s:%d: %d got %s, everyone else %s%s diversity: %d\n",
+		prefix, orfs[orf].Name, pos/3+1,
+		index, us, others, silentString, a.Diversity)
 
 	return silent
 }
