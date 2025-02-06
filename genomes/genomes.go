@@ -864,6 +864,10 @@ func TruncateOrfs(orfs Orfs, start, end int) Orfs {
 	return ret
 }
 
+func (g *Genomes) ResetOrfs() {
+	g.Orfs = []Orf{Orf{0, g.Length(), ""}}
+}
+
 /*
 Truncate the sequence between start and end, including adjusting the Orfs
 */

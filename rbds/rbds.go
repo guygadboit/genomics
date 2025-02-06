@@ -5,7 +5,6 @@ import (
 	"genomics/genomes"
 	"genomics/utils"
 	"slices"
-	"strings"
 )
 
 var SPIKE_START utils.OneBasedPos = utils.OneBasedPos(21563)
@@ -30,11 +29,17 @@ func printComparisons(g *genomes.Genomes, c []Comparison, caption string) {
 	}
 }
 
-func Compare(g *genomes.Genomes, start, end utils.OneBasedPos) {
+/*
+spikeStart is the start of the spike; start and are the offsets into the spike
+of the bit you're interested in (which will be the RBD or the RBM)
+*/
+func Compare(g *genomes.Genomes, spikeStart utils.OneBasedPos,
+	start, end utils.OneBasedPos) {
 	comparisons := make([]Comparison, 0)
-	s := int((SPIKE_START + start*3) - 1)
-	e := int(SPIKE_START + end*3)
+	s := int((spikeStart + start*3) - 1)
+	e := int(spikeStart + end*3)
 	g.Truncate(s, e)
+	g.ResetOrfs()
 
 	// Protein first
 	refTrans := genomes.Translate(g, 0)
@@ -66,16 +71,6 @@ func Compare(g *genomes.Genomes, start, end utils.OneBasedPos) {
 	printComparisons(g, comparisons, "Nucleotide")
 }
 
-func LoadShortNames() []string {
-	ret := make([]string, 0)
-	utils.Lines("../fasta/short_names.txt", func(line string, err error) bool {
-		fields := strings.Split(line, " ")
-		ret = append(ret, fields[1])
-		return true
-	})
-	return ret
-}
-
 func swap() {
 	g := genomes.LoadGenomes("rbm.fasta", "", false)
 	g = g.Swap(0, 8)
@@ -96,19 +91,29 @@ func centroid() {
 }
 
 func main() {
-	centroid()
-	return
-
-	g := genomes.LoadGenomes("../fasta/SARS2-relatives.fasta",
+	g := genomes.LoadGenomes("../fasta/SARS2-relatives-short-names.fasta",
 		"../fasta/WH1.orfs", false)
-	g.Names = LoadShortNames()
 
 	// As AA offsets into S
 	rbd := []utils.OneBasedPos{333, 679}
 	rbm := []utils.OneBasedPos{438, 506}
 
 	fmt.Println("RBD")
-	Compare(g.Clone(), rbd[0], rbd[1])
+	Compare(g.Clone(), SPIKE_START, rbd[0], rbd[1])
 	fmt.Println("RBM")
-	Compare(g.Clone(), rbm[0], rbm[1])
+	Compare(g.Clone(), SPIKE_START, rbm[0], rbm[1])
+
+	/*
+	These guys are all quite a bit different from SARS2 and RaTG13 it looks
+	like. But simlar to each other. They're generally similar to SARS1 than
+	SARS2. Particularly Rs5725
+	*/
+	g = genomes.LoadGenomes("/fs/f/genomes/viruses/"+
+		"suppressed_genomes/spikes/WH1-alignment.fasta",
+		"", false)
+
+	fmt.Println("RBD (additional)")
+	Compare(g.Clone(), 0, rbd[0], rbd[1])
+	fmt.Println("RBM (additional)")
+	Compare(g.Clone(), 0, rbm[0], rbm[1])
 }
