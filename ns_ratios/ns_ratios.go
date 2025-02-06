@@ -1,26 +1,34 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"genomics/comparison"
 	"genomics/genomes"
+	"log"
 )
 
 func main() {
-	g := genomes.LoadGenomes("../fasta/SARS2-relatives-short-names.fasta",
-		"../fasta/WH1.orfs", false)
-	g.Truncate(21567, 25164) // spike only
+	var (
+		fasta, orfs string
+		spikeOnly   bool
+	)
 
-	trans := genomes.Translate(g, 0)
-	fmt.Println(trans.ToString())
-	return
+	flag.StringVar(&fasta, "fasta",
+		"../fasta/SARS2-relatives-short-names.fasta", "Fasta file to use")
+	flag.StringVar(&orfs, "orfs", "../fasta/WH1.orfs", "ORFs file to use")
+	flag.BoolVar(&spikeOnly, "spike", false, "S only")
+	flag.Parse()
 
-    /*
-    // Interestingly none of these have nearly as high a S/N
-	g := genomes.LoadGenomes("../fasta/SARS1-relatives.fasta",
-		"../fasta/SARS1.orfs", false)
-	g.Truncate(21492, 25259) // spike only (SARS1)
-    */
+	g := genomes.LoadGenomes(fasta, orfs, false)
+
+	if spikeOnly {
+		S, err := g.Orfs.Find("S")
+		if err != nil {
+			log.Fatal("Can't find S")
+		}
+		g.Truncate(S.Start, S.End)
+	}
 
 	for i := 0; i < g.NumGenomes(); i++ {
 		for j := i + 1; j < g.NumGenomes(); j++ {
@@ -28,8 +36,8 @@ func main() {
 			S, NS, _ := c.SilentCount()
 			ratio := float64(S) / float64(NS)
 
-			fmt.Printf("%.2f %d %d %s vs %s\n", ratio,
-				NS, S, g.Names[i], g.Names[j])
+			fmt.Printf("%.2f %d %d %s(%d) vs %s(%d)\n", ratio,
+				NS, S, g.Names[i], i, g.Names[j], j)
 		}
 	}
 }

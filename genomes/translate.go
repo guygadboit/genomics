@@ -191,6 +191,15 @@ func (orfs Orfs) GetOrfRelative(pos int) (int, int, error) {
 	return 0, 0, nil
 }
 
+func (orfs Orfs) Find(name string) (Orf, error) {
+	for _, o := range orfs {
+		if o.Name == name {
+			return o, nil
+		}
+	}
+	return Orf{}, errors.New("Not Found")
+}
+
 // The "Environment" of a subsequence is the codon-aligned section that
 // completely contains it.
 type Environment struct {
