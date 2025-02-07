@@ -58,6 +58,14 @@ func (a *Alleles) GetOtherAas(index int) map[byte]bool {
 	return ret
 }
 
+func (a *Alleles) AASummary() string {
+	ret := ""
+	for k, _ := range a.Aas {
+		ret += string(k)
+	}
+	return ret
+}
+
 func NewAlleles(g *genomes.Genomes, pos int) *Alleles {
 	var ret Alleles
 	ret.g = g
@@ -341,27 +349,27 @@ func (a *Alleles) CheckGroup(minInside int,
 			minSS := minSimilarity(a.g, v...)
 			orfs := a.g.Orfs
 			orf, pos, _ := orfs.GetOrfRelative(a.Pos)
-			fmt.Printf("%s:%d %d %s minSS:%.2f got %c, bats "+
-				"something else\n", orfs[orf].Name, pos/3+1,
-				len(v), name, minSS, k)
+			fmt.Printf("%s:%d %d %s minSS:%.4f got %c, bats "+
+				"something else (%s)\n", orfs[orf].Name, pos/3+1,
+				len(v), name, minSS, k, a.AASummary())
 			return true, minSS
 		}
 	}
 	return false, 0
 }
 
-func GetPangolins(g *genomes.Genomes) map[int]bool {
+func GetPangolins(g *genomes.Genomes, id string) map[int]bool {
 	ret := make(map[int]bool)
 	for i := 0; i < g.NumGenomes(); i++ {
-		if strings.Contains(g.Names[i], "Pangolin") {
+		if strings.Contains(g.Names[i], id) {
 			ret[i] = true
 		}
 	}
 	return ret
 }
 
-func GetControls(g *genomes.Genomes) map[int]bool {
-	n := len(GetPangolins(g))
+func GetControls(g *genomes.Genomes, id string) map[int]bool {
+	n := len(GetPangolins(g, id))
 	total := g.NumGenomes()
 	ret := make(map[int]bool)
 
@@ -376,12 +384,13 @@ func GetControls(g *genomes.Genomes) map[int]bool {
 	return ret
 }
 
-func PangolinControls(alleles *Alleles, g *genomes.Genomes) {
+func PangolinControls(alleles *Alleles,
+	g *genomes.Genomes, id string, minGroup int) {
 	var matches int
 	var total, count float64
 	for i := 0; i < 1000; i++ {
-		controls := GetControls(g)
-		if matched, minSS := alleles.CheckGroup(5,
+		controls := GetControls(g, id)
+		if matched, minSS := alleles.CheckGroup(minGroup,
 			controls, "Controls"); matched {
 			matches++
 			total += minSS
@@ -401,6 +410,8 @@ func main() {
 		exclude             string
 		printAlleles        bool
 		showWhichS          string
+		pangolinId			string
+		minGroup			int
 	)
 
 	flag.BoolVar(&unique, "u", false,
@@ -415,6 +426,12 @@ func main() {
 	flag.StringVar(&exclude, "exclude", "", "Indices to exclude")
 	flag.BoolVar(&printAlleles, "print", false, "Print all alleles")
 	flag.StringVar(&showWhichS, "show", "all", "Only show specified genomes")
+
+	// These are hacks so we can do the Pangolin special on human viruses in
+	// the MERS-274 set
+	flag.StringVar(&pangolinId, "pango-id", "Pangolin",
+		"How to find 'pangolin's")
+	flag.IntVar(&minGroup, "min-group", 5, "Min in group")
 	flag.Parse()
 
 	g := genomes.LoadGenomes(fasta, orfs, false)
@@ -440,9 +457,10 @@ func main() {
 			alleles.Print()
 		}
 		if pangolins {
-			alleles.CheckGroup(5, GetPangolins(g), "Pangolins")
+			alleles.CheckGroup(minGroup,
+				GetPangolins(g, pangolinId), "Pangolins")
 		} else if controls {
-			PangolinControls(alleles, g)
+			PangolinControls(alleles, g, pangolinId, minGroup)
 		} else {
 			alleles.Count(g, results, showWhich)
 			haveResults = true
