@@ -5,13 +5,34 @@ import (
 	"fmt"
 	"genomics/genomes"
 	"genomics/utils"
-	"slices"
 	"log"
+	"slices"
 )
 
-type SSResult struct {
-	index	int
-	ss		float64
+func SortedSimilarity(g *genomes.Genomes) {
+	type SSResult struct {
+		index int
+		ss    float64
+	}
+
+	results := make([]SSResult, g.NumGenomes())
+	for i := 0; i < g.NumGenomes(); i++ {
+		results[i] = SSResult{i, g.SequenceSimilarity(i, 0)}
+	}
+
+	slices.SortFunc(results, func(a, b SSResult) int {
+		if a.ss < b.ss {
+			return 1
+		}
+		if a.ss > b.ss {
+			return -1
+		}
+		return 0
+	})
+
+	for _, r := range results {
+		fmt.Printf("%d: %s %.2f%%\n", r.index, g.Names[r.index], r.ss*100)
+	}
 }
 
 func main() {
@@ -43,22 +64,7 @@ func main() {
 		}
 		return
 	} else if sss {
-		results := make([]SSResult, g.NumGenomes())
-		for i := 0; i < g.NumGenomes(); i++ {
-			results[i] = SSResult{i, g.SequenceSimilarity(i, 0)}
-			slices.SortFunc(results, func(a, b SSResult) int {
-				if a.ss < b.ss {
-					return 1
-				}
-				if a.ss > b.ss {
-					return -1
-				}
-				return 0
-			})
-		}
-		for _, r := range results {
-			fmt.Printf("%d: %s %.2f%%\n", r.index, g.Names[r.index], r.ss*100)
-		}
+		SortedSimilarity(g)
 	}
 
 	if include != "" && exclude != "" {

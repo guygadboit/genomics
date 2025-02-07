@@ -37,8 +37,9 @@ func main() {
 			S, NS, _ := c.SilentCount()
 			ratio := float64(S) / float64(NS)
 
-			fmt.Printf("%.2f %d %d %s(%d) vs %s(%d)\n", ratio,
-				NS, S, g.Names[i], i, g.Names[j], j)
+			ss := g.SequenceSimilarity(i, j)
+			fmt.Printf("%.2f %d %d %s(%d) vs %s(%d) %.4f SS\n", ratio,
+				NS, S, g.Names[i], i, g.Names[j], j, ss)
 		}
 	}
 }
