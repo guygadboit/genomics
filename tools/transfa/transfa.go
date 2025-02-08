@@ -114,6 +114,7 @@ func main() {
 		offset                  int
 		reverse                 bool
 		freq                    bool
+		include					string
 	)
 
 	flag.StringVar(&modeName, "mode", "translate", "Translation mode")
@@ -123,9 +124,16 @@ func main() {
 	flag.BoolVar(&reverse, "reverse", false, "Treat as reverse complement")
 	flag.BoolVar(&freq, "freq", false, "Show codon usage table "+
 		"(if mode is codons)")
+	flag.StringVar(&include, "i", "", "Genomes to include")
 	flag.Parse()
 
 	g := genomes.LoadGenomes(flag.Arg(0), orfs, false)
+
+	if include != "" {
+		which := utils.ParseInts(include, ",")
+		g = g.Filter(which...)
+	}
+
 	mode, there := modes[modeName]
 	if !there {
 		log.Fatal("Invalid mode")
