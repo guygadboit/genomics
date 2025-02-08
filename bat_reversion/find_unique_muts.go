@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
 	"genomics/genomes"
 	"genomics/utils"
 	"math/rand"
@@ -449,6 +450,13 @@ func main() {
 	flag.Parse()
 
 	g := genomes.LoadGenomes(fasta, orfs, false)
+	if spikeOnly {
+		s, err := g.Orfs.Find("S")
+		if err != nil {
+			log.Fatal("Can't find S")
+		}
+		g.Truncate(s.Start, s.End)
+	}
 
 	var showWhich map[int]bool
 	if showWhichS == "all" {
