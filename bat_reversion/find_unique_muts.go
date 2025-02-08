@@ -58,10 +58,13 @@ func (a *Alleles) GetOtherAas(index int) map[byte]bool {
 	return ret
 }
 
-func (a *Alleles) AASummary() string {
+func (a *Alleles) AASummary(exclude string) string {
 	ret := ""
+	excl := utils.ToSet([]byte(exclude))
 	for k, _ := range a.Aas {
-		ret += string(k)
+		if !excl[k] {
+			ret += string(k)
+		}
 	}
 	return ret
 }
@@ -351,7 +354,7 @@ func (a *Alleles) CheckGroup(minInside int,
 			orf, pos, _ := orfs.GetOrfRelative(a.Pos)
 			fmt.Printf("%s:%d %d %s minSS:%.4f got %c, bats "+
 				"something else (%s)\n", orfs[orf].Name, pos/3+1,
-				len(v), name, minSS, k, a.AASummary())
+				len(v), name, minSS, k, a.AASummary(string(k)))
 			return true, minSS
 		}
 	}
@@ -368,20 +371,25 @@ func GetPangolins(g *genomes.Genomes, id string) map[int]bool {
 	return ret
 }
 
-func GetControls(g *genomes.Genomes, id string) map[int]bool {
-	n := len(GetPangolins(g, id))
+func GetControls(g *genomes.Genomes, id string) (map[int]bool, int) {
+	pangolins := GetPangolins(g, id)
+	n := len(pangolins)
 	total := g.NumGenomes()
 	ret := make(map[int]bool)
 
+	count := 0
 	for i := 0; i < n; {
 		v := rand.Intn(total)
 		if !ret[v] {
 			ret[v] = true
+			if pangolins[v] {
+				count++
+			}
 			i++
 		}
 	}
 
-	return ret
+	return ret, count
 }
 
 func PangolinControls(alleles *Alleles,
@@ -389,16 +397,22 @@ func PangolinControls(alleles *Alleles,
 	var matches int
 	var total, count float64
 	for i := 0; i < 1000; i++ {
-		controls := GetControls(g, id)
+		controls, pCount := GetControls(g, id)
 		if matched, minSS := alleles.CheckGroup(minGroup,
-			controls, "Controls"); matched {
+			controls,
+			fmt.Sprintf("Controls (%d/%d pangolins)",
+				pCount, len(controls))); matched {
 			matches++
 			total += minSS
 			count++
 		}
 	}
+	var meanMinSS float64
+	if count != 0.0 {
+		meanMinSS = total/count
+	}
 	fmt.Printf("Matched %d out of 1000 minSS %.2f\n",
-		matches, total/count)
+		matches, meanMinSS)
 }
 
 func main() {
@@ -410,8 +424,8 @@ func main() {
 		exclude             string
 		printAlleles        bool
 		showWhichS          string
-		pangolinId			string
-		minGroup			int
+		pangolinId          string
+		minGroup            int
 	)
 
 	flag.BoolVar(&unique, "u", false,
