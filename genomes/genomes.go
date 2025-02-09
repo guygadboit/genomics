@@ -50,6 +50,7 @@ func LoadGenomes(fname string, orfsName string, merge bool) *Genomes {
 	fp := utils.NewFileReader(fname)
 	defer fp.Close()
 
+	length := -1
 	currentRow := make([]byte, 0)
 loop:
 	// If working with huge genomes uncomment this for faster debugging!
@@ -75,6 +76,15 @@ loop:
 			name := line[1:]
 			ret.Names = append(ret.Names, name)
 			if !merge && len(currentRow) > 0 {
+				if length == -1 {
+					length = len(currentRow)
+				} else {
+					if len(currentRow) != length {
+						log.Fatalf("Genomes are not aligned: "+
+							"%d has length %d != %d\n",
+							len(ret.Nts)+1, len(currentRow), length)
+					}
+				}
 				ret.Nts = append(ret.Nts, currentRow)
 				currentRow = make([]byte, 0)
 			}
@@ -849,7 +859,7 @@ func TruncateOrfs(orfs Orfs, start, end int) Orfs {
 
 		if newStart < 0 {
 			newStart *= -1
-			newStart += newStart%3
+			newStart += newStart % 3
 		}
 
 		newEnd := orf.End - start

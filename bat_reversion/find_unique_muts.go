@@ -343,7 +343,7 @@ Look for alleles that are shared at least minInside times within the group
 (which will probably be PCoVs or controls), and not outside it.
 */
 func (a *Alleles) CheckGroup(minInside int,
-	group map[int]bool, name string) (bool, float64) {
+	group map[int]bool, name string, verbose bool) (bool, float64) {
 	for k, v := range a.Aas {
 		vs := utils.ToSet(v)
 		if !utils.IsSubset(vs, group) {
@@ -356,6 +356,11 @@ func (a *Alleles) CheckGroup(minInside int,
 			fmt.Printf("%s:%d %d %s minSS:%.4f got %c, bats "+
 				"something else (%s)\n", orfs[orf].Name, pos/3+1,
 				len(v), name, minSS, k, a.AASummary(string(k)))
+			if verbose {
+				for _, index := range v {
+					fmt.Printf("%d: %s\n", index, a.g.Names[index])
+				}
+			}
 			return true, minSS
 		}
 	}
@@ -394,7 +399,7 @@ func GetControls(g *genomes.Genomes, id string) (map[int]bool, int) {
 }
 
 func PangolinControls(alleles *Alleles,
-	g *genomes.Genomes, id string, minGroup int) {
+	g *genomes.Genomes, id string, minGroup int, verbose bool) {
 	var matches int
 	var total, count float64
 	for i := 0; i < 1000; i++ {
@@ -402,7 +407,7 @@ func PangolinControls(alleles *Alleles,
 		if matched, minSS := alleles.CheckGroup(minGroup,
 			controls,
 			fmt.Sprintf("Controls (%d/%d pangolins)",
-				pCount, len(controls))); matched {
+				pCount, len(controls)), verbose); matched {
 			matches++
 			total += minSS
 			count++
@@ -427,6 +432,7 @@ func main() {
 		showWhichS          string
 		pangolinId          string
 		minGroup            int
+		verbose				bool
 	)
 
 	flag.BoolVar(&unique, "u", false,
@@ -440,6 +446,7 @@ func main() {
 	flag.BoolVar(&spikeOnly, "spike", false, "Spike only")
 	flag.StringVar(&exclude, "exclude", "", "Indices to exclude")
 	flag.BoolVar(&printAlleles, "print", false, "Print all alleles")
+	flag.BoolVar(&verbose, "verbose", false, "Extra verbose")
 	flag.StringVar(&showWhichS, "show", "all", "Only show specified genomes")
 
 	// These are hacks so we can do the Pangolin special on human viruses in
@@ -480,9 +487,9 @@ func main() {
 		}
 		if pangolins {
 			alleles.CheckGroup(minGroup,
-				GetPangolins(g, pangolinId), "Pangolins")
+				GetPangolins(g, pangolinId), "Pangolins", verbose)
 		} else if controls {
-			PangolinControls(alleles, g, pangolinId, minGroup)
+			PangolinControls(alleles, g, pangolinId, minGroup, verbose)
 		} else {
 			alleles.Count(g, results, showWhich)
 			haveResults = true
