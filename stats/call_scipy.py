@@ -6,22 +6,46 @@ import socketserver
 import os
 import re
 import sys
+import struct
 from pdb import set_trace as brk
 
 
 SOCK_NAME = "/tmp/call_scipy.sock"
 
 
+def convert_float(s):
+	"""s is the hex representation of an IEEE754 double. Return the actual
+	value"""
+	v = struct.pack('Q', int(s, 16))
+	return struct.unpack('d', v)
+
+
+def unconvert_float(f):
+	"""Return a float as an IEEE754 hex string"""
+	v = struct.pack('d', f)
+	i = struct.unpack('Q', v)[0]
+	return hex(i)[2:]
+
+
 def parse_array(data):
 	ret = None
 	rows = data.split(';')
 	for row in rows:
-		items = np.array([float(x) for x in row.split(',')])
+		items = np.array([convert_float(x) for x in row.split(',')])
 		if ret is None:
 			ret = items
 		else:
-			ret = np.vstack((ret, items))
-	return ret
+			ret = np.hstack((ret, items))
+	return ret.transpose()
+
+
+def encode_array(arr):
+	brk()
+	encoded_rows = []
+	for row in arr:
+		encoded_row = ",".join([unconvert_float(f) for f in row])
+		encoded_rows.append(encoded_row)
+	return ";".join(encoded_rows)
 
 
 class Handler(socketserver.StreamRequestHandler):
@@ -48,9 +72,17 @@ class Handler(socketserver.StreamRequestHandler):
 				OR, p = fisher_exact(contingency_table, alternative=alternative)
 				self.wfile.write(bytes("{} {}\n".format(OR, p), 'ascii'))
 			elif cmd == "pca":
-				data = parse_array(data)
-				brk()
+				components, line = line.split(maxsplit=1)
+				components = int(components)
+				data = parse_array(line)
 
+				pca = skd.PCA(components)
+				pca.fit(data)
+
+				ev = [unconvert_float(f)
+					for f in pca.explained_variance_ratio_]
+				self.wfile.write(bytes("{} {} {}".format(*ev,
+						   encode_array(pca.transform(data))), 'ascii'))
 
 
 def main():

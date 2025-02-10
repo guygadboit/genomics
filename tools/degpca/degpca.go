@@ -4,8 +4,7 @@ import (
 	"fmt"
 	"genomics/degeneracy"
 	"genomics/genomes"
-	"math"
-	"strings"
+	"genomics/stats"
 )
 
 /*
@@ -59,23 +58,17 @@ func countClasses(t degeneracy.Translation) Row {
 	return ret
 }
 
-func (r Row) Encode() string {
-	columns := make([]string, 8)
-
-	for i, v := range r {
-		columns[i] = fmt.Sprintf("%x", math.Float64bits(v))
-	}
-
-	return strings.Join(columns, ",")
-}
-
 func main() {
 	g := genomes.LoadGenomes("../../fasta/SARS2-relatives.fasta",
 		"../../fasta/WH1.orfs", false)
 
+	data := make([][]float64, 0)
 	for i := 0; i < g.NumGenomes(); i++ {
 		t := degeneracy.Translate(g, i)
 		classes := countClasses(t)
-		fmt.Println(classes.Encode())
+		data = append(data, classes)
 	}
+
+	result := stats.PCA(2, data)
+	fmt.Println(result)
 }
