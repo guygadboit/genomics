@@ -54,7 +54,11 @@ func StatsClient() {
 	}
 	defer conn.Close()
 
-	buf := make([]byte, 256)
+	/*
+		Currently this buffer needs to be big enough for everything we expect back
+		in one shot
+	*/
+	buf := make([]byte, 1024*1024)
 
 	alternatives := []string{
 		"two-sided",
@@ -82,12 +86,19 @@ func StatsClient() {
 		case pi := <-pcaInput:
 			msg := fmt.Sprintf("pca %d %s\n", pi.components,
 				pi.EncodeData())
+			fmt.Println(msg)
 			conn.Write([]byte(msg))
 			read()
 			s := string(buf)
 			variance, s := parseFloats(s, 2)
 			result := PCAResult{variance, nil}
 			result.DecodeData(s)
+
+			if len(result.ReducedData) != len(pi.data) {
+				// This would happen if your buffer was too small (for example)
+				log.Fatalf("Received %d reduced rows from %d rows\n",
+					len(result.ReducedData), len(pi.data))
+			}
 			pcaOutput <- result
 		}
 	}
@@ -162,7 +173,7 @@ func (p *PCAInput) EncodeData() string {
 }
 
 type PCAResult struct {
-	VarianceRatio []float64	// one per component
+	VarianceRatio []float64 // one per component
 	ReducedData   [][]float64
 }
 
@@ -172,7 +183,7 @@ separate items in a row and ; separates rows
 */
 func (p *PCAResult) DecodeData(s string) {
 	rows := strings.Split(s, ";")
-	cols := len(rows[0])
+	cols := len(strings.Split(rows[0], ","))
 
 	p.ReducedData = make([][]float64, len(rows))
 	for i, row := range rows {

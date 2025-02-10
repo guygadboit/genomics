@@ -40,7 +40,6 @@ def parse_array(data):
 
 
 def encode_array(arr):
-	brk()
 	encoded_rows = []
 	for row in arr:
 		encoded_row = ",".join([unconvert_float(f) for f in row])
@@ -58,6 +57,9 @@ class Handler(socketserver.StreamRequestHandler):
 		while True:
 			line = str(self.rfile.readline(), "utf-8")
 			line = line.strip()
+
+			if not line: break
+
 			cmd, line = line.split(maxsplit=1)
 			if cmd == "fisher":
 				m = self.pat.match(line)
@@ -81,8 +83,10 @@ class Handler(socketserver.StreamRequestHandler):
 
 				ev = [unconvert_float(f)
 					for f in pca.explained_variance_ratio_]
+				transformed_data = pca.transform(data)
+
 				self.wfile.write(bytes("{} {} {}".format(*ev,
-						   encode_array(pca.transform(data))), 'ascii'))
+						   encode_array(transformed_data)), 'ascii'))
 
 
 def main():

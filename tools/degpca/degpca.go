@@ -70,5 +70,7 @@ func main() {
 	}
 
 	result := stats.PCA(2, data)
-	fmt.Println(result)
+	for _, row := range result.ReducedData {
+		fmt.Println(row)
+	}
 }
