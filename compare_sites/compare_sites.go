@@ -181,7 +181,7 @@ func FisherClient() {
 
 	for {
 		ct := <-FisherInput
-		msg := fmt.Sprintf("%s\n", ct.ToString())
+		msg := fmt.Sprintf("fisher %s\n", ct.ToString())
 		conn.Write([]byte(msg))
 		_, err := conn.Read(buf)
 		if err != nil {

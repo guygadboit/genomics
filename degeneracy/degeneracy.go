@@ -40,3 +40,8 @@ func AddDegeneracy(t genomes.Translation) Translation {
 	}
 	return ret
 }
+
+func Translate(genome *genomes.Genomes, which int) Translation {
+	t := genomes.Translate(genome, which)
+	return AddDegeneracy(t)
+}
