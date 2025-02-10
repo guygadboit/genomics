@@ -2,71 +2,71 @@ package main
 
 import (
 	"fmt"
-	"genomics/genomes"
 	"genomics/degeneracy"
+	"genomics/genomes"
+	"math"
+	"strings"
 )
 
-type Row struct {
-	FourA	float64		// number of codons with 4-fold degeneracy and A in the 3rd pos
-	FourC	float64		// etc...
-	FourG	float64
-	FourT	float64
-
-	TwoA	float64
-	TwoC	float64
-	TwoG	float64
-	TwoT	float64
-}
+/*
+Contains 8 items, the proportion of codons with 4-fold degeneracy that have A,
+C, G, and T in the 3rd position, followed by the same thing for 2-fold
+*/
+type Row []float64
 
 func countClasses(t degeneracy.Translation) Row {
-	var ret Row
+	ret := make(Row, 8)
 	var totalFours, totalTwos float64
 
 	for _, c := range t {
 		nt := c.Nts[2]
 		fold := c.Fold
-		if fold == 3 {	// Treat 3-fold as if it were 2
+		if fold == 3 { // Treat 3-fold as if it were 2
 			fold = 2
 		}
-		switch fold {
-		case 4:
-			switch nt {
-			case 'A':
-				ret.FourA++
-			case 'G':
-				ret.FourG++
-			case 'C':
-				ret.FourC++
-			case 'T':
-				ret.FourT++
-			}
+
+		var i int
+		if fold == 4 {
+			i = 0
 			totalFours++
-		case 2:
-			switch nt {
-			case 'A':
-				ret.TwoA++
-			case 'G':
-				ret.TwoG++
-			case 'C':
-				ret.TwoC++
-			case 'T':
-				ret.TwoT++
-			}
+		} else {
+			i = 4
 			totalTwos++
 		}
+
+		var j int
+		switch nt {
+		case 'A':
+			j = 0
+		case 'G':
+			j = 1
+		case 'C':
+			j = 2
+		case 'T':
+			j = 3
+		}
+
+		ret[i+j]++
 	}
 
-	ret.FourA /= totalFours
-	ret.FourG /= totalFours
-	ret.FourC /= totalFours
-	ret.FourT /= totalFours
-
-	ret.TwoA /= totalTwos
-	ret.TwoG /= totalTwos
-	ret.TwoC /= totalTwos
-	ret.TwoT /= totalTwos
+	for i := 0; i < 4; i++ {
+		ret[i] /= totalFours
+	}
+	for i := 4; i < 8; i++ {
+		ret[i] /= totalTwos
+	}
 
 	return ret
+}
+
+func (r Row) Encode() string {
+	columns := make([]string, 8)
+
+	for i, v := range r {
+		columns[i] = fmt.Sprintf("%x", math.Float64bits(v))
+	}
+
+	return strings.Join(columns, ",")
 }
 
 func main() {
@@ -76,6 +76,6 @@ func main() {
 	for i := 0; i < g.NumGenomes(); i++ {
 		t := degeneracy.Translate(g, i)
 		classes := countClasses(t)
-		fmt.Println(classes)
+		fmt.Println(classes.Encode())
 	}
 }
