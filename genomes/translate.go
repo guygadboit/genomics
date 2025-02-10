@@ -738,15 +738,20 @@ func ProteinChange(g *Genomes,
 	return silent, envB.Protein(), envA.Protein(), nil
 }
 
-func init() {
-	ReverseCodonTable = make(map[byte][]string)
+func newReverseTable() map[byte][]string {
+	ret := make(map[byte][]string)
+
 	for k := range CodonTable {
 		v, _ := CodonTable[k]
-
-		codons, there := ReverseCodonTable[v]
+		codons, there := ret[v]
 		if !there {
 			codons = make([]string, 0)
 		}
-		ReverseCodonTable[v] = append(codons, k)
+		ret[v] = append(codons, k)
 	}
+	return ret
+}
+
+func init() {
+	ReverseCodonTable = newReverseTable()
 }
