@@ -1,10 +1,15 @@
 package main
 
 import (
+	"errors"
+	"flag"
 	"fmt"
 	"genomics/degeneracy"
 	"genomics/genomes"
 	"genomics/stats"
+	"genomics/utils"
+	"path"
+	"strings"
 )
 
 /*
@@ -58,19 +63,72 @@ func countClasses(t degeneracy.Translation) Row {
 	return ret
 }
 
+type Source struct {
+	fasta   string
+	orfs    string
+	outName string
+	rows    int
+}
+
+type Sources []Source
+
+func (s *Sources) Set(value string) error {
+	values := strings.Split(value, ",")
+	if len(values) != 2 {
+		return errors.New("Invalid source specification")
+	}
+
+	_, fname := path.Split(values[0])
+	outName := utils.BaseName(fname) + ".dat"
+
+	src := Source{values[0], values[1], outName, 0}
+	*s = append(*s, src)
+	return nil
+}
+
+func (s *Sources) String() string {
+	return ""
+}
+
 func main() {
-	g := genomes.LoadGenomes("../../fasta/SARS2-relatives.fasta",
-		"../../fasta/WH1.orfs", false)
+	var (
+		sources Sources
+		outName string
+	)
+
+	flag.Var(&sources, "s", "List of sources (fasta,orf)")
+	flag.StringVar(&outName, "o", "output.dat", "Output file")
+	flag.Parse()
 
 	data := make([][]float64, 0)
-	for i := 0; i < g.NumGenomes(); i++ {
-		t := degeneracy.Translate(g, i)
-		classes := countClasses(t)
-		data = append(data, classes)
+	for i, s := range sources {
+		g := genomes.LoadGenomes(s.fasta, s.orfs, false)
+		for j := 0; j < g.NumGenomes(); j++ {
+			t := degeneracy.Translate(g, j)
+			classes := countClasses(t)
+			data = append(data, classes)
+		}
+		sources[i].rows = g.NumGenomes()
 	}
 
 	result := stats.PCA(2, data)
-	for _, row := range result.ReducedData {
-		fmt.Println(row)
+	fmt.Println("Explained variance ratio:", result.VarianceRatio)
+
+	writeFile := func(fname string, start, end int) {
+		fd, fp := utils.WriteFile(fname)
+		defer fd.Close()
+
+		for _, row := range result.ReducedData[start:end] {
+			fmt.Fprintf(fp, "%f %f\n", row[0], row[1])
+		}
+
+		fp.Flush()
+		fmt.Printf("Wrote %s\n", fname)
+	}
+
+	pos := 0
+	for _, s := range sources {
+		writeFile(s.outName, pos, pos+s.rows)
+		pos += s.rows
 	}
 }

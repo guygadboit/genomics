@@ -86,7 +86,6 @@ func StatsClient() {
 		case pi := <-pcaInput:
 			msg := fmt.Sprintf("pca %d %s\n", pi.components,
 				pi.EncodeData())
-			fmt.Println(msg)
 			conn.Write([]byte(msg))
 			read()
 			s := string(buf)

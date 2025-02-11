@@ -154,6 +154,14 @@ func Atoi(s string) int {
 	return ret
 }
 
+func WriteFile(fname string) (*os.File, *bufio.Writer) {
+	fd, err := os.Create(fname)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return fd, bufio.NewWriter(fd)
+}
+
 func Atof(s string) float64 {
 	ret, err := strconv.ParseFloat(s, 64)
 	if err != nil {
