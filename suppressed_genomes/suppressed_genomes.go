@@ -30,7 +30,7 @@ type Accession struct {
 
 	// The genome name minus the bit that tells you it's ORF8 or whatever. So
 	// we can match them up.
-	species string
+	species  string
 	location string
 }
 
@@ -84,6 +84,18 @@ func BySpecies(accessions []Accession) map[string][]Accession {
 	return ret
 }
 
+func ByLocation(accessions []Accession) map[string][]Accession {
+	ret := make(map[string][]Accession)
+	for _, acc := range accessions {
+		_, there := ret[acc.location]
+		if !there {
+			ret[acc.location] = make([]Accession, 0)
+		}
+		ret[acc.location] = append(ret[acc.location], acc)
+	}
+	return ret
+}
+
 func WhatsMissing(bySpecies map[string][]Accession) {
 	for k, v := range bySpecies {
 		var gotS, gotO8, gotR bool
@@ -109,20 +121,31 @@ func WhatsMissing(bySpecies map[string][]Accession) {
 	}
 }
 
-func Assemble(bySpecies map[string][]Accession) {
-	for k, v := range bySpecies {
-		nts := make([]byte, 0)
-		for _, acc := range v {
-			nts = append(nts, acc.genome.Nts[0]...)
+func Assemble(byMap map[string][]Accession, merge bool) {
+	for k, v := range byMap {
+		numGenomes := 1
+		if !merge {
+			numGenomes = len(v)
 		}
 
-		g := genomes.NewGenomes(nil, 1)
-		g.Nts = make([][]byte, 1)
-		g.Nts[0] = nts
+		g := genomes.NewGenomes(nil, numGenomes)
+		g.Nts = make([][]byte, numGenomes)
 
-		g.Names[0] = k
+		if merge {
+			g.Nts[0] = make([]byte, 0)
+		}
+
+		for i, acc := range v {
+			if merge {
+				g.Nts[0] = append(g.Nts[0], acc.genome.Nts[0]...)
+			} else {
+				g.Nts[i] = acc.genome.Nts[0]
+				g.Names[i] = acc.genome.Names[0]
+			}
+		}
+
 		fname := filepath.Join(ROOT, "All", fmt.Sprintf("%s.fasta", k))
-		g.Save(k, fname, 0)
+		g.SaveMulti(fname)
 		fmt.Println("Wrote", fname)
 	}
 }
@@ -131,5 +154,7 @@ func main() {
 	accessions := LoadAll()
 	bySpecies := BySpecies(accessions)
 	WhatsMissing(bySpecies)
-	Assemble(bySpecies)
+	// Assemble(bySpecies, true)
+	byLocation := ByLocation(accessions)
+	Assemble(byLocation, false)
 }
