@@ -25,6 +25,9 @@ type Genomes struct {
 }
 
 func NewGenomes(orfs Orfs, numGenomes int) *Genomes {
+	if orfs == nil {
+		orfs = Orfs{}
+	}
 	return &Genomes{make([][]byte, numGenomes),
 		make([]string, numGenomes), orfs}
 }
