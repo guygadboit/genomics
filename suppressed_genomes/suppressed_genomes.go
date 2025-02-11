@@ -121,6 +121,9 @@ func WhatsMissing(bySpecies map[string][]Accession) {
 	}
 }
 
+// FIXME this is no good. We want one BySpecies, which puts the ORFs together,
+// and then another ByLocation, which is a completeish genome for each species
+// in a fasta file (that could in theory then be aligned)
 func Assemble(byMap map[string][]Accession, merge bool) {
 	for k, v := range byMap {
 		numGenomes := 1
