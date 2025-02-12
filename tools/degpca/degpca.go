@@ -189,18 +189,33 @@ func main() {
 	var (
 		sources Sources
 		outName string
+		hass    bool
+		spikeOnly	bool
 	)
 
 	pca := NewPCA()
 
 	flag.Var(&sources, "s", "List of sources (fasta,orf)")
 	flag.StringVar(&outName, "o", "output.dat", "Output file")
+	flag.BoolVar(&hass, "hass", false, "Include Hassanin data")
+	flag.BoolVar(&spikeOnly, "spike", false, "Spike Only")
 	flag.Parse()
 
-	LoadHassanin(pca)
+	if hass {
+		if spikeOnly {
+			fmt.Printf("Warning: Hassanin data is not spike only\n")
+		}
+		LoadHassanin(pca)
+	}
 
 	for _, s := range sources {
 		g := genomes.LoadGenomes(s.fasta, s.orfs, false)
+		if spikeOnly {
+			S, err := g.Orfs.Find("S")
+			if err == nil {
+				g.Truncate(S.Start, S.End)
+			}
+		}
 		pca.Add(g, s.name)
 	}
 
