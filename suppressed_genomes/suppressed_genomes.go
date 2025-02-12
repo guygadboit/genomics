@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"genomics/genomes"
 	"log"
+	"os"
 	"path/filepath"
 	"regexp"
 	"slices"
@@ -54,6 +55,16 @@ type Accession struct {
 	location string
 }
 
+func (a *Accession) MakeFname() string {
+	ret := a.species
+	if a.gene != Combined {
+		ret = fmt.Sprintf("%s-%s.fasta", ret, GeneToString(a.gene))
+	} else {
+		ret += ".fasta"
+	}
+	return ret
+}
+
 func (a *Accession) ToString() string {
 	return fmt.Sprintf("%s %s %s", a.species, GeneToString(a.gene), a.location)
 }
@@ -95,7 +106,7 @@ func CheckLengths(accessions []Accession) {
 	// together.
 }
 
-func MakeIndex(accessions[] Accession,
+func MakeIndex(accessions []Accession,
 	keyFn func(a *Accession) string) map[string][]Accession {
 	ret := make(map[string][]Accession)
 	for _, acc := range accessions {
@@ -134,38 +145,9 @@ func WhatsMissing(bySpecies map[string][]Accession) {
 	}
 }
 
-// FIXME this is no good. We want one BySpecies, which puts the ORFs together,
-// and then another ByLocation, which is a completeish genome for each species
-// in a fasta file (that could in theory then be aligned)
-func Assemble(byMap map[string][]Accession, merge bool) {
-	for k, v := range byMap {
-		numGenomes := 1
-		if !merge {
-			numGenomes = len(v)
-		}
-
-		g := genomes.NewGenomes(nil, numGenomes)
-		g.Nts = make([][]byte, numGenomes)
-
-		if merge {
-			g.Nts[0] = make([]byte, 0)
-		}
-
-		for i, acc := range v {
-			if merge {
-				g.Nts[0] = append(g.Nts[0], acc.genome.Nts[0]...)
-			} else {
-				g.Nts[i] = acc.genome.Nts[0]
-				g.Names[i] = acc.genome.Names[0]
-			}
-		}
-
-		fname := filepath.Join(ROOT, "All", fmt.Sprintf("%s.fasta", k))
-		g.SaveMulti(fname)
-		fmt.Println("Wrote", fname)
-	}
-}
-
+/*
+Separate them out into Spikes, ORF8s etc and put each in its own directory
+*/
 func SaveByGene(byGene map[string][]Accession) {
 	for k, v := range byGene {
 		dir := filepath.Join(ROOT, k)
@@ -174,8 +156,30 @@ func SaveByGene(byGene map[string][]Accession) {
 			log.Fatal(err)
 		}
 
-		// FIXME you are here
+		for _, acc := range v {
+			fname := filepath.Join(dir, acc.MakeFname())
+			acc.genome.Save(acc.genome.Names[0], fname, 0)
+			fmt.Printf("Wrote %s\n", fname)
+		}
+	}
+}
 
+/*
+Merge ORF8, RdRp and Spike and save the most complete genome we have for each
+species
+*/
+func SaveBySpecies(bySpecies map[string][]Accession) {
+	for k, v := range bySpecies {
+		g := genomes.NewGenomes(nil, 1)
+		g.Nts[0] = make([]byte, 0)
+
+		for _, acc := range v {
+			g.Nts[0] = append(g.Nts[0], acc.genome.Nts[0]...)
+		}
+
+		fname := filepath.Join(ROOT, "All", fmt.Sprintf("%s.fasta", k))
+		g.Save(k, fname, 0)
+		fmt.Println("Wrote", fname)
 	}
 }
 
@@ -188,7 +192,11 @@ func main() {
 	byGene := MakeIndex(accessions, func(a *Accession) string {
 		return GeneToString(a.gene)
 	})
-
 	SaveByGene(byGene)
+
+	bySpecies := MakeIndex(accessions, func(a *Accession) string {
+		return a.species
+	})
+	SaveBySpecies(bySpecies)
 
 }

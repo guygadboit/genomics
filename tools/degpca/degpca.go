@@ -9,6 +9,7 @@ import (
 	"genomics/stats"
 	"genomics/utils"
 	"path"
+	"strconv"
 	"strings"
 )
 
@@ -42,9 +43,9 @@ func countClasses(t degeneracy.Translation) Row {
 		switch nt {
 		case 'A':
 			j = 0
-		case 'G':
-			j = 1
 		case 'C':
+			j = 1
+		case 'G':
 			j = 2
 		case 'T':
 			j = 3
@@ -60,6 +61,63 @@ func countClasses(t degeneracy.Translation) Row {
 		ret[i] /= totalTwos
 	}
 
+	return ret
+}
+
+/*
+Load the data from the supplement in the Hassanin paper to check we're on the
+same page
+*/
+func LoadHassanin() [][]float64 {
+	ret := make([][]float64, 0)
+	currentColumn := -1
+	currentRow := 0
+	utils.Lines("./supp-table4.txt", func(line string, err error) bool {
+
+		newColumn := true
+		switch line {
+		case "4X-A":
+			currentColumn = 0
+		case "4X-C":
+			currentColumn = 1
+		case "4X-G":
+			currentColumn = 2
+		case "4X-U":
+			currentColumn = 3
+		case "2X-A":
+			currentColumn = 4
+		case "2X-C":
+			currentColumn = 5
+		case "2X-G":
+			currentColumn = 6
+		case "2X-U":
+			currentColumn = 7
+		default:
+			newColumn = false
+		}
+
+		if currentColumn == -1 {
+			return true
+		}
+
+		if newColumn {
+			fmt.Printf("New column because %s\n", line)
+			currentRow = 0
+			return true
+		}
+
+		if len(ret) < currentRow+1 {
+			ret = append(ret, make([]float64, 8))
+		}
+
+		val, err := strconv.ParseFloat(line, 64)
+		if err == nil {
+			fmt.Printf("%d,%d <- %f\n", currentRow, currentColumn, val)
+			ret[currentRow][currentColumn] = val
+			currentRow++
+		}
+		return true
+	})
 	return ret
 }
 
@@ -99,6 +157,10 @@ func main() {
 	flag.Var(&sources, "s", "List of sources (fasta,orf)")
 	flag.StringVar(&outName, "o", "output.dat", "Output file")
 	flag.Parse()
+
+	hass := LoadHassanin()
+	fmt.Println(hass)
+	return
 
 	data := make([][]float64, 0)
 	for i, s := range sources {
