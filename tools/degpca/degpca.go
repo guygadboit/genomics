@@ -67,38 +67,34 @@ func countClasses(t degeneracy.Translation) Row {
 Load the data from the supplement in the Hassanin paper to check we're on the
 same page
 */
-func LoadHassanin() [][]float64 {
-	ret := make([][]float64, 0)
+func LoadHassanin(p *PCA) {
+	data := make(map[string][][]float64)
+
 	utils.Lines("./hassanin-data.txt", func(line string, err error) bool {
 		row := make([]float64, 8)
-		for i, f := range strings.Fields(line) {
+		fields := strings.Fields(line)
+		name := fields[0]
+		for i, f := range fields[1:] {
 			row[i] = utils.Atof(f)
 		}
-		ret = append(ret, row)
+		_, there := data[name]
+		if !there {
+			data[name] = make([][]float64, 0)
+		}
+		data[name] = append(data[name], row)
 		return true
 	})
-	return ret
-}
 
-func CheckHassanin() {
-	data := LoadHassanin()
-	result := stats.PCA(2, data)
-	fmt.Println("Explained variance ratio:", result.VarianceRatio)
-
-	fd, fp := utils.WriteFile("hassanin.dat")
-	defer fd.Close()
-
-	for _, row := range result.ReducedData {
-		fmt.Fprintf(fp, "%f %f\n", row[0], row[1])
+	for k, v := range data {
+		p.AddData(v, k)
 	}
-	fp.Flush()
 }
 
 type Source struct {
-	fasta   string
-	orfs    string
-	outName string
-	rows    int
+	fasta string
+	orfs  string
+	name  string
+	rows  int
 }
 
 type Sources []Source
@@ -110,9 +106,9 @@ func (s *Sources) Set(value string) error {
 	}
 
 	_, fname := path.Split(values[0])
-	outName := utils.BaseName(fname) + ".dat"
+	name := utils.BaseName(fname)
 
-	src := Source{values[0], values[1], outName, 0}
+	src := Source{values[0], values[1], name, 0}
 	*s = append(*s, src)
 	return nil
 }
@@ -121,38 +117,52 @@ func (s *Sources) String() string {
 	return ""
 }
 
-func main() {
-	var (
-		sources Sources
-		outName string
-	)
+type Label struct {
+	name     string
+	startRow int
+	endRow   int
+}
 
-	flag.Var(&sources, "s", "List of sources (fasta,orf)")
-	flag.StringVar(&outName, "o", "output.dat", "Output file")
-	flag.Parse()
+type PCA struct {
+	data   [][]float64
+	labels []Label
+	result stats.PCAResult
+}
 
-	CheckHassanin()
-	return
+func NewPCA() *PCA {
+	var ret PCA
+	ret.data = make([][]float64, 0)
+	ret.labels = make([]Label, 0)
+	return &ret
+}
 
-	data := make([][]float64, 0)
-	for i, s := range sources {
-		g := genomes.LoadGenomes(s.fasta, s.orfs, false)
-		for j := 0; j < g.NumGenomes(); j++ {
-			t := degeneracy.Translate(g, j)
-			classes := countClasses(t)
-			data = append(data, classes)
-		}
-		sources[i].rows = g.NumGenomes()
+func (p *PCA) Add(g *genomes.Genomes, name string) {
+	start := len(p.data)
+	for i := 0; i < g.NumGenomes(); i++ {
+		t := degeneracy.Translate(g, i)
+		row := countClasses(t)
+		p.data = append(p.data, row)
 	}
+	p.labels = append(p.labels, Label{name, start, len(p.data)})
+}
 
-	result := stats.PCA(2, data)
-	fmt.Println("Explained variance ratio:", result.VarianceRatio)
+func (p *PCA) AddData(rows [][]float64, name string) {
+	start := len(p.data)
+	p.data = append(p.data, rows...)
+	p.labels = append(p.labels, Label{name, start, len(p.data)})
+}
 
+func (p *PCA) Reduce() {
+	p.result = stats.PCA(2, p.data)
+	fmt.Println("Explained variance ratio:", p.result.VarianceRatio)
+}
+
+func (p *PCA) WritePlotData() {
 	writeFile := func(fname string, start, end int) {
 		fd, fp := utils.WriteFile(fname)
 		defer fd.Close()
 
-		for _, row := range result.ReducedData[start:end] {
+		for _, row := range p.result.ReducedData[start:end] {
 			fmt.Fprintf(fp, "%f %f\n", row[0], row[1])
 		}
 
@@ -160,9 +170,33 @@ func main() {
 		fmt.Printf("Wrote %s\n", fname)
 	}
 
-	pos := 0
-	for _, s := range sources {
-		writeFile(s.outName, pos, pos+s.rows)
-		pos += s.rows
+	for _, label := range p.labels {
+		fname := label.name + ".dat"
+		writeFile(fname, label.startRow, label.endRow)
 	}
+}
+
+func main() {
+	var (
+		sources Sources
+		outName string
+	)
+
+	pca := NewPCA()
+
+	flag.Var(&sources, "s", "List of sources (fasta,orf)")
+	flag.StringVar(&outName, "o", "output.dat", "Output file")
+	flag.Parse()
+
+	LoadHassanin(pca)
+
+	/*
+	for _, s := range sources {
+		g := genomes.LoadGenomes(s.fasta, s.orfs, false)
+		pca.Add(g, s.name)
+	}
+	*/
+
+	pca.Reduce()
+	pca.WritePlotData()
 }
