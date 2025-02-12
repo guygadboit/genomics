@@ -18,9 +18,10 @@ const (
 	RdRp Gene = iota
 	S
 	ORF8
+	Combined // Means all of them together
 )
 
-var GENES []string = []string{"RdRP", "S", "ORF8"}
+var GENES []string = []string{"RdRP", "S", "ORF8", "Combined"}
 
 func GeneFromString(g string) Gene {
 	index := slices.Index(GENES, g)
@@ -94,26 +95,16 @@ func CheckLengths(accessions []Accession) {
 	// together.
 }
 
-func BySpecies(accessions []Accession) map[string][]Accession {
+func MakeIndex(accessions[] Accession,
+	keyFn func(a *Accession) string) map[string][]Accession {
 	ret := make(map[string][]Accession)
 	for _, acc := range accessions {
-		_, there := ret[acc.species]
+		key := keyFn(&acc)
+		_, there := ret[key]
 		if !there {
-			ret[acc.species] = make([]Accession, 0)
+			ret[key] = make([]Accession, 0)
 		}
-		ret[acc.species] = append(ret[acc.species], acc)
-	}
-	return ret
-}
-
-func ByLocation(accessions []Accession) map[string][]Accession {
-	ret := make(map[string][]Accession)
-	for _, acc := range accessions {
-		_, there := ret[acc.location]
-		if !there {
-			ret[acc.location] = make([]Accession, 0)
-		}
-		ret[acc.location] = append(ret[acc.location], acc)
+		ret[key] = append(ret[key], acc)
 	}
 	return ret
 }
@@ -175,16 +166,29 @@ func Assemble(byMap map[string][]Accession, merge bool) {
 	}
 }
 
+func SaveByGene(byGene map[string][]Accession) {
+	for k, v := range byGene {
+		dir := filepath.Join(ROOT, k)
+		err := os.MkdirAll(dir, 0750)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		// FIXME you are here
+
+	}
+}
+
 func main() {
 	accessions := LoadAll()
 	for _, acc := range accessions {
 		fmt.Println(acc.ToString())
 	}
-	return
 
-	bySpecies := BySpecies(accessions)
-	WhatsMissing(bySpecies)
-	// Assemble(bySpecies, true)
-	byLocation := ByLocation(accessions)
-	Assemble(byLocation, false)
+	byGene := MakeIndex(accessions, func(a *Accession) string {
+		return GeneToString(a.gene)
+	})
+
+	SaveByGene(byGene)
+
 }
