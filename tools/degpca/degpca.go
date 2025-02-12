@@ -9,7 +9,6 @@ import (
 	"genomics/stats"
 	"genomics/utils"
 	"path"
-	"strconv"
 	"strings"
 )
 
@@ -70,55 +69,29 @@ same page
 */
 func LoadHassanin() [][]float64 {
 	ret := make([][]float64, 0)
-	currentColumn := -1
-	currentRow := 0
-	utils.Lines("./supp-table4.txt", func(line string, err error) bool {
-
-		newColumn := true
-		switch line {
-		case "4X-A":
-			currentColumn = 0
-		case "4X-C":
-			currentColumn = 1
-		case "4X-G":
-			currentColumn = 2
-		case "4X-U":
-			currentColumn = 3
-		case "2X-A":
-			currentColumn = 4
-		case "2X-C":
-			currentColumn = 5
-		case "2X-G":
-			currentColumn = 6
-		case "2X-U":
-			currentColumn = 7
-		default:
-			newColumn = false
+	utils.Lines("./hassanin-data.txt", func(line string, err error) bool {
+		row := make([]float64, 8)
+		for i, f := range strings.Fields(line) {
+			row[i] = utils.Atof(f)
 		}
-
-		if currentColumn == -1 {
-			return true
-		}
-
-		if newColumn {
-			fmt.Printf("New column because %s\n", line)
-			currentRow = 0
-			return true
-		}
-
-		if len(ret) < currentRow+1 {
-			ret = append(ret, make([]float64, 8))
-		}
-
-		val, err := strconv.ParseFloat(line, 64)
-		if err == nil {
-			fmt.Printf("%d,%d <- %f\n", currentRow, currentColumn, val)
-			ret[currentRow][currentColumn] = val
-			currentRow++
-		}
+		ret = append(ret, row)
 		return true
 	})
 	return ret
+}
+
+func CheckHassanin() {
+	data := LoadHassanin()
+	result := stats.PCA(2, data)
+	fmt.Println("Explained variance ratio:", result.VarianceRatio)
+
+	fd, fp := utils.WriteFile("hassanin.dat")
+	defer fd.Close()
+
+	for _, row := range result.ReducedData {
+		fmt.Fprintf(fp, "%f %f\n", row[0], row[1])
+	}
+	fp.Flush()
 }
 
 type Source struct {
@@ -158,8 +131,7 @@ func main() {
 	flag.StringVar(&outName, "o", "output.dat", "Output file")
 	flag.Parse()
 
-	hass := LoadHassanin()
-	fmt.Println(hass)
+	CheckHassanin()
 	return
 
 	data := make([][]float64, 0)
