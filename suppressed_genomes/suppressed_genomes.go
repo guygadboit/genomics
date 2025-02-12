@@ -3,12 +3,14 @@ package main
 import (
 	"fmt"
 	"genomics/genomes"
+	"log"
 	"path/filepath"
 	"regexp"
+	"slices"
+	"strings"
 )
 
 var ROOT string = "/fs/f/genomes/viruses/suppressed_genomes/"
-var DIRS []string = []string{"RdRp", "Spikes", "ORF8"}
 
 type Gene int
 
@@ -18,8 +20,25 @@ const (
 	ORF8
 )
 
-func GeneString(g Gene) string {
-	genes := []string{"RdRP", "S", "ORF8"}
+var GENES []string = []string{"RdRP", "S", "ORF8"}
+
+func GeneFromString(g string) Gene {
+	index := slices.Index(GENES, g)
+	if index != -1 {
+		return Gene(index)
+	}
+	if strings.Contains(g, "RdRp") {
+		return RdRp
+	}
+	if strings.Contains(g, "spike") {
+		return S
+	}
+	log.Fatalf("Unrecognized gene %s\n", g)
+	return -1
+}
+
+func GeneToString(g Gene) string {
+	genes := []string{"RdRp", "S", "ORF8"}
 	return genes[g]
 }
 
@@ -34,28 +53,31 @@ type Accession struct {
 	location string
 }
 
+func (a *Accession) ToString() string {
+	return fmt.Sprintf("%s %s %s", a.species, GeneToString(a.gene), a.location)
+}
+
 func LoadAll() []Accession {
-	pat := regexp.MustCompile(`.*coronavirus strain ([^\s]+).*$`)
+	pat := regexp.MustCompile(`.*coronavirus strain ([^\s]+) (.+) gene.*$`)
 	locPat := regexp.MustCompile(`^.*_(.*)`)
 
 	ret := make([]Accession, 0)
-	for i, dir := range DIRS {
-		fullPath := filepath.Join(ROOT, dir, "MH*.fasta")
-		matches, _ := filepath.Glob(fullPath)
-		for _, m := range matches {
-			g := genomes.LoadGenomes(m, "", false)
+	fullPath := filepath.Join(ROOT, "Downloads", "MH*.fasta.gz")
+	matches, _ := filepath.Glob(fullPath)
+	for _, m := range matches {
+		g := genomes.LoadGenomes(m, "", false)
 
-			name := g.Names[0]
-			matches := pat.FindSubmatch([]byte(name))
-			species := string(matches[1])
+		name := g.Names[0]
+		fmt.Println(name)
+		matches := pat.FindSubmatch([]byte(name))
+		species := string(matches[1])
+		gene := string(matches[2])
 
-			matches = locPat.FindSubmatch(matches[1])
-			location := string(matches[1])
-			fmt.Println(location)
+		matches = locPat.FindSubmatch(matches[1])
+		location := string(matches[1])
 
-			acc := Accession{m, g, Gene(i), species, location}
-			ret = append(ret, acc)
-		}
+		acc := Accession{m, g, GeneFromString(gene), species, location}
+		ret = append(ret, acc)
 	}
 	return ret
 }
@@ -155,6 +177,11 @@ func Assemble(byMap map[string][]Accession, merge bool) {
 
 func main() {
 	accessions := LoadAll()
+	for _, acc := range accessions {
+		fmt.Println(acc.ToString())
+	}
+	return
+
 	bySpecies := BySpecies(accessions)
 	WhatsMissing(bySpecies)
 	// Assemble(bySpecies, true)
