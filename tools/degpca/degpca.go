@@ -170,10 +170,19 @@ func (p *PCA) WritePlotData() {
 		fmt.Printf("Wrote %s\n", fname)
 	}
 
-	for _, label := range p.labels {
+	fnames := make([]string, len(p.labels))
+	for i, label := range p.labels {
 		fname := label.name + ".dat"
 		writeFile(fname, label.startRow, label.endRow)
+		fnames[i] = fmt.Sprintf("\"%s\"", fname)
 	}
+
+	fd, fp := utils.WriteFile("plot.gpi")
+	defer fd.Close()
+
+	fmt.Fprintf(fp, "plot %s\n", strings.Join(fnames, ", "))
+	fp.Flush()
+	fmt.Printf("Wrote plot.gpi\n")
 }
 
 func main() {
@@ -190,12 +199,10 @@ func main() {
 
 	LoadHassanin(pca)
 
-	/*
 	for _, s := range sources {
 		g := genomes.LoadGenomes(s.fasta, s.orfs, false)
 		pca.Add(g, s.name)
 	}
-	*/
 
 	pca.Reduce()
 	pca.WritePlotData()
