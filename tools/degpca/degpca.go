@@ -8,6 +8,7 @@ import (
 	"genomics/genomes"
 	"genomics/stats"
 	"genomics/utils"
+	"log"
 	"path"
 	"strings"
 )
@@ -146,6 +147,57 @@ func (p *PCA) Add(g *genomes.Genomes, name string) {
 	p.labels = append(p.labels, Label{name, start, len(p.data)})
 }
 
+func translateAll(g *genomes.Genomes) []genomes.Translation {
+	ret := make([]genomes.Translation, g.NumGenomes())
+	for i := 0; i < g.NumGenomes(); i++ {
+		ret[i] = genomes.Translate(g, i)
+	}
+	return ret
+}
+
+/*
+Completely different analysis. Construct a matrix from a single alignment,
+where each row contains a vector representing the proteins you have in the
+places where any of the genomes differ.
+*/
+func (p *PCA) AddProtein(g *genomes.Genomes, name string) {
+	translations := translateAll(g)
+	nGenomes := g.NumGenomes()
+	nCodons := len(translations[0])
+
+	data := make([][]float64, nGenomes)
+
+	toVector := func(aa byte) []float64 {
+		aas := "ACDEFGHIKLMNPQRSTVWY"
+		ret := make([]float64, 20)
+		pos := strings.Index(aas, string(aa))
+		if pos != -1 {
+			ret[pos] = 1.0
+		}
+		return ret
+	}
+
+	for i := 0; i < nCodons; i++ {
+		here := make(map[byte]bool)
+		for j := 0; j < nGenomes; j++ {
+			here[translations[j][i].Aa] = true
+		}
+		if len(here) == 1 {
+			continue
+		}
+		for j := 0; j < nGenomes; j++ {
+			newCols := toVector(translations[j][i].Aa)
+			data[j] = append(data[j], newCols...)
+		}
+	}
+
+	labels := make([]Label, 1)
+	labels[0] = Label{name, 0, nGenomes}
+
+	p.data = data
+	p.labels = labels
+}
+
 func (p *PCA) AddData(rows [][]float64, name string) {
 	start := len(p.data)
 	p.data = append(p.data, rows...)
@@ -153,6 +205,7 @@ func (p *PCA) AddData(rows [][]float64, name string) {
 }
 
 func (p *PCA) Reduce() {
+	fmt.Printf("Reducing %dx%d matrix...\n", len(p.data), len(p.data[0]))
 	p.result = stats.PCA(2, p.data)
 	fmt.Println("Explained variance ratio:", p.result.VarianceRatio)
 }
@@ -187,10 +240,11 @@ func (p *PCA) WritePlotData() {
 
 func main() {
 	var (
-		sources Sources
-		outName string
-		hass    bool
-		spikeOnly	bool
+		sources   Sources
+		outName   string
+		hass      bool
+		spikeOnly bool
+		protein   bool
 	)
 
 	pca := NewPCA()
@@ -199,7 +253,14 @@ func main() {
 	flag.StringVar(&outName, "o", "output.dat", "Output file")
 	flag.BoolVar(&hass, "hass", false, "Include Hassanin data")
 	flag.BoolVar(&spikeOnly, "spike", false, "Spike Only")
+	flag.BoolVar(&protein, "prot", false, "Protein PCA instead")
 	flag.Parse()
+
+	if protein {
+		if len(sources) != 1 {
+			log.Fatal("Only use one alignment for this")
+		}
+	}
 
 	if hass {
 		if spikeOnly {
@@ -216,7 +277,11 @@ func main() {
 				g.Truncate(S.Start, S.End)
 			}
 		}
-		pca.Add(g, s.name)
+		if protein {
+			pca.AddProtein(g, s.name)
+		} else {
+			pca.Add(g, s.name)
+		}
 	}
 
 	pca.Reduce()
