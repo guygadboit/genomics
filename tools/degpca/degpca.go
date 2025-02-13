@@ -125,10 +125,10 @@ type Label struct {
 }
 
 type PCA struct {
-	data   [][]float64
-	labels []Label
-	result stats.PCAResult
-	rowLabels	[]string
+	data      [][]float64
+	labels    []Label
+	result    stats.PCAResult
+	rowLabels []string
 }
 
 func NewPCA() *PCA {
@@ -145,7 +145,7 @@ func (p *PCA) Add(g *genomes.Genomes, name string) {
 		t := degeneracy.Translate(g, i)
 		row := countClasses(t)
 		p.data = append(p.data, row)
-		p.rowLabels = append(p.rowLabels, g.Names[i])
+		p.rowLabels = append(p.rowLabels, fmt.Sprintf("%s (%d)", g.Names[i], i))
 	}
 	p.labels = append(p.labels, Label{name, start, len(p.data)})
 }
@@ -174,9 +174,7 @@ func (p *PCA) AddProtein(g *genomes.Genomes, name string) {
 		aas := "ACDEFGHIKLMNPQRSTVWY"
 		ret := make([]float64, 20)
 		pos := strings.Index(aas, string(aa))
-		if pos != -1 {
-			ret[pos] = 1.0
-		}
+		ret[pos] = 1.0
 		return ret
 	}
 
@@ -188,6 +186,11 @@ func (p *PCA) AddProtein(g *genomes.Genomes, name string) {
 		if len(here) == 1 {
 			continue
 		}
+
+		// Ignore insertions/deletions and stop codons
+		if here['-'] || here['*'] {
+			continue
+		}
 		for j := 0; j < nGenomes; j++ {
 			newCols := toVector(translations[j][i].Aa)
 			data[j] = append(data[j], newCols...)
@@ -196,7 +199,7 @@ func (p *PCA) AddProtein(g *genomes.Genomes, name string) {
 
 	p.rowLabels = make([]string, nGenomes)
 	for i := 0; i < nGenomes; i++ {
-		p.rowLabels[i] = g.Names[i]
+		p.rowLabels[i] = fmt.Sprintf("%s (%d)", g.Names[i], i)
 	}
 
 	labels := make([]Label, 1)
@@ -216,10 +219,10 @@ func (p *PCA) Separate(g *genomes.Genomes, name string) {
 	for i := 0; i < g.NumGenomes(); i++ {
 		if strings.Contains(g.Names[i], name) {
 			a = append(a, p.data[i])
-			aLabels = append(aLabels, g.Names[i])
+			aLabels = append(aLabels, p.rowLabels[i])
 		} else {
 			b = append(b, p.data[i])
-			bLabels = append(bLabels, g.Names[i])
+			bLabels = append(bLabels, p.rowLabels[i])
 		}
 	}
 	labels := make([]Label, 2)
