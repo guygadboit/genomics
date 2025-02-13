@@ -198,6 +198,25 @@ func (p *PCA) AddProtein(g *genomes.Genomes, name string) {
 	p.labels = labels
 }
 
+func (p *PCA) Separate(g *genomes.Genomes, name string) {
+	a := make([][]float64, 0)
+	b := make([][]float64, 0)
+	for i := 0; i < g.NumGenomes(); i++ {
+		if strings.Contains(g.Names[i], name) {
+			a = append(a, p.data[i])
+		} else {
+			b = append(b, p.data[i])
+		}
+	}
+	labels := make([]Label, 2)
+	labels[0] = Label{name, 0, len(a)}
+	labels[1] = Label{fmt.Sprintf("non-%s", name), len(a), g.NumGenomes()}
+
+	data := append(a, b...)
+	p.labels = labels
+	p.data = data
+}
+
 func (p *PCA) AddData(rows [][]float64, name string) {
 	start := len(p.data)
 	p.data = append(p.data, rows...)
@@ -245,6 +264,7 @@ func main() {
 		hass      bool
 		spikeOnly bool
 		protein   bool
+		separate  string
 	)
 
 	pca := NewPCA()
@@ -254,6 +274,8 @@ func main() {
 	flag.BoolVar(&hass, "hass", false, "Include Hassanin data")
 	flag.BoolVar(&spikeOnly, "spike", false, "Spike Only")
 	flag.BoolVar(&protein, "prot", false, "Protein PCA instead")
+	flag.StringVar(&separate, "separate",
+		"", "String to separate on (e.g. 'Pangolin')")
 	flag.Parse()
 
 	if protein {
@@ -279,6 +301,9 @@ func main() {
 		}
 		if protein {
 			pca.AddProtein(g, s.name)
+			if separate != "" {
+				pca.Separate(g, separate)
+			}
 		} else {
 			pca.Add(g, s.name)
 		}
