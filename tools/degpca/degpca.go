@@ -284,6 +284,7 @@ func main() {
 		spikeOnly bool
 		protein   bool
 		separate  string
+		exclude   string
 	)
 
 	pca := NewPCA()
@@ -295,12 +296,21 @@ func main() {
 	flag.BoolVar(&protein, "prot", false, "Protein PCA instead")
 	flag.StringVar(&separate, "separate",
 		"", "String to separate on (e.g. 'Pangolin')")
+	flag.StringVar(&exclude, "e", "", "Genomes to exclude")
 	flag.Parse()
 
 	if protein {
 		if len(sources) != 1 {
 			log.Fatal("Only use one alignment for this")
 		}
+	}
+
+	var exIndices map[int]bool
+	if exclude != "" {
+		if !protein {
+			log.Fatal("Exclude is currently only for protein PCA")
+		}
+		exIndices = utils.ToSet(utils.ParseInts(exclude, ","))
 	}
 
 	if hass {
@@ -317,6 +327,15 @@ func main() {
 			if err == nil {
 				g.Truncate(S.Start, S.End)
 			}
+		}
+		if exIndices != nil {
+			which := make([]int, 0)
+			for i := 0; i < g.NumGenomes(); i++ {
+				if !exIndices[i] {
+					which = append(which, i)
+				}
+			}
+			g = g.Filter(which...)
 		}
 		if protein {
 			pca.AddProtein(g, s.name)
