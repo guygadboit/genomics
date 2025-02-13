@@ -128,12 +128,14 @@ type PCA struct {
 	data   [][]float64
 	labels []Label
 	result stats.PCAResult
+	rowLabels	[]string
 }
 
 func NewPCA() *PCA {
 	var ret PCA
 	ret.data = make([][]float64, 0)
 	ret.labels = make([]Label, 0)
+	ret.rowLabels = make([]string, 0)
 	return &ret
 }
 
@@ -143,6 +145,7 @@ func (p *PCA) Add(g *genomes.Genomes, name string) {
 		t := degeneracy.Translate(g, i)
 		row := countClasses(t)
 		p.data = append(p.data, row)
+		p.rowLabels = append(p.rowLabels, g.Names[i])
 	}
 	p.labels = append(p.labels, Label{name, start, len(p.data)})
 }
@@ -191,6 +194,11 @@ func (p *PCA) AddProtein(g *genomes.Genomes, name string) {
 		}
 	}
 
+	p.rowLabels = make([]string, nGenomes)
+	for i := 0; i < nGenomes; i++ {
+		p.rowLabels[i] = g.Names[i]
+	}
+
 	labels := make([]Label, 1)
 	labels[0] = Label{name, 0, nGenomes}
 
@@ -201,11 +209,17 @@ func (p *PCA) AddProtein(g *genomes.Genomes, name string) {
 func (p *PCA) Separate(g *genomes.Genomes, name string) {
 	a := make([][]float64, 0)
 	b := make([][]float64, 0)
+
+	aLabels := make([]string, 0)
+	bLabels := make([]string, 0)
+
 	for i := 0; i < g.NumGenomes(); i++ {
 		if strings.Contains(g.Names[i], name) {
 			a = append(a, p.data[i])
+			aLabels = append(aLabels, g.Names[i])
 		} else {
 			b = append(b, p.data[i])
+			bLabels = append(bLabels, g.Names[i])
 		}
 	}
 	labels := make([]Label, 2)
@@ -215,6 +229,7 @@ func (p *PCA) Separate(g *genomes.Genomes, name string) {
 	data := append(a, b...)
 	p.labels = labels
 	p.data = data
+	p.rowLabels = append(aLabels, bLabels...)
 }
 
 func (p *PCA) AddData(rows [][]float64, name string) {
@@ -234,8 +249,8 @@ func (p *PCA) WritePlotData() {
 		fd, fp := utils.WriteFile(fname)
 		defer fd.Close()
 
-		for _, row := range p.result.ReducedData[start:end] {
-			fmt.Fprintf(fp, "%f %f\n", row[0], row[1])
+		for i, row := range p.result.ReducedData[start:end] {
+			fmt.Fprintf(fp, "%f %f # %s\n", row[0], row[1], p.rowLabels[i])
 		}
 
 		fp.Flush()
