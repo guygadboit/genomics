@@ -253,7 +253,8 @@ func (p *PCA) WritePlotData() {
 		defer fd.Close()
 
 		for i, row := range p.result.ReducedData[start:end] {
-			fmt.Fprintf(fp, "%f %f # %s\n", row[0], row[1], p.rowLabels[i])
+			fmt.Fprintf(fp, "%f %f # %s\n",
+				row[0], row[1], p.rowLabels[start+i])
 		}
 
 		fp.Flush()
