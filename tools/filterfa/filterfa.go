@@ -65,6 +65,7 @@ func main() {
 		return
 	} else if sss {
 		SortedSimilarity(g)
+		return
 	}
 
 	if include != "" && exclude != "" {

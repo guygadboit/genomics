@@ -189,14 +189,18 @@ func main() {
 		fmt.Println(acc.ToString())
 	}
 
+	bySpecies := MakeIndex(accessions, func(a *Accession) string {
+		return a.species
+	})
+
+	WhatsMissing(bySpecies)
+
+	/*
 	byGene := MakeIndex(accessions, func(a *Accession) string {
 		return GeneToString(a.gene)
 	})
 	SaveByGene(byGene)
 
-	bySpecies := MakeIndex(accessions, func(a *Accession) string {
-		return a.species
-	})
 	SaveBySpecies(bySpecies)
-
+	*/
 }

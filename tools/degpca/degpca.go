@@ -322,6 +322,7 @@ func main() {
 
 	for _, s := range sources {
 		g := genomes.LoadGenomes(s.fasta, s.orfs, false)
+		g.RemoveGaps()
 		if spikeOnly {
 			S, err := g.Orfs.Find("S")
 			if err == nil {
