@@ -195,6 +195,22 @@ func (p *PCA) makeLabels(g *genomes.Genomes, name string) {
 	p.labels = labels
 }
 
+func AAToVector(aa byte) []float64 {
+	aas := "ACDEFGHIKLMNPQRSTVWY"
+	ret := make([]float64, 20)
+	pos := strings.Index(aas, string(aa))
+	ret[pos] = 1.0
+	return ret
+}
+
+func NtToVector(nt byte) []float64 {
+	nts := "ACGT"
+	ret := make([]float64, 4)
+	pos := strings.Index(nts, string(nt))
+	ret[pos] = 1.0
+	return ret
+}
+
 /*
 Completely different analysis. Construct a matrix from a single alignment,
 where each row contains a vector representing the proteins you have in the
@@ -206,14 +222,6 @@ func (p *PCA) AddProtein(g *genomes.Genomes, name string) {
 	nCodons := len(translations[0])
 
 	data := make([][]float64, nGenomes)
-
-	toVector := func(aa byte) []float64 {
-		aas := "ACDEFGHIKLMNPQRSTVWY"
-		ret := make([]float64, 20)
-		pos := strings.Index(aas, string(aa))
-		ret[pos] = 1.0
-		return ret
-	}
 
 	for i := 0; i < nCodons; i++ {
 		here := make(map[byte]bool)
@@ -229,7 +237,7 @@ func (p *PCA) AddProtein(g *genomes.Genomes, name string) {
 			continue
 		}
 		for j := 0; j < nGenomes; j++ {
-			newCols := toVector(translations[j][i].Aa)
+			newCols := AAToVector(translations[j][i].Aa)
 			data[j] = append(data[j], newCols...)
 		}
 	}
@@ -238,18 +246,9 @@ func (p *PCA) AddProtein(g *genomes.Genomes, name string) {
 	p.makeLabels(g, name)
 }
 
-func (p *PCA) AddNucleotide(g *genomes.Genomes,
-	name string, silentOnly bool) {
+func (p *PCA) AddNucleotide(g *genomes.Genomes, name string) {
 	nGenomes := g.NumGenomes()
 	data := make([][]float64, nGenomes)
-
-	toVector := func(nt byte) []float64 {
-		nts := "ACGT"
-		ret := make([]float64, 4)
-		pos := strings.Index(nts, string(nt))
-		ret[pos] = 1.0
-		return ret
-	}
 
 outer:
 	for i := 0; i < g.Length(); i++ {
@@ -266,10 +265,61 @@ outer:
 			}
 		}
 		for j := 0; j < nGenomes; j++ {
-			newCols := toVector(g.Nts[j][i])
+			newCols := NtToVector(g.Nts[j][i])
 			data[j] = append(data[j], newCols...)
 		}
 	}
+	p.data = data
+	p.makeLabels(g, name)
+}
+
+func (p *PCA) AddSilentNucleotide(g *genomes.Genomes, name string) {
+	translations := translateAll(g)
+	nGenomes := g.NumGenomes()
+	nCodons := len(translations[0])
+
+	data := make([][]float64, nGenomes)
+
+	for i := 0; i < nCodons; i++ {
+		aasHere := make(map[byte]bool)
+		ntsHere := make(map[string]bool)
+		for j := 0; j < nGenomes; j++ {
+			aasHere[translations[j][i].Aa] = true
+			ntsHere[translations[j][i].Nts] = true
+		}
+
+		// If the nts are all the same, not interested
+		if len(ntsHere) == 1 {
+			continue
+		}
+
+		// Ignore insertions/deletions and stop codons
+		if aasHere['-'] || aasHere['*'] {
+			continue
+		}
+
+		// But we require the AAs to all be the same, since we're looking at
+		// silent nucleotide changes here
+		if len(aasHere) != 1 {
+			continue
+		}
+
+		for j := 0; j < 3; j++ {
+			ntsHere := make(map[byte]bool)
+			for k := 0; k < nGenomes; k++ {
+				ntsHere[translations[k][i].Nts[j]] = true
+			}
+			if len(ntsHere) == 1 {
+				continue
+			}
+			for k := 0; k < nGenomes; k++ {
+				nt := translations[k][i].Nts[j]
+				newCols := NtToVector(nt)
+				data[k] = append(data[k], newCols...)
+			}
+		}
+	}
+
 	p.data = data
 	p.makeLabels(g, name)
 }
@@ -380,11 +430,13 @@ func main() {
 		analysis = PROT
 	case "nt":
 		analysis = NT
+	case "snt":
+		analysis = SILENT_NT
 	default:
 		log.Fatal("Unrecognized analysis mode")
 	}
 
-	prot_or_nt := analysis == PROT || analysis == NT
+	prot_or_nt := analysis == PROT || analysis == NT || analysis == SILENT_NT
 
 	if prot_or_nt {
 		if len(sources) != 1 {
@@ -438,7 +490,9 @@ func main() {
 		case PROT:
 			pca.AddProtein(g, s.name)
 		case NT:
-			pca.AddNucleotide(g, s.name, false)
+			pca.AddNucleotide(g, s.name)
+		case SILENT_NT:
+			pca.AddSilentNucleotide(g, s.name)
 		}
 		if separate != "" {
 			pca.Separate(g, separate)
