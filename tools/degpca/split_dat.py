@@ -7,7 +7,7 @@ class Redirect:
 	def __init__(self, patterns, fname):
 		self.patterns = patterns
 		self.fname = fname
-		self.writer = self._write(fname); next(self.writer)
+		self.fp = open(fname, "w")
 
 	def _match(self, line):
 		for pat in self.patterns:
@@ -15,26 +15,11 @@ class Redirect:
 				return True
 		return False
 
-	def _write(self, fname):
-		with open(fname, "w") as fp:
-			yield
-			while True:
-				line = yield
-				if line is None:
-					break
-				print(line, file=fp)
-
 	def handle(self, line):
 		ret = self._match(line)
 		if ret:
-			self.writer.send(line)
+			print(line, file=self.fp)
 		return ret
-
-	def term(self):
-		try:
-			self.writer.send(None)
-		except StopIteration:
-			pass
 
 
 class RedirectEverything(Redirect):
@@ -73,9 +58,6 @@ def main():
 			for r in redirects:
 				if r.handle(line):
 					break
-
-	for r in redirects:
-		r.term()
 
 	with open("plot_split.gpi", "w") as fp:
 		names = ['"{}"'.format(r.fname) for r in redirects]
