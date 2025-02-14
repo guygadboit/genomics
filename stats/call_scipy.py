@@ -77,6 +77,7 @@ class Handler(socketserver.StreamRequestHandler):
 				components, line = line.split(maxsplit=1)
 				components = int(components)
 				data = parse_array(line)
+				print("PCA on {} matrix".format(data.shape))
 
 				pca = skd.PCA(components)
 				pca.fit(data)

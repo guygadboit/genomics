@@ -13,6 +13,26 @@ import (
 	"strings"
 )
 
+type Analysis int
+
+const (
+	DEG Analysis = iota
+	PROT
+	NT
+)
+
+func (a Analysis) ToString() string {
+	switch a {
+	case DEG:
+		return "Degenerate nt frequencies"
+	case PROT:
+		return "Protein"
+	case NT:
+		return "Nucleotide"
+	}
+	return "Unknown"
+}
+
 /*
 Contains 8 items, the proportion of codons with 4-fold degeneracy that have A,
 C, G, and T in the 3rd position, followed by the same thing for 2-fold
@@ -158,6 +178,20 @@ func translateAll(g *genomes.Genomes) []genomes.Translation {
 	return ret
 }
 
+func (p *PCA) makeLabels(g *genomes.Genomes, name string) {
+	nGenomes := g.NumGenomes()
+
+	p.rowLabels = make([]string, nGenomes)
+	for i := 0; i < nGenomes; i++ {
+		p.rowLabels[i] = fmt.Sprintf("%s (%d)", g.Names[i], i)
+	}
+
+	labels := make([]Label, 1)
+	labels[0] = Label{name, 0, nGenomes}
+
+	p.labels = labels
+}
+
 /*
 Completely different analysis. Construct a matrix from a single alignment,
 where each row contains a vector representing the proteins you have in the
@@ -197,16 +231,44 @@ func (p *PCA) AddProtein(g *genomes.Genomes, name string) {
 		}
 	}
 
-	p.rowLabels = make([]string, nGenomes)
-	for i := 0; i < nGenomes; i++ {
-		p.rowLabels[i] = fmt.Sprintf("%s (%d)", g.Names[i], i)
+	p.data = data
+	p.makeLabels(g, name)
+}
+
+func (p *PCA) AddNucleotide(g *genomes.Genomes,
+	name string, silentOnly bool) {
+	nGenomes := g.NumGenomes()
+	data := make([][]float64, nGenomes)
+
+	toVector := func(nt byte) []float64 {
+		nts := "ACGT"
+		ret := make([]float64, 4)
+		pos := strings.Index(nts, string(nt))
+		ret[pos] = 1.0
+		return ret
 	}
 
-	labels := make([]Label, 1)
-	labels[0] = Label{name, 0, nGenomes}
-
+outer:
+	for i := 0; i < g.Length(); i++ {
+		here := make(map[byte]bool)
+		for j := 0; j < nGenomes; j++ {
+			here[g.Nts[j][i]] = true
+		}
+		if len(here) == 1 {
+			continue
+		}
+		for k, _ := range here {
+			if !utils.IsRegularNt(k) {
+				continue outer
+			}
+		}
+		for j := 0; j < nGenomes; j++ {
+			newCols := toVector(g.Nts[j][i])
+			data[j] = append(data[j], newCols...)
+		}
+	}
 	p.data = data
-	p.labels = labels
+	p.makeLabels(g, name)
 }
 
 func (p *PCA) Separate(g *genomes.Genomes, name string) {
@@ -247,7 +309,7 @@ func (p *PCA) Reduce() {
 	fmt.Println("Explained variance ratio:", p.result.VarianceRatio)
 }
 
-func (p *PCA) WritePlotData() {
+func (p *PCA) WritePlotData(analysis Analysis) {
 	writeFile := func(fname string, start, end int) {
 		fd, fp := utils.WriteFile(fname)
 		defer fd.Close()
@@ -271,6 +333,7 @@ func (p *PCA) WritePlotData() {
 	fd, fp := utils.WriteFile("plot.gpi")
 	defer fd.Close()
 
+	fmt.Fprintf(fp, "set title \"%s\"\n\n", analysis.ToString())
 	fmt.Fprintf(fp, "plot %s\n", strings.Join(fnames, ", "))
 	fp.Flush()
 	fmt.Printf("Wrote plot.gpi\n")
@@ -282,9 +345,11 @@ func main() {
 		outName   string
 		hass      bool
 		spikeOnly bool
-		protein   bool
+
 		separate  string
 		exclude   string
+		analysisS string
+		analysis  Analysis
 	)
 
 	pca := NewPCA()
@@ -293,24 +358,44 @@ func main() {
 	flag.StringVar(&outName, "o", "output.dat", "Output file")
 	flag.BoolVar(&hass, "hass", false, "Include Hassanin data")
 	flag.BoolVar(&spikeOnly, "spike", false, "Spike Only")
-	flag.BoolVar(&protein, "prot", false, "Protein PCA instead")
+	flag.StringVar(&analysisS, "mode", "deg", "deg|prot|nt|snt")
 	flag.StringVar(&separate, "separate",
 		"", "String to separate on (e.g. 'Pangolin')")
 	flag.StringVar(&exclude, "e", "", "Genomes to exclude")
 	flag.Parse()
 
-	if protein {
+	switch analysisS {
+	case "deg":
+		analysis = DEG
+	case "prot":
+		analysis = PROT
+	case "nt":
+		analysis = NT
+	default:
+		log.Fatal("Unrecognized analysis mode")
+	}
+
+	prot_or_nt := analysis == PROT || analysis == NT
+
+	if prot_or_nt {
 		if len(sources) != 1 {
 			log.Fatal("Only use one alignment for this")
 		}
 	}
 
 	var exIndices map[int]bool
+
 	if exclude != "" {
-		if !protein {
-			log.Fatal("Exclude is currently only for protein PCA")
+		if !prot_or_nt {
+			log.Fatal("Exclude is currently only for protein/nt PCA")
 		}
 		exIndices = utils.ToSet(utils.ParseInts(exclude, ","))
+	}
+
+	if separate != "" {
+		if !prot_or_nt {
+			log.Fatal("Separate is only for protein/nt PCA")
+		}
 	}
 
 	if hass {
@@ -338,16 +423,19 @@ func main() {
 			}
 			g = g.Filter(which...)
 		}
-		if protein {
-			pca.AddProtein(g, s.name)
-			if separate != "" {
-				pca.Separate(g, separate)
-			}
-		} else {
+		switch analysis {
+		case DEG:
 			pca.Add(g, s.name)
+		case PROT:
+			pca.AddProtein(g, s.name)
+		case NT:
+			pca.AddNucleotide(g, s.name, false)
+		}
+		if separate != "" {
+			pca.Separate(g, separate)
 		}
 	}
 
 	pca.Reduce()
-	pca.WritePlotData()
+	pca.WritePlotData(analysis)
 }
