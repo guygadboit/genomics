@@ -19,6 +19,7 @@ const (
 	DEG Analysis = iota
 	PROT
 	NT
+	SILENT_NT
 )
 
 func (a Analysis) ToString() string {
@@ -29,6 +30,8 @@ func (a Analysis) ToString() string {
 		return "Protein"
 	case NT:
 		return "Nucleotide"
+	case SILENT_NT:
+		return "Silent Nucleotide"
 	}
 	return "Unknown"
 }
