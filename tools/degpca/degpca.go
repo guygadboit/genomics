@@ -301,6 +301,12 @@ func (p *PCA) AddData(rows [][]float64, name string) {
 	start := len(p.data)
 	p.data = append(p.data, rows...)
 	p.labels = append(p.labels, Label{name, start, len(p.data)})
+
+	rowLabels := make([]string, len(rows))
+	for i := 0; i < len(rowLabels); i++ {
+		rowLabels[i] = fmt.Sprintf("%s-%d\n", name, i)
+	}
+	p.rowLabels = append(p.rowLabels, rowLabels...)
 }
 
 func (p *PCA) Reduce() {
