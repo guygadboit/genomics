@@ -199,6 +199,10 @@ var pcaInput chan *PCAInput
 var pcaOutput chan PCAResult
 
 func PCA(components int, data [][]float64) PCAResult {
+	// We only parse a 2x matrix out of the result
+	if components != 2 {
+		log.Fatal("Currently only 2 components are supported\n")
+	}
 	pcaInput <- &PCAInput{components, data}
 	result := <-pcaOutput
 	return result
