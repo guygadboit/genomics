@@ -324,15 +324,27 @@ func (p *PCA) AddSilentNucleotide(g *genomes.Genomes, name string) {
 	p.makeLabels(g, name)
 }
 
-func (p *PCA) Separate(g *genomes.Genomes, name string) {
+func (p *PCA) Separate(g *genomes.Genomes, name string, indices map[int]bool) {
 	a := make([][]float64, 0)
 	b := make([][]float64, 0)
 
 	aLabels := make([]string, 0)
 	bLabels := make([]string, 0)
 
+	var isIn func(index int) bool
+	if name != "" {
+		isIn = func(index int) bool {
+			return strings.Contains(g.Names[index], name)
+		}
+	} else {
+		isIn = func(index int) bool {
+			return indices[index]
+		}
+		name = "special"
+	}
+
 	for i := 0; i < g.NumGenomes(); i++ {
-		if strings.Contains(g.Names[i], name) {
+		if isIn(i) {
 			a = append(a, p.data[i])
 			aLabels = append(aLabels, p.rowLabels[i])
 		} else {
@@ -408,6 +420,7 @@ func main() {
 		separate  string
 		exclude   string
 		analysisS string
+		sepIndicesS string
 		analysis  Analysis
 	)
 
@@ -420,6 +433,7 @@ func main() {
 	flag.StringVar(&analysisS, "mode", "deg", "deg|prot|nt|snt")
 	flag.StringVar(&separate, "separate",
 		"", "String to separate on (e.g. 'Pangolin')")
+	flag.StringVar(&sepIndicesS, "sepint", "", "Indices to separate")
 	flag.StringVar(&exclude, "e", "", "Genomes to exclude")
 	flag.Parse()
 
@@ -494,8 +508,9 @@ func main() {
 		case SILENT_NT:
 			pca.AddSilentNucleotide(g, s.name)
 		}
-		if separate != "" {
-			pca.Separate(g, separate)
+		if separate != ""  || sepIndicesS != "" {
+			sepIndices := utils.ToSet(utils.ParseInts(sepIndicesS, ","))
+			pca.Separate(g, separate, sepIndices)
 		}
 	}
 
