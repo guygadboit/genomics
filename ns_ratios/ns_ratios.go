@@ -5,19 +5,30 @@ import (
 	"fmt"
 	"genomics/comparison"
 	"genomics/genomes"
+	"genomics/mutations"
 	"log"
 )
+
+func ShowPossible(g *genomes.Genomes) {
+	fmt.Println("Possible silent muts")
+	for i := 0; i < g.NumGenomes(); i++ {
+		muts := mutations.PossibleSilentMuts(g, i)
+		fmt.Printf("%d %s\n", len(muts), g.Names[i])
+	}
+}
 
 func main() {
 	var (
 		fasta, orfs string
 		spikeOnly   bool
+		possible    bool
 	)
 
 	flag.StringVar(&fasta, "fasta",
 		"../fasta/SARS2-relatives-short-names.fasta", "Fasta file to use")
 	flag.StringVar(&orfs, "orfs", "../fasta/WH1.orfs", "ORFs file to use")
 	flag.BoolVar(&spikeOnly, "spike", false, "S only")
+	flag.BoolVar(&possible, "poss", false, "Show possible")
 	flag.Parse()
 
 	g := genomes.LoadGenomes(fasta, orfs, false)
@@ -29,6 +40,11 @@ func main() {
 			log.Fatal("Can't find S")
 		}
 		g.Truncate(S.Start, S.End)
+	}
+
+	if possible {
+		ShowPossible(g)
+		return
 	}
 
 	for i := 0; i < g.NumGenomes(); i++ {
