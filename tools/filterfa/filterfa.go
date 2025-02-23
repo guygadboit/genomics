@@ -88,7 +88,12 @@ func main() {
 		}
 	}
 
-	g2 := g.Filter(which...)
+	var g2 *genomes.Genomes
+	if len(which) > 0 {
+		g2 = g.Filter(which...)
+	} else {
+		g2 = g
+	}
 	if removeGaps {
 		g2.RemoveGaps()
 	}
