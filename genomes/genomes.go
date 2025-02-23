@@ -436,6 +436,7 @@ func (g *Genomes) Slice(which, start, end int) []byte {
 	return nts[start:end]
 }
 
+
 /*
 Whereever there is a gap in the first genome of an alignment, just remove that
 column. You will need to do this for comparisons involving translations to work
