@@ -34,6 +34,7 @@ PATTERNS = (
 		(("Wuhan", "BANAL", "RaTG"), "SC2-BANAL-RaTG13"),
 		(("Rp140346", "Rs8572", "Rs8561", "Rs8586"), "G4"),
 		(("ZC45", "ZXC21"), "Z"),
+		(("B104", "B145", "B257", "B279"), "Xiaogan"),
 		)
 
 
