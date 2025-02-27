@@ -3,9 +3,11 @@ package main
 import (
 	"fmt"
 	"genomics/database"
+	"genomics/genomes"
 	"genomics/utils"
-	"strings"
+	"genomics/mutations"
 	"slices"
+	"strings"
 )
 
 var DiamondPrincess []string = []string{
@@ -88,7 +90,7 @@ var Outliers []string = []string{
 }
 
 func interestingMuts(r *database.Record) string {
-	muts := database.ParseMutations("T18060C,T8782C,C28144T,"+
+	muts := database.ParseMutations("T18060C,T8782C,C28144T," +
 		"C28657T,T9477A,C28863T,G25979T")
 
 	interesting := map[database.Mutation]string{
@@ -114,7 +116,7 @@ func interestingMuts(r *database.Record) string {
 
 type RdRPMutation struct {
 	database.Mutation
-	ids	[]database.Id
+	ids []database.Id
 }
 
 func RdRPVariants(db *database.Database) {
@@ -128,9 +130,9 @@ func RdRPVariants(db *database.Database) {
 		}
 	}
 
-	addRange(11843, 12091)	// nsp7
-	addRange(12094, 12685)	// nsp8
-	addRange(13442, 16236)	// nsp12
+	addRange(11843, 12091) // nsp7
+	addRange(12094, 12685) // nsp8
+	addRange(13442, 16236) // nsp12
 
 	posSet := utils.ToSet(positions)
 	matches := db.SearchByMutPosition(positions, 1)
@@ -227,9 +229,82 @@ func D614(db *database.Database) {
 	}
 }
 
+func TT(db *database.Database) {
+	ids := utils.FromSet(db.Filter(nil, func(r *database.Record) bool {
+		if r.Host != "Human" {
+			return false
+		}
+
+		if r.CollectionDate.Compare(utils.Date(2020, 2, 1)) < 0 {
+			return false
+		}
+
+		/*
+			if len(r.NucleotideChanges) != 0 {
+				return false
+			}
+		*/
+
+		/*
+			for _, m := range r.AAChanges {
+				if m.Gene == "S" && m.Pos == 614 && m.From == 'D' && m.To == 'G' {
+					return false
+				}
+			}
+		*/
+
+		good := false
+		for _, m := range r.NucleotideChanges {
+			// if m.Pos == 8782 && m.To == 'T' {
+			if m.Pos == 8878 && m.To == 'T' {
+				good = true
+			}
+			if m.Pos == 28144 {
+				good = false
+			}
+		}
+		return good
+	}))
+
+	db.Sort(ids, database.COLLECTION_DATE)
+
+	for _, id := range ids {
+		r := db.Get(id)
+		fmt.Printf("%s\n", r.Summary())
+	}
+	fmt.Printf("%d sequences with the required filters\n", len(ids))
+}
+
+func CTRate(db *database.Database) {
+	ct, nonCt := 0, 0
+
+	db.Filter(nil, func(r *database.Record) bool {
+		if r.Host != "Human" {
+			return false
+		}
+
+		if r.CollectionDate.Compare(utils.Date(2020, 2, 1)) < 0 {
+			return false
+		}
+
+		for _, m := range r.NucleotideChanges {
+			if m.From == 'C' && m.To == 'T' {
+				ct++
+			} else {
+				nonCt++
+			}
+		}
+		return false
+	})
+
+	fmt.Printf("CT: %d nonCt: %d\n", ct, nonCt)
+}
+
 func main() {
 	db := database.NewDatabase()
 	// RdRPVariants(db)
 	// Pangolin(db)
-	D614(db)
+	// TT(db)
+	// CTRate(db)
+	// CTDistribution(db)
 }

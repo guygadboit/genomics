@@ -11,9 +11,15 @@ import (
 
 func ShowPossible(g *genomes.Genomes) {
 	fmt.Println("Possible silent muts")
+	ct := 0
 	for i := 0; i < g.NumGenomes(); i++ {
 		muts := mutations.PossibleSilentMuts(g, i)
-		fmt.Printf("%d %s\n", len(muts), g.Names[i])
+		for _, m := range muts {
+			if m.From == 'C' && m.To == 'T' {
+				ct++
+			}
+		}
+		fmt.Printf("%d of which %d are CT %s\n", len(muts), ct, g.Names[i])
 	}
 }
 

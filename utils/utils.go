@@ -289,6 +289,20 @@ func Date(year int, month time.Month, day int) time.Time {
 	return time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
 }
 
+func ParseDate(s string) time.Time {
+	fields := strings.Split(s, "-")
+
+	if len(fields) != 3 {
+		log.Fatal("Invalid date")
+	}
+
+	y := Atoi(fields[0])
+	m := Atoi(fields[1])
+	d := Atoi(fields[2])
+
+	return Date(y, time.Month(m), d)
+}
+
 func SplitExt(fname string) (string, string) {
 	ext := filepath.Ext(fname)
 	base := fname[:len(fname)-len(ext)]
