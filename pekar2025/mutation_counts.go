@@ -1,15 +1,16 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
 	"genomics/database"
 	"genomics/genomes"
 	"genomics/mutations"
 	"genomics/utils"
+	"log"
 	"slices"
 	"time"
-	"bufio"
 )
 
 func CTRate(db *database.Database) (int, int) {
@@ -62,26 +63,42 @@ func (l LocationMap) PrintSorted(fp *bufio.Writer) {
 	}
 }
 
-func FindPossibleSilentCT() LocationMap {
+type Transition struct {
+	from, to byte
+	silent   bool
+}
+
+func FindPossible(t Transition) LocationMap {
 	ret := make(LocationMap)
 	g := genomes.LoadGenomes("../fasta/WH1.fasta", "../fasta/WH1.orfs", false)
-	for _, m := range mutations.PossibleSilentMuts(g, 0) {
-		if m.From == 'C' && m.To == 'T' {
-			ret[utils.OneBasedPos(m.Pos+1)] = 0
+
+	if t.silent {
+		for _, m := range mutations.PossibleSilentMuts(g, 0) {
+			if m.From == t.from && m.To == t.to {
+				ret[utils.OneBasedPos(m.Pos+1)] = 0
+			}
+		}
+	} else {
+		for i := 0; i < g.Length(); i++ {
+			if g.Nts[0][i] == t.from {
+				ret[utils.OneBasedPos(i+1)] = 0
+			}
 		}
 	}
+
 	return ret
 }
 
 /*
-Make a map of how many of each possible silent C->T mut we see in seqs with
-fewer than maxMuts (-1 means unlimited). If after, only look at sequences after
-that date. Also return the number of locations with zero sequences having the
-C->t mutation there.
+Make a map of how many of each possible mut we see in seqs with fewer than
+maxMuts (-1 means unlimited). If after, only look at sequences after that date.
+Also return the number of locations with zero sequences having the transition
+there.
 */
-func CTDistribution(db *database.Database,
-	maxMuts int, after *time.Time) (LocationMap, int) {
-	ret := FindPossibleSilentCT()
+func Distribution(db *database.Database, trans Transition,
+	maxMuts int, after *time.Time) (LocationMap, int, int) {
+	ret := FindPossible(trans)
+	total := len(ret)
 
 	db.Filter(nil, func(r *database.Record) bool {
 		if r.Host != "Human" {
@@ -106,12 +123,12 @@ func CTDistribution(db *database.Database,
 			if !there {
 				continue
 			}
-			if m.From == 'C' && m.To == 'T' {
+			if m.From == trans.from && m.To == trans.to {
 				ret[m.Pos]++
 			}
 
 			/*
-				if m.Pos == 8782 {
+				if m.Pos == 28144 {
 					fmt.Println(r.Summary())
 				}
 			*/
@@ -125,10 +142,11 @@ func CTDistribution(db *database.Database,
 			zeros++
 		}
 	}
-	return ret, zeros
+	return ret, zeros, total
 }
 
-func makeGnuplot(maxMuts int, cutoff *time.Time) {
+func makeGnuplot(trans Transition, maxMuts int,
+	cutoff *time.Time, highlight utils.OneBasedPos) {
 	fd, fp := utils.WriteFile("plot.gpi")
 	defer fd.Close()
 
@@ -139,14 +157,20 @@ func makeGnuplot(maxMuts int, cutoff *time.Time) {
 		dateS = "2020-01-01"
 	}
 
-	fmt.Fprintf(fp, "set title \"Frequency of each possible C->T silent mut; " +
-		"max muts: %d; %s to 2020-12-31\"\n", maxMuts, dateS)
+	var silentS string
+	if trans.silent {
+		silentS = "silent"
+	}
+
+	fmt.Fprintf(fp, "set title \"Frequency of each possible %c->%c "+
+		"%smut; max muts: %d; %s to 2020-12-31\"\n",
+		trans.from, trans.to, silentS, maxMuts, dateS)
 
 	fmt.Fprintf(fp, "set xlabel \"Nucleotide position\"\n")
 	fmt.Fprintf(fp, "set ylabel \"Number of sequences\"\n")
 
-	fmt.Fprintf(fp, "set arrow from 8782, graph -0.1 to 8782, "+
-		"graph 0.0 filled lc \"red\"\n")
+	fmt.Fprintf(fp, "set arrow from %d, graph -0.1 to %d, "+
+		"graph 0.0 filled lc \"red\"\n", highlight, highlight)
 
 	fmt.Fprintf(fp, "plot \"output.dat\" with impulses notitle\n")
 
@@ -156,13 +180,27 @@ func makeGnuplot(maxMuts int, cutoff *time.Time) {
 
 func main() {
 	var (
-		maxMuts  int
-		dateS    string
+		maxMuts    int
+		dateS      string
+		silent     bool
+		transition string
+		pos        int
 	)
 
 	flag.IntVar(&maxMuts, "m", 1, "maximum number of mutations")
 	flag.StringVar(&dateS, "d", "", "only show after date")
+	flag.BoolVar(&silent, "silent", true, "silent only")
+	flag.StringVar(&transition, "t", "CT", "transition to look for")
+	flag.IntVar(&pos, "p", 8782, "Position to highlight")
 	flag.Parse()
+
+	var from, to byte
+	if len(transition) != 2 {
+		log.Fatal("Invalid transition")
+	}
+	from, to = transition[0], transition[1]
+
+	highlight := utils.OneBasedPos(pos)
 
 	var date *time.Time
 	if dateS != "" {
@@ -171,8 +209,9 @@ func main() {
 	}
 
 	db := database.NewDatabase()
-	distro, zeros := CTDistribution(db, maxMuts, date)
-	fmt.Printf("%d zeros\n", zeros)
+	trans := Transition{from, to, silent}
+	distro, zeros, total := Distribution(db, trans, maxMuts, date)
+	fmt.Printf("%d/%d zeros\n", zeros, total)
 
 	fd, fp := utils.WriteFile("output.dat")
 	defer fd.Close()
@@ -181,5 +220,5 @@ func main() {
 
 	fmt.Println("Wrote output.dat")
 
-	makeGnuplot(maxMuts, date)
+	makeGnuplot(trans, maxMuts, date, highlight)
 }
