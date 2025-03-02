@@ -125,13 +125,8 @@ func Distribution(db *database.Database, trans Transition,
 			}
 			if m.From == trans.from && m.To == trans.to {
 				ret[m.Pos]++
+				// fmt.Println(r.Summary())
 			}
-
-			/*
-				if m.Pos == 28144 {
-					fmt.Println(r.Summary())
-				}
-			*/
 		}
 		return false
 	})

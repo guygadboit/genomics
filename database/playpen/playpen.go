@@ -3,9 +3,7 @@ package main
 import (
 	"fmt"
 	"genomics/database"
-	"genomics/genomes"
 	"genomics/utils"
-	"genomics/mutations"
 	"slices"
 	"strings"
 )
@@ -300,8 +298,23 @@ func CTRate(db *database.Database) {
 	fmt.Printf("CT: %d nonCt: %d\n", ct, nonCt)
 }
 
+func NoMuts(db *database.Database) {
+	db.Filter(nil, func(r *database.Record) bool {
+		if r.Host != "Human" {
+			return false
+		}
+
+		if len(r.NucleotideChanges) == 0 {
+			fmt.Println(r.Summary())
+		}
+		return false
+	})
+
+}
+
 func main() {
 	db := database.NewDatabase()
+	NoMuts(db)
 	// RdRPVariants(db)
 	// Pangolin(db)
 	// TT(db)
