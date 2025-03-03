@@ -17,10 +17,15 @@ import (
 )
 
 func main() {
-	var reference, output string
+	var (
+		reference, output    string
+		verbose, veryVerbose bool
+	)
 
 	flag.StringVar(&reference, "ref", "", "Reference genome")
 	flag.StringVar(&output, "o", "output.fasta", "Output name")
+	flag.BoolVar(&verbose, "v", false, "verbose")
+	flag.BoolVar(&veryVerbose, "vv", false, "very verbose")
 	flag.Parse()
 
 	if len(flag.Args()) != 1 {
@@ -45,6 +50,15 @@ func main() {
 	for i := 0; i < g.Length(); i++ {
 		if j < len(pileup.Records) && pileup.Records[j].Pos == i {
 			nts[i] = pileup.Records[j].Reads[0].Nt
+
+			doPrint := veryVerbose || (verbose && nts[i] != g.Nts[0][i])
+
+			if doPrint {
+				for _, r := range pileup.Records[j].Reads {
+					fmt.Printf("%d%c %d\n", i+1, r.Nt, r.Depth)
+				}
+			}
+
 			j++
 		} else {
 			nts[i] = '-'

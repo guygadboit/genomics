@@ -309,12 +309,75 @@ func NoMuts(db *database.Database) {
 		}
 		return false
 	})
+}
 
+func EarlyLineages(db *database.Database) {
+	counts := make(map[string]int)
+	db.Filter(nil, func(r *database.Record) bool {
+		if r.Host != "Human" {
+			return false
+		}
+
+		/*
+		if len(r.NucleotideChanges) > 2 {
+			return false
+		}
+		*/
+
+		C1, C2 := true, false
+		allowed := 0
+		for _, m := range r.NucleotideChanges {
+			if m.Pos == 8782 && m.To == 'T' {
+				C1 = false
+				allowed++
+			}
+			if m.Pos == 28144 && m.To == 'C' {
+				C2 = true
+				allowed++
+			}
+		}
+
+		/*
+		if len(r.NucleotideChanges) != allowed {
+			return false
+		}
+		*/
+
+		/*
+		if len(r.NucleotideChanges) < allowed + 5 {
+			return false
+		}
+		*/
+
+		var class string
+
+		if C1 {
+			if C2 {
+				class = "CC"
+			} else {
+				class = "CT"
+			}
+		} else {
+			if C2 {
+				class = "TC"
+			} else {
+				class = "TT"
+				fmt.Println(len(r.NucleotideChanges),
+					r.GisaidAccession, r.Country)
+			}
+		}
+		counts[class]++
+		// fmt.Println(class, r.Summary())
+		return false
+	})
+
+	fmt.Println(counts)
 }
 
 func main() {
 	db := database.NewDatabase()
-	NoMuts(db)
+	EarlyLineages(db)
+	// NoMuts(db)
 	// RdRPVariants(db)
 	// Pangolin(db)
 	// TT(db)

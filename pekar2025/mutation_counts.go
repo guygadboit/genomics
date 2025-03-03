@@ -154,7 +154,7 @@ func makeGnuplot(trans Transition, maxMuts int,
 
 	var silentS string
 	if trans.silent {
-		silentS = "silent"
+		silentS = "silent "
 	}
 
 	fmt.Fprintf(fp, "set title \"Frequency of each possible %c->%c "+
@@ -206,7 +206,8 @@ func main() {
 	db := database.NewDatabase()
 	trans := Transition{from, to, silent}
 	distro, zeros, total := Distribution(db, trans, maxMuts, date)
-	fmt.Printf("%d/%d zeros\n", zeros, total)
+	nonZeros := total - zeros
+	fmt.Printf("%d/%d zeros (%d non-zeros)\n", zeros, total, nonZeros)
 
 	fd, fp := utils.WriteFile("output.dat")
 	defer fd.Close()
