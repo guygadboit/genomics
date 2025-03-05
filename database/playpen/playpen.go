@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"time"
 	"genomics/database"
 	"genomics/utils"
 	"slices"
@@ -354,6 +355,10 @@ func EarlyLineages(db *database.Database) {
 		if C1 {
 			if C2 {
 				class = "CC"
+				/*
+				fmt.Println(len(r.NucleotideChanges), r.GisaidAccession,
+					r.Country, r.CollectionDate.Format(time.DateOnly))
+				*/
 			} else {
 				class = "CT"
 			}
@@ -362,8 +367,12 @@ func EarlyLineages(db *database.Database) {
 				class = "TC"
 			} else {
 				class = "TT"
+				fmt.Println(len(r.NucleotideChanges), r.GisaidAccession,
+					r.Country, r.CollectionDate.Format(time.DateOnly))
+				/*
 				fmt.Println(len(r.NucleotideChanges),
 					r.GisaidAccession, r.Country)
+				*/
 			}
 		}
 		counts[class]++

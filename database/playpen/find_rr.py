@@ -1,23 +1,31 @@
+import sys
+import re
 from collections import defaultdict
+from pdb import set_trace as brk
 
 
 class Sequence:
-	def __init__(self, num_muts, acc_no, country):
+	def __init__(self, num_muts, acc_no, country, date):
 		self.num_muts = num_muts
 		self.acc_no = acc_no
 		self.country = country
+		self.date = date
 
 	def __repr__(self):
-		return "{} {} {}".format(self.num_muts, self.acc_no, self.country)
+		return "{} {} {} {}".format(self.num_muts,
+				self.acc_no, self.country, self.date)
 
 
-def find_sequences():
+def find_sequences(fname):
 	ret = defaultdict(list)
-	with open("tt_lots") as fp:
+	pat = re.compile(r'^(\d+) (EPI_ISL_\d+) (.*) (2020-.*)$')
+	with open(fname) as fp:
 		for line in fp:
-			fields = line.strip().split()
-			num, acc, country = int(fields[0]), fields[1], fields[2]
-			ret[num].append(Sequence(num, acc, country))
+			m = pat.match(line)
+			fields = m.groups()
+			num, acc, country, date = (int(fields[0]),
+				fields[1], fields[2], fields[3])
+			ret[num].append(Sequence(num, acc, country, date))
 	return ret
 
 
@@ -32,7 +40,7 @@ def find_reads():
 
 def main():
 	reads = find_reads()
-	seqs = find_sequences()
+	seqs = find_sequences(sys.argv[1])
 	for k in sorted(seqs.keys()):
 		for seq in seqs[k]:
 			if seq.acc_no in reads:
@@ -41,6 +49,3 @@ def main():
 
 if __name__ == "__main__":
 	main()
-
-
-
