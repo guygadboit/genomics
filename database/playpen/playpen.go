@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"time"
 	"genomics/database"
 	"genomics/utils"
 	"slices"
@@ -319,10 +318,14 @@ func EarlyLineages(db *database.Database) {
 			return false
 		}
 
-		/*
-		if len(r.NucleotideChanges) > 2 {
+		if r.CollectionDate.Compare(utils.Date(2020, 5, 1)) > 0 {
 			return false
 		}
+
+		/*
+			if len(r.NucleotideChanges) > 2 {
+				return false
+			}
 		*/
 
 		C1, C2 := true, false
@@ -339,15 +342,15 @@ func EarlyLineages(db *database.Database) {
 		}
 
 		/*
-		if len(r.NucleotideChanges) != allowed {
-			return false
-		}
+			if len(r.NucleotideChanges) != allowed {
+				return false
+			}
 		*/
 
 		/*
-		if len(r.NucleotideChanges) < allowed + 5 {
-			return false
-		}
+			if len(r.NucleotideChanges) < allowed + 5 {
+				return false
+			}
 		*/
 
 		var class string
@@ -355,23 +358,29 @@ func EarlyLineages(db *database.Database) {
 		if C1 {
 			if C2 {
 				class = "CC"
+				// fmt.Println(r.GisaidAccession)
 				/*
-				fmt.Println(len(r.NucleotideChanges), r.GisaidAccession,
-					r.Country, r.CollectionDate.Format(time.DateOnly))
+					fmt.Println(len(r.NucleotideChanges), r.GisaidAccession,
+						r.Country, r.CollectionDate.Format(time.DateOnly))
 				*/
 			} else {
 				class = "CT"
+				fmt.Println(r.GisaidAccession)
 			}
 		} else {
 			if C2 {
 				class = "TC"
+				fmt.Println(r.GisaidAccession)
 			} else {
 				class = "TT"
-				fmt.Println(len(r.NucleotideChanges), r.GisaidAccession,
-					r.Country, r.CollectionDate.Format(time.DateOnly))
+				fmt.Println(r.GisaidAccession)
 				/*
-				fmt.Println(len(r.NucleotideChanges),
-					r.GisaidAccession, r.Country)
+					fmt.Println(len(r.NucleotideChanges), r.GisaidAccession,
+						r.Country, r.CollectionDate.Format(time.DateOnly))
+				*/
+				/*
+					fmt.Println(len(r.NucleotideChanges),
+						r.GisaidAccession, r.Country)
 				*/
 			}
 		}

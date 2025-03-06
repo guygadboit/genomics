@@ -16,14 +16,17 @@ func main() {
 		msa         bool
 		reference   string
 		orfs        string
+		prefix		string
+		outName	string
 	)
 
 	flag.BoolVar(&reconstruct, "reconstruct", false, "Reconstruct fasta files")
 	flag.BoolVar(&msa, "msa", false, "Output reconstruction of all inputs"+
-		"as a single multi-sequence alignment")
+		" as a single multi-sequence alignment")
 	flag.StringVar(&reference, "ref", ROOT+"WH1.fasta", "Reference genome")
 	flag.StringVar(&orfs, "orfs", ROOT+"WH1.orfs", "Reference genome ORFs")
-
+	flag.StringVar(&prefix, "prefix", "", "Prefix to add to output names")
+	flag.StringVar(&outName, "o", "GISAID-genomes.fasta", "Output name for msa")
 	flag.Parse()
 
 	db := database.NewDatabase()
@@ -69,13 +72,12 @@ func main() {
 			}
 
 			output.Nts = append(output.Nts, rg.Nts[1])
-			output.Names = append(output.Names, rg.Names[1])
+			output.Names = append(output.Names, prefix + rg.Names[1])
 		}
 	}
 
 	if output != nil {
-		name := "GISAID-genomes.fasta"
-		output.SaveMulti(name)
-		fmt.Printf("Wrote %s\n", name)
+		output.SaveMulti(outName)
+		fmt.Printf("Wrote %s\n", outName)
 	}
 }

@@ -417,11 +417,11 @@ func main() {
 		hass      bool
 		spikeOnly bool
 
-		separate  string
-		exclude   string
-		analysisS string
+		separate    string
+		exclude     string
+		analysisS   string
 		sepIndicesS string
-		analysis  Analysis
+		analysis    Analysis
 	)
 
 	pca := NewPCA()
@@ -508,7 +508,7 @@ func main() {
 		case SILENT_NT:
 			pca.AddSilentNucleotide(g, s.name)
 		}
-		if separate != ""  || sepIndicesS != "" {
+		if separate != "" || sepIndicesS != "" {
 			sepIndices := utils.ToSet(utils.ParseInts(sepIndicesS, ","))
 			pca.Separate(g, separate, sepIndices)
 		}
