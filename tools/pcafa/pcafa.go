@@ -141,6 +141,18 @@ func (s *Sources) String() string {
 	return ""
 }
 
+type SeparateKey string
+type SeparateKeys []SeparateKey
+
+func (s *SeparateKeys) Set(value string) error {
+	*s = append(*s, SeparateKey(value))
+	return nil
+}
+
+func (s *SeparateKeys) String() string {
+	return ""
+}
+
 type Label struct {
 	name     string
 	startRow int
@@ -148,10 +160,10 @@ type Label struct {
 }
 
 type PCA struct {
-	data      [][]float64
 	labels    []Label
-	result    stats.PCAResult
+	data      [][]float64
 	rowLabels []string
+	result    stats.PCAResult
 }
 
 func NewPCA() *PCA {
@@ -324,27 +336,69 @@ func (p *PCA) AddSilentNucleotide(g *genomes.Genomes, name string) {
 	p.makeLabels(g, name)
 }
 
-func (p *PCA) Separate(g *genomes.Genomes, name string, indices map[int]bool) {
+// Separate out the rows based on a list of names
+func (p *PCA) SeparateNames(g *genomes.Genomes, names SeparateKeys) {
+
+	// For each name, which rows belong to that name?
+	rows := make(map[string][]int)
+
+	// Rows that didn't match any of the names
+	leftover := make([]int, 0)
+
+outer:
+	for i := 0; i < g.NumGenomes(); i++ {
+		for _, k := range names {
+			name := string(k)
+			if strings.Contains(g.Names[i], name) {
+				_, there := rows[name]
+				if !there {
+					rows[name] = make([]int, 0)
+				}
+				rows[name] = append(rows[name], i)
+				continue outer
+			}
+		}
+		leftover = append(leftover, i)
+	}
+
+	// Now rearrange the rows and labels. FIXME YOU ARE HERE
+	rowLabels := make([]string, 0, g.NumGenomes())
+	labels := make([]Label, 0, len(names)+1)
+	data := make([][]float64, 0, len(p.data))
+
+	start := 0
+	for k, v := range rows {
+		for _, index := range v {
+			rowLabels = append(rowLabels, p.rowLabels[index])
+			data = append(data, p.data[index])
+		}
+		n := len(v)
+		labels = append(labels, Label{k, start, start + n})
+		start += n
+	}
+
+	for _, index := range leftover {
+		rowLabels = append(rowLabels, p.rowLabels[index])
+		data = append(data, p.data[index])
+	}
+
+	labels = append(labels, Label{"Other", start, len(p.data)})
+
+	p.labels = labels
+	p.data = data
+	p.rowLabels = rowLabels
+}
+
+// Separate out the rows based on a list of indices
+func (p *PCA) Separate(g *genomes.Genomes, indices map[int]bool) {
 	a := make([][]float64, 0)
 	b := make([][]float64, 0)
 
 	aLabels := make([]string, 0)
 	bLabels := make([]string, 0)
 
-	var isIn func(index int) bool
-	if name != "" {
-		isIn = func(index int) bool {
-			return strings.Contains(g.Names[index], name)
-		}
-	} else {
-		isIn = func(index int) bool {
-			return indices[index]
-		}
-		name = "special"
-	}
-
 	for i := 0; i < g.NumGenomes(); i++ {
-		if isIn(i) {
+		if indices[i] {
 			a = append(a, p.data[i])
 			aLabels = append(aLabels, p.rowLabels[i])
 		} else {
@@ -352,6 +406,7 @@ func (p *PCA) Separate(g *genomes.Genomes, name string, indices map[int]bool) {
 			bLabels = append(bLabels, p.rowLabels[i])
 		}
 	}
+	name := "special"
 	labels := make([]Label, 2)
 	labels[0] = Label{name, 0, len(a)}
 	labels[1] = Label{fmt.Sprintf("non-%s", name), len(a), g.NumGenomes()}
@@ -417,10 +472,11 @@ func main() {
 		hass      bool
 		spikeOnly bool
 
-		separate    string
+		sepKeys     SeparateKeys
 		exclude     string
 		analysisS   string
 		sepIndicesS string
+		separate    string
 		analysis    Analysis
 	)
 
@@ -431,8 +487,7 @@ func main() {
 	flag.BoolVar(&hass, "hass", false, "Include Hassanin data")
 	flag.BoolVar(&spikeOnly, "spike", false, "Spike Only")
 	flag.StringVar(&analysisS, "mode", "deg", "deg|prot|nt|snt")
-	flag.StringVar(&separate, "separate",
-		"", "String to separate on (e.g. 'Pangolin')")
+	flag.Var(&sepKeys, "separate", "Strings to separate on (e.g. 'Pangolin')")
 	flag.StringVar(&sepIndicesS, "sepint", "", "Indices to separate")
 	flag.StringVar(&exclude, "e", "", "Genomes to exclude")
 	flag.Parse()
@@ -508,9 +563,15 @@ func main() {
 		case SILENT_NT:
 			pca.AddSilentNucleotide(g, s.name)
 		}
+		if sepIndicesS != "" {
+			sepIndices := utils.ToSet(utils.ParseInts(sepIndicesS, ","))
+			pca.Separate(g, sepIndices)
+		} else if len(sepKeys) != 0 {
+			pca.SeparateNames(g, sepKeys)
+		}
 		if separate != "" || sepIndicesS != "" {
 			sepIndices := utils.ToSet(utils.ParseInts(sepIndicesS, ","))
-			pca.Separate(g, separate, sepIndices)
+			pca.Separate(g, sepIndices)
 		}
 	}
 
