@@ -16,8 +16,9 @@ func main() {
 		msa         bool
 		reference   string
 		orfs        string
-		prefix		string
-		outName	string
+		prefix      string
+		outName     string
+		check       bool
 	)
 
 	flag.BoolVar(&reconstruct, "reconstruct", false, "Reconstruct fasta files")
@@ -27,6 +28,7 @@ func main() {
 	flag.StringVar(&orfs, "orfs", ROOT+"WH1.orfs", "Reference genome ORFs")
 	flag.StringVar(&prefix, "prefix", "", "Prefix to add to output names")
 	flag.StringVar(&outName, "o", "GISAID-genomes.fasta", "Output name for msa")
+	flag.BoolVar(&check, "strict", true, "Strict checking")
 	flag.Parse()
 
 	db := database.NewDatabase()
@@ -54,7 +56,7 @@ func main() {
 		fmt.Println(r.Summary())
 
 		if reconstruct {
-			rg, err := db.Reconstruct(id, g, accNum)
+			rg, err := db.Reconstruct(id, g, accNum, check)
 			if err != nil {
 				fmt.Fprintln(os.Stderr, err)
 				continue
@@ -72,7 +74,7 @@ func main() {
 			}
 
 			output.Nts = append(output.Nts, rg.Nts[1])
-			output.Names = append(output.Names, prefix + rg.Names[1])
+			output.Names = append(output.Names, prefix+rg.Names[1])
 		}
 	}
 

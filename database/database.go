@@ -268,8 +268,8 @@ type NtMutationIndexSearch struct {
 }
 
 type MutationSearchResult struct {
-	Id	Id				// the sequence
-	NumMatches	int		// the number of keys it matched
+	Id         Id  // the sequence
+	NumMatches int // the number of keys it matched
 }
 
 func NewNtMutationIndexSearch(db *Database,
@@ -593,7 +593,8 @@ Use the first genome in reference, and output it and the second one in an
 alignment.
 */
 func (d *Database) Reconstruct(id Id,
-	reference *genomes.Genomes, name string) (*genomes.Genomes, error) {
+	reference *genomes.Genomes,
+	name string, check bool) (*genomes.Genomes, error) {
 
 	ret := reference.Filter(0, 0)
 	ret.DeepCopy(1)
@@ -601,10 +602,11 @@ func (d *Database) Reconstruct(id Id,
 
 	for _, mut := range record.NucleotideChanges {
 		pos := mut.Pos - 1
-		if ret.Nts[1][pos] != mut.From {
-			return nil, errors.New("Wrong reference")
+		if check {
+			if ret.Nts[1][pos] != mut.From {
+				return nil, errors.New("Wrong reference")
+			}
 		}
-
 		ret.Nts[1][pos] = mut.To
 	}
 

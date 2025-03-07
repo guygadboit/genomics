@@ -318,9 +318,11 @@ func EarlyLineages(db *database.Database) {
 			return false
 		}
 
-		if r.CollectionDate.Compare(utils.Date(2020, 7, 1)) > 0 {
-			return false
-		}
+		/*
+			if r.CollectionDate.Compare(utils.Date(2020, 7, 1)) > 0 {
+				return false
+			}
+		*/
 
 		/*
 			if len(r.NucleotideChanges) > 2 {
@@ -347,7 +349,7 @@ func EarlyLineages(db *database.Database) {
 			}
 		*/
 
-		if len(r.NucleotideChanges) < allowed + 5 {
+		if len(r.NucleotideChanges) < allowed+5 {
 			return false
 		}
 
