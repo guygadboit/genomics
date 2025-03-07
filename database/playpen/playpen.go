@@ -318,7 +318,7 @@ func EarlyLineages(db *database.Database) {
 			return false
 		}
 
-		if r.CollectionDate.Compare(utils.Date(2020, 5, 1)) > 0 {
+		if r.CollectionDate.Compare(utils.Date(2020, 7, 1)) > 0 {
 			return false
 		}
 
@@ -347,11 +347,9 @@ func EarlyLineages(db *database.Database) {
 			}
 		*/
 
-		/*
-			if len(r.NucleotideChanges) < allowed + 5 {
-				return false
-			}
-		*/
+		if len(r.NucleotideChanges) < allowed + 5 {
+			return false
+		}
 
 		var class string
 
@@ -373,7 +371,7 @@ func EarlyLineages(db *database.Database) {
 				fmt.Println(r.GisaidAccession)
 			} else {
 				class = "TT"
-				fmt.Println(r.GisaidAccession)
+				// fmt.Println(r.GisaidAccession)
 				/*
 					fmt.Println(len(r.NucleotideChanges), r.GisaidAccession,
 						r.Country, r.CollectionDate.Format(time.DateOnly))
