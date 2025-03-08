@@ -10,10 +10,10 @@ import (
 )
 
 /*
-Represents a match between a subpopulation of one genome and WH1
+Represents a match between a subpopulation in some reads and some SC2 relative
 */
 type Match struct {
-	genome        int
+	genome        int                 // the genome we're matching
 	numMatches    int                 // the number of matches in the reads
 	opportunities int                 // number of places where genome differs from WH1
 	positions     []utils.OneBasedPos // where the matches are
@@ -105,7 +105,8 @@ func makeString(p []utils.OneBasedPos) string {
 	return strings.Join(s, " ")
 }
 
-func MatchReads(g *genomes.Genomes, pu *pileup.Pileup, minDepth int) {
+func MatchReads(g *genomes.Genomes,
+	pu *pileup.Pileup, minDepth int, requireSilent bool) {
 	alt := Alternatives(g, pu, minDepth)
 
 	counts := make(map[int]int)
@@ -122,7 +123,17 @@ func MatchReads(g *genomes.Genomes, pu *pileup.Pileup, minDepth int) {
 				continue
 			}
 			for _, read := range rec.Reads {
+				if requireSilent {
+					if silent, _, _ := genomes.IsSilentWithReplacement(g, i,
+						0, 0, []byte{read.Nt}); !silent {
+						continue
+					}
+				}
+
+				// This is the total number of minority alleles (or of silent
+				// minority alleles)
 				totals[j]++
+
 				if read.Nt == g.Nts[j][i] {
 					counts[j]++
 					positions[j] = append(positions[j], utils.OneBasedPos(i+1))

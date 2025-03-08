@@ -7,16 +7,29 @@ def find_sra(wrapper):
 	url = "https://www.ncbi.nlm.nih.gov/sra/?term={}".format(wrapper)
 	http = urllib3.PoolManager()
 	response = http.request("GET", url)
-	soup = bs4.BeautifulSoup(response.data)
+	soup = bs4.BeautifulSoup(response.data, "lxml")
 	for a in soup.find_all("a"):
 		href = a.attrs.get("href")
 		if "trace.ncbi.nlm.nih.gov" in href:
-			print(href)
-			print(a.attrs.get("href"))
-	brk()
+			return a.getText()
 
 def main():
-	find_sra("ERS5638945")
+	# OK sometimes there's more than 1. Then you end up on a page with a couple
+	# more links. So you need to think about whether you want to chase that.
+	t = find_sra("SRS6395995")
+	print(t)
+	return
+
+	with open("read_info.txt") as fp:
+		for i, line in enumerate(fp):
+			line = line.strip()
+			fields = line.split()
+			sra = find_sra(fields[1]) or ""
+			print("<{}> -> <{}>".format(fields[1], sra))
+			fields.insert(2, sra)
+			print(" ".join(fields))
+			if i == 10:
+				break
 
 if __name__ == "__main__":
 	main()

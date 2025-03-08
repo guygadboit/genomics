@@ -2,11 +2,11 @@ package main
 
 import (
 	"fmt"
-    "time"
 	"genomics/database"
 	"genomics/utils"
 	"slices"
 	"strings"
+	"time"
 )
 
 var DiamondPrincess []string = []string{
@@ -319,9 +319,9 @@ func EarlyLineages(db *database.Database) {
 			return false
 		}
 
-        if r.SampleSRA == "" {
-            return false
-        }
+		if r.SampleSRA == "" {
+			return false
+		}
 
 		/*
 			if r.CollectionDate.Compare(utils.Date(2020, 7, 1)) > 0 {
@@ -329,11 +329,11 @@ func EarlyLineages(db *database.Database) {
 			}
 		*/
 
-		/*
-			if len(r.NucleotideChanges) > 2 {
-				return false
-			}
-		*/
+        /*
+		if len(r.NucleotideChanges) > 2 {
+			return false
+		}
+        */
 
 		C1, C2 := true, false
 		allowed := 0
@@ -349,29 +349,29 @@ func EarlyLineages(db *database.Database) {
 		}
 
         /*
-        if len(r.NucleotideChanges) != allowed {
-            return false
-        }
-        */
-
-        /*
-		if len(r.NucleotideChanges) < allowed+5 {
+		if len(r.NucleotideChanges) != allowed {
 			return false
 		}
         */
 
-        var class string
+		/*
+			if len(r.NucleotideChanges) < allowed+5 {
+				return false
+			}
+		*/
 
-        display := func() {
-            fmt.Println(class, len(r.NucleotideChanges),
-            r.GisaidAccession, r.SampleSRA, r.Country,
-            r.CollectionDate.Format(time.DateOnly))
-        }
+		var class string
+
+		display := func() {
+			fmt.Println(class, len(r.NucleotideChanges),
+				r.GisaidAccession, r.SampleSRA, r.Country,
+				r.CollectionDate.Format(time.DateOnly))
+		}
 
 		if C1 {
 			if C2 {
 				class = "CC"
-                display()
+				display()
 			} else {
 				class = "CT"
 				// fmt.Println(r.GisaidAccession)
@@ -382,7 +382,7 @@ func EarlyLineages(db *database.Database) {
 				// fmt.Println(r.GisaidAccession)
 			} else {
 				class = "TT"
-                display()
+				display()
 			}
 		}
 		counts[class]++

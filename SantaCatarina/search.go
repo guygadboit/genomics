@@ -3,13 +3,13 @@ package main
 import (
 	"bufio"
 	"fmt"
+    "log"
 	"genomics/database"
 	"genomics/genomes"
 	"genomics/mutations"
 	"genomics/utils"
 	"genomics/pileup"
 	"flag"
-	"log"
 	"math/rand"
 	"os"
 	"slices"
@@ -197,6 +197,19 @@ func PlotSignificant(
 	fmt.Printf("Wrote %s\n", fname)
 }
 
+func checkReads(g *genomes.Genomes) {
+    /*
+    pu, err := pileup.Parse("/fs/j/genomes/raw_reads/"+
+        "OutgroupMatches/EPI_ISL_7946128/pileup")
+    */
+    pu, err := pileup.Parse("/fs/j/genomes/raw_reads/"+
+        "OutgroupMatches/EPI_ISL_525575/pileup")
+    if err != nil {
+        log.Fatal(err)
+    }
+    MatchReads(g, pu, 4, true)
+}
+
 func main() {
 	rand.Seed(9879)
 
@@ -215,70 +228,12 @@ func main() {
 	g := genomes.LoadGenomes("./RelativesPlusKhosta.fasta",
 		"../fasta/WH1.orfs", false)
 
-	/*
-	names := []string{"SRR11092059",
-		"SRR11092060", "SRR11092061",
-		"SRR11092062", "SRR11092063"}
-	pileups := make([]*pileup.Pileup, len(names))
-	for i, name := range names {
-		pileups[i], _ = pileup.Parse(
-			fmt.Sprintf("/fs/j/tmp/SeafoodReads/%s/pileup", name))
-		fmt.Printf("Loaded %s\n", name)
-	}
+    checkReads(g)
+    return
 
-	MatchMulti(g, 1, 5, pileups...)
-	return
-	*/
-
-	for _, arg := range flag.Args() {
-		pileup, _ := pileup.Parse(arg)
-		MatchReads(g, pileup, minDepth)
-	}
-	return
-	/*
-		g := genomes.LoadGenomes("../fasta/all.fasta", "../fasta/WH1.orfs", false)
-	*/
-	/*
-		// OutgroupMontcarlo(g, 1000, 17)
-		ShowOutgroupMatches(g)
-	*/
-
-	/*
-		var db database.Database
-		db.Parse(database.ROOT + "gisaid2020.tsv.gz")
-		db.Save(database.GOB_NAME)
-		return
-	*/
-
-	/*
-		ShowAllPossibleSilentMuts(g)
-		return
-	*/
-
-	mask := []int{5, 6, 7, 8, 10, 11}
-	// mask := []int{460, 461, 462, 465, 466, 463}
-	// var mask []int
-	db := database.NewDatabase()
-
-	/*
-		nd := mutations.NewNucDistro(g)
-		runSimulation(g, nd)
-		return
-	*/
-
-	cutoff := utils.Date(2020, 12, 31)
-	interesting := utils.ToSet([]string{
-		"EPI_ISL_417917",
-		"EPI_ISL_417919",
-		"EPI_ISL_417920",
-		"EPI_ISL_417918",
-	})
-
+    db := database.NewDatabase()
 	ids := db.Filter(nil, func(r *database.Record) bool {
 		if r.Host != "Human" {
-			return false
-		}
-		if !interesting[r.GisaidAccession] {
 			return false
 		}
 		/*
@@ -286,31 +241,29 @@ func main() {
 				return false
 			}
 		*/
-		/*
-			if r.GisaidAccession != "EPI_ISL_8193636" {
-				return false
-			}
-		*/
+
 		if len(r.NucleotideChanges) == 0 {
 			return false
 		}
-		return r.CollectionDate.Compare(cutoff) < 0
+        return true
 	})
 
 	idSlice := utils.FromSet(ids)
 	slices.Sort(idSlice)
 
-	maskGenomes := g.Filter(mask...)
+	mask := g.Filter(5, 6, 7, 8, 10, 11)
 	CountOutgroupMatches(db, idSlice,
-		g, maskGenomes, false, "Interesting", 1, 1)
+		g, mask, false, "Interesting", 1, 1)
 	return
 
+    /*
 	expected := FindAllOdds(g, mask)
 	PlotSignificant(db, idSlice, g, 10, 1e-4, true,
 		"individuals.txt",
 		"All",
 		mask, expected)
 	return
+    */
 
 	/*
 		pangolins := g.Filter(0, 35, 36, 37, 38, 39, 40, 41)
@@ -349,8 +302,10 @@ func main() {
 		return
 	*/
 
-	muts := database.ParseMutations("A5706G")
+    /*
+    muts := []utils.OneBasedPos{5706}
 	br := db.SearchByMutPosition(muts, 1)
+
 	br = db.Filter(br, func(r *database.Record) bool {
 		return r.CollectionDate.Year() == 2020 && r.Country == "Brazil"
 	})
@@ -390,6 +345,5 @@ func main() {
 	MakeTable(db, g, records, sc1.NucleotideChanges, w)
 	w.Flush()
 	fmt.Printf("Wrote table.html\n")
-
-	// ShowOutgroupMatches(g, sc1.NucleotideChanges)
+    */
 }

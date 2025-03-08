@@ -54,8 +54,8 @@ func CheckCT(ct stats.ContingencyTable,
 				r.ToString(), name,
 				ct.A, ct.A+ct.B, OR, p)
 			*/
-			fmt.Printf("%s %s: %s %d/%d OR=%.2f p=%.4g\n",
-				r.ToString(), name,
+			fmt.Printf("%s <%s> %s: %s %d/%d OR=%.2f p=%.4g\n",
+				r.ToString(), r.SampleSRA, name,
 				matches.ToString(),
 				ct.A, ct.A+ct.B, OR, p)
 			return true
