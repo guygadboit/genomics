@@ -42,6 +42,7 @@ func main() {
 
 	db.BuildMutationIndices()
 	db.BuildAccessionIndex()
+    db.AddSampleSRAs("read_info.txt.gz")
 
 	fmt.Printf("Saving %s\n", database.GOB_NAME)
 	db.Save(database.GOB_NAME)

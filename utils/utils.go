@@ -9,10 +9,10 @@ import (
 	"math/rand"
 	"os"
 	"path/filepath"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
-	"slices"
 )
 
 // Let's use this type for OneBased positions and regular ints for zero based.
@@ -20,6 +20,7 @@ type OneBasedPos int
 
 // Use this everywhere you need to say if mutations are silent or not
 type Silence int
+
 const (
 	UNKNOWN Silence = iota
 	SILENT

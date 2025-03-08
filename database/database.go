@@ -179,6 +179,13 @@ type Record struct {
 	NextstrainClade   string      // 16
 	Continent         string      // 17
 	ToBeExcluded      int         // 18
+
+	// The SRA in the biosample.xml file is often an annoying "wrapper" that
+	// won't work directly with fasterq-dump.
+	SampleSRA string // The SRA from
+
+	// The real SRA, once you unwrap those wrappers
+	SRA string
 }
 
 func (r *Record) ToString() string {
@@ -488,6 +495,19 @@ loop:
 		record.Parse(line)
 		d.Add(&record)
 	}
+}
+
+func (d *Database) AddSampleSRAs(fname string) {
+	utils.Lines(fname, func(line string, err error) bool {
+		fields := strings.Fields(line)
+		accession, sra := fields[0], fields[1]
+
+		ids := d.GetByAccession(accession)
+		for _, id := range ids {
+			d.Records[id].SampleSRA = sra
+		}
+		return true
+	})
 }
 
 // Return whichever muts in muts this record has

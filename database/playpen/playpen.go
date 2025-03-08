@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+    "time"
 	"genomics/database"
 	"genomics/utils"
 	"slices"
@@ -318,6 +319,10 @@ func EarlyLineages(db *database.Database) {
 			return false
 		}
 
+        if r.SampleSRA == "" {
+            return false
+        }
+
 		/*
 			if r.CollectionDate.Compare(utils.Date(2020, 7, 1)) > 0 {
 				return false
@@ -343,45 +348,41 @@ func EarlyLineages(db *database.Database) {
 			}
 		}
 
-		/*
-			if len(r.NucleotideChanges) != allowed {
-				return false
-			}
-		*/
+        /*
+        if len(r.NucleotideChanges) != allowed {
+            return false
+        }
+        */
 
+        /*
 		if len(r.NucleotideChanges) < allowed+5 {
 			return false
 		}
+        */
 
-		var class string
+        var class string
+
+        display := func() {
+            fmt.Println(class, len(r.NucleotideChanges),
+            r.GisaidAccession, r.SampleSRA, r.Country,
+            r.CollectionDate.Format(time.DateOnly))
+        }
 
 		if C1 {
 			if C2 {
 				class = "CC"
-				// fmt.Println(r.GisaidAccession)
-				/*
-					fmt.Println(len(r.NucleotideChanges), r.GisaidAccession,
-						r.Country, r.CollectionDate.Format(time.DateOnly))
-				*/
+                display()
 			} else {
 				class = "CT"
-				fmt.Println(r.GisaidAccession)
+				// fmt.Println(r.GisaidAccession)
 			}
 		} else {
 			if C2 {
 				class = "TC"
-				fmt.Println(r.GisaidAccession)
+				// fmt.Println(r.GisaidAccession)
 			} else {
 				class = "TT"
-				// fmt.Println(r.GisaidAccession)
-				/*
-					fmt.Println(len(r.NucleotideChanges), r.GisaidAccession,
-						r.Country, r.CollectionDate.Format(time.DateOnly))
-				*/
-				/*
-					fmt.Println(len(r.NucleotideChanges),
-						r.GisaidAccession, r.Country)
-				*/
+                display()
 			}
 		}
 		counts[class]++
