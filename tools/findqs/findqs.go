@@ -7,9 +7,38 @@ import (
 	"genomics/pileup"
 	"log"
 	"strings"
+	"slices"
 )
 
+func printSorted(counts map[int]int) {
+	type record struct {
+		k, v int
+	}
+	records := make([]record, 0, len(counts))
+	total := 0
+	for k, v := range counts {
+		records = append(records, record{k, v})
+		total += v
+	}
+	slices.SortFunc(records, func(a, b record) int {
+		if a.v < b.v {
+			return 1
+		}
+		if a.v > b.v {
+			return -1
+		}
+		return 0
+	})
+
+	fmt.Printf("Total matches: %d\n", total)
+	for _, rec := range records {
+		fmt.Printf("%d: %d\n", rec.k, rec.v)
+	}
+}
+
 func Compare(pileup *pileup.Pileup, g *genomes.Genomes, minDepth int) {
+	counts := make(map[int]int)
+
 	for i := 0; i < g.Length(); i++ {
 		rec := pileup.Get(i)
 		if rec == nil {
@@ -22,14 +51,15 @@ func Compare(pileup *pileup.Pileup, g *genomes.Genomes, minDepth int) {
 			if read.Depth <= minDepth {
 				continue
 			}
+
 			matches := make([]string, 0)
+
 			for j := 1; j < g.NumGenomes(); j++ {
 				if read.Nt == g.Nts[j][i] {
 					matches = append(matches, fmt.Sprintf("%d", j))
+					counts[j]++
 				}
 			}
-
-			// Count up which others were matched most often YOU ARE HERE
 
 			if len(matches) != 0 {
 				fmt.Printf("%d%c depth:%d rank:%d matches:%s\n", rec.Pos+1,
@@ -37,6 +67,7 @@ func Compare(pileup *pileup.Pileup, g *genomes.Genomes, minDepth int) {
 			}
 		}
 	}
+	printSorted(counts)
 }
 
 func main() {
