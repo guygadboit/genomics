@@ -6,8 +6,8 @@ import (
 	"genomics/genomes"
 	"genomics/pileup"
 	"log"
-	"strings"
 	"slices"
+	"strings"
 )
 
 func printSorted(counts map[int]int) {
@@ -36,7 +36,8 @@ func printSorted(counts map[int]int) {
 	}
 }
 
-func Compare(pileup *pileup.Pileup, g *genomes.Genomes, minDepth int) {
+func Compare(pileup *pileup.Pileup,
+	g *genomes.Genomes, minDepth int, requireSilent bool) {
 	counts := make(map[int]int)
 
 	for i := 0; i < g.Length(); i++ {
@@ -53,8 +54,16 @@ func Compare(pileup *pileup.Pileup, g *genomes.Genomes, minDepth int) {
 			}
 
 			matches := make([]string, 0)
+			alleles := make(map[byte]int)
 
 			for j := 1; j < g.NumGenomes(); j++ {
+				alleles[g.Nts[j][i]]++
+				if requireSilent {
+					if silent, _, _ := genomes.IsSilentWithReplacement(g,
+						i, j, j, []byte{read.Nt}); !silent {
+						continue
+					}
+				}
 				if read.Nt == g.Nts[j][i] {
 					matches = append(matches, fmt.Sprintf("%d", j))
 					counts[j]++
@@ -62,8 +71,12 @@ func Compare(pileup *pileup.Pileup, g *genomes.Genomes, minDepth int) {
 			}
 
 			if len(matches) != 0 {
-				fmt.Printf("%d%c depth:%d rank:%d matches:%s\n", rec.Pos+1,
+				fmt.Printf("%d%c depth:%d rank:%d matches:%s ", rec.Pos+1,
 					read.Nt, read.Depth, rank, strings.Join(matches, ","))
+				for k, v := range alleles {
+					fmt.Printf("%c:%d ", k, v)
+				}
+				fmt.Printf("\n")
 			}
 		}
 	}
@@ -74,11 +87,13 @@ func main() {
 	var (
 		fasta, orfs string
 		minDepth    int
+		silent      bool
 	)
 
 	flag.StringVar(&fasta, "fasta", "", "Reference alignment")
 	flag.StringVar(&orfs, "orfs", "", "Reference ORFs")
 	flag.IntVar(&minDepth, "min-depth", 4, "Minimum depth")
+	flag.BoolVar(&silent, "silent", false, "Require silent")
 	flag.Parse()
 
 	g := genomes.LoadGenomes(fasta, orfs, false)
@@ -88,6 +103,6 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		Compare(pileup, g, minDepth)
+		Compare(pileup, g, minDepth, silent)
 	}
 }
