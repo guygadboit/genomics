@@ -4,7 +4,9 @@ import (
 	"flag"
 	"fmt"
 	"genomics/genomes"
+	"genomics/mutations"
 	"genomics/pileup"
+	"genomics/stats"
 	"log"
 	"slices"
 	"strings"
@@ -46,6 +48,48 @@ func majority(alleles map[byte]int) byte {
 		}
 	}
 	return ret
+}
+
+func iterateSilent(g *genomes.Genomes, cb func(int, byte)) {
+	for _, mut := range mutations.PossibleSilentMuts(g, 0) {
+		cb(mut.Pos, mut.To)
+	}
+}
+
+func iterateAll(g *genomes.Genomes, cb func(int, byte)) {
+	for i := 0; i < g.Length(); i++ {
+		for _, nt := range []byte{'G', 'A', 'T', 'C'} {
+			if nt != g.Nts[0][i] {
+				cb(i, nt)
+			}
+		}
+	}
+}
+
+
+func ExpectedMajorityRate(g *genomes.Genomes,
+	requireSilent bool) (int, int, float64) {
+	var iterate func(g *genomes.Genomes, cb func(int, byte))
+	if requireSilent {
+		iterate = iterateSilent
+	} else {
+		iterate = iterateAll
+	}
+
+	var count, total int
+	iterate(g, func(pos int, nt byte) {
+		alleles := make(map[byte]int)
+		for i := 1; i < g.NumGenomes(); i++ {
+			alleles[g.Nts[i][pos]]++
+		}
+		if majority(alleles) == nt {
+			count++
+		}
+		total++
+	})
+
+	fmt.Println(count, total)
+	return count, total-count, float64(count)/float64(total)
 }
 
 func Compare(pileup *pileup.Pileup,
@@ -111,8 +155,18 @@ func Compare(pileup *pileup.Pileup,
 		}
 	}
 	rate := float64(totalMaj)/float64(diffs)
-	fmt.Printf("%d/%d %.2f are majority\n", totalMaj, diffs, rate)
 	printSorted(counts)
+
+	a, b, rate := totalMaj, diffs - totalMaj, float64(totalMaj)/float64(diffs)
+	c, d, expectedRate := ExpectedMajorityRate(g, requireSilent)
+
+	fmt.Printf("%d/%d %.2f are majority\n", totalMaj, diffs, rate)
+	fmt.Printf("Expected majority rate: %.2f\n", expectedRate)
+
+	var ct stats.ContingencyTable
+	ct.Init(a, b, c, d)
+	OR, p := ct.FisherExact(stats.GREATER)
+	fmt.Printf("OR=%.2f p=%g\n", OR, p)
 }
 
 func main() {
