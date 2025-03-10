@@ -142,7 +142,7 @@ func compareTransitionCounters[T Transition](
 		fmt.Fprintf(w, "%s %d", k, a.Counts[k])
 		if i < 6 {
 			ct := CompareTransition(a, b, k)
-			ct.FisherExact()
+			ct.FisherExact(stats.LESS)
 			fmt.Fprintf(w, " OR=%.4f p=%g\n", ct.OR, ct.P)
 		} else {
 			fmt.Fprintf(w, "\n")

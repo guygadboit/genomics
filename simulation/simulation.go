@@ -22,7 +22,8 @@ func MakeSimulatedMutant(g *genomes.Genomes,
 	silent, _ := mutations.CountMutations(g2)
 
 	if nd == nil {
-		nd = mutations.NewNucDistro(g2)
+		nd = mutations.NewNucDistro(mutations.NewGenomeIterator(g2),
+			mutations.NT_ALPHABET)
 	}
 
 	ret := g.Filter(a, b)
@@ -50,7 +51,8 @@ func MakeSimulatedMutant2(g *genomes.Genomes,
 	silent, nonSilent := mutations.CountMutations(g2)
 
 	if nd == nil {
-		nd = mutations.NewNucDistro(g2)
+		nd = mutations.NewNucDistro(mutations.NewGenomeIterator(g2),
+			mutations.NT_ALPHABET)
 	}
 
 	ret := g.Filter(a, a)
@@ -73,7 +75,8 @@ func MakeSimulatedMutant3(g *genomes.Genomes,
 	sSingles, _ := mutations.CountMutations(g2)
 
 	if nd == nil {
-		nd = mutations.NewNucDistro(g2)
+		nd = mutations.NewNucDistro(mutations.NewGenomeIterator(g2),
+			mutations.NT_ALPHABET)
 	}
 
 	ret := g.Filter(a, b)
@@ -99,7 +102,8 @@ func MakeSimulatedMutant4(g *genomes.Genomes,
 	sSingles, nsSingles := mutations.CountMutations(g2)
 
 	if nd == nil {
-		nd = mutations.NewNucDistro(g2)
+		nd = mutations.NewNucDistro(mutations.NewGenomeIterator(g2),
+			mutations.NT_ALPHABET)
 	}
 
 	ret := g.Filter(a, a)

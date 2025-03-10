@@ -164,7 +164,8 @@ func CompareToSim(g *genomes.Genomes, length int, minMuts int,
 	pairTables := make([]PairTable, 0)
 	var simTotal, realTotal, numComparisons int
 	n := g.NumGenomes()
-	nd := mutations.NewNucDistro(g)
+	nd := mutations.NewNucDistro(mutations.NewGenomeIterator(g),
+			mutations.NT_ALPHABET)
 	l := g.Length()
 
 	var realMap, simMap TransitionMap
@@ -236,7 +237,7 @@ func CompareToSim(g *genomes.Genomes, length int, minMuts int,
 	simAverage := average(simTotal, numComparisons)
 
 	ct.Init(realAverage, l-realAverage, simAverage, l-simAverage)
-	ct.FisherExact()
+	ct.FisherExact(stats.GREATER)
 
 	realMap.Finalize()
 	simMap.Finalize()
@@ -292,7 +293,7 @@ func printPairTables(fname string, pts []PairTable) {
 	for i, pt := range pts {
 		fmt.Fprintf(w, "%d-%d %s OR=%.4f", pt.a, pt.b, pt.String(), pt.OR)
 		if i < 6 {
-			pt.FisherExact()
+			pt.FisherExact(stats.GREATER)
 			fmt.Fprintf(w, " p=%g\n", pt.P)
 		} else {
 			fmt.Fprintf(w, "\n")
@@ -359,8 +360,12 @@ func main() {
 		var concs Concentrations
 		concs.Find(g2, 2, 2, requireSilent)
 		fmt.Printf("%d doubles found\n", len(concs.Concs))
-		highlights := CreateHighlights(concs.Concs)
 
+		for _, c := range concs.Concs {
+			fmt.Printf("%d\n", c.Pos+1)
+		}
+
+		highlights := CreateHighlights(concs.Concs)
 		g2.SaveWithTranslation("highlights.clu", highlights)
 		fmt.Printf("Written highlights.clu\n")
 		return
