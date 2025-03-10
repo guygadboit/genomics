@@ -50,25 +50,25 @@ func majority(alleles map[byte]int) byte {
 	return ret
 }
 
-func iterateSilent(g *genomes.Genomes, cb func(int, byte)) {
+func iterateSilent(g *genomes.Genomes, cb func(int, byte, byte)) {
 	for _, mut := range mutations.PossibleSilentMuts(g, 0) {
-		cb(mut.Pos, mut.To)
+		cb(mut.Pos, mut.From, mut.To)
 	}
 }
 
-func iterateAll(g *genomes.Genomes, cb func(int, byte)) {
+func iterateAll(g *genomes.Genomes, cb func(int, byte, byte)) {
 	for i := 0; i < g.Length(); i++ {
 		for _, nt := range []byte{'G', 'A', 'T', 'C'} {
 			if nt != g.Nts[0][i] {
-				cb(i, nt)
+				cb(i, g.Nts[0][i], nt)
 			}
 		}
 	}
 }
 
 func ExpectedMajorityRate(g *genomes.Genomes,
-	requireSilent bool) (int, int, float64) {
-	var iterate func(g *genomes.Genomes, cb func(int, byte))
+	requireSilent bool, requireTC bool) (int, int, float64) {
+	var iterate func(g *genomes.Genomes, cb func(int, byte, byte))
 	if requireSilent {
 		iterate = iterateSilent
 	} else {
@@ -76,12 +76,17 @@ func ExpectedMajorityRate(g *genomes.Genomes,
 	}
 
 	var count, total int
-	iterate(g, func(pos int, nt byte) {
+	iterate(g, func(pos int, from, to byte) {
+		if requireTC {
+			if from != 'T' || to != 'C' {
+				return
+			}
+		}
 		alleles := make(map[byte]int)
 		for i := 1; i < g.NumGenomes(); i++ {
 			alleles[g.Nts[i][pos]]++
 		}
-		if majority(alleles) == nt {
+		if majority(alleles) == to {
 			count++
 		}
 		total++
@@ -92,8 +97,8 @@ func ExpectedMajorityRate(g *genomes.Genomes,
 }
 
 func ExpectedMatchRate(g *genomes.Genomes,
-	requireSilent bool) (int, int, float64) {
-	var iterate func(g *genomes.Genomes, cb func(int, byte))
+	requireSilent bool, requireTC bool) (int, int, float64) {
+	var iterate func(g *genomes.Genomes, cb func(int, byte, byte))
 	if requireSilent {
 		iterate = iterateSilent
 	} else {
@@ -101,9 +106,14 @@ func ExpectedMatchRate(g *genomes.Genomes,
 	}
 
 	var count, total int
-	iterate(g, func(pos int, nt byte) {
+	iterate(g, func(pos int, from, to byte) {
 		for i := 1; i < g.NumGenomes(); i++ {
-			if g.Nts[i][pos] == nt {
+			if requireTC {
+				if from != 'T' || to != 'C' {
+					return
+				}
+			}
+			if g.Nts[i][pos] == to {
 				count++
 				break
 			}
@@ -116,7 +126,7 @@ func ExpectedMatchRate(g *genomes.Genomes,
 }
 
 func Compare(pileup *pileup.Pileup,
-	g *genomes.Genomes, minDepth int, requireSilent bool) {
+	g *genomes.Genomes, minDepth int, requireSilent bool, requireTC bool) {
 	counts := make(map[int]int)
 
 	// The total number of differences from g.Nts[0] with at least minDepth,
@@ -145,6 +155,12 @@ func Compare(pileup *pileup.Pileup,
 				i, 0, 0, []byte{read.Nt})
 			if requireSilent && !silent {
 				continue
+			}
+
+			if requireTC {
+				if read.Nt != 'C' || g.Nts[0][i] != 'T' {
+					continue
+				}
 			}
 
 			diffs++
@@ -189,7 +205,7 @@ func Compare(pileup *pileup.Pileup,
 	printSorted(counts)
 
 	a, b, rate := totalMaj, diffs-totalMaj, float64(totalMaj)/float64(diffs)
-	c, d, expectedRate := ExpectedMajorityRate(g, requireSilent)
+	c, d, expectedRate := ExpectedMajorityRate(g, requireSilent, requireTC)
 
 	fmt.Printf("%d/%d %.2f are majority\n", totalMaj, diffs, rate)
 	fmt.Printf("Expected majority rate: %.2f\n", expectedRate)
@@ -203,7 +219,7 @@ func Compare(pileup *pileup.Pileup,
 
 	a, b, rate = totalMatches,
 		diffs-totalMatches, float64(totalMatches)/float64(diffs)
-	c, d, expectedRate = ExpectedMatchRate(g, requireSilent)
+	c, d, expectedRate = ExpectedMatchRate(g, requireSilent, requireTC)
 
 	fmt.Printf("%d/%d %.2f matches\n", totalMatches, diffs, rate)
 	fmt.Printf("Expected match rate: %.2f\n", expectedRate)
@@ -218,12 +234,14 @@ func main() {
 		fasta, orfs string
 		minDepth    int
 		silent      bool
+		tc          bool
 	)
 
 	flag.StringVar(&fasta, "fasta", "", "Reference alignment")
 	flag.StringVar(&orfs, "orfs", "", "Reference ORFs")
 	flag.IntVar(&minDepth, "min-depth", 4, "Minimum depth")
 	flag.BoolVar(&silent, "silent", false, "Require silent")
+	flag.BoolVar(&tc, "tc", false, "Only look at TC")
 	flag.Parse()
 
 	g := genomes.LoadGenomes(fasta, orfs, false)
@@ -233,6 +251,6 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		Compare(pileup, g, minDepth, silent)
+		Compare(pileup, g, minDepth, silent, tc)
 	}
 }
