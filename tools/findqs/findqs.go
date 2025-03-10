@@ -66,7 +66,6 @@ func iterateAll(g *genomes.Genomes, cb func(int, byte)) {
 	}
 }
 
-
 func ExpectedMajorityRate(g *genomes.Genomes,
 	requireSilent bool) (int, int, float64) {
 	var iterate func(g *genomes.Genomes, cb func(int, byte))
@@ -89,7 +88,31 @@ func ExpectedMajorityRate(g *genomes.Genomes,
 	})
 
 	fmt.Println(count, total)
-	return count, total-count, float64(count)/float64(total)
+	return count, total - count, float64(count) / float64(total)
+}
+
+func ExpectedMatchRate(g *genomes.Genomes,
+	requireSilent bool) (int, int, float64) {
+	var iterate func(g *genomes.Genomes, cb func(int, byte))
+	if requireSilent {
+		iterate = iterateSilent
+	} else {
+		iterate = iterateAll
+	}
+
+	var count, total int
+	iterate(g, func(pos int, nt byte) {
+		for i := 1; i < g.NumGenomes(); i++ {
+			if g.Nts[i][pos] == nt {
+				count++
+				break
+			}
+		}
+		total++
+	})
+
+	fmt.Println(count, total)
+	return count, total - count, float64(count) / float64(total)
 }
 
 func Compare(pileup *pileup.Pileup,
@@ -102,6 +125,9 @@ func Compare(pileup *pileup.Pileup,
 
 	// The number of diffs that match the majority allele in the outgroup
 	totalMaj := 0
+
+	// The number of diffs that match something in the outgroup
+	totalMatches := 0
 
 	for i := 0; i < g.Length(); i++ {
 		rec := pileup.Get(i)
@@ -125,12 +151,17 @@ func Compare(pileup *pileup.Pileup,
 			matches := make([]string, 0)
 			alleles := make(map[byte]int)
 
+			var matched bool
 			for j := 1; j < g.NumGenomes(); j++ {
 				alleles[g.Nts[j][i]]++
 				if read.Nt == g.Nts[j][i] {
 					matches = append(matches, fmt.Sprintf("%d", j))
 					counts[j]++
+					matched = true
 				}
+			}
+			if matched {
+				totalMatches++
 			}
 
 			var silentS string
@@ -154,10 +185,10 @@ func Compare(pileup *pileup.Pileup,
 			fmt.Printf("\n")
 		}
 	}
-	rate := float64(totalMaj)/float64(diffs)
+	rate := float64(totalMaj) / float64(diffs)
 	printSorted(counts)
 
-	a, b, rate := totalMaj, diffs - totalMaj, float64(totalMaj)/float64(diffs)
+	a, b, rate := totalMaj, diffs-totalMaj, float64(totalMaj)/float64(diffs)
 	c, d, expectedRate := ExpectedMajorityRate(g, requireSilent)
 
 	fmt.Printf("%d/%d %.2f are majority\n", totalMaj, diffs, rate)
@@ -166,7 +197,20 @@ func Compare(pileup *pileup.Pileup,
 	var ct stats.ContingencyTable
 	ct.Init(a, b, c, d)
 	OR, p := ct.FisherExact(stats.GREATER)
-	fmt.Printf("OR=%.2f p=%g\n", OR, p)
+	fmt.Printf("Majority matches: OR=%.2f p=%g\n", OR, p)
+
+	fmt.Println()
+
+	a, b, rate = totalMatches,
+		diffs-totalMatches, float64(totalMatches)/float64(diffs)
+	c, d, expectedRate = ExpectedMatchRate(g, requireSilent)
+
+	fmt.Printf("%d/%d %.2f matches\n", totalMatches, diffs, rate)
+	fmt.Printf("Expected match rate: %.2f\n", expectedRate)
+
+	ct.Init(a, b, c, d)
+	OR, p = ct.FisherExact(stats.GREATER)
+	fmt.Printf("Matches: OR=%.2f p=%g\n", OR, p)
 }
 
 func main() {
