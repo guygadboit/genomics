@@ -95,15 +95,15 @@ func getSources() []Source {
 		{"Treponema", bacRoot + "Treponema/Treponema.fasta.gz"},
 		{"HCoVs", "../fasta/HCoVs.fasta"},
 		/*
-		{"StrepPyogenes", bacRoot + "StrepPyogenes/StrepPyogenes.fasta.gz"},
-		{"StrepPneum", bacRoot + "StrepPneum/StrepPneum.fasta.gz"},
-		{"Mycoplasma", bacRoot + "Mycoplasma/Mycoplasma.fasta.gz"},
-		{"OT", bacRoot + "OT/OT.fasta.gz"},
-		{"Porphyromonas", bacRoot + "Porphyromonas/Porphyromonas.fasta.gz"},
-		{"AActinom", bacRoot + "AActinom/AActinom.fasta.gz"},
-		{"TForsyth", bacRoot + "TForsyth/TForsyth.fasta.gz"},
-		{"Treponema", bacRoot + "Treponema/Treponema.fasta.gz"},
-		{"BactFragilis", bacRoot + "BactFragilis/BactFragilis.fasta.gz"},
+			{"StrepPyogenes", bacRoot + "StrepPyogenes/StrepPyogenes.fasta.gz"},
+			{"StrepPneum", bacRoot + "StrepPneum/StrepPneum.fasta.gz"},
+			{"Mycoplasma", bacRoot + "Mycoplasma/Mycoplasma.fasta.gz"},
+			{"OT", bacRoot + "OT/OT.fasta.gz"},
+			{"Porphyromonas", bacRoot + "Porphyromonas/Porphyromonas.fasta.gz"},
+			{"AActinom", bacRoot + "AActinom/AActinom.fasta.gz"},
+			{"TForsyth", bacRoot + "TForsyth/TForsyth.fasta.gz"},
+			{"Treponema", bacRoot + "Treponema/Treponema.fasta.gz"},
+			{"BactFragilis", bacRoot + "BactFragilis/BactFragilis.fasta.gz"},
 		*/
 		/*
 			{"Cod", root + "cod/cod.fasta.gz"},
@@ -132,7 +132,28 @@ func getSources() []Source {
 	}
 }
 
+func Relatives() {
+	g := genomes.LoadGenomes("../fasta/SARS2-relatives-short-names.fasta",
+		"../fasta/WH1.orfs", false)
+
+	for i := 0; i < g.NumGenomes(); i++ {
+		cg, total := 0, 0
+		dm := FindDinucs(g, i, 2)
+		for k, v := range dm {
+			if k == "CG" {
+				cg += v
+			}
+			total += v
+		}
+		fmt.Printf("%d %s: %d/%d %f\n", i,
+			g.Names[i], cg, total, float64(cg*100000)/float64(total))
+	}
+}
+
 func main() {
+	Relatives()
+	return
+
 	sources := getSources()
 
 	for i := 0; i < len(sources); i++ {
