@@ -65,6 +65,8 @@ func main() {
 		}
 	}
 
-	g.SaveMulti(output)
-	fmt.Printf("Wrote %s\n", output)
+	if output != "" {
+		g.SaveMulti(output)
+		fmt.Printf("Wrote %s\n", output)
+	}
 }
