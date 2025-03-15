@@ -14,18 +14,39 @@ import (
 	"genomics/genomes"
 	"genomics/pileup"
 	"log"
+	"strings"
 )
+
+func showPileup(pu *pileup.Pileup) {
+	for i := 0; i < pu.MaxPos; i++ {
+		recordI, there := pu.Index[i]
+		if !there {
+			fmt.Printf("%d:\n")
+			continue
+		}
+
+		record := &pu.Records[recordI]
+
+		items := make([]string, len(record.Reads))
+		for i, read := range record.Reads {
+			items[i] = fmt.Sprintf("%cx%d", read.Nt, read.Depth)
+		}
+		fmt.Printf("%d: %s\n", record.Pos, strings.Join(items, ", "))
+	}
+}
 
 func main() {
 	var (
 		reference, output    string
 		verbose, veryVerbose bool
+		justShow             bool
 	)
 
 	flag.StringVar(&reference, "ref", "", "Reference genome")
 	flag.StringVar(&output, "o", "output.fasta", "Output name")
 	flag.BoolVar(&verbose, "v", false, "verbose")
 	flag.BoolVar(&veryVerbose, "vv", false, "very verbose")
+	flag.BoolVar(&justShow, "show", false, "Just show counts in the pileup")
 	flag.Parse()
 
 	if len(flag.Args()) != 1 {
@@ -33,12 +54,17 @@ func main() {
 		return
 	}
 
-	g := genomes.LoadGenomes(reference, "", false)
-
 	pileup, err := pileup.Parse(flag.Args()[0])
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	if justShow {
+		showPileup(pileup)
+		return
+	}
+
+	g := genomes.LoadGenomes(reference, "", false)
 
 	// The second genome will be what we find in the pileup
 	g = g.Filter(0, 0)

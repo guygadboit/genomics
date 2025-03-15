@@ -21,6 +21,7 @@ type Pileup struct {
 	// just be 1:1 most of the time since you will have reads at every position
 	Index   map[int]int
 	Records []Record
+	MaxPos  int
 }
 
 func (p *Pileup) Init() {
@@ -30,7 +31,10 @@ func (p *Pileup) Init() {
 
 func (p *Pileup) Add(pos int, reads []Read) {
 	p.Records = append(p.Records, Record{pos, reads})
-	p.Index[pos] = len(p.Records)-1
+	p.Index[pos] = len(p.Records) - 1
+	if pos > p.MaxPos {
+		p.MaxPos = pos
+	}
 }
 
 func (p *Pileup) Get(pos int) *Record {
