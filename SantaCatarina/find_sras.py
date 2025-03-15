@@ -1,4 +1,5 @@
 import bs4
+import sys
 import urllib3
 from pdb import set_trace as brk
 
@@ -16,8 +17,9 @@ def find_sra(wrapper):
 def main():
 	# OK sometimes there's more than 1. Then you end up on a page with a couple
 	# more links. So you need to think about whether you want to chase that.
-	t = find_sra("SRS6395995")
-	print(t)
+	for arg in sys.argv[1:]:
+		t = find_sra(arg)
+		print(t)
 	return
 
 	with open("read_info.txt") as fp:

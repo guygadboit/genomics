@@ -329,11 +329,11 @@ func EarlyLineages(db *database.Database) {
 			}
 		*/
 
-        /*
-		if len(r.NucleotideChanges) > 2 {
-			return false
-		}
-        */
+		/*
+			if len(r.NucleotideChanges) > 2 {
+				return false
+			}
+		*/
 
 		C1, C2 := true, false
 		allowed := 0
@@ -348,11 +348,11 @@ func EarlyLineages(db *database.Database) {
 			}
 		}
 
-        /*
-		if len(r.NucleotideChanges) != allowed {
-			return false
-		}
-        */
+		/*
+			if len(r.NucleotideChanges) != allowed {
+				return false
+			}
+		*/
 
 		/*
 			if len(r.NucleotideChanges) < allowed+5 {
@@ -393,9 +393,25 @@ func EarlyLineages(db *database.Database) {
 	fmt.Println(counts)
 }
 
+func EarlyReads(db *database.Database) {
+	db.Filter(nil, func(r *database.Record) bool {
+		if r.Host != "Human" {
+			return false
+		}
+		if r.SampleSRA == "" {
+			return false
+		}
+		fmt.Println(len(r.NucleotideChanges),
+			r.GisaidAccession, r.SampleSRA, r.Country,
+			r.CollectionDate.Format(time.DateOnly))
+		return true
+	})
+}
+
 func main() {
 	db := database.NewDatabase()
-	EarlyLineages(db)
+	EarlyReads(db)
+	// EarlyLineages(db)
 	// NoMuts(db)
 	// RdRPVariants(db)
 	// Pangolin(db)

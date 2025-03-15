@@ -13,25 +13,34 @@ import (
 	"fmt"
 	"genomics/genomes"
 	"genomics/pileup"
+	"genomics/utils"
 	"log"
 	"strings"
 )
 
-func showPileup(pu *pileup.Pileup) {
-	for i := 0; i < pu.MaxPos; i++ {
-		recordI, there := pu.Index[i]
+func showPileup(pu *pileup.Pileup, onlyPos []int) {
+	displayRecord := func(pos int) {
+		recordI, there := pu.Index[pos]
 		if !there {
 			fmt.Printf("%d:\n")
-			continue
+			return
 		}
-
 		record := &pu.Records[recordI]
-
 		items := make([]string, len(record.Reads))
 		for i, read := range record.Reads {
 			items[i] = fmt.Sprintf("%cx%d", read.Nt, read.Depth)
 		}
-		fmt.Printf("%d: %s\n", record.Pos, strings.Join(items, ", "))
+		fmt.Printf("%d: %s\n", record.Pos+1, strings.Join(items, ", "))
+	}
+
+	if onlyPos != nil {
+		for _, pos := range onlyPos {
+			displayRecord(pos)
+		}
+	} else {
+		for i := 0; i < pu.MaxPos; i++ {
+			displayRecord(i)
+		}
 	}
 }
 
@@ -40,6 +49,7 @@ func main() {
 		reference, output    string
 		verbose, veryVerbose bool
 		justShow             bool
+		showPosS             string
 	)
 
 	flag.StringVar(&reference, "ref", "", "Reference genome")
@@ -47,6 +57,7 @@ func main() {
 	flag.BoolVar(&verbose, "v", false, "verbose")
 	flag.BoolVar(&veryVerbose, "vv", false, "very verbose")
 	flag.BoolVar(&justShow, "show", false, "Just show counts in the pileup")
+	flag.StringVar(&showPosS, "pos", "", "Positions to show")
 	flag.Parse()
 
 	if len(flag.Args()) != 1 {
@@ -59,8 +70,17 @@ func main() {
 		log.Fatal(err)
 	}
 
+	var showPositions []int
+	if showPosS != "" {
+		justShow = true
+		showPositions = utils.ParseInts(showPosS, ",")
+		for i, v := range showPositions {
+			showPositions[i] = v - 1
+		}
+	}
+
 	if justShow {
-		showPileup(pileup)
+		showPileup(pileup, showPositions)
 		return
 	}
 
