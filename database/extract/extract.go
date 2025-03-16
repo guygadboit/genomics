@@ -53,6 +53,9 @@ func main() {
 		id := ids[0]
 		r := db.Records[id]
 
+		if r.Host != "Human" {
+			fmt.Printf("%s: ", r.Host)
+		}
 		fmt.Println(r.Summary())
 
 		if reconstruct {
