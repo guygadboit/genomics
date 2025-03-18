@@ -57,7 +57,7 @@ func main() {
 	flag.BoolVar(&verbose, "v", false, "verbose")
 	flag.BoolVar(&veryVerbose, "vv", false, "very verbose")
 	flag.BoolVar(&justShow, "show", false, "Just show counts in the pileup")
-	flag.StringVar(&showPosS, "pos", "", "Positions to show")
+	flag.StringVar(&showPosS, "pos", "", "Positions to show counts for")
 	flag.Parse()
 
 	if len(flag.Args()) != 1 {
