@@ -29,7 +29,8 @@ func main() {
 	g := genomes.LoadGenomes("../fasta/WH1-P2S.fasta",
 		"../fasta/WH1.orfs", false)
 
-	iterations := 1000
+	iterations := 2633 * 100
 	matches := Test(g, iterations, 75)
-	fmt.Printf("Matched %d out of %d\n", matches, iterations)
+	rate := float64(matches)/float64(iterations)
+	fmt.Printf("Matched %d out of %d (%.2f)\n", matches, iterations, rate)
 }
