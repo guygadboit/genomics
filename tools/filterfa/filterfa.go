@@ -10,17 +10,17 @@ import (
 )
 
 func SortedSimilarity(g *genomes.Genomes) {
-	type SSResult struct {
+	type result struct {
 		index int
 		ss    float64
 	}
 
-	results := make([]SSResult, g.NumGenomes())
+	results := make([]result, g.NumGenomes())
 	for i := 0; i < g.NumGenomes(); i++ {
-		results[i] = SSResult{i, g.SequenceSimilarity(i, 0)}
+		results[i] = result{i, g.SequenceSimilarity(i, 0)}
 	}
 
-	slices.SortFunc(results, func(a, b SSResult) int {
+	slices.SortFunc(results, func(a, b result) int {
 		if a.ss < b.ss {
 			return 1
 		}
@@ -35,16 +35,46 @@ func SortedSimilarity(g *genomes.Genomes) {
 	}
 }
 
+func ExhaustiveSimilarity(g *genomes.Genomes) {
+	type result struct {
+		a, b int
+		ss   float64
+	}
+
+	results := make([]result, 0)
+	for i := 0; i < g.NumGenomes(); i++ {
+		for j := i + 1; j < g.NumGenomes(); j++ {
+			results = append(results, result{i, j, g.SequenceSimilarity(i, j)})
+		}
+	}
+
+	slices.SortFunc(results, func(a, b result) int {
+		if a.ss < b.ss {
+			return 1
+		}
+		if a.ss > b.ss {
+			return -1
+		}
+		return 0
+	})
+
+	for _, r := range results {
+		fmt.Printf("%d %s,%d %s: %.2f%%\n",
+			r.a, g.Names[r.a], r.b, g.Names[r.b], r.ss*100)
+	}
+}
+
 func main() {
 	var include, exclude, outName string
-	var summary, ss, sss bool
+	var summary, ss, sss, ess bool
 	var removeGaps bool
 
 	flag.StringVar(&include, "i", "", "Genomes to include")
 	flag.StringVar(&exclude, "e", "", "Genomes to exclude")
 	flag.BoolVar(&summary, "s", false, "Summary")
 	flag.BoolVar(&ss, "ss", false, "Similiarity summary")
-	flag.BoolVar(&sss, "sss", false, "Sorted Similiarity summary")
+	flag.BoolVar(&sss, "sss", false, "Sorted similiarity summary")
+	flag.BoolVar(&ess, "ess", false, "Exhaustive similarity summary")
 	flag.BoolVar(&removeGaps, "g", false, "Remove Gaps")
 	flag.StringVar(&outName, "o", "filtered.fasta", "Output filename")
 	flag.Parse()
@@ -65,6 +95,9 @@ func main() {
 		return
 	} else if sss {
 		SortedSimilarity(g)
+		return
+	} else if ess {
+		ExhaustiveSimilarity(g)
 		return
 	}
 
