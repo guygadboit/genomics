@@ -64,8 +64,14 @@ func (l LocationMap) PrintSorted(fp *bufio.Writer) {
 }
 
 type Transition struct {
-	from, to byte
+	from, to byte // 'N' means anything
 	silent   bool
+}
+
+func (t *Transition) Matches(from, to byte) bool {
+	fromMatch := t.from == 'N' || t.from == from
+	toMatch := t.to == 'N' || t.to == to
+	return fromMatch && toMatch
 }
 
 func FindPossible(t Transition) LocationMap {
@@ -74,7 +80,7 @@ func FindPossible(t Transition) LocationMap {
 
 	if t.silent {
 		for _, m := range mutations.PossibleSilentMuts(g, 0) {
-			if m.From == t.from && m.To == t.to {
+			if t.Matches(m.From, m.To) {
 				ret[utils.OneBasedPos(m.Pos+1)] = 0
 			}
 		}
@@ -96,7 +102,7 @@ Also return the number of locations with zero sequences having the transition
 there.
 */
 func Distribution(db *database.Database, trans Transition,
-	maxMuts int, after *time.Time) (LocationMap, int, int) {
+	maxMuts int, after *time.Time, verbose bool) (LocationMap, int, int) {
 	ret := FindPossible(trans)
 	total := len(ret)
 
@@ -123,9 +129,12 @@ func Distribution(db *database.Database, trans Transition,
 			if !there {
 				continue
 			}
-			if m.From == trans.from && m.To == trans.to {
+
+			if trans.Matches(m.From, m.To) {
 				ret[m.Pos]++
-				// fmt.Println(r.Summary())
+				if verbose {
+					fmt.Println(r.Summary())
+				}
 			}
 		}
 		return false
@@ -180,6 +189,7 @@ func main() {
 		silent     bool
 		transition string
 		pos        int
+		verbose    bool
 	)
 
 	flag.IntVar(&maxMuts, "m", 1, "maximum number of mutations")
@@ -187,6 +197,7 @@ func main() {
 	flag.BoolVar(&silent, "silent", true, "silent only")
 	flag.StringVar(&transition, "t", "CT", "transition to look for")
 	flag.IntVar(&pos, "p", 8782, "Position to highlight")
+	flag.BoolVar(&verbose, "v", false, "verbose")
 	flag.Parse()
 
 	var from, to byte
@@ -205,7 +216,7 @@ func main() {
 
 	db := database.NewDatabase()
 	trans := Transition{from, to, silent}
-	distro, zeros, total := Distribution(db, trans, maxMuts, date)
+	distro, zeros, total := Distribution(db, trans, maxMuts, date, verbose)
 	nonZeros := total - zeros
 	fmt.Printf("%d/%d zeros (%d non-zeros)\n", zeros, total, nonZeros)
 
