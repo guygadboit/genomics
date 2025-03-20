@@ -184,8 +184,9 @@ type Record struct {
 	// won't work directly with fasterq-dump.
 	SampleSRA string // The SRA from
 
-	// The real SRA, once you unwrap those wrappers
-	SRA string
+	// The real SRAs, once you unwrap those wrappers. Usually there's only one
+	// but there can be more.
+	SRA []string
 }
 
 func (r *Record) ToString() string {
@@ -497,14 +498,17 @@ loop:
 	}
 }
 
-func (d *Database) AddSampleSRAs(fname string) {
+func (d *Database) AddSRAs(fname string) {
 	utils.Lines(fname, func(line string, err error) bool {
 		fields := strings.Fields(line)
-		accession, sra := fields[0], fields[1]
+		accession, wrapper, sra  := fields[0], fields[1], fields[2]
 
 		ids := d.GetByAccession(accession)
 		for _, id := range ids {
-			d.Records[id].SampleSRA = sra
+			d.Records[id].SampleSRA = wrapper
+			if sra != "NOTFOUND" {
+				d.Records[id].SRA = strings.Split(sra, ",")
+			}
 		}
 		return true
 	})
