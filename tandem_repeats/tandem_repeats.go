@@ -32,6 +32,20 @@ searching:
 	return ret
 }
 
+func count(repeats []int) (int, int) {
+	roiStart, roiEnd := 3000, 4500
+	var roi, others int
+
+	for _, r := range repeats {
+		if r >= roiStart && r < roiEnd {
+			roi++
+		} else {
+			others++
+		}
+	}
+	return roi, others
+}
+
 func main() {
 	var dealign, verbose bool
 
@@ -51,7 +65,9 @@ func main() {
 
 		for _, g := range gs {
 			repeats := FindTandemRepeats(g, 3, verbose)
-			fmt.Println(g.Names[0], len(repeats))
+			roi, others := count(repeats)
+			ratio := float64(roi * (30000/1500))/float64(others)
+			fmt.Printf("%s %d %d %.4f\n", g.Names[0], roi, others, ratio)
 			/*
 				for i := 10; i < 60; i++ {
 					FindTandemRepeats(g, i, true)

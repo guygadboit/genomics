@@ -398,10 +398,12 @@ func EarlyReads(db *database.Database) {
 		if r.Host != "Human" {
 			return false
 		}
-		if r.SampleSRA == "" {
+		if len(r.SRA) == 0 {
 			return false
 		}
-		fmt.Println(len(r.NucleotideChanges),
+		sras := strings.Join(r.SRA, ",")
+
+		fmt.Println(sras, len(r.NucleotideChanges),
 			r.GisaidAccession, r.SampleSRA, r.Country,
 			r.CollectionDate.Format(time.DateOnly))
 		return true
