@@ -33,10 +33,11 @@ searching:
 }
 
 func main() {
-	var dealign bool
+	var dealign, verbose bool
 
 	flag.BoolVar(&dealign, "d", false, "Dealign, i.e. assume input is an"+
 		"alignment, not something like human which needs merging")
+	flag.BoolVar(&verbose, "v", false, "Verbose")
 	flag.Parse()
 
 	for _, arg := range flag.Args() {
@@ -49,9 +50,13 @@ func main() {
 		}
 
 		for _, g := range gs {
-			for i := 10; i < 60; i++ {
-				FindTandemRepeats(g, i, true)
-			}
+			repeats := FindTandemRepeats(g, 3, verbose)
+			fmt.Println(g.Names[0], len(repeats))
+			/*
+				for i := 10; i < 60; i++ {
+					FindTandemRepeats(g, i, true)
+				}
+			*/
 		}
 	}
 }
