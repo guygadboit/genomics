@@ -20,32 +20,6 @@ import (
 	"strings"
 )
 
-func showPileup(pu *pileup.Pileup, onlyPos []int) {
-	displayRecord := func(pos int) {
-		recordI, there := pu.Index[pos]
-		if !there {
-			fmt.Printf("%d:\n", pos)
-			return
-		}
-		record := &pu.Records[recordI]
-		items := make([]string, len(record.Reads))
-		for i, read := range record.Reads {
-			items[i] = fmt.Sprintf("%cx%d", read.Nt, read.Depth)
-		}
-		fmt.Printf("%d: %s\n", record.Pos+1, strings.Join(items, ", "))
-	}
-
-	if onlyPos != nil {
-		for _, pos := range onlyPos {
-			displayRecord(pos)
-		}
-	} else {
-		for i := 0; i < pu.MaxPos; i++ {
-			displayRecord(i)
-		}
-	}
-}
-
 func ConsensusSubsequence(p *pileup.Pileup, start, end int) string {
 	ret := ""
 	for pos := start; pos < end; pos++ {
@@ -99,6 +73,7 @@ func main() {
 		matchExpr            string
 		matchTol             float64
 		matchMinDepth        int
+		reparse              bool
 	)
 
 	flag.StringVar(&reference, "ref", "", "Reference genome")
@@ -113,6 +88,8 @@ func main() {
 		"", "Match an expression of the form pos:pattern above min depth")
 	flag.Float64Var(&matchTol, "match-tol", 0.80, "Match tolerance")
 	flag.IntVar(&matchMinDepth, "match-min-depth", 6, "Match min depth")
+	flag.BoolVar(&reparse, "reparse", false, "Parse our own previous show"+
+		"output rather than an mpileup file")
 	flag.Parse()
 
 	if len(flag.Args()) != 1 {
@@ -120,7 +97,13 @@ func main() {
 		return
 	}
 
-	pileup, err := pileup.Parse(flag.Args()[0])
+	var pu *pileup.Pileup
+	var err error
+	if reparse {
+		pu, err = pileup.Parse2(flag.Args()[0])
+	} else {
+		pu, err = pileup.Parse(flag.Args()[0])
+	}
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -135,20 +118,20 @@ func main() {
 	}
 
 	if justShow {
-		showPileup(pileup, showPositions)
+		pu.Show(showPositions)
 		return
 	}
 
 	if subseq != "" {
 		ss := utils.ParseInts(subseq, ":")
-		fmt.Println(ConsensusSubsequence(pileup, ss[0]-1, ss[1]))
+		fmt.Println(ConsensusSubsequence(pu, ss[0]-1, ss[1]))
 		return
 	}
 
 	if matchExpr != "" {
 		pos, pattern := ParseMatchExpr(matchExpr)
-		matched := Match(pileup, pattern, pos, matchMinDepth, matchTol)
-		cs := ConsensusSubsequence(pileup, pos, pos+len(pattern))
+		matched := Match(pu, pattern, pos, matchMinDepth, matchTol)
+		cs := ConsensusSubsequence(pu, pos, pos+len(pattern))
 		var matchS string
 		if matched {
 			matchS = "matched"
@@ -171,13 +154,13 @@ func main() {
 	nts := g.Nts[1]
 	var j int
 	for i := 0; i < g.Length(); i++ {
-		if j < len(pileup.Records) && pileup.Records[j].Pos == i {
-			nts[i] = pileup.Records[j].Reads[0].Nt
+		if j < len(pu.Records) && pu.Records[j].Pos == i {
+			nts[i] = pu.Records[j].Reads[0].Nt
 
 			doPrint := veryVerbose || (verbose && nts[i] != g.Nts[0][i])
 
 			if doPrint {
-				for _, r := range pileup.Records[j].Reads {
+				for _, r := range pu.Records[j].Reads {
 					fmt.Printf("%d%c %d\n", i+1, r.Nt, r.Depth)
 				}
 			}
