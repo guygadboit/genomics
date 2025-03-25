@@ -38,14 +38,16 @@ func showMatch(a, b []byte) {
 
 func main() {
 	var (
-		tol     float64
-		patS    string
-		verbose bool
+		tol        float64
+		patS       string
+		verbose    bool
+		minMatches int
 	)
 
 	flag.BoolVar(&verbose, "v", false, "Verbose")
 	flag.Float64Var(&tol, "tol", 0.1, "Tolerance")
 	flag.StringVar(&patS, "p", "", "Pattern to look for")
+	flag.IntVar(&minMatches, "m", 1, "Minimum number of matches")
 	flag.Parse()
 
 	if len(flag.Args()) < 1 {
@@ -74,7 +76,7 @@ func main() {
 	if verbose {
 		fmt.Println(matches)
 	}
-	if matches == 0 {
+	if matches < minMatches {
 		os.Exit(-1)
 	}
 }
