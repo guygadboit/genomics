@@ -43,8 +43,8 @@ outer:
 		record := pileup.Get(pos + i)
 		if record == nil {
 			fails++
+			continue
 		}
-
 		for _, read := range record.Reads {
 			if read.Nt == c && read.Depth >= minDepth {
 				continue outer
