@@ -48,7 +48,7 @@ func main() {
 	flag.StringVar(&patS, "p", "", "Pattern to look for")
 	flag.Parse()
 
-	if len(flag.Args()) != 1 {
+	if len(flag.Args()) < 1 {
 		flag.PrintDefaults()
 		return
 	}
@@ -57,18 +57,20 @@ func main() {
 	n := len(pattern)
 	matches := 0
 
-	ParseFastq(flag.Arg(0), func(data []byte) {
-		var g genomes.Genomes
-		g.Nts = [][]byte{data}
-		for search := genomes.NewLinearSearch(&g,
-			0, pattern, tol); !search.End(); search.Next() {
-			pos, _ := search.Get()
-			if verbose {
-				showMatch(g.Nts[0][pos:pos+n], pattern)
+	for _, fname := range flag.Args() {
+		ParseFastq(fname, func(data []byte) {
+			var g genomes.Genomes
+			g.Nts = [][]byte{data}
+			for search := genomes.NewLinearSearch(&g,
+				0, pattern, tol); !search.End(); search.Next() {
+				pos, _ := search.Get()
+				if verbose {
+					showMatch(g.Nts[0][pos:pos+n], pattern)
+				}
+				matches++
 			}
-			matches++
-		}
-	})
+		})
+	}
 	if verbose {
 		fmt.Println(matches)
 	}
