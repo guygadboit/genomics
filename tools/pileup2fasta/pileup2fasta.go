@@ -35,7 +35,7 @@ func ConsensusSubsequence(p *pileup.Pileup, start, end int) string {
 
 func Match(pileup *pileup.Pileup, pattern []byte,
 	pos int, minDepth int, tolerance float64) bool {
-	allowedFails := int(math.Floor((1.0 - tolerance) * float64(len(pattern))))
+	allowedFails := int(math.Floor(tolerance) * float64(len(pattern)))
 
 	fails := 0
 outer:
@@ -86,7 +86,7 @@ func main() {
 		"", "Show consensus for a subsequence")
 	flag.StringVar(&matchExpr, "match",
 		"", "Match an expression of the form pos:pattern above min depth")
-	flag.Float64Var(&matchTol, "match-tol", 0.80, "Match tolerance")
+	flag.Float64Var(&matchTol, "match-tol", 0.2, "Match tolerance")
 	flag.IntVar(&matchMinDepth, "match-min-depth", 6, "Match min depth")
 	flag.BoolVar(&reparse, "reparse", false, "Parse our own previous show"+
 		"output rather than an mpileup file")
