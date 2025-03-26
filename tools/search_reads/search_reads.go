@@ -25,12 +25,17 @@ func ParseFastq(fname string, cb func(name string, readData []byte)) {
 	})
 }
 
-func showMatch(name string, a, b []byte) {
+func showMatch(name string, pattern []byte, read []byte, pos int) {
 	fmt.Println(name)
+
+	n := len(pattern)
+	a := read[pos:pos+n]
+
+	fmt.Println(string(read))
 	fmt.Println(string(a))
-	fmt.Println(string(b))
+	fmt.Println(string(pattern))
 	for i := 0; i < len(a); i++ {
-		if a[i] == b[i] {
+		if a[i] == pattern[i] {
 			fmt.Printf("*")
 		} else {
 			fmt.Printf(" ")
@@ -59,7 +64,6 @@ func main() {
 	}
 
 	pattern := []byte(patS)
-	n := len(pattern)
 	matches := 0
 
 	for _, fname := range flag.Args() {
@@ -70,16 +74,16 @@ func main() {
 				0, pattern, tol); !search.End(); search.Next() {
 				pos, _ := search.Get()
 				if verbose {
-					showMatch(name, pattern, g.Nts[0][pos:pos+n])
+					showMatch(name, pattern, g.Nts[0], pos)
 				}
 				matches++
 			}
 		})
 	}
-	if verbose {
-		fmt.Println(matches)
-	}
 	if matches < minMatches {
 		os.Exit(-1)
+	}
+	if verbose {
+		fmt.Println(matches)
 	}
 }
