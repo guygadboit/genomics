@@ -8,22 +8,25 @@ import (
 	"os"
 )
 
-func ParseFastq(fname string, cb func(readData []byte)) {
+func ParseFastq(fname string, cb func(name string, readData []byte)) {
 	var interested bool
+	var name string
 	utils.Lines(fname, func(line string, lineError error) bool {
 		if line[0] == '@' {
 			interested = true
+			name = line
 			return true
 		}
 		if interested {
-			cb([]byte(line))
+			cb(name, []byte(line))
 			interested = false
 		}
 		return true
 	})
 }
 
-func showMatch(a, b []byte) {
+func showMatch(name string, a, b []byte) {
+	fmt.Println(name)
 	fmt.Println(string(a))
 	fmt.Println(string(b))
 	for i := 0; i < len(a); i++ {
@@ -60,14 +63,14 @@ func main() {
 	matches := 0
 
 	for _, fname := range flag.Args() {
-		ParseFastq(fname, func(data []byte) {
+		ParseFastq(fname, func(name string, data []byte) {
 			var g genomes.Genomes
 			g.Nts = [][]byte{data}
 			for search := genomes.NewLinearSearch(&g,
 				0, pattern, tol); !search.End(); search.Next() {
 				pos, _ := search.Get()
 				if verbose {
-					showMatch(g.Nts[0][pos:pos+n], pattern)
+					showMatch(name, pattern, g.Nts[0][pos:pos+n])
 				}
 				matches++
 			}
