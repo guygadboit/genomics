@@ -32,9 +32,15 @@ type LinearSearch struct {
 
 func (s *LinearSearch) Init(haystack *Genomes, which int, needle []byte,
 	tolerance float64) {
+	haystackLen := len(haystack.Nts[which])
+	if len(needle) > haystackLen {
+		needle = needle[:haystackLen]
+	}
 	s.haystack = haystack
 	s.which = which
 	s.needle = needle
+
+
 	s.allowedMismatches = int(tolerance * float64(len(needle)))
 	s.Start()
 }
