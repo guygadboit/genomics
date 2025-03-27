@@ -72,7 +72,7 @@ func main() {
 		subseq               string
 		matchExpr            string
 		matchTol             float64
-		matchMinDepth        int
+		minDepth        int
 		reparse              bool
 	)
 
@@ -87,7 +87,7 @@ func main() {
 	flag.StringVar(&matchExpr, "match",
 		"", "Match an expression of the form pos:pattern above min depth")
 	flag.Float64Var(&matchTol, "match-tol", 0.2, "Match tolerance")
-	flag.IntVar(&matchMinDepth, "match-min-depth", 6, "Match min depth")
+	flag.IntVar(&minDepth, "min-depth", 6, "Match min depth")
 	flag.BoolVar(&reparse, "reparse", false, "Parse our own previous show"+
 		"output rather than an mpileup file")
 	flag.Parse()
@@ -130,7 +130,7 @@ func main() {
 
 	if matchExpr != "" {
 		pos, pattern := ParseMatchExpr(matchExpr)
-		matched := Match(pu, pattern, pos, matchMinDepth, matchTol)
+		matched := Match(pu, pattern, pos, minDepth, matchTol)
 		cs := ConsensusSubsequence(pu, pos, pos+len(pattern))
 		var matchS string
 		if matched {
@@ -155,7 +155,12 @@ func main() {
 	var j int
 	for i := 0; i < g.Length(); i++ {
 		if j < len(pu.Records) && pu.Records[j].Pos == i {
-			nts[i] = pu.Records[j].Reads[0].Nt
+			read := pu.Records[j].Reads[0]
+			if read.Depth >= minDepth {
+				nts[i] = pu.Records[j].Reads[0].Nt
+			} else {
+				nts[i] = 'N'
+			}
 
 			doPrint := veryVerbose || (verbose && nts[i] != g.Nts[0][i])
 

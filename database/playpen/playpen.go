@@ -306,7 +306,7 @@ func NoMuts(db *database.Database) {
 		}
 
 		if len(r.NucleotideChanges) == 0 {
-			fmt.Println(r.Summary())
+			fmt.Println(r.Summary(), r.SampleSRA)
 		}
 		return false
 	})
@@ -412,9 +412,9 @@ func EarlyReads(db *database.Database) {
 
 func main() {
 	db := database.NewDatabase()
-	EarlyReads(db)
+	// EarlyReads(db)
 	// EarlyLineages(db)
-	// NoMuts(db)
+	NoMuts(db)
 	// RdRPVariants(db)
 	// Pangolin(db)
 	// TT(db)

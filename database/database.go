@@ -208,8 +208,13 @@ func (r *Record) FilterNucleotideChanges(silence ...utils.Silence) Mutations {
 
 // A more detailed summary
 func (r *Record) Summary() string {
-	return fmt.Sprintf("%s %s %s %s %s: %s %s; %d %d",
+	sras := strings.Join(r.SRA, ",")
+	if sras == "" {
+		sras = "N/A"
+	}
+	return fmt.Sprintf("%s %s %s %s %s %s: %s %s; %d %d",
 		r.GisaidAccession,
+		sras,
 		r.CollectionDate.Format(time.DateOnly),
 		r.Country,
 		r.Region,
