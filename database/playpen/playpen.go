@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"genomics/database"
 	"genomics/utils"
+	"genomics/stats"
 	"slices"
 	"strings"
 	"time"
@@ -300,28 +301,84 @@ func CTRate(db *database.Database) {
 }
 
 func NoMuts(db *database.Database) {
-	total, matching, totalNc := 0, 0, 0
+	regions := make(map[string]*stats.ContingencyTable)
+	C, D := 0, 0
+
 	db.Filter(nil, func(r *database.Record) bool {
 		if r.Host != "Human" {
 			return false
 		}
+		/*
 		if r.CollectionDate.Compare(utils.Date(2020, 6, 1)) < 0 {
 			return false
 		}
-		total++
+		*/
 
-		if r.Region == "North Carolina" {
-		totalNc++
-	}
+		var matched bool
+		// matched = len(r.NucleotideChanges) == 0
+		matched = len(r.NucleotideChanges) == 1
 
-		if len(r.NucleotideChanges) == 0 {
-			fmt.Println(r.Summary(), r.SampleSRA, r.Region)
-			matching++
+		/*
+		if len(r.NucleotideChanges) == 1 {
+			ref := database.Mutation{23403, 'A', 'G', utils.NON_SILENT}
+			if r.NucleotideChanges[0] == ref {
+				matched = true
+			}
 		}
+		*/
+
+		region := r.Region
+		ct, there := regions[region]
+		if !there {
+			var newCt stats.ContingencyTable
+			regions[region] = &newCt
+			ct = regions[region]
+		}
+		if matched {
+			C++
+			ct.A++
+		} else {
+			ct.B++
+			D++
+		}
+
+		if matched && len(r.SRA) > 1 {
+			fmt.Println(r.Summary())
+		}
+
 		return false
 	})
-	fmt.Printf("Matched %d out of %d\n", matching, total)
-	fmt.Printf("Matched 5 out of %d in N. Carolina\n", totalNc)
+
+	type result struct {
+		region	string
+		ct	stats.ContingencyTable
+	}
+	results := make([]result, 0)
+
+	for k, _ := range regions {
+		regions[k].C = C
+		regions[k].D = D
+		if regions[k].A > 0 {
+			ct := *regions[k]
+			ct.FisherExact(stats.GREATER)
+			results = append(results, result{k, ct})
+		}
+	}
+
+	slices.SortFunc(results, func(a, b result) int {
+		if a.ct.P < b.ct.P {
+			return -1
+		}
+		if a.ct.P < b.ct.P {
+			return 1
+		}
+		return 0
+	})
+
+	for _, r := range results {
+		fmt.Println(r.region, r.ct.A, r.ct.B, r.ct.OR, r.ct.P)
+	}
+
 }
 
 func EarlyLineages(db *database.Database) {
