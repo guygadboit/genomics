@@ -92,9 +92,9 @@ func showFullAlignment(read []byte, pos int,
 		if end > n {
 			end = n
 		}
-		fmt.Println("Read    ", lineA[i:end])
-		fmt.Println("Pattern ", lineB[i:end])
-		fmt.Println("        ", stars[i:end])
+		fmt.Println("Read ", lineA[i:end])
+		fmt.Println("Ref  ", lineB[i:end])
+		fmt.Println("     ", stars[i:end])
 		fmt.Println()
 	}
 	ss := float64(matches) / float64(n)

@@ -300,16 +300,28 @@ func CTRate(db *database.Database) {
 }
 
 func NoMuts(db *database.Database) {
+	total, matching, totalNc := 0, 0, 0
 	db.Filter(nil, func(r *database.Record) bool {
 		if r.Host != "Human" {
 			return false
 		}
+		if r.CollectionDate.Compare(utils.Date(2020, 6, 1)) < 0 {
+			return false
+		}
+		total++
+
+		if r.Region == "North Carolina" {
+		totalNc++
+	}
 
 		if len(r.NucleotideChanges) == 0 {
-			fmt.Println(r.Summary(), r.SampleSRA)
+			fmt.Println(r.Summary(), r.SampleSRA, r.Region)
+			matching++
 		}
 		return false
 	})
+	fmt.Printf("Matched %d out of %d\n", matching, total)
+	fmt.Printf("Matched 5 out of %d in N. Carolina\n", totalNc)
 }
 
 func EarlyLineages(db *database.Database) {
