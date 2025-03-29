@@ -36,27 +36,43 @@ func Min(x, y int) int {
 }
 
 func Classify(pu *pileup.Pileup, minDepth int) Contents {
-	pos8782 := pu.Get(8782-1)
-	pos28144 := pu.Get(28144-1)
+	pos8782 := pu.Get(8782 - 1)
+	pos28144 := pu.Get(28144 - 1)
 
 	ret := Contents{
 		pos8782.GetDepthOf('C'), pos8782.GetDepthOf('T'),
 		pos28144.GetDepthOf('C'), pos28144.GetDepthOf('T'),
-		"*",
+		"-",
 	}
 
-	if ret.C8782 > minDepth &&
+	if ret.C8782 >= minDepth &&
 		ret.T8782 < minDepth &&
-		ret.C28144 > minDepth &&
+		ret.C28144 >= minDepth &&
 		ret.T28144 < minDepth {
-		ret.Classification = "CC"
-	} else if ret.T8782 > minDepth &&
-		ret.C8782 < minDepth &&
-		ret.T28144 > minDepth &&
-		ret.C28144 < minDepth {
-		ret.Classification = "TT"
+		ret.Classification = "CC*"
+		return ret
 	}
-
+	if ret.T8782 >= minDepth &&
+		ret.C8782 < minDepth &&
+		ret.T28144 >= minDepth &&
+		ret.C28144 < minDepth {
+		ret.Classification = "TT*"
+		return ret
+	}
+	if ret.C8782 > ret.T8782 &&
+		ret.C28144 > ret.T28144 &&
+		ret.C8782 >= minDepth &&
+		ret.C28144 >= minDepth {
+		ret.Classification = "CC>"
+		return ret
+	}
+	if ret.T8782 > ret.C8782 &&
+		ret.T28144 > ret.C28144 &&
+		ret.T8782 >= minDepth &&
+		ret.T28144 >= minDepth {
+		ret.Classification = "TT>"
+		return ret
+	}
 	return ret
 }
 
@@ -85,7 +101,7 @@ func LoadRecords(db *database.Database, fname string) []database.Id {
 
 func AnalyseReads(db *database.Database,
 	ids []database.Id, minDepth int, prefix string) {
-	fmt.Println("Date AccNo SRA Country class 8782:C|T 28144:C|T")
+	fmt.Println("Date AccNo SRA Region Country class 8782:C|T 28144:C|T")
 
 	root := "/fs/bowser/genomes/raw_reads/"
 	for _, id := range ids {
@@ -97,7 +113,7 @@ func AnalyseReads(db *database.Database,
 		contents := Classify(pu, minDepth)
 		fmt.Println(record.CollectionDate.Format(time.DateOnly),
 			record.GisaidAccession, record.SRAs(),
-			record.Country, contents.ToString())
+			record.Region, record.Country, contents.ToString())
 	}
 }
 
