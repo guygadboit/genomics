@@ -6,6 +6,7 @@ import (
 	"log"
 	"path"
 	"time"
+	"flag"
 	"genomics/database"
 	"genomics/pileup"
 	"genomics/utils"
@@ -34,8 +35,7 @@ func Min(x, y int) int {
 	}
 }
 
-func Classify(pu *pileup.Pileup) Contents {
-	threshold := 3
+func Classify(pu *pileup.Pileup, minDepth int) Contents {
 	pos8782 := pu.Get(8782)
 	pos28144 := pu.Get(28144)
 
@@ -45,15 +45,15 @@ func Classify(pu *pileup.Pileup) Contents {
 		"*",
 	}
 
-	if ret.C8782 > threshold &&
-		ret.T8782 < threshold &&
-		ret.C28144 > threshold &&
-		ret.T28144 < threshold {
+	if ret.C8782 > minDepth &&
+		ret.T8782 < minDepth &&
+		ret.C28144 > minDepth &&
+		ret.T28144 < minDepth {
 		ret.Classification = "CC"
-	} else if ret.T8782 > threshold &&
-		ret.C8782 < threshold &&
-		ret.T28144 > threshold &&
-		ret.C28144 < threshold {
+	} else if ret.T8782 > minDepth &&
+		ret.C8782 < minDepth &&
+		ret.T28144 > minDepth &&
+		ret.C28144 < minDepth {
 		ret.Classification = "TT"
 	}
 
@@ -83,7 +83,8 @@ func LoadRecords(db *database.Database, fname string) []database.Id {
 	return ret
 }
 
-func AnalyseReads(db *database.Database, ids []database.Id, prefix string) {
+func AnalyseReads(db *database.Database,
+	ids []database.Id, minDepth int, prefix string) {
 	fmt.Println("Date AccNo SRA Country class 8782:C|T 28144:C|T")
 
 	root := "/fs/bowser/genomes/raw_reads/"
@@ -93,7 +94,7 @@ func AnalyseReads(db *database.Database, ids []database.Id, prefix string) {
 		if pu == nil {
 			continue
 		}
-		contents := Classify(pu)
+		contents := Classify(pu, minDepth)
 		if contents.C8782 > 0 {
 			fmt.Println(record.CollectionDate.Format(time.DateOnly),
 				record.GisaidAccession, record.SRAs(),
@@ -103,13 +104,18 @@ func AnalyseReads(db *database.Database, ids []database.Id, prefix string) {
 }
 
 func main() {
+	var minDepth int
+
+	flag.IntVar(&minDepth, "min-depth", 3, "Min depth")
+	flag.Parse()
+
 	db := database.NewDatabase()
 
 	cc := LoadRecords(db, "./cc")
-	AnalyseReads(db, cc, "CC")
+	AnalyseReads(db, cc, minDepth, "CC")
 
 	/*
 	tt := LoadRecords(db, "./tt")
-	AnalyseReads(db, tt, "TT")
+	AnalyseReads(db, tt, minDepth, "TT")
 	*/
 }
