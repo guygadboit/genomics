@@ -388,7 +388,7 @@ func EarlyLineages(db *database.Database) {
 			return false
 		}
 
-		if r.SampleSRA == "" {
+		if len(r.SRA) == 0 {
 			return false
 		}
 
@@ -432,8 +432,8 @@ func EarlyLineages(db *database.Database) {
 		var class string
 
 		display := func() {
-			fmt.Println(class, len(r.NucleotideChanges),
-				r.GisaidAccession, r.SampleSRA, r.Country,
+			fmt.Println(class, r.SRAs(), len(r.NucleotideChanges),
+				r.GisaidAccession, r.Country,
 				r.CollectionDate.Format(time.DateOnly))
 		}
 
@@ -482,8 +482,8 @@ func EarlyReads(db *database.Database) {
 func main() {
 	db := database.NewDatabase()
 	// EarlyReads(db)
-	// EarlyLineages(db)
-	NoMuts(db)
+	EarlyLineages(db)
+	// NoMuts(db)
 	// RdRPVariants(db)
 	// Pangolin(db)
 	// TT(db)
