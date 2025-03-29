@@ -17,6 +17,18 @@ type Record struct {
 	Reads []Read // Sorted by highest depth first
 }
 
+func (r *Record) GetDepthOf(nt byte) int {
+	if r == nil {
+		return 0
+	}
+	for _, read := range r.Reads {
+		if read.Nt == nt {
+			return read.Depth
+		}
+	}
+	return 0
+}
+
 type Pileup struct {
 	// The index maps genome positions to positions in the reads array. It will
 	// just be 1:1 most of the time since you will have reads at every position

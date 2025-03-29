@@ -1,0 +1,115 @@
+package main
+
+import (
+	"os"
+	"fmt"
+	"log"
+	"path"
+	"time"
+	"genomics/database"
+	"genomics/pileup"
+	"genomics/utils"
+)
+
+type Contents struct {
+	C8782 int // The depth of C at 8782
+	T8782 int
+
+	C28144 int
+	T28144 int
+
+	Classification string
+}
+
+func (c *Contents) ToString() string {
+	return fmt.Sprintf("%s %d|%d %d|%d", c.Classification,
+		c.C8782, c.T8782, c.C28144, c.T28144)
+}
+
+func Min(x, y int) int {
+	if x < y {
+		return x
+	} else {
+		return y
+	}
+}
+
+func Classify(pu *pileup.Pileup) Contents {
+	threshold := 3
+	pos8782 := pu.Get(8782)
+	pos28144 := pu.Get(28144)
+
+	ret := Contents{
+		pos8782.GetDepthOf('C'), pos8782.GetDepthOf('T'),
+		pos28144.GetDepthOf('C'), pos28144.GetDepthOf('T'),
+		"*",
+	}
+
+	if ret.C8782 > threshold &&
+		ret.T8782 < threshold &&
+		ret.C28144 > threshold &&
+		ret.T28144 < threshold {
+		ret.Classification = "CC"
+	} else if ret.T8782 > threshold &&
+		ret.C8782 < threshold &&
+		ret.T28144 > threshold &&
+		ret.C28144 < threshold {
+		ret.Classification = "TT"
+	}
+
+	return ret
+}
+
+func FindPileup(record *database.Record, root string) *pileup.Pileup {
+	path := path.Join(root, fmt.Sprintf("%s-WH1-index.txt.gz", record.SRAs()))
+	if _, err := os.Stat(path); err != nil {
+		log.Printf("%s doesn't exist\n", path)
+		return nil
+	}
+	ret, err := pileup.Parse2(path)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return ret
+}
+
+func LoadRecords(db *database.Database, fname string) []database.Id {
+	ret := make([]database.Id, 0)
+	utils.Lines(fname, func(line string, lineErr error) bool {
+		ids := db.GetByAccession(line)
+		ret = append(ret, ids...)
+		return true
+	})
+	return ret
+}
+
+func AnalyseReads(db *database.Database, ids []database.Id, prefix string) {
+	fmt.Println("Date AccNo SRA Country class 8782:C|T 28144:C|T")
+
+	root := "/fs/bowser/genomes/raw_reads/"
+	for _, id := range ids {
+		record := db.Get(id)
+		pu := FindPileup(record, path.Join(root, prefix))
+		if pu == nil {
+			continue
+		}
+		contents := Classify(pu)
+		if contents.C8782 > 0 {
+			fmt.Println(record.CollectionDate.Format(time.DateOnly),
+				record.GisaidAccession, record.SRAs(),
+				record.Country, contents.ToString())
+		}
+	}
+}
+
+func main() {
+	db := database.NewDatabase()
+
+	cc := LoadRecords(db, "./cc")
+	AnalyseReads(db, cc, "CC")
+
+	/*
+	tt := LoadRecords(db, "./tt")
+	AnalyseReads(db, tt, "TT")
+	*/
+}
