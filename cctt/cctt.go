@@ -63,7 +63,7 @@ func Classify(pu *pileup.Pileup, minDepth int) Contents {
 func FindPileup(record *database.Record, root string) *pileup.Pileup {
 	path := path.Join(root, fmt.Sprintf("%s-WH1-index.txt.gz", record.SRAs()))
 	if _, err := os.Stat(path); err != nil {
-		log.Printf("%s doesn't exist\n", path)
+		// log.Printf("%s doesn't exist\n", path)
 		return nil
 	}
 	ret, err := pileup.Parse2(path)
@@ -112,8 +112,6 @@ func main() {
 	cc := LoadRecords(db, "./cc")
 	AnalyseReads(db, cc, minDepth, "CC")
 
-	/*
-		tt := LoadRecords(db, "./tt")
-		AnalyseReads(db, tt, minDepth, "TT")
-	*/
+	tt := LoadRecords(db, "./tt")
+	AnalyseReads(db, tt, minDepth, "TT")
 }
