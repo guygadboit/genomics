@@ -36,8 +36,8 @@ func Min(x, y int) int {
 }
 
 func Classify(pu *pileup.Pileup, minDepth int) Contents {
-	pos8782 := pu.Get(8782)
-	pos28144 := pu.Get(28144)
+	pos8782 := pu.Get(8782-1)
+	pos28144 := pu.Get(28144-1)
 
 	ret := Contents{
 		pos8782.GetDepthOf('C'), pos8782.GetDepthOf('T'),
