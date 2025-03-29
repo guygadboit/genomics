@@ -1,15 +1,15 @@
 package main
 
 import (
-	"os"
-	"fmt"
-	"log"
-	"path"
-	"time"
 	"flag"
+	"fmt"
 	"genomics/database"
 	"genomics/pileup"
 	"genomics/utils"
+	"log"
+	"os"
+	"path"
+	"time"
 )
 
 type Contents struct {
@@ -95,11 +95,9 @@ func AnalyseReads(db *database.Database,
 			continue
 		}
 		contents := Classify(pu, minDepth)
-		if contents.C8782 > 0 {
-			fmt.Println(record.CollectionDate.Format(time.DateOnly),
-				record.GisaidAccession, record.SRAs(),
-				record.Country, contents.ToString())
-		}
+		fmt.Println(record.CollectionDate.Format(time.DateOnly),
+			record.GisaidAccession, record.SRAs(),
+			record.Country, contents.ToString())
 	}
 }
 
@@ -115,7 +113,7 @@ func main() {
 	AnalyseReads(db, cc, minDepth, "CC")
 
 	/*
-	tt := LoadRecords(db, "./tt")
-	AnalyseReads(db, tt, minDepth, "TT")
+		tt := LoadRecords(db, "./tt")
+		AnalyseReads(db, tt, minDepth, "TT")
 	*/
 }
