@@ -304,13 +304,6 @@ func (g *Genomes) Combine(other *Genomes) error {
 	return nil
 }
 
-func Min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
-}
-
 /*
 How many differences are there looking at length bytes from pos in a and
 comparing them to length bytes from pos+offset in b?
@@ -320,7 +313,7 @@ func countDifferences(a []byte, b []byte, pos, offset, length int) int {
 
 	aSpace := len(a) - (pos + length)
 	bSpace := len(b) - (pos + offset + length)
-	space := Min(aSpace, bSpace)
+	space := utils.Min(aSpace, bSpace)
 	if space < 0 {
 		length += space
 	}

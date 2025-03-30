@@ -42,22 +42,6 @@ func (c *Contents) CalcSignificance() {
 	c.Significance = ct.P
 }
 
-func Min(x, y int) int {
-	if x < y {
-		return x
-	} else {
-		return y
-	}
-}
-
-func Max(x, y int) int {
-	if x > y {
-		return x
-	} else {
-		return y
-	}
-}
-
 func Classify(pu *pileup.Pileup, minDepth int) Contents {
 	pos8782 := pu.Get(8782 - 1)
 	pos28144 := pu.Get(28144 - 1)
@@ -94,7 +78,7 @@ func Classify(pu *pileup.Pileup, minDepth int) Contents {
 }
 
 func (c *Contents) QSDepth() int {
-	return Max(Min(c.C8782, c.T8782), Min(c.C28144, c.T28144))
+	return utils.Max(utils.Min(c.C8782, c.T8782), utils.Min(c.C28144, c.T28144))
 }
 
 /*
@@ -145,7 +129,6 @@ func LoadRecords(db *database.Database, fname string) []database.Id {
 	})
 	return ret
 }
-
 
 func AnalyseReads(db *database.Database,
 	ids []database.Id, minDepth int, prefix string) {

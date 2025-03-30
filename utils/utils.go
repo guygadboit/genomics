@@ -348,3 +348,19 @@ func Ceil3(x int) int {
 	}
 	return x + (3 - rem)
 }
+
+func Min(x, y int) int {
+	if x < y {
+		return x
+	} else {
+		return y
+	}
+}
+
+func Max(x, y int) int {
+	if x > y {
+		return x
+	} else {
+		return y
+	}
+}
