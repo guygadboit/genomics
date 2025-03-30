@@ -126,13 +126,77 @@ func AnalyseReads(db *database.Database,
 	}
 }
 
-func main() {
-	var minDepth int
+/*
+Find the apparent CC and TT sequences in the database (GISAID 2020) which have
+reads available.
+*/
+func FindSequences(db *database.Database) {
+	counts := make(map[string]int)
+	db.Filter(nil, func(r *database.Record) bool {
+		if r.Host != "Human" {
+			return false
+		}
 
+		if len(r.SRA) == 0 {
+			return false
+		}
+
+		C1, C2 := true, false
+		for _, m := range r.NucleotideChanges {
+			if m.Pos == 8782 && m.To == 'T' {
+				C1 = false
+			}
+			if m.Pos == 28144 && m.To == 'C' {
+				C2 = true
+			}
+		}
+
+		var class string
+
+		display := func() {
+			fmt.Println(class, r.SRAs(), len(r.NucleotideChanges),
+				r.GisaidAccession, r.Country,
+				r.CollectionDate.Format(time.DateOnly))
+		}
+
+		if C1 {
+			if C2 {
+				class = "CC"
+				display()
+			} else {
+				class = "CT"
+			}
+		} else {
+			if C2 {
+				class = "TC"
+			} else {
+				class = "TT"
+				display()
+			}
+		}
+		counts[class]++
+		return false
+	})
+
+	fmt.Println(counts)
+}
+
+func main() {
+	var (
+		minDepth      int
+		findSequences bool
+	)
+
+	flag.BoolVar(&findSequences, "f", false, "Find the sequences")
 	flag.IntVar(&minDepth, "min-depth", 3, "Min depth")
 	flag.Parse()
 
 	db := database.NewDatabase()
+
+	if findSequences {
+		FindSequences(db)
+		return
+	}
 
 	cc := LoadRecords(db, "./cc")
 	AnalyseReads(db, cc, minDepth, "CC")
