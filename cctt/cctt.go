@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"genomics/database"
 	"genomics/pileup"
+	"genomics/stats"
 	"genomics/utils"
 	"log"
 	"os"
@@ -20,11 +21,25 @@ type Contents struct {
 	T28144 int
 
 	Classification string
+	Significance   float64
 }
 
 func (c *Contents) ToString() string {
-	return fmt.Sprintf("%s %d|%d %d|%d", c.Classification,
-		c.C8782, c.T8782, c.C28144, c.T28144)
+	return fmt.Sprintf("%s %d|%d %d|%d %.4g", c.Classification,
+		c.C8782, c.T8782, c.C28144, c.T28144, c.Significance)
+}
+
+/*
+Suppose you find much more C than T in both locations. What is the probability
+of doing that under the assumption that what you have is a mix of CT and TC? If
+it were the latter, you would expect C/T to roughly equal T/C in the two
+locations.
+*/
+func (c *Contents) CalcSignificance() {
+	var ct stats.ContingencyTable
+	ct.Init(c.C8782, c.T8782, c.T28144, c.C28144)
+	ct.FisherExact(stats.TWO_SIDED)
+	c.Significance = ct.P
 }
 
 func Min(x, y int) int {
@@ -42,7 +57,7 @@ func Classify(pu *pileup.Pileup, minDepth int) Contents {
 	ret := Contents{
 		pos8782.GetDepthOf('C'), pos8782.GetDepthOf('T'),
 		pos28144.GetDepthOf('C'), pos28144.GetDepthOf('T'),
-		"-",
+		"-", 1.0,
 	}
 
 	if ret.C8782 >= minDepth &&
@@ -50,29 +65,23 @@ func Classify(pu *pileup.Pileup, minDepth int) Contents {
 		ret.C28144 >= minDepth &&
 		ret.T28144 < minDepth {
 		ret.Classification = "CC*"
-		return ret
-	}
-	if ret.T8782 >= minDepth &&
+	} else if ret.T8782 >= minDepth &&
 		ret.C8782 < minDepth &&
 		ret.T28144 >= minDepth &&
 		ret.C28144 < minDepth {
 		ret.Classification = "TT*"
-		return ret
-	}
-	if ret.C8782 > ret.T8782 &&
+	} else if ret.C8782 > ret.T8782 &&
 		ret.C28144 > ret.T28144 &&
 		ret.C8782 >= minDepth &&
 		ret.C28144 >= minDepth {
 		ret.Classification = "CC>"
-		return ret
-	}
-	if ret.T8782 > ret.C8782 &&
+	} else if ret.T8782 > ret.C8782 &&
 		ret.T28144 > ret.C28144 &&
 		ret.T8782 >= minDepth &&
 		ret.T28144 >= minDepth {
 		ret.Classification = "TT>"
-		return ret
 	}
+	ret.CalcSignificance()
 	return ret
 }
 
