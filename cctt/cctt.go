@@ -50,6 +50,14 @@ func Min(x, y int) int {
 	}
 }
 
+func Max(x, y int) int {
+	if x > y {
+		return x
+	} else {
+		return y
+	}
+}
+
 func Classify(pu *pileup.Pileup, minDepth int) Contents {
 	pos8782 := pu.Get(8782 - 1)
 	pos28144 := pu.Get(28144 - 1)
@@ -85,6 +93,36 @@ func Classify(pu *pileup.Pileup, minDepth int) Contents {
 	return ret
 }
 
+func (c *Contents) QSDepth() int {
+	return Max(Min(c.C8782, c.T8782), Min(c.C28144, c.T28144))
+}
+
+/*
+Find how many locations have two or more alleles with a depth of more than
+minDepth
+*/
+func FindQS(pu *pileup.Pileup, minDepth int) []utils.OneBasedPos {
+	ret := make([]utils.OneBasedPos, 0)
+outer:
+	for i := 0; i <= pu.MaxPos; i++ {
+		record := pu.Get(i)
+		if record == nil {
+			continue
+		}
+		count := 0
+		for _, read := range record.Reads {
+			if read.Depth >= minDepth {
+				count++
+			}
+			if count >= 2 {
+				ret = append(ret, utils.OneBasedPos(record.Pos+1))
+				continue outer
+			}
+		}
+	}
+	return ret
+}
+
 func FindPileup(record *database.Record, root string) *pileup.Pileup {
 	path := path.Join(root, fmt.Sprintf("%s-WH1-index.txt.gz", record.SRAs()))
 	if _, err := os.Stat(path); err != nil {
@@ -108,9 +146,10 @@ func LoadRecords(db *database.Database, fname string) []database.Id {
 	return ret
 }
 
+
 func AnalyseReads(db *database.Database,
 	ids []database.Id, minDepth int, prefix string) {
-	fmt.Println("Date AccNo SRA Region Country class 8782:C|T 28144:C|T")
+	fmt.Println("Date AccNo SRA Region Country class 8782:C|T 28144:C|T QSlocs")
 
 	root := "/fs/bowser/genomes/raw_reads/"
 	for _, id := range ids {
@@ -120,9 +159,12 @@ func AnalyseReads(db *database.Database,
 			continue
 		}
 		contents := Classify(pu, minDepth)
+		qsLocations := FindQS(pu, contents.QSDepth())
+
 		fmt.Println(record.CollectionDate.Format(time.DateOnly),
 			record.GisaidAccession, record.SRAs(),
-			record.Region, record.Country, contents.ToString())
+			record.Region, record.Country,
+			contents.ToString(), len(qsLocations))
 	}
 }
 
@@ -130,7 +172,7 @@ func AnalyseReads(db *database.Database,
 Find the apparent CC and TT sequences in the database (GISAID 2020) which have
 reads available.
 */
-func FindSequences(db *database.Database) {
+func FindSequences(db *database.Database, showClass string) {
 	counts := make(map[string]int)
 	db.Filter(nil, func(r *database.Record) bool {
 		if r.Host != "Human" {
@@ -162,18 +204,21 @@ func FindSequences(db *database.Database) {
 		if C1 {
 			if C2 {
 				class = "CC"
-				display()
 			} else {
-				class = "CT"
+				class = "CT" // aka Lin B
 			}
 		} else {
 			if C2 {
-				class = "TC"
+				class = "TC" // aka Lin A
 			} else {
 				class = "TT"
-				display()
 			}
 		}
+
+		if class == showClass {
+			display()
+		}
+
 		counts[class]++
 		return false
 	})
@@ -185,22 +230,21 @@ func main() {
 	var (
 		minDepth      int
 		findSequences bool
+		class         string
 	)
 
 	flag.BoolVar(&findSequences, "f", false, "Find the sequences")
+	flag.StringVar(&class, "class", "TT", "Classes to show")
 	flag.IntVar(&minDepth, "min-depth", 3, "Min depth")
 	flag.Parse()
 
 	db := database.NewDatabase()
 
 	if findSequences {
-		FindSequences(db)
+		FindSequences(db, class)
 		return
 	}
 
-	cc := LoadRecords(db, "./cc")
-	AnalyseReads(db, cc, minDepth, "CC")
-
-	tt := LoadRecords(db, "./tt")
-	AnalyseReads(db, tt, minDepth, "TT")
+	cc := LoadRecords(db, class)
+	AnalyseReads(db, cc, minDepth, class)
 }

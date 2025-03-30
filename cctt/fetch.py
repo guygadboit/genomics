@@ -1,3 +1,4 @@
+import sys
 from pdb import set_trace as brk
 
 def process(i, sra):
@@ -29,7 +30,7 @@ def process2(i, sra, ref, search_range):
 
 
 def main():
-	with open("cc_list") as fp:
+	with open(sys.argv[1]) as fp:
 		for i, line in enumerate(fp):
 			fields = line.split()
 			name = fields[0]
