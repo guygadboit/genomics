@@ -1,0 +1,7 @@
+set title "Dates by which each possible silent C->T had emerged above depth 50"
+set style fill solid
+set boxwidth 0.75
+set xlabel "Days after 2020-01-01"
+set ylabel "Number of mutations seen"
+set arrow from 29,500 to 29,60 filled lc "red"
+plot "1" with boxes notitle

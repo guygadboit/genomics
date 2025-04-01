@@ -142,6 +142,7 @@ type CountAll struct {
 	counts   map[int]int
 	silentCT []int
 	cutoff   time.Time
+	byDate   map[int]int
 }
 
 func (c *CountAll) Init(ref *genomes.Genomes, minDepth int, cutoff time.Time) {
@@ -155,6 +156,7 @@ func (c *CountAll) Init(ref *genomes.Genomes, minDepth int, cutoff time.Time) {
 		}
 	}
 	c.counts = make(map[int]int)
+	c.byDate = make(map[int]int)
 }
 
 func (c *CountAll) Process(record *database.Record, pu *pileup.Pileup) {
@@ -171,9 +173,13 @@ func (c *CountAll) Process(record *database.Record, pu *pileup.Pileup) {
 		for _, read := range pur.Reads {
 			if read.Depth >= c.minDepth && read.Nt == 'T' {
 				c.counts[pur.Pos] += read.Depth
+				delta := int(record.CollectionDate.Sub(utils.Date(2020,
+					1, 1)).Hours() / 24)
+				c.byDate[delta] = len(c.counts)
 			}
 		}
 	}
+
 }
 
 func (c *CountAll) Display() {
@@ -199,6 +205,30 @@ func (c *CountAll) Display() {
 	for _, count := range counts {
 		fmt.Printf("%d %d %s\n", count.pos+1,
 			count.count, og.Get(count.pos).ToString())
+	}
+
+	fmt.Println("By Date")
+
+	type dateCount struct {
+		days int // since 2020-01-01
+		seen int // number of different C->T muts seen
+	}
+
+	dateCounts := make([]dateCount, 0, len(c.byDate))
+	for k, v := range c.byDate {
+		dateCounts = append(dateCounts, dateCount{k, v})
+	}
+	slices.SortFunc(dateCounts, func(a, b dateCount) int {
+		if a.days < b.days {
+			return -1
+		}
+		if a.days > b.days {
+			return 1
+		}
+		return 0
+	})
+	for _, dc := range dateCounts {
+		fmt.Println(dc.days, dc.seen)
 	}
 }
 
