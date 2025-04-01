@@ -4,12 +4,15 @@ import (
 	"flag"
 	"fmt"
 	"genomics/database"
+	"genomics/genomes"
+	"genomics/mutations"
 	"genomics/pileup"
 	"genomics/stats"
 	"genomics/utils"
 	"log"
 	"os"
 	"path"
+	"slices"
 	"time"
 )
 
@@ -130,9 +133,92 @@ func LoadRecords(db *database.Database, fname string) []database.Id {
 	return ret
 }
 
-func AnalyseReads(db *database.Database,
-	ids []database.Id, minDepth int, prefix string) {
-	fmt.Println("Date AccNo SRA Region Country class 8782:C|T 28144:C|T QSlocs")
+type ReadHandler interface {
+	Process(*database.Record, *pileup.Pileup)
+}
+
+type CountAll struct {
+	minDepth int
+	counts   map[int]int
+	silentCT []int
+	cutoff   time.Time
+}
+
+func (c *CountAll) Init(ref *genomes.Genomes, minDepth int, cutoff time.Time) {
+	c.minDepth = minDepth
+	c.cutoff = cutoff
+	muts := mutations.PossibleSilentMuts(ref, 0)
+	c.silentCT = make([]int, 0)
+	for _, mut := range muts {
+		if mut.From == 'C' && mut.To == 'T' {
+			c.silentCT = append(c.silentCT, mut.Pos)
+		}
+	}
+	c.counts = make(map[int]int)
+}
+
+func (c *CountAll) Process(record *database.Record, pu *pileup.Pileup) {
+	for _, pos := range c.silentCT {
+		pur := pu.Get(pos)
+		if pur == nil {
+			continue
+		}
+		if !c.cutoff.IsZero() {
+			if record.CollectionDate.Compare(c.cutoff) > 0 {
+				continue
+			}
+		}
+		for _, read := range pur.Reads {
+			if read.Depth >= c.minDepth && read.Nt == 'T' {
+				c.counts[pur.Pos] += read.Depth
+			}
+		}
+	}
+}
+
+func (c *CountAll) Display() {
+	type count struct {
+		pos, count int
+	}
+	counts := make([]count, 0, len(c.counts))
+	for k, v := range c.counts {
+		counts = append(counts, count{k, v})
+	}
+	slices.SortFunc(counts, func(a, b count) int {
+		if a.count > b.count {
+			return -1
+		}
+		if a.count < b.count {
+			return 1
+		}
+		return 0
+	})
+	for _, count := range counts {
+		fmt.Printf("%d %d\n", count.pos+1, count.count)
+	}
+}
+
+type Display struct {
+	minDepth int
+}
+
+func (d *Display) Init(minDepth int) {
+	d.minDepth = minDepth
+}
+
+func (d *Display) Process(record *database.Record, pu *pileup.Pileup) {
+	contents := Classify(pu, d.minDepth)
+	qsLocations := FindQS(pu, contents.QSDepth())
+
+	fmt.Println(record.CollectionDate.Format(time.DateOnly),
+		record.GisaidAccession, record.SRAs(),
+		record.Region, record.Country,
+		contents.ToString(), len(qsLocations))
+}
+
+func ProcessReads(db *database.Database,
+	ids []database.Id, prefix string,
+	handler ReadHandler) {
 
 	root := "/fs/bowser/genomes/raw_reads/"
 	for _, id := range ids {
@@ -141,14 +227,26 @@ func AnalyseReads(db *database.Database,
 		if pu == nil {
 			continue
 		}
-		contents := Classify(pu, minDepth)
-		qsLocations := FindQS(pu, contents.QSDepth())
-
-		fmt.Println(record.CollectionDate.Format(time.DateOnly),
-			record.GisaidAccession, record.SRAs(),
-			record.Region, record.Country,
-			contents.ToString(), len(qsLocations))
+		handler.Process(record, pu)
 	}
+}
+
+func DisplayReads(db *database.Database,
+	ids []database.Id, minDepth int, prefix string) {
+	fmt.Println("Date AccNo SRA Region Country class 8782:C|T 28144:C|T QSlocs")
+
+	var d Display
+	d.Init(minDepth)
+	ProcessReads(db, ids, prefix, &d)
+}
+
+func CountReads(db *database.Database,
+	ids []database.Id, minDepth int, prefix string, cutoff time.Time) {
+	var c CountAll
+	ref := genomes.LoadGenomes("../fasta/WH1.fasta", "../fasta/WH1.orfs", false)
+	c.Init(ref, minDepth, cutoff)
+	ProcessReads(db, ids, prefix, &c)
+	c.Display()
 }
 
 /*
@@ -214,12 +312,25 @@ func main() {
 		minDepth      int
 		findSequences bool
 		class         string
+		count         bool
+		cutoffS       string
+		cutoff        time.Time
 	)
 
 	flag.BoolVar(&findSequences, "f", false, "Find the sequences")
 	flag.StringVar(&class, "class", "TT", "Classes to show")
 	flag.IntVar(&minDepth, "min-depth", 3, "Min depth")
+	flag.BoolVar(&count, "count", false, "Count everything")
+	flag.StringVar(&cutoffS, "cutoff", "", "Count before date")
 	flag.Parse()
+
+	if cutoffS != "" {
+		var err error
+		cutoff, err = time.Parse(time.DateOnly, cutoffS)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
 
 	db := database.NewDatabase()
 
@@ -229,5 +340,9 @@ func main() {
 	}
 
 	cc := LoadRecords(db, class)
-	AnalyseReads(db, cc, minDepth, class)
+	if count {
+		CountReads(db, cc, minDepth, class, cutoff)
+	} else {
+		DisplayReads(db, cc, minDepth, class)
+	}
 }
