@@ -177,6 +177,8 @@ func (c *CountAll) Process(record *database.Record, pu *pileup.Pileup) {
 }
 
 func (c *CountAll) Display() {
+	og := NewOutgroup()
+
 	type count struct {
 		pos, count int
 	}
@@ -194,7 +196,8 @@ func (c *CountAll) Display() {
 		return 0
 	})
 	for _, count := range counts {
-		fmt.Printf("%d %d\n", count.pos+1, count.count)
+		fmt.Printf("%d %d %s\n", count.pos+1,
+			count.count, og.Get(count.pos).ToString())
 	}
 }
 
