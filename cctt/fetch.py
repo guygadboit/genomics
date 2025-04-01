@@ -1,8 +1,16 @@
 import sys
+import os.path
 from pdb import set_trace as brk
 
 def process(i, sra):
 	print("echo Fetching {} {}...".format(i, sra))
+
+	for d in ("../TT", "../CC", "../CT", "../TC"):
+		path = "{}/{}-WH1-index.txt.gz".format(d, sra)
+		if os.path.exists(path):
+			print("ln -s {} .".format(path))
+			return
+
 	print("fasterq-dump {}".format(sra))
 	for j, index in enumerate(("WH1-index",)):
 		print("echo aligning with {}...".format(index))
