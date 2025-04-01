@@ -195,6 +195,7 @@ func (c *CountAll) Display() {
 		}
 		return 0
 	})
+	fmt.Printf("%d possible silent C->Ts\n", len(c.silentCT))
 	for _, count := range counts {
 		fmt.Printf("%d %d %s\n", count.pos+1,
 			count.count, og.Get(count.pos).ToString())

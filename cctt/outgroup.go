@@ -12,7 +12,8 @@ type Outgroup struct {
 }
 
 func NewOutgroup() *Outgroup {
-	return &Outgroup{genomes.LoadGenomes("../fasta/SARS2-relatives.fasta",
+	return &Outgroup{genomes.LoadGenomes(
+		"../fasta/SARS2-relatives-short-names.fasta",
 		"../fasta/WH1.orfs", false)}
 }
 
