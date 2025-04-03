@@ -330,15 +330,48 @@ func FindSequences(db *database.Database, showClass string) {
 			}
 		}
 
+			display()
+			/*
 		if class == showClass {
 			display()
 		}
+		*/
 
 		counts[class]++
 		return false
 	})
 
 	fmt.Println(counts)
+}
+
+func ShowLocations(db *database.Database, ids []database.Id) {
+	countries := make(map[string]int)
+	db.Filter(utils.ToSet(ids), func(r *database.Record) bool {
+		countries[r.Country]++
+		return true
+	})
+
+	type result struct {
+		country string
+		count   int
+	}
+	results := make([]result, 0, len(countries))
+	for k, v := range countries {
+		results = append(results, result{k, v})
+	}
+	slices.SortFunc(results, func(a, b result) int {
+		if a.count > b.count {
+			return -1
+		}
+		if a.count < b.count {
+			return 1
+		}
+		return 0
+	})
+
+	for _, v := range results {
+		fmt.Println(v.country, v.count)
+	}
 }
 
 func main() {
@@ -349,6 +382,7 @@ func main() {
 		count         bool
 		cutoffS       string
 		cutoff        time.Time
+		locations     bool
 	)
 
 	flag.BoolVar(&findSequences, "f", false, "Find the sequences")
@@ -356,6 +390,7 @@ func main() {
 	flag.IntVar(&minDepth, "min-depth", 3, "Min depth")
 	flag.BoolVar(&count, "count", false, "Count everything")
 	flag.StringVar(&cutoffS, "cutoff", "", "Count before date")
+	flag.BoolVar(&locations, "locations", false, "Just show locations")
 	flag.Parse()
 
 	if cutoffS != "" {
@@ -373,10 +408,12 @@ func main() {
 		return
 	}
 
-	cc := LoadRecords(db, class)
-	if count {
-		CountReads(db, cc, minDepth, class, cutoff)
+	records := LoadRecords(db, class)
+	if locations {
+		ShowLocations(db, records)
+	} else if count {
+		CountReads(db, records, minDepth, class, cutoff)
 	} else {
-		DisplayReads(db, cc, minDepth, class)
+		DisplayReads(db, records, minDepth, class)
 	}
 }

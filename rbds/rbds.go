@@ -57,6 +57,7 @@ func Compare(g *genomes.Genomes, spikeStart utils.OneBasedPos,
 	}
 	printComparisons(g, comparisons, "Protein")
 
+    // g.SaveMulti("RBDs.fasta")
 	comparisons = make([]Comparison, 0)
 	for i := 1; i < g.NumGenomes(); i++ {
 		same := 0
@@ -102,6 +103,8 @@ func main() {
 	Compare(g.Clone(), SPIKE_START, rbd[0], rbd[1])
 	fmt.Println("RBM")
 	Compare(g.Clone(), SPIKE_START, rbm[0], rbm[1])
+
+    return
 
 	/*
 	These guys are all quite a bit different from SARS2 and RaTG13 it looks
