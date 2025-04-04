@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"genomics/comparison"
 	"genomics/database"
 	"genomics/genomes"
 	"genomics/mutations"
@@ -300,8 +301,22 @@ func (c *CountAll2) Display() {
 	})
 
 	for _, r := range results {
-		fmt.Printf("%d%c %t %s %d\n", r.pos+1, r.nt,
-			r.silent, r.alts.ToString(), r.count)
+		var aaChange string
+		var silent string
+		fromNt := c.ref.Nts[0][r.pos]
+
+		if !r.silent {
+			_, oldProt, newProt, err := genomes.ProteinChange(c.ref, r.pos,
+				0, 0, []byte{r.nt})
+			if err == nil {
+				mut := comparison.Mut{oldProt[0], newProt[0], r.pos}
+				aaChange = mut.ToString(c.ref.Orfs)
+			}
+		} else {
+			silent = "*"
+		}
+		fmt.Printf("%c%d%c%s %s %s %d\n", fromNt, r.pos+1,
+			r.nt, silent, aaChange, r.alts.ToString(), r.count)
 	}
 }
 
