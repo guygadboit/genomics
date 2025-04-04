@@ -1101,7 +1101,7 @@ $ gnuplot --persist distribution.gpi
         alternatives of nucleotides are only rarely seen.
     </simpara>
     <simpara>
-        The striking thing about this data is how in all nearly all the places where SARS-CoV-2 has a site removed, the <emphasis>way</emphasis> it's removed seems to copy the exact nucleotides that are present in a significant majority of relatives.
+        The striking thing about this data is how in nearly all the places where SARS-CoV-2 has a site removed, the <emphasis>way</emphasis> it's removed seems to copy the exact nucleotides that are present in a significant majority of relatives.
     </simpara>
     <simpara>
         Under an engineering hypothesis, our engineer working in the lab would need to move some sites around to achieve the desired restriction map. This would involve adding sites in some locations, and removing them in others.
