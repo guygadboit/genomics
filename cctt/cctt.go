@@ -139,10 +139,22 @@ type ReadHandler interface {
 
 type CountAll struct {
 	minDepth int
-	counts   map[int]int
-	silentCT []int
+	counts   map[int]int // How many in each position
+	silentCT []int       // All possible silent C->T positions
 	cutoff   time.Time
 	byDate   map[int]int
+}
+
+type Allele struct {
+	pos int
+	nt  byte
+}
+
+type CountAll2 struct {
+	ref      *genomes.Genomes
+	minDepth int
+	counts   map[Allele]int
+	cutoff   time.Time
 }
 
 func (c *CountAll) Init(ref *genomes.Genomes, minDepth int, cutoff time.Time) {
@@ -157,6 +169,12 @@ func (c *CountAll) Init(ref *genomes.Genomes, minDepth int, cutoff time.Time) {
 	}
 	c.counts = make(map[int]int)
 	c.byDate = make(map[int]int)
+}
+
+func (c *CountAll2) Init(ref *genomes.Genomes, minDepth int, cutoff time.Time) {
+	c.minDepth = minDepth
+	c.counts = make(map[Allele]int)
+	c.ref = ref
 }
 
 func (c *CountAll) Process(record *database.Record, pu *pileup.Pileup) {
@@ -180,6 +198,27 @@ func (c *CountAll) Process(record *database.Record, pu *pileup.Pileup) {
 		}
 	}
 
+}
+
+func (c *CountAll2) Process(record *database.Record, pu *pileup.Pileup) {
+	// We're looking for anywhere we have reads exceeding our min-depth that
+	// differ from WH1.
+	for pos := 0; pos <= pu.MaxPos; pos++ {
+		pur := pu.Get(pos)
+		if pur == nil {
+			continue
+		}
+		for _, read := range pur.Reads {
+			if read.Depth < c.minDepth {
+				continue
+			}
+			if c.ref.Nts[0][pos] == read.Nt {
+				continue
+			}
+			allele := Allele{pos, read.Nt}
+			c.counts[allele]++
+		}
+	}
 }
 
 func (c *CountAll) Display() {
@@ -232,6 +271,40 @@ func (c *CountAll) Display() {
 	}
 }
 
+func (c *CountAll2) Display() {
+	og := NewOutgroup()
+
+	type result struct {
+		Allele
+		silent bool
+		alts   Alts
+		count  int
+	}
+	results := make([]result, 0, len(c.counts))
+
+	for allele, count := range c.counts {
+		silent, _, _ := genomes.IsSilentWithReplacement(c.ref,
+			allele.pos, 0, 0, []byte{allele.nt})
+		alts := og.Get(allele.pos)
+		results = append(results, result{allele, silent, alts, count})
+	}
+
+	slices.SortFunc(results, func(a, b result) int {
+		if a.count > b.count {
+			return -1
+		}
+		if a.count < b.count {
+			return 1
+		}
+		return 0
+	})
+
+	for _, r := range results {
+		fmt.Printf("%d%c %t %s %d\n", r.pos+1, r.nt,
+			r.silent, r.alts.ToString(), r.count)
+	}
+}
+
 type Display struct {
 	minDepth int
 }
@@ -274,9 +347,18 @@ func DisplayReads(db *database.Database,
 	ProcessReads(db, ids, prefix, &d)
 }
 
-func CountReads(db *database.Database,
+func CountReadsCT(db *database.Database,
 	ids []database.Id, minDepth int, prefix string, cutoff time.Time) {
 	var c CountAll
+	ref := genomes.LoadGenomes("../fasta/WH1.fasta", "../fasta/WH1.orfs", false)
+	c.Init(ref, minDepth, cutoff)
+	ProcessReads(db, ids, prefix, &c)
+	c.Display()
+}
+
+func CountEverything(db *database.Database,
+	ids []database.Id, minDepth int, prefix string, cutoff time.Time) {
+	var c CountAll2
 	ref := genomes.LoadGenomes("../fasta/WH1.fasta", "../fasta/WH1.orfs", false)
 	c.Init(ref, minDepth, cutoff)
 	ProcessReads(db, ids, prefix, &c)
@@ -330,11 +412,11 @@ func FindSequences(db *database.Database, showClass string) {
 			}
 		}
 
-			display()
-			/*
-		if class == showClass {
-			display()
-		}
+		display()
+		/*
+			if class == showClass {
+				display()
+			}
 		*/
 
 		counts[class]++
@@ -380,6 +462,7 @@ func main() {
 		findSequences bool
 		class         string
 		count         bool
+		countCT       bool
 		cutoffS       string
 		cutoff        time.Time
 		locations     bool
@@ -388,6 +471,7 @@ func main() {
 	flag.BoolVar(&findSequences, "f", false, "Find the sequences")
 	flag.StringVar(&class, "class", "TT", "Classes to show")
 	flag.IntVar(&minDepth, "min-depth", 3, "Min depth")
+	flag.BoolVar(&count, "countCT", false, "Count silent CT")
 	flag.BoolVar(&count, "count", false, "Count everything")
 	flag.StringVar(&cutoffS, "cutoff", "", "Count before date")
 	flag.BoolVar(&locations, "locations", false, "Just show locations")
@@ -411,8 +495,10 @@ func main() {
 	records := LoadRecords(db, class)
 	if locations {
 		ShowLocations(db, records)
+	} else if countCT {
+		CountReadsCT(db, records, minDepth, class, cutoff)
 	} else if count {
-		CountReads(db, records, minDepth, class, cutoff)
+		CountEverything(db, records, minDepth, class, cutoff)
 	} else {
 		DisplayReads(db, records, minDepth, class)
 	}
