@@ -308,6 +308,10 @@ func (c *CountAll2) Display() {
 	var toOgTransitions ways
 	var overall ways
 
+	// Who most often has the "right" thing? This might be the "real" outgroup
+	winners := make(map[int]int)
+	losers := make(map[int]int)
+
 	for _, r := range results {
 		var aaChange string
 		var silent string
@@ -334,6 +338,13 @@ func (c *CountAll2) Display() {
 				if refNt == 'T' && r.nt == 'C' {
 					fromOgTransitions.wrong++
 					doPrint = true
+
+					for _, who := range og.WhoHas(r.pos, r.nt) {
+						winners[who]++
+					}
+					for _, who := range og.WhoHas(r.pos, refNt) {
+						losers[who]++
+					}
 				}
 			} else if r.nt == ogNt {
 				// Going to the outgroup, so these muts should be older than
@@ -351,23 +362,30 @@ func (c *CountAll2) Display() {
 				if ogNt == 'T' && refNt == 'C' {
 					toOgTransitions.wrong++
 					doPrint = true
+
+					for _, who := range og.WhoHas(r.pos, refNt) {
+						winners[who]++
+					}
+					for _, who := range og.WhoHas(r.pos, ogNt) {
+						losers[who]++
+					}
 				}
 			}
 		}
 
 		if doPrint {
-		if !r.silent {
-			_, oldProt, newProt, err := genomes.ProteinChange(c.ref, r.pos,
-				0, 0, []byte{r.nt})
-			if err == nil {
-				mut := comparison.Mut{oldProt[0], newProt[0], r.pos}
-				aaChange = mut.ToString(c.ref.Orfs)
+			if !r.silent {
+				_, oldProt, newProt, err := genomes.ProteinChange(c.ref, r.pos,
+					0, 0, []byte{r.nt})
+				if err == nil {
+					mut := comparison.Mut{oldProt[0], newProt[0], r.pos}
+					aaChange = mut.ToString(c.ref.Orfs)
+				}
+			} else {
+				silent = "*"
 			}
-		} else {
-			silent = "*"
-		}
-		fmt.Printf("%c%d%c%s %s %s %d\n", refNt, r.pos+1,
-			r.nt, silent, aaChange, r.alts.ToString(), r.count)
+			fmt.Printf("%c%d%c%s %s %s %d\n", refNt, r.pos+1,
+				r.nt, silent, aaChange, r.alts.ToString(), r.count)
 		}
 	}
 	fmt.Printf("From OG: %d, to OG: %d\n", fromOg, toOg)
@@ -376,6 +394,12 @@ func (c *CountAll2) Display() {
 	fmt.Printf("To OG, right: %d wrong %d\n",
 		toOgTransitions.right, toOgTransitions.wrong)
 	fmt.Printf("Overall, right: %d wrong %d\n", overall.right, overall.wrong)
+
+	fmt.Println("Winners")
+	og.DisplaySorted(winners)
+
+	fmt.Println("Losers")
+	og.DisplaySorted(losers)
 }
 
 type Display struct {
