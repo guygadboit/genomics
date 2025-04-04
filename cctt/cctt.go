@@ -300,10 +300,50 @@ func (c *CountAll2) Display() {
 		return 0
 	})
 
+	var fromOg, toOg int
+	type ways struct {
+		right, wrong int
+	}
+	var fromOgTransitions ways
+	var toOgTransitions ways
+
 	for _, r := range results {
 		var aaChange string
 		var silent string
-		fromNt := c.ref.Nts[0][r.pos]
+		refNt := c.ref.Nts[0][r.pos]
+		ogNt := r.alts[0].nt
+
+		if r.silent {
+			if refNt == ogNt {
+				// Going from the outgroup, so these muts should be post WH1.
+				fromOg++
+
+				// But these are inverted. We find more T->C going away from
+				// the OG than C->T. About twice as many.
+				if refNt == 'C' && r.nt == 'T' {
+					fromOgTransitions.right++
+				}
+				if refNt == 'T' && r.nt == 'C' {
+					fromOgTransitions.wrong++
+				}
+			} else if r.nt == ogNt {
+				// Going to the outgroup, so these muts should be older than
+				// WH1. We expect those to be T->C relative to WH1 in that
+				// case.
+				toOg++
+
+				// And these are also inverted. We find that when WH1 is going
+				// back tot he outgroup, C->T is more common, but that should
+				// be the other way around.
+				if ogNt == 'C' && refNt == 'T' {
+					// the right way is C in the outgroup changes to T in WH1.
+					toOgTransitions.right++
+				}
+				if ogNt == 'T' && refNt == 'C' {
+					toOgTransitions.wrong++
+				}
+			}
+		}
 
 		if !r.silent {
 			_, oldProt, newProt, err := genomes.ProteinChange(c.ref, r.pos,
@@ -315,9 +355,14 @@ func (c *CountAll2) Display() {
 		} else {
 			silent = "*"
 		}
-		fmt.Printf("%c%d%c%s %s %s %d\n", fromNt, r.pos+1,
+		fmt.Printf("%c%d%c%s %s %s %d\n", refNt, r.pos+1,
 			r.nt, silent, aaChange, r.alts.ToString(), r.count)
 	}
+	fmt.Printf("From OG: %d, to OG: %d\n", fromOg, toOg)
+	fmt.Printf("From OG, right: %d wrong %d\n",
+		fromOgTransitions.right, fromOgTransitions.wrong)
+	fmt.Printf("To OG, right: %d wrong %d\n",
+		toOgTransitions.right, toOgTransitions.wrong)
 }
 
 type Display struct {
