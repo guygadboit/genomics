@@ -14,6 +14,7 @@ import (
 	"os"
 	"path"
 	"slices"
+	"strings"
 	"time"
 )
 
@@ -155,6 +156,7 @@ type CountAll2 struct {
 	ref      *genomes.Genomes
 	minDepth int
 	counts   map[Allele]int
+	dates    map[Allele][]time.Time
 	cutoff   time.Time
 }
 
@@ -175,6 +177,7 @@ func (c *CountAll) Init(ref *genomes.Genomes, minDepth int, cutoff time.Time) {
 func (c *CountAll2) Init(ref *genomes.Genomes, minDepth int, cutoff time.Time) {
 	c.minDepth = minDepth
 	c.counts = make(map[Allele]int)
+	c.dates = make(map[Allele][]time.Time)
 	c.ref = ref
 }
 
@@ -198,7 +201,6 @@ func (c *CountAll) Process(record *database.Record, pu *pileup.Pileup) {
 			}
 		}
 	}
-
 }
 
 func (c *CountAll2) Process(record *database.Record, pu *pileup.Pileup) {
@@ -218,6 +220,13 @@ func (c *CountAll2) Process(record *database.Record, pu *pileup.Pileup) {
 			}
 			allele := Allele{pos, read.Nt}
 			c.counts[allele]++
+
+			dates, there := c.dates[allele]
+			if !there {
+				dates = make([]time.Time, 0, 1)
+			}
+			dates = append(dates, record.CollectionDate)
+			c.dates[allele] = dates
 		}
 	}
 }
@@ -272,6 +281,24 @@ func (c *CountAll) Display() {
 	}
 }
 
+func (c *CountAll2) SortDates() {
+	for _, v := range c.dates {
+		slices.SortFunc(v, func(a, b time.Time) int {
+			return a.Compare(b)
+		})
+	}
+}
+
+func dateString(dates []time.Time) string {
+	return "-" // comment this out if you really want the dates
+	s := make([]string, len(dates))
+	for i, date := range dates {
+		s[i] = fmt.Sprintf("%d",
+			int(date.Sub(utils.Date(2020, 1, 1)).Hours()/24))
+	}
+	return strings.Join(s, " ")
+}
+
 func (c *CountAll2) Display() {
 	og := NewOutgroup()
 
@@ -280,6 +307,7 @@ func (c *CountAll2) Display() {
 		silent bool
 		alts   Alts
 		count  int
+		dates  []time.Time
 	}
 	results := make([]result, 0, len(c.counts))
 
@@ -287,7 +315,8 @@ func (c *CountAll2) Display() {
 		silent, _, _ := genomes.IsSilentWithReplacement(c.ref,
 			allele.pos, 0, 0, []byte{allele.nt})
 		alts := og.Get(allele.pos)
-		results = append(results, result{allele, silent, alts, count})
+		results = append(results,
+			result{allele, silent, alts, count, c.dates[allele]})
 	}
 
 	slices.SortFunc(results, func(a, b result) int {
@@ -320,6 +349,9 @@ func (c *CountAll2) Display() {
 		ogNt := r.alts[0].nt
 
 		if r.silent {
+			if r.pos == 23601 || r.pos == 23604 {
+				doPrint = true
+			}
 			if refNt == 'C' && r.nt == 'T' {
 				overall.right++
 			}
@@ -361,7 +393,7 @@ func (c *CountAll2) Display() {
 				}
 				if ogNt == 'T' && refNt == 'C' {
 					toOgTransitions.wrong++
-					doPrint = true
+					// doPrint = true
 
 					for _, who := range og.WhoHas(r.pos, refNt) {
 						winners[who]++
@@ -384,8 +416,9 @@ func (c *CountAll2) Display() {
 			} else {
 				silent = "*"
 			}
-			fmt.Printf("%c%d%c%s %s %s %d\n", refNt, r.pos+1,
-				r.nt, silent, aaChange, r.alts.ToString(), r.count)
+			fmt.Printf("%c%d%c%s %s %s %d on %s\n", refNt, r.pos+1,
+				r.nt, silent, aaChange,
+				r.alts.ToString(), r.count, dateString(r.dates))
 		}
 	}
 	fmt.Printf("From OG: %d, to OG: %d\n", fromOg, toOg)
@@ -395,11 +428,13 @@ func (c *CountAll2) Display() {
 		toOgTransitions.right, toOgTransitions.wrong)
 	fmt.Printf("Overall, right: %d wrong %d\n", overall.right, overall.wrong)
 
+	/*
 	fmt.Println("Winners")
 	og.DisplaySorted(winners)
 
 	fmt.Println("Losers")
 	og.DisplaySorted(losers)
+	*/
 }
 
 type Display struct {
@@ -459,6 +494,7 @@ func CountEverything(db *database.Database,
 	ref := genomes.LoadGenomes("../fasta/WH1.fasta", "../fasta/WH1.orfs", false)
 	c.Init(ref, minDepth, cutoff)
 	ProcessReads(db, ids, prefix, &c)
+	c.SortDates()
 	c.Display()
 }
 
@@ -563,15 +599,17 @@ func main() {
 		cutoffS       string
 		cutoff        time.Time
 		locations     bool
+		showPoss	bool
 	)
 
 	flag.BoolVar(&findSequences, "f", false, "Find the sequences")
-	flag.StringVar(&class, "class", "TT", "Classes to show")
+	flag.StringVar(&class, "class", "first100", "Classes to show")
 	flag.IntVar(&minDepth, "min-depth", 3, "Min depth")
 	flag.BoolVar(&count, "countCT", false, "Count silent CT")
 	flag.BoolVar(&count, "count", false, "Count everything")
 	flag.StringVar(&cutoffS, "cutoff", "", "Count before date")
 	flag.BoolVar(&locations, "locations", false, "Just show locations")
+	flag.BoolVar(&showPoss, "show-poss", false, "Show possible silent")
 	flag.Parse()
 
 	if cutoffS != "" {
@@ -580,6 +618,11 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
+	}
+
+	if showPoss {
+		ShowPossible()
+		return
 	}
 
 	db := database.NewDatabase()
