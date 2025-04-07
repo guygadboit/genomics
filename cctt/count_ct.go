@@ -7,9 +7,79 @@ import (
 	"genomics/mutations"
 	"genomics/pileup"
 	"genomics/utils"
+	"genomics/stats"
 	"slices"
 	"time"
 )
+
+type Contents struct {
+	C8782 int // The depth of C at 8782
+	T8782 int
+
+	C28144 int
+	T28144 int
+
+	Classification string
+	Significance   float64
+}
+
+func (c *Contents) ToString() string {
+	return fmt.Sprintf("%s %d|%d %d|%d %.4g", c.Classification,
+		c.C8782, c.T8782, c.C28144, c.T28144, c.Significance)
+}
+
+/*
+Suppose you find much more C than T in both locations. What is the probability
+of doing that under the assumption that what you have is a mix of CT and TC? If
+it were the latter, you would expect C/T to roughly equal T/C in the two
+locations.
+*/
+func (c *Contents) CalcSignificance() {
+	var ct stats.ContingencyTable
+	ct.Init(c.C8782, c.T8782, c.T28144, c.C28144)
+	ct.FisherExact(stats.TWO_SIDED)
+	c.Significance = ct.P
+}
+
+func Classify(pu *pileup.Pileup, minDepth int) Contents {
+	pos8782 := pu.Get(8782 - 1)
+	pos28144 := pu.Get(28144 - 1)
+
+	ret := Contents{
+		pos8782.GetDepthOf('C'), pos8782.GetDepthOf('T'),
+		pos28144.GetDepthOf('C'), pos28144.GetDepthOf('T'),
+		"-", 1.0,
+	}
+
+	if ret.C8782 >= minDepth &&
+		ret.T8782 < minDepth &&
+		ret.C28144 >= minDepth &&
+		ret.T28144 < minDepth {
+		ret.Classification = "CC*"
+	} else if ret.T8782 >= minDepth &&
+		ret.C8782 < minDepth &&
+		ret.T28144 >= minDepth &&
+		ret.C28144 < minDepth {
+		ret.Classification = "TT*"
+	} else if ret.C8782 > ret.T8782 &&
+		ret.C28144 > ret.T28144 &&
+		ret.C8782 >= minDepth &&
+		ret.C28144 >= minDepth {
+		ret.Classification = "CC>"
+	} else if ret.T8782 > ret.C8782 &&
+		ret.T28144 > ret.C28144 &&
+		ret.T8782 >= minDepth &&
+		ret.T28144 >= minDepth {
+		ret.Classification = "TT>"
+	}
+	ret.CalcSignificance()
+	return ret
+}
+
+func (c *Contents) QSDepth() int {
+	return utils.Max(utils.Min(c.C8782, c.T8782), utils.Min(c.C28144, c.T28144))
+}
+
 
 
 type CountCT struct {
@@ -104,3 +174,13 @@ func (c *CountCT) Display() {
 		fmt.Println(dc.days, dc.seen)
 	}
 }
+
+func CountReadsCT(db *database.Database,
+	ids []database.Id, minDepth int, prefix string, cutoff time.Time) {
+	var c CountCT
+	ref := genomes.LoadGenomes("../fasta/WH1.fasta", "../fasta/WH1.orfs", false)
+	c.Init(ref, minDepth, cutoff)
+	ProcessReads(db, ids, prefix, &c)
+	c.Display()
+}
+
