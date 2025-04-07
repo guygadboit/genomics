@@ -2,6 +2,7 @@ package utils
 
 import (
 	"sort"
+	"slices"
 )
 
 type sorter struct {
@@ -54,11 +55,34 @@ func (s *sorter) Swap(i, j int) {
 }
 
 /*
-	Sort a slice. Either of lt or key can be nil
+	Sort a slice. Either of lt or key can be nil. This pre-dated generics is
+	probably useless now.
 */
-func Sort(len int, reverse bool, swap func(int, int),
+func LegacySort(len int, reverse bool, swap func(int, int),
 	lt func(int, int) bool, key func(int) float64) {
 	var s sorter
 	s.init(len, reverse, swap, lt, key)
 	sort.Sort(&s)
+}
+
+/*
+The above pre-dated generics. This is the Sort function you actually probably
+want
+*/
+func Sort[T any](s []T, reverse bool, key func(t T) int) {
+	var ret int
+	if reverse {
+		ret = -1
+	} else {
+		ret = 1
+	}
+	slices.SortFunc(s, func(a, b T) int {
+		if key(a) > key(b) {
+			return ret
+		}
+		if key(a) < key(b) {
+			return -ret
+		}
+		return 0
+	})
 }

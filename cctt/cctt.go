@@ -6,6 +6,7 @@ import (
 	"genomics/comparison"
 	"genomics/database"
 	"genomics/genomes"
+	"genomics/mutations"
 	"genomics/pileup"
 	"genomics/utils"
 	"log"
@@ -80,6 +81,10 @@ type CountAll struct {
 	counts   map[Allele]int
 	dates    map[Allele][]time.Time
 	cutoff   time.Time
+
+	// How often each possible silent mutation actually appears above minDepth
+	possibleSilent map[mutations.Mutation]int
+	possibleNS     map[mutations.Mutation]int
 }
 
 func (c *CountAll) Init(ref *genomes.Genomes, minDepth int, cutoff time.Time) {
@@ -87,6 +92,16 @@ func (c *CountAll) Init(ref *genomes.Genomes, minDepth int, cutoff time.Time) {
 	c.counts = make(map[Allele]int)
 	c.dates = make(map[Allele][]time.Time)
 	c.ref = ref
+
+	c.possibleSilent = make(map[mutations.Mutation]int)
+	for _, mut := range mutations.PossibleSilentMuts(ref, 0) {
+		c.possibleSilent[mut] = 0
+	}
+
+	c.possibleNS = make(map[mutations.Mutation]int)
+	for _, mut := range mutations.PossibleNonSilentMuts(ref, 0) {
+		c.possibleNS[mut] = 0
+	}
 }
 
 func (c *CountAll) Process(record *database.Record, pu *pileup.Pileup) {
@@ -113,6 +128,16 @@ func (c *CountAll) Process(record *database.Record, pu *pileup.Pileup) {
 			}
 			dates = append(dates, record.CollectionDate)
 			c.dates[allele] = dates
+
+			mut := mutations.Mutation{mutations.BaseMutation{pos, true},
+				c.ref.Nts[0][pos], read.Nt}
+			if _, there := c.possibleSilent[mut]; there {
+				c.possibleSilent[mut]++
+			}
+			mut.Silent = false
+			if _, there := c.possibleNS[mut]; there {
+				c.possibleNS[mut]++
+			}
 		}
 	}
 }
@@ -186,6 +211,68 @@ func (c *CountAll) Display() {
 	}
 }
 
+func (c *CountAll) DisplayPossible(minSamples int, silent bool) {
+	var records map[mutations.Mutation]int
+	var silence string
+	if silent {
+		records = c.possibleSilent
+		silence = "silent"
+	} else {
+		records = c.possibleNS
+		silence = "non-silent"
+	}
+
+	found, total := 0, 0
+	for k, v := range records {
+		// fmt.Printf("%c%d%c: %d\n", k.From, k.Pos+1, k.To, v)
+		_, _, err := c.ref.Orfs.GetCodonOffset(k.Pos); if err != nil {
+			continue
+		}
+
+		if v >= minSamples {
+			found++
+		}
+		total++
+	}
+	fmt.Printf("%d/%d possible %s (%.4f) were actually "+
+		"found above depth %d\n",
+		found, total, silence,
+		float64(found)/float64(total), c.minDepth)
+}
+
+func (c *CountAll) GraphPossible(silent bool, minSamples int, fname string) {
+	var records map[mutations.Mutation]int
+	if silent {
+		records = c.possibleSilent
+	} else {
+		records = c.possibleNS
+	}
+
+	fd, fp := utils.WriteFile(fname)
+	defer fd.Close()
+
+	type datum struct {
+		pos    int
+		silent bool
+		count  int
+	}
+	data := make([]datum, 0, len(records))
+	for k, v := range records {
+		if v >= minSamples {
+			data = append(data, datum{k.Pos, k.Silent, v})
+		}
+	}
+	utils.Sort(data, false, func(d datum) int {
+		return d.pos
+	})
+
+	for _, datum := range data {
+		fmt.Fprintln(fp, datum.pos, datum.count)
+	}
+	fp.Flush()
+	fmt.Printf("Wrote %s\n", fname)
+}
+
 type Display struct {
 	minDepth int
 }
@@ -236,6 +323,10 @@ func CountEverything(db *database.Database,
 	ProcessReads(db, ids, prefix, &c)
 	c.SortDates()
 	c.Display()
+	c.DisplayPossible(5, false)
+	c.DisplayPossible(5, true)
+	c.GraphPossible(false, 5, "NS.dat")
+	c.GraphPossible(true, 5, "S.dat")
 }
 
 /*

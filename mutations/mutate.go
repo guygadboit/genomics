@@ -250,30 +250,45 @@ func Summary(g *genomes.Genomes) {
 	}
 }
 
-/*
-All the possible silent muts (excludes those outside ORFs), looking at one nt
-at a time. Approximates isolated SNVs.
-*/
-func PossibleSilentMuts(g *genomes.Genomes, which int) []Mutation {
-	ret := make([]Mutation, 0)
+func possibleMuts(g *genomes.Genomes,
+	which int, cb func(int, byte, byte)) {
 	for pos := 0; pos < g.Length(); pos++ {
 		nt := g.Nts[which][pos]
 		for _, replacement := range []byte{'G', 'A', 'C', 'T'} {
 			if replacement == nt {
 				continue
 			}
-			silent, _, err := genomes.IsSilentWithReplacement(g, pos, 0, 0,
-				[]byte{replacement})
-			if err != nil {
-				continue
-			}
-			if silent {
-				ret = append(ret, Mutation{BaseMutation{pos, true},
-					nt, replacement})
-			}
+			cb(pos, nt, replacement)
 		}
 	}
+}
+
+func getPossibleMuts(g *genomes.Genomes,
+	which int, wantSilent bool) []Mutation {
+	ret := make([]Mutation, 0)
+	possibleMuts(g, which, func(pos int, from, to byte) {
+		silent, _, err := genomes.IsSilentWithReplacement(g, pos, 0, 0,
+			[]byte{to})
+		if err != nil {
+			return
+		}
+		if silent == wantSilent {
+			ret = append(ret, Mutation{BaseMutation{pos, silent}, from, to})
+		}
+	})
 	return ret
+}
+
+/*
+All the possible silent muts (excludes those outside ORFs), looking at one nt
+at a time. Approximates isolated SNVs.
+*/
+func PossibleSilentMuts(g *genomes.Genomes, which int) []Mutation {
+	return getPossibleMuts(g, which, true)
+}
+
+func PossibleNonSilentMuts(g *genomes.Genomes, which int) []Mutation {
+	return getPossibleMuts(g, which, false)
 }
 
 /*
