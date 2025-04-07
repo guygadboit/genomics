@@ -165,112 +165,25 @@ func (c *CountAll) Display() {
 		return 0
 	})
 
-	var fromOg, toOg int
-	type ways struct {
-		right, wrong int
-	}
-	var fromOgTransitions ways
-	var toOgTransitions ways
-	var overall ways
-
-	// Who most often has the "right" thing? This might be the "real" outgroup
-	winners := make(map[int]int)
-	losers := make(map[int]int)
-
 	for _, r := range results {
 		var aaChange string
 		var silent string
-		var doPrint bool
 		refNt := c.ref.Nts[0][r.pos]
-		ogNt := r.alts[0].nt
 
-		if r.silent {
-			if r.pos == 23601 || r.pos == 23604 {
-				doPrint = true
+		if !r.silent {
+			_, oldProt, newProt, err := genomes.ProteinChange(c.ref, r.pos,
+				0, 0, []byte{r.nt})
+			if err == nil {
+				mut := comparison.Mut{oldProt[0], newProt[0], r.pos}
+				aaChange = mut.ToString(c.ref.Orfs)
 			}
-			if refNt == 'C' && r.nt == 'T' {
-				overall.right++
-			}
-			if refNt == 'T' && r.nt == 'C' {
-				overall.wrong++
-			}
-			if refNt == ogNt {
-				// Going from the outgroup, so these muts should be post WH1.
-				fromOg++
-
-				// But these are inverted. We find more T->C going away from
-				// the OG than C->T. About twice as many.
-				if refNt == 'C' && r.nt == 'T' {
-					fromOgTransitions.right++
-				}
-				if refNt == 'T' && r.nt == 'C' {
-					fromOgTransitions.wrong++
-					doPrint = true
-
-					for _, who := range og.WhoHas(r.pos, r.nt) {
-						winners[who]++
-					}
-					for _, who := range og.WhoHas(r.pos, refNt) {
-						losers[who]++
-					}
-				}
-			} else if r.nt == ogNt {
-				// Going to the outgroup, so these muts should be older than
-				// WH1. We expect those to be T->C relative to WH1 in that
-				// case.
-				toOg++
-
-				// And these are also inverted. We find that when WH1 is going
-				// back to the outgroup, C->T is more common, but that should
-				// be the other way around.
-				if ogNt == 'C' && refNt == 'T' {
-					// the right way is C in the outgroup changes to T in WH1.
-					toOgTransitions.right++
-				}
-				if ogNt == 'T' && refNt == 'C' {
-					toOgTransitions.wrong++
-					// doPrint = true
-
-					for _, who := range og.WhoHas(r.pos, refNt) {
-						winners[who]++
-					}
-					for _, who := range og.WhoHas(r.pos, ogNt) {
-						losers[who]++
-					}
-				}
-			}
+		} else {
+			silent = "*"
 		}
-
-		if doPrint {
-			if !r.silent {
-				_, oldProt, newProt, err := genomes.ProteinChange(c.ref, r.pos,
-					0, 0, []byte{r.nt})
-				if err == nil {
-					mut := comparison.Mut{oldProt[0], newProt[0], r.pos}
-					aaChange = mut.ToString(c.ref.Orfs)
-				}
-			} else {
-				silent = "*"
-			}
-			fmt.Printf("%c%d%c%s %s %s %d on %s\n", refNt, r.pos+1,
-				r.nt, silent, aaChange,
-				r.alts.ToString(), r.count, dateString(r.dates))
-		}
+		fmt.Printf("%c%d%c%s %s %s %d on %s\n", refNt, r.pos+1,
+			r.nt, silent, aaChange,
+			r.alts.ToString(), r.count, dateString(r.dates))
 	}
-	fmt.Printf("From OG: %d, to OG: %d\n", fromOg, toOg)
-	fmt.Printf("From OG, right: %d wrong %d\n",
-		fromOgTransitions.right, fromOgTransitions.wrong)
-	fmt.Printf("To OG, right: %d wrong %d\n",
-		toOgTransitions.right, toOgTransitions.wrong)
-	fmt.Printf("Overall, right: %d wrong %d\n", overall.right, overall.wrong)
-
-	/*
-	fmt.Println("Winners")
-	og.DisplaySorted(winners)
-
-	fmt.Println("Losers")
-	og.DisplaySorted(losers)
-	*/
 }
 
 type Display struct {
