@@ -144,7 +144,7 @@ type Allele struct {
 	nt  byte
 }
 
-type CountAll2 struct {
+type CountAll struct {
 	ref      *genomes.Genomes
 	minDepth int
 	counts   map[Allele]int
@@ -153,14 +153,14 @@ type CountAll2 struct {
 }
 
 
-func (c *CountAll2) Init(ref *genomes.Genomes, minDepth int, cutoff time.Time) {
+func (c *CountAll) Init(ref *genomes.Genomes, minDepth int, cutoff time.Time) {
 	c.minDepth = minDepth
 	c.counts = make(map[Allele]int)
 	c.dates = make(map[Allele][]time.Time)
 	c.ref = ref
 }
 
-func (c *CountAll2) Process(record *database.Record, pu *pileup.Pileup) {
+func (c *CountAll) Process(record *database.Record, pu *pileup.Pileup) {
 	// We're looking for anywhere we have reads exceeding our min-depth that
 	// differ from WH1.
 	for pos := 0; pos <= pu.MaxPos; pos++ {
@@ -188,7 +188,7 @@ func (c *CountAll2) Process(record *database.Record, pu *pileup.Pileup) {
 	}
 }
 
-func (c *CountAll2) SortDates() {
+func (c *CountAll) SortDates() {
 	for _, v := range c.dates {
 		slices.SortFunc(v, func(a, b time.Time) int {
 			return a.Compare(b)
@@ -206,7 +206,7 @@ func dateString(dates []time.Time) string {
 	return strings.Join(s, " ")
 }
 
-func (c *CountAll2) Display() {
+func (c *CountAll) Display() {
 	og := NewOutgroup()
 
 	type result struct {
@@ -388,7 +388,7 @@ func DisplayReads(db *database.Database,
 
 func CountReadsCT(db *database.Database,
 	ids []database.Id, minDepth int, prefix string, cutoff time.Time) {
-	var c CountAll
+	var c CountCT
 	ref := genomes.LoadGenomes("../fasta/WH1.fasta", "../fasta/WH1.orfs", false)
 	c.Init(ref, minDepth, cutoff)
 	ProcessReads(db, ids, prefix, &c)
@@ -397,7 +397,7 @@ func CountReadsCT(db *database.Database,
 
 func CountEverything(db *database.Database,
 	ids []database.Id, minDepth int, prefix string, cutoff time.Time) {
-	var c CountAll2
+	var c CountAll
 	ref := genomes.LoadGenomes("../fasta/WH1.fasta", "../fasta/WH1.orfs", false)
 	c.Init(ref, minDepth, cutoff)
 	ProcessReads(db, ids, prefix, &c)

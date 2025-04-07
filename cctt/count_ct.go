@@ -12,7 +12,7 @@ import (
 )
 
 
-type CountAll struct {
+type CountCT struct {
 	minDepth int
 	counts   map[int]int // How many in each position
 	silentCT []int       // All possible silent C->T positions
@@ -20,7 +20,7 @@ type CountAll struct {
 	byDate   map[int]int
 }
 
-func (c *CountAll) Init(ref *genomes.Genomes, minDepth int, cutoff time.Time) {
+func (c *CountCT) Init(ref *genomes.Genomes, minDepth int, cutoff time.Time) {
 	c.minDepth = minDepth
 	c.cutoff = cutoff
 	muts := mutations.PossibleSilentMuts(ref, 0)
@@ -33,7 +33,7 @@ func (c *CountAll) Init(ref *genomes.Genomes, minDepth int, cutoff time.Time) {
 	c.counts = make(map[int]int)
 	c.byDate = make(map[int]int)
 }
-func (c *CountAll) Process(record *database.Record, pu *pileup.Pileup) {
+func (c *CountCT) Process(record *database.Record, pu *pileup.Pileup) {
 	for _, pos := range c.silentCT {
 		pur := pu.Get(pos)
 		if pur == nil {
@@ -55,7 +55,7 @@ func (c *CountAll) Process(record *database.Record, pu *pileup.Pileup) {
 	}
 }
 
-func (c *CountAll) Display() {
+func (c *CountCT) Display() {
 	og := NewOutgroup()
 
 	type count struct {
