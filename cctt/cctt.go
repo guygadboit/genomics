@@ -81,17 +81,20 @@ type CountAll struct {
 	counts   map[Allele]int
 	dates    map[Allele][]time.Time
 	cutoff   time.Time
+	nonMaj   bool
 
 	// How often each possible silent mutation actually appears above minDepth
 	possibleSilent map[mutations.Mutation]int
 	possibleNS     map[mutations.Mutation]int
 }
 
-func (c *CountAll) Init(ref *genomes.Genomes, minDepth int, cutoff time.Time) {
+func (c *CountAll) Init(ref *genomes.Genomes,
+	minDepth int, cutoff time.Time, nonMaj bool) {
 	c.minDepth = minDepth
 	c.counts = make(map[Allele]int)
 	c.dates = make(map[Allele][]time.Time)
 	c.ref = ref
+	c.nonMaj = nonMaj
 
 	c.possibleSilent = make(map[mutations.Mutation]int)
 	for _, mut := range mutations.PossibleSilentMuts(ref, 0) {
@@ -112,7 +115,10 @@ func (c *CountAll) Process(record *database.Record, pu *pileup.Pileup) {
 		if pur == nil {
 			continue
 		}
-		for _, read := range pur.Reads {
+		for i, read := range pur.Reads {
+			if c.nonMaj && i == 0 {
+				continue
+			}
 			if read.Depth < c.minDepth {
 				continue
 			}
@@ -225,7 +231,8 @@ func (c *CountAll) DisplayPossible(minSamples int, silent bool) {
 	found, total := 0, 0
 	for k, v := range records {
 		// fmt.Printf("%c%d%c: %d\n", k.From, k.Pos+1, k.To, v)
-		_, _, err := c.ref.Orfs.GetCodonOffset(k.Pos); if err != nil {
+		_, _, err := c.ref.Orfs.GetCodonOffset(k.Pos)
+		if err != nil {
 			continue
 		}
 
@@ -316,17 +323,30 @@ func DisplayReads(db *database.Database,
 }
 
 func CountEverything(db *database.Database,
-	ids []database.Id, minDepth int, prefix string, cutoff time.Time) {
+	class string,
+	ids []database.Id, minDepth int, minSamples int,
+	prefix string, cutoff time.Time, nonMaj bool) {
 	var c CountAll
 	ref := genomes.LoadGenomes("../fasta/WH1.fasta", "../fasta/WH1.orfs", false)
-	c.Init(ref, minDepth, cutoff)
-	ProcessReads(db, ids, prefix, &c)
+	c.Init(ref, minDepth, cutoff, nonMaj)
+	ProcessReads(db, ids, "pileups", &c)
 	c.SortDates()
 	c.Display()
-	c.DisplayPossible(5, false)
-	c.DisplayPossible(5, true)
-	c.GraphPossible(false, 5, "NS.dat")
-	c.GraphPossible(true, 5, "S.dat")
+	c.DisplayPossible(minSamples, false)
+	c.DisplayPossible(minSamples, true)
+
+	c.GraphPossible(false, minSamples, class+"-NS.dat")
+	c.GraphPossible(true, minSamples, class+"-S.dat")
+	gpiName := class + "-plot.gpi"
+	fd, fp := utils.WriteFile(gpiName)
+	defer fd.Close()
+	fmt.Fprintf(fp,
+		"set title \"%s\"\n", class)
+	fmt.Fprintf(fp,
+		"plot \"%s-NS.dat\" with impulses, \"%s-S.dat\" with impulses\n",
+		class, class)
+	fp.Flush()
+	fmt.Printf("Wrote %s\n", gpiName)
 }
 
 /*
@@ -423,6 +443,7 @@ func ShowLocations(db *database.Database, ids []database.Id) {
 func main() {
 	var (
 		minDepth      int
+		minSamples    int
 		findSequences bool
 		class         string
 		count         bool
@@ -431,16 +452,19 @@ func main() {
 		cutoff        time.Time
 		locations     bool
 		showPoss      bool
+		nonMaj        bool
 	)
 
 	flag.BoolVar(&findSequences, "f", false, "Find the sequences")
 	flag.StringVar(&class, "class", "first100", "Classes to show")
 	flag.IntVar(&minDepth, "min-depth", 3, "Min depth")
+	flag.IntVar(&minSamples, "min-samp", 5, "Min samples")
 	flag.BoolVar(&count, "countCT", false, "Count silent CT")
 	flag.BoolVar(&count, "count", false, "Count everything")
 	flag.StringVar(&cutoffS, "cutoff", "", "Count before date")
 	flag.BoolVar(&locations, "locations", false, "Just show locations")
 	flag.BoolVar(&showPoss, "show-poss", false, "Show possible silent")
+	flag.BoolVar(&nonMaj, "non-maj", false, "Only show non-majority")
 	flag.Parse()
 
 	if cutoffS != "" {
@@ -469,7 +493,8 @@ func main() {
 	} else if countCT {
 		CountReadsCT(db, records, minDepth, class, cutoff)
 	} else if count {
-		CountEverything(db, records, minDepth, class, cutoff)
+		CountEverything(db, class,
+			records, minDepth, minSamples, class, cutoff, nonMaj)
 	} else {
 		DisplayReads(db, records, minDepth, class)
 	}
