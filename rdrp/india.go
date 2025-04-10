@@ -60,9 +60,9 @@ func ShowSequences(db *database.Database) {
 
 			fmt.Printf("%s (%s) %d\n", r.ToString(), r.Host, len(ix))
 
-			utils.SortByKey(ix, func(mut database.AAMutation) int {
+			utils.SortByKey(ix, false, func(mut database.AAMutation) int {
 				return int(byte(mut.Gene[0]))*10000 + int(mut.Pos)
-			}, false)
+			})
 			for _, mut := range ix {
 				fmt.Printf("%s ", mut.ToString())
 			}

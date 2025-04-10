@@ -66,23 +66,25 @@ func LegacySort(len int, reverse bool, swap func(int, int),
 }
 
 /*
-The above pre-dated generics. This is the Sort function you actually probably
-want
+The above functions pre-date generics. This is probably the one you want
 */
-func Sort[T any](s []T, reverse bool, key func(t T) int) {
-	var ret int
-	if reverse {
-		ret = -1
-	} else {
-		ret = 1
-	}
-	slices.SortFunc(s, func(a, b T) int {
-		if key(a) > key(b) {
-			return ret
+func SortByKey[S ~[]E, E any](x S, reverse bool, key func(a E) int) {
+	slices.SortFunc(x, func(a, b E) int {
+		kA := key(a)
+		kB := key(b)
+
+		if reverse {
+			kA, kB = kB, kA
 		}
-		if key(a) < key(b) {
-			return -ret
+
+		if kA < kB {
+			return 1
 		}
+
+		if kA < kB {
+			return -1
+		}
+
 		return 0
 	})
 }

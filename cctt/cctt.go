@@ -75,10 +75,15 @@ type Allele struct {
 	nt  byte
 }
 
+type Count struct {
+	count    int
+	maxDepth int
+}
+
 type CountAll struct {
 	ref      *genomes.Genomes
 	minDepth int
-	counts   map[Allele]int
+	counts   map[Allele]Count
 	dates    map[Allele][]time.Time
 	cutoff   time.Time
 	nonMaj   bool
@@ -91,7 +96,7 @@ type CountAll struct {
 func (c *CountAll) Init(ref *genomes.Genomes,
 	minDepth int, cutoff time.Time, nonMaj bool) {
 	c.minDepth = minDepth
-	c.counts = make(map[Allele]int)
+	c.counts = make(map[Allele]Count)
 	c.dates = make(map[Allele][]time.Time)
 	c.ref = ref
 	c.nonMaj = nonMaj
@@ -126,7 +131,10 @@ func (c *CountAll) Process(record *database.Record, pu *pileup.Pileup) {
 				continue
 			}
 			allele := Allele{pos, read.Nt}
-			c.counts[allele]++
+
+			existing := c.counts[allele]
+			c.counts[allele] = Count{existing.count+1,
+				utils.Max(existing.maxDepth, read.Depth)}
 
 			dates, there := c.dates[allele]
 			if !there {
@@ -157,7 +165,7 @@ func (c *CountAll) SortDates() {
 }
 
 func dateString(dates []time.Time) string {
-	return "-" // comment this out if you really want the dates
+	return "" // comment this out if you really want the dates
 	s := make([]string, len(dates))
 	for i, date := range dates {
 		s[i] = fmt.Sprintf("%d",
@@ -173,7 +181,7 @@ func (c *CountAll) Display() {
 		Allele
 		silent bool
 		alts   Alts
-		count  int
+		count  Count
 		dates  []time.Time
 	}
 	results := make([]result, 0, len(c.counts))
@@ -186,15 +194,7 @@ func (c *CountAll) Display() {
 			result{allele, silent, alts, count, c.dates[allele]})
 	}
 
-	slices.SortFunc(results, func(a, b result) int {
-		if a.count > b.count {
-			return -1
-		}
-		if a.count < b.count {
-			return 1
-		}
-		return 0
-	})
+	utils.SortByKey(results, false, func(a result) int {return a.count.count})
 
 	for _, r := range results {
 		var aaChange string
@@ -211,9 +211,14 @@ func (c *CountAll) Display() {
 		} else {
 			silent = "*"
 		}
-		fmt.Printf("%c%d%c%s %s %s %d on %s\n", refNt, r.pos+1,
+		ds := dateString(r.dates)
+		if ds != "" {
+			ds = fmt.Sprintf("on %s", ds)
+		}
+		fmt.Printf("%c%d%c%s %s %s %d@%d%s\n", refNt, r.pos+1,
 			r.nt, silent, aaChange,
-			r.alts.ToString(), r.count, dateString(r.dates))
+			r.alts.ToString(),
+			r.count.count, r.count.maxDepth, ds)
 	}
 }
 
@@ -269,7 +274,7 @@ func (c *CountAll) GraphPossible(silent bool, minSamples int, fname string) {
 			data = append(data, datum{k.Pos, k.Silent, v})
 		}
 	}
-	utils.Sort(data, false, func(d datum) int {
+	utils.SortByKey(data, false, func(d datum) int {
 		return d.pos
 	})
 

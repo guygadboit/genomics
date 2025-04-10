@@ -9,7 +9,6 @@ import (
 	"math/rand"
 	"os"
 	"path/filepath"
-	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -318,27 +317,6 @@ func BaseName(fname string) string {
 			return ret
 		}
 	}
-}
-
-func SortByKey[S ~[]E, E any](x S, key func(a E) int, reverse bool) {
-	slices.SortFunc(x, func(a, b E) int {
-		kA := key(a)
-		kB := key(b)
-
-		if reverse {
-			kA, kB = kB, kA
-		}
-
-		if kA < kB {
-			return 1
-		}
-
-		if kA < kB {
-			return -1
-		}
-
-		return 0
-	})
 }
 
 func Ceil3(x int) int {
