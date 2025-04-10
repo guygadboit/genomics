@@ -76,9 +76,9 @@ type Allele struct {
 }
 
 type Count struct {
-	count    int
-	maxDepth int
-	maxDepthRatio	float64
+	count         int
+	maxDepth      int
+	maxDepthRatio float64
 }
 
 type CountAll struct {
@@ -90,8 +90,8 @@ type CountAll struct {
 	nonMaj   bool
 
 	// How often each possible silent mutation actually appears above minDepth
-	possibleSilent map[mutations.Mutation]int
-	possibleNS     map[mutations.Mutation]int
+	possibleSilent map[mutations.Mutation]Count
+	possibleNS     map[mutations.Mutation]Count
 }
 
 func (c *CountAll) Init(ref *genomes.Genomes,
@@ -102,14 +102,14 @@ func (c *CountAll) Init(ref *genomes.Genomes,
 	c.ref = ref
 	c.nonMaj = nonMaj
 
-	c.possibleSilent = make(map[mutations.Mutation]int)
+	c.possibleSilent = make(map[mutations.Mutation]Count)
 	for _, mut := range mutations.PossibleSilentMuts(ref, 0) {
-		c.possibleSilent[mut] = 0
+		c.possibleSilent[mut] = Count{}
 	}
 
-	c.possibleNS = make(map[mutations.Mutation]int)
+	c.possibleNS = make(map[mutations.Mutation]Count)
 	for _, mut := range mutations.PossibleNonSilentMuts(ref, 0) {
-		c.possibleNS[mut] = 0
+		c.possibleNS[mut] = Count{}
 	}
 }
 
@@ -133,9 +133,9 @@ func (c *CountAll) Process(record *database.Record, pu *pileup.Pileup) {
 			}
 			allele := Allele{pos, read.Nt}
 
-			depthRatio := float64(read.Depth)/float64(pur.TotalDepth)
+			depthRatio := float64(read.Depth) / float64(pur.TotalDepth)
 			existing := c.counts[allele]
-			c.counts[allele] = Count{existing.count+1,
+			c.counts[allele] = Count{existing.count + 1,
 				utils.Max(existing.maxDepth, read.Depth),
 				utils.Max(existing.maxDepthRatio, depthRatio)}
 
@@ -149,11 +149,17 @@ func (c *CountAll) Process(record *database.Record, pu *pileup.Pileup) {
 			mut := mutations.Mutation{mutations.BaseMutation{pos, true},
 				c.ref.Nts[0][pos], read.Nt}
 			if _, there := c.possibleSilent[mut]; there {
-				c.possibleSilent[mut]++
+				existing := c.possibleSilent[mut]
+				c.possibleSilent[mut] = Count{existing.count + 1,
+					utils.Max(existing.maxDepth, read.Depth),
+					utils.Max(existing.maxDepthRatio, depthRatio)}
 			}
 			mut.Silent = false
 			if _, there := c.possibleNS[mut]; there {
-				c.possibleNS[mut]++
+				existing := c.possibleNS[mut]
+				c.possibleNS[mut] = Count{existing.count + 1,
+					utils.Max(existing.maxDepth, read.Depth),
+					utils.Max(existing.maxDepthRatio, depthRatio)}
 			}
 		}
 	}
@@ -197,7 +203,7 @@ func (c *CountAll) Display() {
 			result{allele, silent, alts, count, c.dates[allele]})
 	}
 
-	utils.SortByKey(results, false, func(a result) int {return a.count.count})
+	utils.SortByKey(results, false, func(a result) int { return a.count.count })
 
 	for _, r := range results {
 		var aaChange string
@@ -226,7 +232,7 @@ func (c *CountAll) Display() {
 }
 
 func (c *CountAll) DisplayPossible(minSamples int, silent bool) {
-	var records map[mutations.Mutation]int
+	var records map[mutations.Mutation]Count
 	var silence string
 	if silent {
 		records = c.possibleSilent
@@ -244,7 +250,7 @@ func (c *CountAll) DisplayPossible(minSamples int, silent bool) {
 			continue
 		}
 
-		if v >= minSamples {
+		if v.count >= minSamples {
 			found++
 		}
 		total++
@@ -256,7 +262,7 @@ func (c *CountAll) DisplayPossible(minSamples int, silent bool) {
 }
 
 func (c *CountAll) GraphPossible(silent bool, minSamples int, fname string) {
-	var records map[mutations.Mutation]int
+	var records map[mutations.Mutation]Count
 	if silent {
 		records = c.possibleSilent
 	} else {
@@ -267,14 +273,16 @@ func (c *CountAll) GraphPossible(silent bool, minSamples int, fname string) {
 	defer fd.Close()
 
 	type datum struct {
-		pos    int
-		silent bool
-		count  int
+		pos           int
+		silent        bool
+		count         int
+		maxDepthRatio float64
 	}
 	data := make([]datum, 0, len(records))
 	for k, v := range records {
-		if v >= minSamples {
-			data = append(data, datum{k.Pos, k.Silent, v})
+		if v.count >= minSamples {
+			data = append(data,
+				datum{k.Pos, k.Silent, v.count, v.maxDepthRatio})
 		}
 	}
 	utils.SortByKey(data, false, func(d datum) int {
@@ -282,7 +290,8 @@ func (c *CountAll) GraphPossible(silent bool, minSamples int, fname string) {
 	})
 
 	for _, datum := range data {
-		fmt.Fprintln(fp, datum.pos, datum.count)
+		// fmt.Fprintln(fp, datum.pos, datum.count)
+		fmt.Fprintln(fp, datum.pos, datum.maxDepthRatio)
 	}
 	fp.Flush()
 	fmt.Printf("Wrote %s\n", fname)
@@ -352,7 +361,8 @@ func CountEverything(db *database.Database,
 	fmt.Fprintf(fp,
 		"set title \"%s\"\n", class)
 	fmt.Fprintf(fp,
-		"plot \"%s-NS.dat\" with impulses, \"%s-S.dat\" with impulses\n",
+		"plot \"%s-NS.dat\" with impulses title \"NS\", "+
+			"\"%s-S.dat\" with impulses title \"S\"\n",
 		class, class)
 	fp.Flush()
 	fmt.Printf("Wrote %s\n", gpiName)
