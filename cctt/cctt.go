@@ -78,6 +78,7 @@ type Allele struct {
 type Count struct {
 	count    int
 	maxDepth int
+	maxDepthRatio	float64
 }
 
 type CountAll struct {
@@ -132,9 +133,11 @@ func (c *CountAll) Process(record *database.Record, pu *pileup.Pileup) {
 			}
 			allele := Allele{pos, read.Nt}
 
+			depthRatio := float64(read.Depth)/float64(pur.TotalDepth)
 			existing := c.counts[allele]
 			c.counts[allele] = Count{existing.count+1,
-				utils.Max(existing.maxDepth, read.Depth)}
+				utils.Max(existing.maxDepth, read.Depth),
+				utils.Max(existing.maxDepthRatio, depthRatio)}
 
 			dates, there := c.dates[allele]
 			if !there {
@@ -342,6 +345,7 @@ func CountEverything(db *database.Database,
 
 	c.GraphPossible(false, minSamples, class+"-NS.dat")
 	c.GraphPossible(true, minSamples, class+"-S.dat")
+
 	gpiName := class + "-plot.gpi"
 	fd, fp := utils.WriteFile(gpiName)
 	defer fd.Close()

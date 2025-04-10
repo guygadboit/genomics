@@ -13,8 +13,9 @@ type Read struct {
 }
 
 type Record struct {
-	Pos   int
-	Reads []Read // Sorted by highest depth first
+	Pos        int
+	Reads      []Read // Sorted by highest depth first
+	TotalDepth int    // Summed over all the reads
 }
 
 func (r *Record) GetDepthOf(nt byte) int {
@@ -43,11 +44,16 @@ func (p *Pileup) Init() {
 }
 
 func (p *Pileup) Add(pos int, reads []Read) {
-	p.Records = append(p.Records, Record{pos, reads})
+	var totalDepth int
+	for _, read := range reads {
+		totalDepth += read.Depth
+	}
+	p.Records = append(p.Records, Record{pos, reads, totalDepth})
 	p.Index[pos] = len(p.Records) - 1
 	if pos > p.MaxPos {
 		p.MaxPos = pos
 	}
+
 }
 
 func (p *Pileup) Get(pos int) *Record {
@@ -160,7 +166,7 @@ func Parse2(fname string) (*Pileup, error) {
 
 	utils.Lines(fname, func(line string, lineErr error) bool {
 		fields := strings.Split(line, ":")
-		pos := utils.Atoi(fields[0])-1
+		pos := utils.Atoi(fields[0]) - 1
 
 		if fields[1] == "" {
 			return true

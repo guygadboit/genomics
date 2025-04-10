@@ -12,6 +12,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"cmp"
 )
 
 // Let's use this type for OneBased positions and regular ints for zero based.
@@ -327,7 +328,7 @@ func Ceil3(x int) int {
 	return x + (3 - rem)
 }
 
-func Min(x, y int) int {
+func Min[T cmp.Ordered](x, y T) T {
 	if x < y {
 		return x
 	} else {
@@ -335,7 +336,8 @@ func Min(x, y int) int {
 	}
 }
 
-func Max(x, y int) int {
+
+func Max[T cmp.Ordered](x, y T) T {
 	if x > y {
 		return x
 	} else {
