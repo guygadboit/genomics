@@ -479,10 +479,20 @@ func EarlyReads(db *database.Database) {
 	})
 }
 
+func NonHuman(db *database.Database) {
+	db.Filter(nil, func(r *database.Record) bool {
+		if r.Host != "Human" && len(r.SRA) != 0 {
+			fmt.Println(r.SRAs(), r.GisaidAccession, r.Host)
+		}
+		return true
+	})
+}
+
 func main() {
 	db := database.NewDatabase()
 	// EarlyReads(db)
-	EarlyLineages(db)
+	NonHuman(db)
+	// EarlyLineages(db)
 	// NoMuts(db)
 	// RdRPVariants(db)
 	// Pangolin(db)

@@ -183,6 +183,52 @@ func dateString(dates []time.Time) string {
 	return strings.Join(s, " ")
 }
 
+type Transition struct {
+	from, to byte
+}
+
+type TransitionCount struct {
+	possible      int // How many of these are possible
+	total         int // total number of samples with this transition
+	maxDepthRatio float64
+}
+
+func (c *CountAll) TransitionRatios() {
+	transitions := make(map[Transition]TransitionCount)
+	for k, v := range c.possibleSilent {
+		transition := Transition{k.From, k.To}
+		existing := transitions[transition]
+		transitions[transition] = TransitionCount{existing.possible + 1,
+			existing.total + v.count,
+			utils.Max(existing.maxDepthRatio, v.maxDepthRatio)}
+	}
+
+	type result struct {
+		trans Transition
+		count TransitionCount
+	}
+	results := make([]result, 0, len(transitions))
+	for k, v := range transitions {
+		results = append(results, result{k, v})
+	}
+	utils.SortByKey(results, false, func(r result) int {
+		return r.count.total
+	})
+	for _, r := range results {
+		ratio := float64(r.count.total) / float64(r.count.possible)
+		special := (r.trans.from == 'C' && r.trans.to == 'T') ||
+			(r.trans.from == 'T' && r.trans.to == 'C')
+		var highlight string
+		if special {
+			highlight = "*** "
+		}
+		fmt.Printf("%s%c->%c %d %d %.2f %f\n", highlight,
+			r.trans.from, r.trans.to,
+			r.count.possible, r.count.total,
+			ratio, r.count.maxDepthRatio)
+	}
+}
+
 func (c *CountAll) Display() {
 	og := NewOutgroup()
 
@@ -342,7 +388,7 @@ func DisplayReads(db *database.Database,
 func CountEverything(db *database.Database,
 	class string,
 	ids []database.Id, minDepth int, minSamples int,
-	prefix string, cutoff time.Time, nonMaj bool) {
+	prefix string, cutoff time.Time, nonMaj bool, transitions bool) {
 	var c CountAll
 	ref := genomes.LoadGenomes("../fasta/WH1.fasta", "../fasta/WH1.orfs", false)
 	c.Init(ref, minDepth, cutoff, nonMaj)
@@ -354,6 +400,10 @@ func CountEverything(db *database.Database,
 
 	c.GraphPossible(false, minSamples, class+"-NS.dat")
 	c.GraphPossible(true, minSamples, class+"-S.dat")
+
+	if transitions {
+		c.TransitionRatios()
+	}
 
 	gpiName := class + "-plot.gpi"
 	fd, fp := utils.WriteFile(gpiName)
@@ -472,6 +522,7 @@ func main() {
 		locations     bool
 		showPoss      bool
 		nonMaj        bool
+		transitions   bool
 	)
 
 	flag.BoolVar(&findSequences, "f", false, "Find the sequences")
@@ -484,6 +535,8 @@ func main() {
 	flag.BoolVar(&locations, "locations", false, "Just show locations")
 	flag.BoolVar(&showPoss, "show-poss", false, "Show possible silent")
 	flag.BoolVar(&nonMaj, "non-maj", false, "Only show non-majority")
+	flag.BoolVar(&transitions, "show-trans", false, "Show transitions")
+
 	flag.Parse()
 
 	if cutoffS != "" {
@@ -513,7 +566,7 @@ func main() {
 		CountReadsCT(db, records, minDepth, class, cutoff)
 	} else if count {
 		CountEverything(db, class,
-			records, minDepth, minSamples, class, cutoff, nonMaj)
+			records, minDepth, minSamples, class, cutoff, nonMaj, transitions)
 	} else {
 		DisplayReads(db, records, minDepth, class)
 	}
