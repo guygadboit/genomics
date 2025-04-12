@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"flag"
 	"genomics/genomes"
 	"genomics/utils"
 )
@@ -58,8 +59,12 @@ func Consensus(g *genomes.Genomes, which []int) *genomes.Genomes {
 }
 
 func main() {
-	g := genomes.LoadGenomes("../fasta/nofcs.fasta",
-		"../fasta/WH1.orfs", false)
+	var fasta string
+
+	flag.StringVar(&fasta, "g", "../fasta/nofcs.fasta", "Alignment to use")
+	flag.Parse()
+
+	g := genomes.LoadGenomes(fasta, "../fasta/WH1.orfs", false)
 
 	for i := 0; i < g.NumGenomes(); i++ {
 		similar := FindMostSimilar(g, i, 10)
