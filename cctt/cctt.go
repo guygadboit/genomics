@@ -386,13 +386,13 @@ func DisplayReads(db *database.Database,
 }
 
 func CountEverything(db *database.Database,
-	class string,
+	class string, dir string,
 	ids []database.Id, minDepth int, minSamples int,
 	prefix string, cutoff time.Time, nonMaj bool, transitions bool) {
 	var c CountAll
 	ref := genomes.LoadGenomes("../fasta/WH1.fasta", "../fasta/WH1.orfs", false)
 	c.Init(ref, minDepth, cutoff, nonMaj)
-	ProcessReads(db, ids, "pileups", &c)
+	ProcessReads(db, ids, dir, &c)
 	c.SortDates()
 	c.Display()
 	c.DisplayPossible(minSamples, false)
@@ -523,6 +523,7 @@ func main() {
 		showPoss      bool
 		nonMaj        bool
 		transitions   bool
+		dir string
 	)
 
 	flag.BoolVar(&findSequences, "f", false, "Find the sequences")
@@ -536,6 +537,7 @@ func main() {
 	flag.BoolVar(&showPoss, "show-poss", false, "Show possible silent")
 	flag.BoolVar(&nonMaj, "non-maj", false, "Only show non-majority")
 	flag.BoolVar(&transitions, "show-trans", false, "Show transitions")
+	flag.StringVar(&dir, "dir", "pileups", "Directory")
 
 	flag.Parse()
 
@@ -565,7 +567,7 @@ func main() {
 	} else if countCT {
 		CountReadsCT(db, records, minDepth, class, cutoff)
 	} else if count {
-		CountEverything(db, class,
+		CountEverything(db, class, dir,
 			records, minDepth, minSamples, class, cutoff, nonMaj, transitions)
 	} else {
 		DisplayReads(db, records, minDepth, class)
