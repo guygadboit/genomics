@@ -58,7 +58,7 @@ func Consensus(g *genomes.Genomes, which []int) *genomes.Genomes {
 }
 
 func main() {
-	g := genomes.LoadGenomes("../fasta/SARS2-relatives-short-names.fasta",
+	g := genomes.LoadGenomes("../fasta/nofcs.fasta",
 		"../fasta/WH1.orfs", false)
 
 	for i := 0; i < g.NumGenomes(); i++ {
