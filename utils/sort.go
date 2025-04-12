@@ -1,18 +1,19 @@
 package utils
 
 import (
-	"sort"
 	"slices"
+	"sort"
+	"cmp"
 )
 
 type sorter struct {
-	len		int
+	len     int
 	reverse bool
-	swap	func(int, int)
+	swap    func(int, int)
 
 	// Must supply one or the other of these
-	lt      func(int, int) bool
-	key     func(int) float64
+	lt  func(int, int) bool
+	key func(int) float64
 }
 
 func (s *sorter) init(len int, reverse bool, swap func(int, int),
@@ -55,8 +56,8 @@ func (s *sorter) Swap(i, j int) {
 }
 
 /*
-	Sort a slice. Either of lt or key can be nil. This pre-dated generics is
-	probably useless now.
+Sort a slice. Either of lt or key can be nil. This pre-dated generics is
+probably useless now.
 */
 func LegacySort(len int, reverse bool, swap func(int, int),
 	lt func(int, int) bool, key func(int) float64) {
@@ -68,7 +69,8 @@ func LegacySort(len int, reverse bool, swap func(int, int),
 /*
 The above functions pre-date generics. This is probably the one you want
 */
-func SortByKey[S ~[]E, E any](x S, reverse bool, key func(a E) int) {
+func SortByKey[S ~[]E, E any, K cmp.Ordered](x S,
+	reverse bool, key func(a E) K) {
 	slices.SortFunc(x, func(a, b E) int {
 		kA := key(a)
 		kB := key(b)
@@ -81,7 +83,7 @@ func SortByKey[S ~[]E, E any](x S, reverse bool, key func(a E) int) {
 			return 1
 		}
 
-		if kA < kB {
+		if kA > kB {
 			return -1
 		}
 
