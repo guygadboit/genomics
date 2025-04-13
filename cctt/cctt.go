@@ -12,6 +12,7 @@ import (
 	"log"
 	"os"
 	"path"
+	"path/filepath"
 	"slices"
 	"strings"
 	"time"
@@ -92,6 +93,9 @@ type CountAll struct {
 	// How often each possible silent mutation actually appears above minDepth
 	possibleSilent map[mutations.Mutation]Count
 	possibleNS     map[mutations.Mutation]Count
+
+	// For each day since the start, the mean depth ratio.
+	evolution map[int]Mean
 }
 
 func (c *CountAll) Init(ref *genomes.Genomes,
@@ -99,6 +103,7 @@ func (c *CountAll) Init(ref *genomes.Genomes,
 	c.minDepth = minDepth
 	c.counts = make(map[Allele]Count)
 	c.dates = make(map[Allele][]time.Time)
+	c.evolution = make(map[int]Mean)
 	c.ref = ref
 	c.nonMaj = nonMaj
 
@@ -114,8 +119,6 @@ func (c *CountAll) Init(ref *genomes.Genomes,
 }
 
 func (c *CountAll) Process(record *database.Record, pu *pileup.Pileup) {
-	// We're looking for anywhere we have reads exceeding our min-depth that
-	// differ from WH1.
 	for pos := 0; pos <= pu.MaxPos; pos++ {
 		pur := pu.Get(pos)
 		if pur == nil {
@@ -143,8 +146,17 @@ func (c *CountAll) Process(record *database.Record, pu *pileup.Pileup) {
 			if !there {
 				dates = make([]time.Time, 0, 1)
 			}
-			dates = append(dates, record.CollectionDate)
-			c.dates[allele] = dates
+
+			if record != nil {
+				dates = append(dates, record.CollectionDate)
+				c.dates[allele] = dates
+
+				days := int(record.CollectionDate.Sub(
+					utils.Date(2020, 1, 1)).Hours() / 24)
+				mean := c.evolution[days]
+				mean.Add(depthRatio)
+				c.evolution[days] = mean
+			}
 
 			mut := mutations.Mutation{mutations.BaseMutation{pos, true},
 				c.ref.Nts[0][pos], read.Nt}
@@ -229,7 +241,7 @@ func (c *CountAll) TransitionRatios() {
 	}
 }
 
-func (c *CountAll) Display() {
+func (c *CountAll) Display(minSamples int) {
 	og := NewOutgroup()
 
 	type result struct {
@@ -249,8 +261,10 @@ func (c *CountAll) Display() {
 			result{allele, silent, alts, count, c.dates[allele]})
 	}
 
-	utils.SortByKey(results, false, func(a result) int { return a.count.count })
+	utils.SortByKey(results, false,
+		func(a result) float64 { return a.count.maxDepthRatio })
 
+	var ogRevs int
 	for _, r := range results {
 		var aaChange string
 		var silent string
@@ -270,11 +284,22 @@ func (c *CountAll) Display() {
 		if ds != "" {
 			ds = fmt.Sprintf("on %s", ds)
 		}
-		fmt.Printf("%c%d%c%s %s %s %d@%d%s\n", refNt, r.pos+1,
-			r.nt, silent, aaChange,
-			r.alts.ToString(),
-			r.count.count, r.count.maxDepth, ds)
+		var ogReversion string
+		if r.nt == r.alts[0].nt {
+			ogReversion = " OG"
+			ogRevs++
+		}
+		if r.count.count >= minSamples {
+			fmt.Printf("%c%d%c%s %s %s %d@%d%s (%.2f)%s\n",
+				refNt, r.pos+1,
+				r.nt, silent, aaChange,
+				r.alts.ToString(),
+				r.count.count, r.count.maxDepth, ds, r.count.maxDepthRatio,
+				ogReversion)
+		}
 	}
+	fmt.Printf("%d OG reversions out of %d (%.4f)\n", ogRevs, len(results),
+		float64(ogRevs)/float64(len(results)))
 }
 
 func (c *CountAll) DisplayPossible(minSamples int, silent bool) {
@@ -307,6 +332,30 @@ func (c *CountAll) DisplayPossible(minSamples int, silent bool) {
 		float64(found)/float64(total), c.minDepth)
 }
 
+func (c *CountAll) DisplayEvolution() {
+	type Result struct {
+		date int
+		mean float64
+	}
+	results := make([]Result, 0, len(c.evolution))
+	for k, v := range c.evolution {
+		results = append(results, Result{k, v.Get()})
+	}
+	utils.SortByKey(results, false, func(r Result) int {
+		return r.date
+	})
+
+	fd, fp := utils.WriteFile("evolution.dat")
+	defer fd.Close()
+
+	for _, r := range results {
+		fmt.Fprintln(fp, r.date, r.mean)
+	}
+	fp.Flush()
+
+	fmt.Println("Wrote evolution.dat")
+}
+
 func (c *CountAll) GraphPossible(silent bool, minSamples int, fname string) {
 	var records map[mutations.Mutation]Count
 	if silent {
@@ -331,7 +380,7 @@ func (c *CountAll) GraphPossible(silent bool, minSamples int, fname string) {
 				datum{k.Pos, k.Silent, v.count, v.maxDepthRatio})
 		}
 	}
-	utils.SortByKey(data, false, func(d datum) int {
+	utils.SortByKey(data, true, func(d datum) int {
 		return d.pos
 	})
 
@@ -361,18 +410,30 @@ func (d *Display) Process(record *database.Record, pu *pileup.Pileup) {
 		contents.ToString(), len(qsLocations))
 }
 
+var ROOT string = "/fs/bowser/genomes/raw_reads/"
+
 func ProcessReads(db *database.Database,
 	ids []database.Id, prefix string,
 	handler ReadHandler) {
 
-	root := "/fs/bowser/genomes/raw_reads/"
 	for _, id := range ids {
 		record := db.Get(id)
-		pu := FindPileup(record, path.Join(root, prefix))
+		pu := FindPileup(record, path.Join(ROOT, prefix))
 		if pu == nil {
 			continue
 		}
 		handler.Process(record, pu)
+	}
+}
+
+func ProcessAll(dir string, handler ReadHandler) {
+	matches, _ := filepath.Glob(path.Join(ROOT, dir, "*.txt.gz"))
+	for _, m := range matches {
+		pu, err := pileup.Parse2(m)
+		if err != nil {
+			log.Fatal(err)
+		}
+		handler.Process(nil, pu)
 	}
 }
 
@@ -385,6 +446,15 @@ func DisplayReads(db *database.Database,
 	ProcessReads(db, ids, prefix, &d)
 }
 
+func (c *CountAll) AverageMDR() float64 {
+	var total, count float64
+	for _, v := range c.counts {
+		total += v.maxDepthRatio
+		count++
+	}
+	return total / count
+}
+
 func CountEverything(db *database.Database,
 	class string, dir string,
 	ids []database.Id, minDepth int, minSamples int,
@@ -392,11 +462,20 @@ func CountEverything(db *database.Database,
 	var c CountAll
 	ref := genomes.LoadGenomes("../fasta/WH1.fasta", "../fasta/WH1.orfs", false)
 	c.Init(ref, minDepth, cutoff, nonMaj)
-	ProcessReads(db, ids, dir, &c)
+
+	if class == "all" {
+		ProcessAll(dir, &c)
+	} else {
+		ProcessReads(db, ids, dir, &c)
+	}
+
 	c.SortDates()
-	c.Display()
+	c.Display(minSamples)
 	c.DisplayPossible(minSamples, false)
 	c.DisplayPossible(minSamples, true)
+	fmt.Printf("Average max depth ratio: %.2f\n", c.AverageMDR())
+
+	c.DisplayEvolution()
 
 	c.GraphPossible(false, minSamples, class+"-NS.dat")
 	c.GraphPossible(true, minSamples, class+"-S.dat")
@@ -523,7 +602,7 @@ func main() {
 		showPoss      bool
 		nonMaj        bool
 		transitions   bool
-		dir string
+		dir           string
 	)
 
 	flag.BoolVar(&findSequences, "f", false, "Find the sequences")

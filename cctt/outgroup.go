@@ -12,9 +12,11 @@ type Outgroup struct {
 }
 
 func NewOutgroup() *Outgroup {
-	return &Outgroup{genomes.LoadGenomes(
+	g := genomes.LoadGenomes(
 		"../fasta/SARS2-relatives-short-names.fasta",
-		"../fasta/WH1.orfs", false)}
+		"../fasta/WH1.orfs", false)
+	// g = g.Filter(7, 8, 6, 5)
+	return &Outgroup{g}
 }
 
 type Alt struct {
