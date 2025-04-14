@@ -118,6 +118,18 @@ func (c *CountAll) Init(ref *genomes.Genomes,
 	}
 }
 
+func (c *CountAll) PossibleCTTC() (int, int) {
+	var ct, tc int
+	for k, _ := range c.possibleSilent {
+		if k.From == 'C' && k.To == 'T' {
+			ct++
+		} else if k.From == 'T' && k.To == 'C' {
+			tc++
+		}
+	}
+	return ct, tc
+}
+
 func (c *CountAll) Process(record *database.Record, pu *pileup.Pileup) {
 	for pos := 0; pos <= pu.MaxPos; pos++ {
 		pur := pu.Get(pos)
@@ -253,6 +265,9 @@ func (c *CountAll) Display(minSamples int) {
 	}
 	results := make([]result, 0, len(c.counts))
 
+	var revCT, revTC int // reversions to OG
+	var divCT, divTC int // "diversions": mutations away from OG
+
 	for allele, count := range c.counts {
 		silent, _, _ := genomes.IsSilentWithReplacement(c.ref,
 			allele.pos, 0, 0, []byte{allele.nt})
@@ -288,7 +303,26 @@ func (c *CountAll) Display(minSamples int) {
 		if r.nt == r.alts[0].nt {
 			ogReversion = " OG"
 			ogRevs++
+
+			if r.silent {
+				if refNt == 'C' && r.nt == 'T' {
+					revCT++
+				} else if refNt == 'T' && r.nt == 'C' {
+					revTC++
+				}
+			}
 		}
+
+		if refNt == r.alts[0].nt {
+			if r.silent {
+				if refNt == 'C' && r.nt == 'T' {
+					divCT++
+				} else if refNt == 'T' && r.nt == 'C' {
+					divTC++
+				}
+			}
+		}
+
 		if r.count.count >= minSamples {
 			fmt.Printf("%c%d%c%s %s %s %d@%d%s (%.2f)%s\n",
 				refNt, r.pos+1,
@@ -300,6 +334,16 @@ func (c *CountAll) Display(minSamples int) {
 	}
 	fmt.Printf("%d OG reversions out of %d (%.4f)\n", ogRevs, len(results),
 		float64(ogRevs)/float64(len(results)))
+
+	possCT, possTC := c.PossibleCTTC()
+	fmt.Printf("%d/%d silent CT reversions, %d/%d silent TC reversions\n",
+		revCT, possCT, revTC, possTC)
+	fmt.Printf("%d/%d (%.2f) silent CT diversions, "+
+		"%d/%d (%.2f) silent TC diversions\n",
+		divCT, possCT,
+		float64(divCT)/float64(possCT),
+		divTC, possTC,
+		float64(divTC)/float64(possTC))
 }
 
 func (c *CountAll) DisplayPossible(minSamples int, silent bool) {
