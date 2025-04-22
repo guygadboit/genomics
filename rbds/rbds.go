@@ -8,6 +8,8 @@ import (
 )
 
 var SPIKE_START utils.OneBasedPos = utils.OneBasedPos(21563)
+var ORF8_START utils.OneBasedPos = utils.OneBasedPos(27894)
+var M_START utils.OneBasedPos = utils.OneBasedPos(26523)
 
 type Comparison struct {
 	index      int
@@ -38,6 +40,7 @@ func Compare(g *genomes.Genomes, spikeStart utils.OneBasedPos,
 	comparisons := make([]Comparison, 0)
 	s := int((spikeStart + start*3) - 1)
 	e := int(spikeStart + end*3)
+	fmt.Println(s, e)
 	g.Truncate(s, e)
 	g.ResetOrfs()
 
@@ -104,6 +107,11 @@ func main() {
 	fmt.Println("RBM")
 	Compare(g.Clone(), SPIKE_START, rbm[0], rbm[1])
 
+	fmt.Println("ORF8")
+	Compare(g.Clone(), ORF8_START, 1, 122)
+
+	fmt.Println("M")
+	Compare(g.Clone(), M_START, 1, 223)
     return
 
 	/*
