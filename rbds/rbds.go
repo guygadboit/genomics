@@ -10,6 +10,8 @@ import (
 var SPIKE_START utils.OneBasedPos = utils.OneBasedPos(21563)
 var ORF8_START utils.OneBasedPos = utils.OneBasedPos(27894)
 var M_START utils.OneBasedPos = utils.OneBasedPos(26523)
+var ORF10_START utils.OneBasedPos = utils.OneBasedPos(29558)
+var N_START utils.OneBasedPos = utils.OneBasedPos(28274)
 
 type Comparison struct {
 	index      int
@@ -32,14 +34,14 @@ func printComparisons(g *genomes.Genomes, c []Comparison, caption string) {
 }
 
 /*
-spikeStart is the start of the spike; start and are the offsets into the spike
+orfStart is the start of the spike; start and are the offsets into the spike
 of the bit you're interested in (which will be the RBD or the RBM)
 */
-func Compare(g *genomes.Genomes, spikeStart utils.OneBasedPos,
+func Compare(g *genomes.Genomes, orfStart utils.OneBasedPos,
 	start, end utils.OneBasedPos) {
 	comparisons := make([]Comparison, 0)
-	s := int((spikeStart + start*3) - 1)
-	e := int(spikeStart + end*3)
+	s := int((orfStart + start*3) - 1)
+	e := int(orfStart + end*3)
 	fmt.Println(s, e)
 	g.Truncate(s, e)
 	g.ResetOrfs()
@@ -94,9 +96,24 @@ func centroid() {
 	}
 }
 
+func MakeChimera(g* genomes.Genomes) *genomes.Genomes {
+	ret := g.Filter(0, 7, 8, 33)
+	ret.DeepCopy(2)
+	for i := 22492; i < 23117; i++ {
+		ret.Nts[2][i] = ret.Nts[3][i]
+	}
+	ret.Nts = ret.Nts[0:3]
+	ret.Names = ret.Names[0:3]
+	ret.Names[2] = "Chimera"
+	ret.SaveMulti("chimera.fasta")
+	return ret
+}
+
 func main() {
 	g := genomes.LoadGenomes("../fasta/SARS2-relatives-short-names.fasta",
 		"../fasta/WH1.orfs", false)
+
+	MakeChimera(g)
 
 	// As AA offsets into S
 	rbd := []utils.OneBasedPos{333, 679}
@@ -112,6 +129,11 @@ func main() {
 
 	fmt.Println("M")
 	Compare(g.Clone(), M_START, 1, 223)
+
+	fmt.Println("ORF10")
+	Compare(g.Clone(), ORF10_START, 1, 39)
+	fmt.Println("N")
+	Compare(g.Clone(), N_START, 1, 420)
     return
 
 	/*

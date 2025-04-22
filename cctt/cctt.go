@@ -146,6 +146,15 @@ func (c *CountAll) Process(record *database.Record, pu *pileup.Pileup) {
 			if c.ref.Nts[0][pos] == read.Nt {
 				continue
 			}
+
+			/*
+			if pos == 21710 && read.Nt == 'T' {
+				days := int(record.CollectionDate.Sub(
+					utils.Date(2020, 1, 1)).Hours() / 24)
+				fmt.Println("T21711", days, read.Depth)
+			}
+			*/
+
 			allele := Allele{pos, read.Nt}
 
 			depthRatio := float64(read.Depth) / float64(pur.TotalDepth)
