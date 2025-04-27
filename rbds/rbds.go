@@ -47,9 +47,13 @@ func Compare(g *genomes.Genomes, orfStart utils.OneBasedPos,
 	g.ResetOrfs()
 
 	// Protein first
-	refTrans := genomes.Translate(g, 0)
+	ref := 0
+	refTrans := genomes.Translate(g, ref)
 
-	for i := 1; i < g.NumGenomes(); i++ {
+	for i := 0; i < g.NumGenomes(); i++ {
+		if i == ref {
+			continue
+		}
 		same := 0
 		trans := genomes.Translate(g, i)
 		for j, codon := range refTrans {
@@ -64,10 +68,13 @@ func Compare(g *genomes.Genomes, orfStart utils.OneBasedPos,
 
     // g.SaveMulti("RBDs.fasta")
 	comparisons = make([]Comparison, 0)
-	for i := 1; i < g.NumGenomes(); i++ {
+	for i := 0; i < g.NumGenomes(); i++ {
+		if i == ref {
+			continue
+		}
 		same := 0
 		for j := 0; j < g.Length(); j++ {
-			if g.Nts[0][j] == g.Nts[i][j] {
+			if g.Nts[ref][j] == g.Nts[i][j] {
 				same++
 			}
 		}

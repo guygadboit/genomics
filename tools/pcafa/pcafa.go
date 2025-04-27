@@ -486,7 +486,7 @@ func main() {
 	flag.StringVar(&outName, "o", "output.dat", "Output file")
 	flag.BoolVar(&hass, "hass", false, "Include Hassanin data")
 	flag.BoolVar(&spikeOnly, "spike", false, "Spike Only")
-	flag.StringVar(&analysisS, "mode", "deg", "deg|prot|nt|snt")
+	flag.StringVar(&analysisS, "mode", "nt", "deg|prot|nt|snt")
 	flag.Var(&sepKeys, "separate", "Strings to separate on (e.g. 'Pangolin')")
 	flag.StringVar(&sepIndicesS, "sepint", "", "Indices to separate")
 	flag.StringVar(&exclude, "e", "", "Genomes to exclude")
