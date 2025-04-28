@@ -328,6 +328,7 @@ func Ceil3(x int) int {
 	return x + (3 - rem)
 }
 
+// Apparently this is a builtin (just min) since Go 1.something
 func Min[T cmp.Ordered](x, y T) T {
 	if x < y {
 		return x
@@ -337,6 +338,7 @@ func Min[T cmp.Ordered](x, y T) T {
 }
 
 
+// Apparently this is a builtin (just max) since Go 1.something
 func Max[T cmp.Ordered](x, y T) T {
 	if x > y {
 		return x

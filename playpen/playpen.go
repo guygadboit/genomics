@@ -27,6 +27,30 @@ func (c CodonMap) Intersection(other CodonMap) CodonMap {
 	return ret
 }
 
+func CountQN(g *genomes.Genomes) {
+	count := func(seq []byte) int {
+		trans := genomes.TranslateAlignedShort(seq)
+		ret := 0
+		for _, c := range trans {
+			if c == 'Q' || c == 'N' {
+				ret++
+			}
+		}
+		fmt.Println(ret, string(trans))
+		return ret
+	}
+
+	l := 60 * 3
+	numSeqs := 0
+	for i := 0; i < g.Length()-l+1; i++ {
+		seq := g.Nts[0][i : i+l]
+		count(seq)
+		count(utils.ReverseComplement(seq))
+		numSeqs += 2
+	}
+	fmt.Println("num seqs", numSeqs)
+}
+
 func ConvergentPangolin(g *genomes.Genomes) {
 	gx := utils.ToSet([]int{35, 36, 37, 38, 39, 40, 41})
 	gd := utils.ToSet([]int{30, 31, 32})
@@ -57,8 +81,9 @@ func ConvergentPangolin(g *genomes.Genomes) {
 			}
 		}
 
-		// ix := gdCodons
-		ix := gxCodons.Intersection(gdCodons)
+		// ix := gxCodons
+		ix := gdCodons.Intersection(gxCodons)
+
 		for k, v := range ix {
 			if _, there := otherCodons[k]; there {
 				continue
@@ -76,5 +101,6 @@ func ConvergentPangolin(g *genomes.Genomes) {
 func main() {
 	g := genomes.LoadGenomes("../fasta/SARS2-relatives.fasta",
 		"../fasta/WH1.orfs", false)
-	ConvergentPangolin(g)
+	CountQN(g)
+	// ConvergentPangolin(g)
 }
