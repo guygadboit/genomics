@@ -25,12 +25,26 @@ func Match(g *genomes.Genomes, pu *pileup.Pileup, ref int, verbose bool) int {
 		refNt := g.Nts[ref][i]
 
 		others := 0
+		counts := make(map[byte]int)
 		for j := 0; j < g.NumGenomes(); j++ {
 			if j == ref {
 				continue
 			}
-			if g.Nts[j][i] == p2s {
+			nt := g.Nts[j][i]
+			if nt == refNt {
 				others++
+			}
+			counts[nt]++
+		}
+
+		var (
+			maj  byte
+			best int
+		)
+		for k, v := range counts {
+			if v > best {
+				best = v
+				maj = k
 			}
 		}
 
@@ -41,7 +55,14 @@ func Match(g *genomes.Genomes, pu *pileup.Pileup, ref int, verbose bool) int {
 				ret++
 			}
 			if verbose {
-				fmt.Printf("%d: %c %c%s\n", i+1, refNt, p2s, same)
+				var silentS string
+				if silent, _, _ := genomes.IsSilentWithReplacement(g,
+					i, 0, 0, []byte{maj}); silent {
+					silentS = "silent"
+				}
+
+				fmt.Printf("%d: %c %c%s (%c) %s\n", i+1,
+					refNt, p2s, same, maj, silentS)
 			}
 		}
 	}
@@ -49,7 +70,7 @@ func Match(g *genomes.Genomes, pu *pileup.Pileup, ref int, verbose bool) int {
 }
 
 func main() {
-	g := genomes.LoadGenomes("../fasta/SARS2-relatives.fasta",
+	g := genomes.LoadGenomes("../fasta/SARS2-relatives-short-names.fasta",
 		"../fasta/WH1.orfs", false)
 
 	pu, err := pileup.Parse("./P2S-pileup")
@@ -58,6 +79,8 @@ func main() {
 	}
 
 	for i := 0; i < g.NumGenomes(); i++ {
-		fmt.Println(i, Match(g, pu, i, false))
+		fmt.Println(i, Match(g, pu, i, false), g.Names[i])
 	}
+
+	Match(g, pu, 0, true)
 }
