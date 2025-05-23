@@ -196,18 +196,24 @@ func translateAll(g *genomes.Genomes) []genomes.Translation {
 	return ret
 }
 
-func (p *PCA) makeLabels(g *genomes.Genomes, name string) {
+// Return rowLabels and labels
+func makeLabels(g *genomes.Genomes,
+	start int, name string) ([]string, []Label) {
 	nGenomes := g.NumGenomes()
 
-	p.rowLabels = make([]string, nGenomes)
+	rowLabels := make([]string, nGenomes)
 	for i := 0; i < nGenomes; i++ {
-		p.rowLabels[i] = fmt.Sprintf("%s (%d)", g.Names[i], i)
+		rowLabels[i] = fmt.Sprintf("%s (%d)", g.Names[i], i)
 	}
 
 	labels := make([]Label, 1)
-	labels[0] = Label{name, 0, nGenomes}
+	labels[0] = Label{name, start, start+nGenomes}
 
-	p.labels = labels
+	return rowLabels, labels
+}
+
+func (p *PCA) makeLabels(g *genomes.Genomes, name string) {
+	p.rowLabels, p.labels = makeLabels(g, 0, name)
 }
 
 func AAToVector(aa byte) []float64 {
@@ -378,6 +384,7 @@ func codonFreq(t genomes.Translation) []CodonFreq {
 }
 
 func (p *PCA) AddCodons(g *genomes.Genomes, name string) {
+	start := len(p.data)
 	translations := translateAll(g)
 	data := make([][]float64, g.NumGenomes())
 
@@ -391,8 +398,11 @@ func (p *PCA) AddCodons(g *genomes.Genomes, name string) {
 		}
 		data[i] = v
 	}
-	p.data = data
-	p.makeLabels(g, name)
+	p.data = append(p.data, data...)
+
+	rowLabels, labels := makeLabels(g, start, name)
+	p.labels = append(p.labels, labels...)
+	p.rowLabels = append(p.rowLabels, rowLabels...)
 }
 
 // Separate out the rows based on a list of names
