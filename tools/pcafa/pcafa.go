@@ -20,6 +20,7 @@ const (
 	PROT
 	NT
 	SILENT_NT
+	CODON_USAGE_BIAS
 )
 
 func (a Analysis) ToString() string {
@@ -32,6 +33,8 @@ func (a Analysis) ToString() string {
 		return "Nucleotide"
 	case SILENT_NT:
 		return "Silent Nucleotide"
+	case CODON_USAGE_BIAS:
+		return "Codon usage"
 	}
 	return "Unknown"
 }
@@ -336,6 +339,62 @@ func (p *PCA) AddSilentNucleotide(g *genomes.Genomes, name string) {
 	p.makeLabels(g, name)
 }
 
+type CodonFreq struct {
+	nts  string
+	freq float64
+}
+
+/*
+Tells you how many times each codon occurs as a ratio of the total number
+*/
+func codonFreq(t genomes.Translation) []CodonFreq {
+	freqs := make(map[string]float64)
+
+	// Make sure we have an entry for each codon, even if it's zero
+	for k, _ := range genomes.CodonTable {
+		freqs[k] = 0
+	}
+
+	for _, codon := range t {
+		if _, there := freqs[codon.Nts]; !there {
+			// There might be '-' or things in there
+			continue
+		}
+		freqs[codon.Nts]++
+	}
+
+	ret := make([]CodonFreq, 0, len(freqs))
+	total := float64(len(t))
+	for k, v := range freqs {
+		ret = append(ret, CodonFreq{k, v / total})
+	}
+
+	// Sort them into a canonical order, alphabetical will do
+	utils.SortByKey(ret, false, func(cf CodonFreq) string {
+		return cf.nts
+	})
+
+	return ret
+}
+
+func (p *PCA) AddCodons(g *genomes.Genomes, name string) {
+	translations := translateAll(g)
+	data := make([][]float64, g.NumGenomes())
+
+	for i, t := range translations {
+		cfs := codonFreq(t)
+		// Now we just use those frequencies, in a canonical order, as our
+		// vector.
+		v := make([]float64, len(cfs))
+		for j, cf := range cfs {
+			v[j] = cf.freq
+		}
+		data[i] = v
+	}
+	p.data = data
+	p.makeLabels(g, name)
+}
+
 // Separate out the rows based on a list of names
 func (p *PCA) SeparateNames(g *genomes.Genomes, names SeparateKeys) {
 
@@ -350,8 +409,7 @@ outer:
 		for _, k := range names {
 			name := string(k)
 			if strings.Contains(g.Names[i], name) {
-				_, there := rows[name]
-				if !there {
+				if _, there := rows[name]; !there {
 					rows[name] = make([]int, 0)
 				}
 				rows[name] = append(rows[name], i)
@@ -361,7 +419,7 @@ outer:
 		leftover = append(leftover, i)
 	}
 
-	// Now rearrange the rows and labels. FIXME YOU ARE HERE
+	// Now rearrange the rows and labels.
 	rowLabels := make([]string, 0, g.NumGenomes())
 	labels := make([]Label, 0, len(names)+1)
 	data := make([][]float64, 0, len(p.data))
@@ -501,6 +559,8 @@ func main() {
 		analysis = NT
 	case "snt":
 		analysis = SILENT_NT
+	case "cub":
+		analysis = CODON_USAGE_BIAS
 	default:
 		log.Fatal("Unrecognized analysis mode")
 	}
@@ -562,6 +622,8 @@ func main() {
 			pca.AddNucleotide(g, s.name)
 		case SILENT_NT:
 			pca.AddSilentNucleotide(g, s.name)
+		case CODON_USAGE_BIAS:
+			pca.AddCodons(g, s.name)
 		}
 		if sepIndicesS != "" {
 			sepIndices := utils.ToSet(utils.ParseInts(sepIndicesS, ","))

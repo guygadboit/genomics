@@ -41,6 +41,7 @@ func Match(g *genomes.Genomes, pu *pileup.Pileup, ref int, verbose bool) int {
 			maj  byte
 			best int
 		)
+		soleOutlier := len(counts) == 1
 		for k, v := range counts {
 			if v > best {
 				best = v
@@ -61,12 +62,40 @@ func Match(g *genomes.Genomes, pu *pileup.Pileup, ref int, verbose bool) int {
 					silentS = "silent"
 				}
 
-				fmt.Printf("%d: %c %c%s (%c) %s\n", i+1,
-					refNt, p2s, same, maj, silentS)
+				var soS string
+				if soleOutlier {
+					soS = "sole outlier"
+				}
+
+				fmt.Printf("%d: %c %c%s (%c) %s %s\n", i+1,
+					refNt, p2s, same, maj, silentS, soS)
 			}
 		}
 	}
 	return ret
+}
+
+func Doubles(g *genomes.Genomes) {
+	whoHas := func(pos int, nt byte) {
+		for i := 0; i < g.NumGenomes(); i++ {
+			if g.Nts[i][pos] == nt {
+				fmt.Printf("%s ", g.Names[i])
+			}
+		}
+		fmt.Println()
+	}
+
+	for i := 0; i < g.Length(); i++ {
+		alleles := make(map[byte]int)
+		for j := 0; j < g.NumGenomes(); j++ {
+			alleles[g.Nts[j][i]]++
+		}
+		for k, v := range alleles {
+			if v == 2 {
+				whoHas(i, k)
+			}
+		}
+	}
 }
 
 func main() {
@@ -83,4 +112,5 @@ func main() {
 	}
 
 	Match(g, pu, 0, true)
+	fmt.Printf("Coverage is %f\n", pu.Coverage(1))
 }

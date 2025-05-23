@@ -16,7 +16,7 @@ func main() {
 	var nt utils.NtIterator
 	for nt.Init(6); !nt.End(); nt.Next() {
 		replacement := nt.Get()
-		err, silent, numMuts := genomes.IsSilentWithReplacement(g, pos,
+		silent, numMuts, err := genomes.IsSilentWithReplacement(g, pos,
 			0, 0, replacement)
 
 		if err == nil && silent && numMuts > 0 {

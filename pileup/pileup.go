@@ -157,6 +157,22 @@ func (pu *Pileup) Show(onlyPos []int) {
 	}
 }
 
+func (p *Pileup) Coverage(minDepth int) float64 {
+	var got, total float64
+	for i := 0; i <= p.MaxPos; i++ {
+		r := p.Get(i)
+		total++
+		if r == nil {
+			continue
+		}
+		if r.Reads[0].Depth < minDepth {
+			continue
+		}
+		got++
+	}
+	return got / total
+}
+
 /*
 Parse the output of our own "show" option back in
 */

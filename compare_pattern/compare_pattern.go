@@ -7,12 +7,14 @@ import (
 	"flag"
 	"fmt"
 	"genomics/genomes"
-	"os"
 	"log"
+	"os"
 )
 
-/* A map of patterns (like GAGACC or something) to lists of genomes out of an
-* alignment in which they appear */
+/*
+A map of patterns (like GAGACC or something) to lists of genomes out of an
+alignment in which they appear
+*/
 type PatternMap map[string][]string
 
 func countPattern(g *genomes.Genomes, start, end int) PatternMap {
@@ -53,7 +55,7 @@ func main() {
 	g := genomes.LoadGenomes(os.Args[argi], orfs, false)
 	g.RemoveGaps()
 
-	start -= 1	// because 1-based
+	start -= 1 // because 1-based
 	results := countPattern(g, start, end)
 
 	for k, v := range results {
