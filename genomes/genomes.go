@@ -856,7 +856,7 @@ func TruncateOrfs(orfs Orfs, start, end int) Orfs {
 
 		if newStart < 0 {
 			newStart *= -1
-			newStart += newStart % 3
+			newStart = newStart % 3
 		}
 
 		newEnd := orf.End - start
