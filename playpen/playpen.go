@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"genomics/genomes"
+	"genomics/stats"
 	"genomics/utils"
 )
 
@@ -99,8 +100,16 @@ func ConvergentPangolin(g *genomes.Genomes) {
 }
 
 func main() {
-	g := genomes.LoadGenomes("../fasta/SARS2-relatives.fasta",
-		"../fasta/WH1.orfs", false)
-	CountQN(g)
+	if false {
+		g := genomes.LoadGenomes("../fasta/SARS2-relatives.fasta",
+			"../fasta/WH1.orfs", false)
+		CountQN(g)
+	}
+
+	config := stats.BlastDefaultConfig()
+	br := stats.Blast(config, "viruses/SARS2", []byte("TGGTCGC"),
+		10, 10, stats.VERBOSE)
+	fmt.Println(br)
+
 	// ConvergentPangolin(g)
 }
