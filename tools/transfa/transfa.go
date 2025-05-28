@@ -149,7 +149,7 @@ func main() {
 		}
 		for i, _ := range g.Orfs {
 			g.Orfs[i].Start += offset
-			g.Orfs[i].End += offset
+			g.Orfs[i].End = min(g.Orfs[i].End+offset, g.Length())
 		}
 	}
 
