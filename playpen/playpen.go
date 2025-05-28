@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"genomics/genomes"
+	"genomics/mutations"
 	"genomics/stats"
 	"genomics/utils"
 )
@@ -106,10 +107,21 @@ func main() {
 		CountQN(g)
 	}
 
-	config := stats.BlastDefaultConfig()
-	br := stats.Blast(config, "viruses/SARS2", []byte("TGGTCGC"),
-		10, 10, stats.VERBOSE)
-	fmt.Println(br)
+	if false {
+		config := stats.BlastDefaultConfig()
+		br := stats.Blast(config, "viruses/SARS2", []byte("TGGTCGC"),
+			10, 10, stats.VERBOSE)
+		fmt.Println(br)
+	}
 
+	g := genomes.LoadGenomes("../fasta/SARS2-relatives.fasta",
+		"../fasta/WH1.orfs", false)
+	muts := mutations.PossibleSilentMuts(g, 0)
+
+	for _, mut := range muts {
+		if mut.Pos >= 22561 && mut.Pos < 23600 {
+			fmt.Println(mut)
+		}
+	}
 	// ConvergentPangolin(g)
 }
