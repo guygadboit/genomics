@@ -104,10 +104,16 @@ func FindCAITable(g *genomes.Genomes,
 }
 
 func main() {
-	ref := Parse("./lung")
+	ref := Parse("./human-lung")
 	g := genomes.LoadGenomes("../fasta/SARS2-relatives.fasta",
 		"../fasta/WH1.orfs", false)
+
+	g = g.Filter(0)
+	g.Truncate(21562, 25384)
+
 	caiTable, mean := FindCAITable(g, 0, ref)
+
+	g.SaveMulti("test.fasta")
 
 	for _, v := range caiTable {
 		fmt.Printf("%s %f %c %f\n", v.Codon, v.RSCU, v.Aa, v.CAI)
