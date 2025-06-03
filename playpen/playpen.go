@@ -116,11 +116,15 @@ func main() {
 
 	g := genomes.LoadGenomes("../fasta/SARS2-relatives.fasta",
 		"../fasta/WH1.orfs", false)
-	muts := mutations.PossibleSilentMuts(g, 0)
+	muts := mutations.PossibleSilentMuts(g, 30)
 
 	for _, mut := range muts {
-		if mut.Pos >= 22561 && mut.Pos < 23600 {
-			fmt.Println(mut)
+		if mut.Pos >= 22876 && mut.Pos < 23081 {
+			var likeB52 string
+			if g.Nts[7][mut.Pos] == mut.To {
+				likeB52 = "+"
+			}
+			fmt.Printf("%c%d%c%s\n", mut.From, mut.Pos-22876+1, mut.To, likeB52)
 		}
 	}
 	// ConvergentPangolin(g)

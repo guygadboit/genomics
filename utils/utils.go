@@ -166,7 +166,7 @@ func WriteFile(fname string) (*os.File, *bufio.Writer) {
 func Atof(s string) float64 {
 	ret, err := strconv.ParseFloat(s, 64)
 	if err != nil {
-		log.Fatal("Bad float")
+		log.Fatalf("Bad float <%s>", s)
 	}
 	return ret
 }
