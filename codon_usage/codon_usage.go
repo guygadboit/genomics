@@ -58,5 +58,7 @@ func Parse(fname string) CodonFreqTable {
 
 func main() {
 	cft := Parse("./lung")
-	fmt.Println(cft)
+	for _, v := range cft {
+		fmt.Println(v)
+	}
 }
