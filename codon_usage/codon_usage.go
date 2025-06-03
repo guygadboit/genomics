@@ -12,6 +12,14 @@ type CodonFreq struct {
 	CountPer1000 float64
 	Aa           byte
 	RSCU         float64 // Relative Synonymous Codon Usage
+
+	/*
+	The CAI is relative to the CodonFreq for some other organism. For example,
+	you might generate a CodonFreqTable for human lung, and then another one
+	for some virus, and set the CAIs in the virus one to tell you how well its
+	codon usage matched that of the human lung.
+	*/
+	CAI          float64 // Codon Adaptation Index
 }
 
 type CodonFreqTable map[string]CodonFreq
@@ -33,16 +41,17 @@ func (ct CodonFreqTable) UpdateRSCUs() {
 
 		// Then the RSCU is just what we do see over that expectation
 		rscu := v.CountPer1000 / expected
-		ct[k] = CodonFreq{v.Codon, v.CountPer1000, aa, rscu}
+		ct[k] = CodonFreq{v.Codon, v.CountPer1000, aa, rscu, 0}
 	}
 }
 
-func (ct CodonFreqTable) Optimum(aa byte) CodonFreq {
+// What's the highest RSCU we have for this AA?
+func (ct CodonFreqTable) Optimum(aa byte) float64 {
 	syns := genomes.ReverseCodonTable[aa]
-	var best CodonFreq
+	var best float64
 	for _, syn := range syns {
-		if ct[syn].RSCU > best.RSCU {
-			best = ct[syn]
+		if ct[syn].RSCU > best {
+			best = ct[syn].RSCU
 		}
 	}
 	return best
@@ -60,7 +69,7 @@ func Parse(fname string) CodonFreqTable {
 				continue
 			}
 			count := utils.Atof(strings.Trim(fields[i+1], " "))
-			ret[codon] = CodonFreq{codon, count, 0, 0}
+			ret[codon] = CodonFreq{codon, count, 0, 0, 0}
 		}
 		return true
 	})
@@ -68,8 +77,8 @@ func Parse(fname string) CodonFreqTable {
 	return ret
 }
 
-func FindFreq(g *genomes.Genomes,
-	which int, ref CodonFreqTable) CodonFreqTable {
+func FindCAITable(g *genomes.Genomes,
+	which int, ref CodonFreqTable) (CodonFreqTable, float64) {
 	ret := make(CodonFreqTable)
 	trans := genomes.Translate(g, which)
 	counts := make(map[string]int)
@@ -77,20 +86,31 @@ func FindFreq(g *genomes.Genomes,
 		counts[codon.Nts]++
 	}
 	for k, v := range counts {
-		ret[k] = CodonFreq{k, float64(v)/1000, 0, 0}
+		ret[k] = CodonFreq{k, float64(v) / 1000, 0, 0, 0}
 	}
+
 	ret.UpdateRSCUs()
-	return ret
+
+	total := 0.0
+	for k, v := range ret {
+		opt := ref.Optimum(v.Aa)
+
+		v.CAI = v.RSCU / opt
+		ret[k] = v
+		total += v.CAI
+	}
+
+	return ret, total/float64(len(ret))
 }
 
 func main() {
 	ref := Parse("./lung")
 	g := genomes.LoadGenomes("../fasta/SARS2-relatives.fasta",
 		"../fasta/WH1.orfs", false)
-	cft := FindFreq(g, 0, ref)
+	caiTable, mean := FindCAITable(g, 0, ref)
 
-	for _, v := range cft {
-		opt := ref.Optimum(v.Aa)
-		fmt.Printf("%s %f %c %f\n", v.Codon, v.RSCU, v.Aa, v.RSCU/opt)
+	for _, v := range caiTable {
+		fmt.Printf("%s %f %c %f\n", v.Codon, v.RSCU, v.Aa, v.CAI)
 	}
+	fmt.Printf("Mean: %f\n", mean)
 }
