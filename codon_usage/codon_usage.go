@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
-	"strings"
 	"genomics/genomes"
 	"genomics/utils"
+	"strings"
 )
 
 type CodonFreq struct {
@@ -15,21 +15,24 @@ type CodonFreq struct {
 
 type CodonFreqTable map[string]CodonFreq
 
-func (c *CodonFreq) UpdateRSCU() {
-	aa := genomes.CodonTable[c.Codon]
-	numSyn := len(genomes.ReverseCodonTable[aa])
+func (ct CodonFreqTable) UpdateRSCUs() {
+	for k, v := range ct {
+		aa := genomes.CodonTable[v.Codon]
+		syns := genomes.ReverseCodonTable[aa]
 
+		total := 0.0
+		for _, syn := range syns {
+			total += ct[syn].CountPer1000
+		}
 
-	// Wrong. That's how often this codon appears, not how often out of
-	// possible synonyms for the same one. But you do have that information.
-	count := c.CountPer1000 / 1000
-	c.RSCU = count / float64(numSyn)
-}
+		// What count per 1000 would we expect if all codons synonymous for
+		// this AA were used equally?
+		expected := total / float64(len(syns))
 
-func (c *CodonFreq) Init(codon string, count1000 float64) {
-	c.Codon = codon
-	c.CountPer1000 = count1000
-	c.UpdateRSCU()
+		// Then the RSCU is just what we do see over that expectation
+		rscu := v.CountPer1000 / expected
+		ct[k] = CodonFreq{v.Codon, v.CountPer1000, rscu}
+	}
 }
 
 // Parse a table pasted out of e.g.
@@ -45,12 +48,11 @@ func Parse(fname string) CodonFreqTable {
 				continue
 			}
 			count := utils.Atof(strings.Trim(fields[i+1], " "))
-			var cf CodonFreq
-			cf.Init(codon, count)
-			ret[cf.Codon] = cf
+			ret[codon] = CodonFreq{codon, count, 0}
 		}
 		return true
 	})
+	ret.UpdateRSCUs()
 	return ret
 }
 
