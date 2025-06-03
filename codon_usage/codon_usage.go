@@ -45,16 +45,16 @@ func (ct CodonFreqTable) UpdateRSCUs() {
 	}
 }
 
-// What's the highest RSCU we have for this AA?
-func (ct CodonFreqTable) Optimum(aa byte) float64 {
+// What's the highest RSCU and frequency we have for this AA?
+func (ct CodonFreqTable) Optimum(aa byte) (float64, float64) {
 	syns := genomes.ReverseCodonTable[aa]
-	var best float64
+	var best CodonFreq
 	for _, syn := range syns {
-		if ct[syn].RSCU > best {
-			best = ct[syn].RSCU
+		if ct[syn].RSCU > best.RSCU {
+			best = ct[syn]
 		}
 	}
-	return best
+	return best.RSCU, best.CountPer1000
 }
 
 // Parse a table pasted out of e.g.
@@ -93,9 +93,9 @@ func FindCAITable(g *genomes.Genomes,
 
 	total := 0.0
 	for k, v := range ret {
-		opt := ref.Optimum(v.Aa)
+		bestRSCU, bestFreq := ref.Optimum(v.Aa)
 
-		v.CAI = v.RSCU / opt
+		v.CAI = v.RSCU / bestRSCU - (v.CountPer1000 - bestFreq)/1000
 		ret[k] = v
 		total += v.CAI
 	}
