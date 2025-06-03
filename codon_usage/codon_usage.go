@@ -2,10 +2,10 @@ package main
 
 import (
 	"fmt"
-	"strings"
-	"math"
 	"genomics/genomes"
 	"genomics/utils"
+	"math"
+	"strings"
 )
 
 type CodonFreq struct {
@@ -21,7 +21,7 @@ type CodonFreq struct {
 
 type CodonFreqTable struct {
 	Frequencies map[string]CodonFreq
-	Optima	map[byte]float64	// The best RSCU for each aa
+	Optima      map[byte]float64 // The best RSCU for each AA
 }
 
 // What's the highest RSCU for a particular AA?
@@ -41,7 +41,8 @@ func (ct *CodonFreqTable) UpdateOptima() {
 	}
 }
 
-// Update Aa, RSCU and RelAd for all the CodonFreqs in ct.
+// Update Optima and Aa, RSCU and RelAd for all the CodonFreqs in
+// ct.Frequencies
 func (ct *CodonFreqTable) UpdateComputedValues() {
 	for k, v := range ct.Frequencies {
 		aa := genomes.CodonTable[v.Codon]
@@ -125,7 +126,7 @@ func MakeRelTranslation(g *genomes.Genomes,
 		}
 	}
 
-	l := float64(len(trans)-exceptions)
+	l := float64(len(trans) - exceptions)
 	caiObs := math.Pow(prodRSCU, 1/l)
 	caiMax := math.Pow(prodBest, 1/l)
 
@@ -138,12 +139,18 @@ func main() {
 		"../fasta/WH1.orfs", false)
 
 	g = g.Filter(0)
-	// g.Truncate(21562, 25384)
+	start := 21562
+	end := 25384
+	g.Truncate(start, end)
+	g.SaveMulti("check.fasta")
+
+	// g := genomes.LoadGenomes("check.fasta", "", false)
 
 	relTrans, cai := MakeRelTranslation(g, 0, ref)
 	fmt.Println("CAI", cai)
+	fmt.Println(ref.Optima['L'])
 
 	for _, rc := range relTrans {
-		fmt.Println(rc.RelAd)
+		fmt.Printf("%s %c %f\n", rc.Nts, rc.Aa, rc.RelAd)
 	}
 }
