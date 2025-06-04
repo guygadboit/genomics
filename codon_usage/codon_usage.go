@@ -7,6 +7,7 @@ import (
 	"genomics/utils"
 	"math"
 	"strings"
+	"regexp"
 )
 
 type CodonFreq struct {
@@ -76,7 +77,7 @@ func (ct *CodonFreqTable) UpdateComputedValues() {
 
 // Parse a table pasted out of e.g.
 // https://dnahive.fda.gov/dna.cgi?cmd=codon_usage&id=537&mode=tisspec
-func Parse(fname string) *CodonFreqTable {
+func ParseCUTable(fname string) *CodonFreqTable {
 	ret := new(CodonFreqTable)
 	ret.Frequencies = make(map[string]CodonFreq)
 	utils.Lines(fname, func(line string, err error) bool {
@@ -93,6 +94,35 @@ func Parse(fname string) *CodonFreqTable {
 	})
 	ret.UpdateComputedValues()
 	return ret
+}
+
+// Parse a table pasted out of
+// https://www.biologicscorp.com/tools/CAICalculator
+func ParseBiologicsTable(fname string) *CodonFreqTable {
+	ret := new(CodonFreqTable)
+	ret.Frequencies = make(map[string]CodonFreq)
+	re := regexp.MustCompile(`\(\s+`)
+	utils.Lines(fname, func(line string, err error) bool {
+		line = string(re.ReplaceAll([]byte(line), []byte("(")))
+		fields := strings.Fields(line)
+		if len(fields) != 14 {
+			return true
+		}
+		for i := 0; i < len(fields); i += 7 {
+			codon := strings.Trim(fields[i], " ")
+			count := utils.Atof(strings.Trim(fields[i+5], " "))
+			ret.Frequencies[codon] = CodonFreq{codon, count, 0, 0, 0}
+		}
+		return true
+	})
+	ret.UpdateComputedValues()
+	return ret
+}
+
+func (c *CodonFreqTable) ShowRSCUs() {
+	for _, f := range c.Frequencies {
+		fmt.Printf("%s %f %f\n", f.Codon, f.CountPer1000, f.RSCU)
+	}
 }
 
 type RelCodon struct {
@@ -150,6 +180,7 @@ func main() {
 		source, orfs string
 		restrict     string
 		include      string
+		biologics	bool
 	)
 
 	flag.StringVar(&refName, "ref", "./human", "Reference")
@@ -158,9 +189,15 @@ func main() {
 	flag.StringVar(&orfs, "orfs", "../fasta/WH1.orfs", "ORFs")
 	flag.StringVar(&include, "i", "0", "Which genomes")
 	flag.StringVar(&restrict, "restrict", "", "Restrict to region")
+	flag.BoolVar(&biologics, "biologics", false, "Format is biologics")
 	flag.Parse()
 
-	ref := Parse(refName)
+	parse := ParseCUTable
+	if biologics {
+		parse = ParseBiologicsTable
+	}
+
+	ref := parse(refName)
 	g := genomes.LoadGenomes(source, orfs, false)
 
 	if restrict != "" {
