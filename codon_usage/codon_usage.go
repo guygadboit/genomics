@@ -133,18 +133,13 @@ type RelCodon struct {
 // A translation decorated with relative adaptation values
 type RelTranslation []RelCodon
 
-func MakeRelTranslation(g *genomes.Genomes,
-	which int, ref *CodonFreqTable) (RelTranslation, float64) {
-	trans := genomes.Translate(g, which)
-	ret := make(RelTranslation, len(trans))
-
+func calcCAI(trans RelTranslation, ref *CodonFreqTable) float64 {
 	prodRSCU, prodBest := 1.0, 1.0
 	exceptions := 0
 
-	for i, codon := range trans {
+	for _, codon := range trans {
 		cf := ref.Frequencies[codon.Nts]
 		best := ref.Optima[codon.Aa]
-		ret[i] = RelCodon{codon, cf.RelAd}
 
 		if cf.RSCU == 0.0 {
 			exceptions++
@@ -167,7 +162,25 @@ func MakeRelTranslation(g *genomes.Genomes,
 	caiObs := math.Exp(prodRSCU / l)
 	caiMax := math.Exp(prodBest / l)
 
-	return ret, caiObs / caiMax
+	return caiObs / caiMax
+}
+
+func MakeRelTranslation(g *genomes.Genomes,
+	which int, ref *CodonFreqTable) (RelTranslation, float64) {
+	trans := genomes.Translate(g, which)
+	ret := make(RelTranslation, len(trans))
+
+	for i, codon := range trans {
+		cf := ref.Frequencies[codon.Nts]
+		ret[i] = RelCodon{codon, cf.RelAd}
+	}
+
+	return ret, calcCAI(ret, ref)
+}
+
+func (r RelTranslation) SubseqCAI(start, end int,
+	ref *CodonFreqTable) float64 {
+	return calcCAI(r[start:end], ref)
 }
 
 func parseRestrict(g *genomes.Genomes, restrict string) (int, int) {
@@ -218,15 +231,17 @@ func main() {
 		relTrans, cai := MakeRelTranslation(g, which, ref)
 		fmt.Printf("%s: %f\n", g.Names[which], cai)
 
-		fname := fmt.Sprintf("%d.txt", which)
-		fd, fp := utils.WriteFile(fname)
-		defer fd.Close()
+		if graph {
+			fname := fmt.Sprintf("%d.txt", which)
+			fd, fp := utils.WriteFile(fname)
+			defer fd.Close()
 
-		for _, rc := range relTrans {
-			fmt.Fprintf(fp, "%f\n", rc.RelAd)
+			for _, rc := range relTrans {
+				fmt.Fprintf(fp, "%f\n", rc.RelAd)
+			}
+
+			fp.Flush()
+			fmt.Printf("Wrote %s\n", fname)
 		}
-
-		fp.Flush()
-		fmt.Printf("Wrote %s\n", fname)
 	}
 }
