@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"genomics/genomes"
 	"genomics/utils"
@@ -115,8 +116,8 @@ func MakeRelTranslation(g *genomes.Genomes,
 		best := ref.Optima[codon.Aa]
 		ret[i] = RelCodon{codon, cf.RelAd}
 
-		prodRSCU *= cf.RSCU
-		prodBest *= best
+		prodRSCU += math.Log(cf.RSCU)
+		prodBest += math.Log(best)
 
 		switch codon.Nts {
 		case "ATG":
@@ -127,30 +128,55 @@ func MakeRelTranslation(g *genomes.Genomes,
 	}
 
 	l := float64(len(trans) - exceptions)
-	caiObs := math.Pow(prodRSCU, 1/l)
-	caiMax := math.Pow(prodBest, 1/l)
+	caiObs := math.Exp(prodRSCU/l)
+	caiMax := math.Exp(prodBest/l)
 
 	return ret, caiObs / caiMax
 }
 
-func main() {
-	ref := Parse("./human-lung")
-	g := genomes.LoadGenomes("../fasta/SARS2-relatives.fasta",
-		"../fasta/WH1.orfs", false)
-
-	g = g.Filter(0)
-	start := 21562
-	end := 25384
-	g.Truncate(start, end)
-	g.SaveMulti("check.fasta")
-
-	// g := genomes.LoadGenomes("check.fasta", "", false)
-
-	relTrans, cai := MakeRelTranslation(g, 0, ref)
-	fmt.Println("CAI", cai)
-	fmt.Println(ref.Optima['L'])
-
-	for _, rc := range relTrans {
-		fmt.Printf("%s %c %f\n", rc.Nts, rc.Aa, rc.RelAd)
+func parseRestrict(g *genomes.Genomes, restrict string) (int, int) {
+	for _, orf := range g.Orfs {
+		if orf.Name == restrict {
+			return orf.Start, orf.End
+		}
 	}
+	ints := utils.ParseInts(restrict, ":")
+	return ints[0] - 1, ints[1]
+}
+
+func main() {
+	var (
+		refName      string
+		source, orfs string
+		restrict     string
+		include      string
+	)
+
+	flag.StringVar(&refName, "ref", "./human", "Reference")
+	flag.StringVar(&source, "s",
+		"../fasta/SARS2-relatives-short-names.fasta", "Source")
+	flag.StringVar(&orfs, "orfs", "../fasta/WH1.orfs", "ORFs")
+	flag.StringVar(&include, "i", "0", "Which genomes")
+	flag.StringVar(&restrict, "restrict", "", "Restrict to region")
+	flag.Parse()
+
+	ref := Parse(refName)
+	g := genomes.LoadGenomes(source, orfs, false)
+
+	if restrict != "" {
+		start, end := parseRestrict(g, restrict)
+		g.Truncate(start, end)
+		g.Save("check", "check.fasta", 0)
+	}
+
+	for _, which := range utils.ParseInts(include, ",") {
+		_, cai := MakeRelTranslation(g, which, ref)
+		fmt.Printf("%s CAI: %f\n", g.Names[which], cai)
+	}
+
+	/*
+		for _, rc := range relTrans {
+			fmt.Printf("%s %c %f\n", rc.Nts, rc.Aa, rc.RelAd)
+		}
+	*/
 }
