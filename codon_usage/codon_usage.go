@@ -43,6 +43,16 @@ func (ct *CodonFreqTable) UpdateOptima() {
 	}
 }
 
+// If any codons are missing, give them RSCUs of 0.5 (which is what Sharp/Li
+// says to do)
+func (ct *CodonFreqTable) FillInBlanks() {
+	for k, v := range genomes.CodonTable {
+		if _, there := ct.Frequencies[k]; !there {
+			ct.Frequencies[k] = CodonFreq{k, 0, v, 0.5, 0}
+		}
+	}
+}
+
 // Update Optima and Aa, RSCU and RelAd for all the CodonFreqs in
 // ct.Frequencies
 func (ct *CodonFreqTable) UpdateComputedValues() {
@@ -63,6 +73,7 @@ func (ct *CodonFreqTable) UpdateComputedValues() {
 		rscu := v.CountPer1000 / expected
 		ct.Frequencies[k] = CodonFreq{v.Codon, v.CountPer1000, aa, rscu, 0}
 	}
+	ct.FillInBlanks()
 
 	// Once we know all the RSCUs we can work out the relative adaptations
 	ct.UpdateOptima()
