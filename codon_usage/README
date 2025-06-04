@@ -1,0 +1,5 @@
+Example:
+
+$ go run -- *.go -restrict S -window 50 -graph
+$ gnuplot
+gnuplot> plot "0.txt" with impulses
