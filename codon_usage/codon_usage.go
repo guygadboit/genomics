@@ -178,8 +178,7 @@ func MakeRelTranslation(g *genomes.Genomes,
 	return ret, calcCAI(ret, ref)
 }
 
-func (r RelTranslation) SubseqCAI(start, end int,
-	ref *CodonFreqTable) float64 {
+func (r RelTranslation) SubseqCAI(start, end int, ref *CodonFreqTable) float64 {
 	return calcCAI(r[start:end], ref)
 }
 
@@ -193,6 +192,21 @@ func parseRestrict(g *genomes.Genomes, restrict string) (int, int) {
 	return ints[0] - 1, ints[1]
 }
 
+func makeGraphData(relTrans RelTranslation, ref *CodonFreqTable,
+	which int, window int) {
+	fname := fmt.Sprintf("%d.txt", which)
+	fd, fp := utils.WriteFile(fname)
+	defer fd.Close()
+
+	for i := 0; i < len(relTrans)-window; i++ {
+		cai := relTrans.SubseqCAI(i, i+window, ref)
+		fmt.Fprintf(fp, "%f\n", cai)
+	}
+
+	fp.Flush()
+	fmt.Printf("Wrote %s\n", fname)
+}
+
 func main() {
 	var (
 		refName      string
@@ -201,6 +215,7 @@ func main() {
 		include      string
 		biologics    bool
 		graph        bool
+		window	int
 	)
 
 	flag.StringVar(&refName, "ref", "./human", "Reference")
@@ -211,6 +226,7 @@ func main() {
 	flag.StringVar(&restrict, "restrict", "", "Restrict to region")
 	flag.BoolVar(&biologics, "biologics", false, "Format is biologics")
 	flag.BoolVar(&graph, "graph", false, "Write graph data")
+	flag.IntVar(&window, "window", 1, "Window for graph data")
 	flag.Parse()
 
 	parse := ParseCUTable
@@ -232,16 +248,7 @@ func main() {
 		fmt.Printf("%s: %f\n", g.Names[which], cai)
 
 		if graph {
-			fname := fmt.Sprintf("%d.txt", which)
-			fd, fp := utils.WriteFile(fname)
-			defer fd.Close()
-
-			for _, rc := range relTrans {
-				fmt.Fprintf(fp, "%f\n", rc.RelAd)
-			}
-
-			fp.Flush()
-			fmt.Printf("Wrote %s\n", fname)
+			makeGraphData(relTrans, ref, which, window)
 		}
 	}
 }
