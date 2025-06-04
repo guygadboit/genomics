@@ -170,6 +170,9 @@ func calcCAI(trans RelTranslation, ref *CodonFreqTable) float64 {
 	}
 
 	l := float64(len(trans) - exceptions)
+	if l == 0 {
+		return 0.5
+	}
 	caiObs := math.Exp(prodRSCU / l)
 	caiMax := math.Exp(prodBest / l)
 
@@ -204,14 +207,18 @@ func parseRestrict(g *genomes.Genomes, restrict string) (int, int) {
 }
 
 func makeGraphData(relTrans RelTranslation, ref *CodonFreqTable,
-	which int, window int) {
+	which int, window int, labels bool) {
 	fname := fmt.Sprintf("%d.txt", which)
 	fd, fp := utils.WriteFile(fname)
 	defer fd.Close()
 
 	for i := 0; i < len(relTrans)-window; i++ {
 		cai := relTrans.SubseqCAI(i, i+window, ref)
-		fmt.Fprintf(fp, "%f\n", cai)
+		if labels && window == 1 {
+			fmt.Fprintf(fp, "%c %f\n", relTrans[i].Aa, cai)
+		} else {
+			fmt.Fprintf(fp, "%f\n", cai)
+		}
 	}
 
 	fp.Flush()
@@ -226,7 +233,8 @@ func main() {
 		include      string
 		biologics    bool
 		graph        bool
-		window	int
+		labels       bool
+		window       int
 	)
 
 	flag.StringVar(&refName, "ref", "./human", "Reference")
@@ -237,6 +245,8 @@ func main() {
 	flag.StringVar(&restrict, "restrict", "", "Restrict to region")
 	flag.BoolVar(&biologics, "biologics", false, "Format is biologics")
 	flag.BoolVar(&graph, "graph", false, "Write graph data")
+	flag.BoolVar(&labels,
+		"labels", false, "Label AAs in graph data if window==1")
 	flag.IntVar(&window, "window", 1, "Window for graph data")
 	flag.Parse()
 
@@ -259,7 +269,7 @@ func main() {
 		fmt.Printf("%s: %f\n", g.Names[which], cai)
 
 		if graph {
-			makeGraphData(relTrans, ref, which, window)
+			makeGraphData(relTrans, ref, which, window, labels)
 		}
 	}
 }
