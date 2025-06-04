@@ -6,8 +6,8 @@ import (
 	"genomics/genomes"
 	"genomics/utils"
 	"math"
-	"strings"
 	"regexp"
+	"strings"
 )
 
 type CodonFreq struct {
@@ -146,8 +146,14 @@ func MakeRelTranslation(g *genomes.Genomes,
 		best := ref.Optima[codon.Aa]
 		ret[i] = RelCodon{codon, cf.RelAd}
 
+		if cf.RSCU == 0.0 {
+			exceptions++
+			continue
+		}
+
 		prodRSCU += math.Log(cf.RSCU)
 		prodBest += math.Log(best)
+		// fmt.Println(codon, cf.RSCU, best, prodRSCU, prodBest)
 
 		switch codon.Nts {
 		case "ATG":
@@ -158,8 +164,8 @@ func MakeRelTranslation(g *genomes.Genomes,
 	}
 
 	l := float64(len(trans) - exceptions)
-	caiObs := math.Exp(prodRSCU/l)
-	caiMax := math.Exp(prodBest/l)
+	caiObs := math.Exp(prodRSCU / l)
+	caiMax := math.Exp(prodBest / l)
 
 	return ret, caiObs / caiMax
 }
@@ -180,7 +186,8 @@ func main() {
 		source, orfs string
 		restrict     string
 		include      string
-		biologics	bool
+		biologics    bool
+		graph        bool
 	)
 
 	flag.StringVar(&refName, "ref", "./human", "Reference")
@@ -190,6 +197,7 @@ func main() {
 	flag.StringVar(&include, "i", "0", "Which genomes")
 	flag.StringVar(&restrict, "restrict", "", "Restrict to region")
 	flag.BoolVar(&biologics, "biologics", false, "Format is biologics")
+	flag.BoolVar(&graph, "graph", false, "Write graph data")
 	flag.Parse()
 
 	parse := ParseCUTable
@@ -207,13 +215,18 @@ func main() {
 	}
 
 	for _, which := range utils.ParseInts(include, ",") {
-		_, cai := MakeRelTranslation(g, which, ref)
-		fmt.Printf("%s CAI: %f\n", g.Names[which], cai)
-	}
+		relTrans, cai := MakeRelTranslation(g, which, ref)
+		fmt.Printf("%s: %f\n", g.Names[which], cai)
 
-	/*
+		fname := fmt.Sprintf("%d.txt", which)
+		fd, fp := utils.WriteFile(fname)
+		defer fd.Close()
+
 		for _, rc := range relTrans {
-			fmt.Printf("%s %c %f\n", rc.Nts, rc.Aa, rc.RelAd)
+			fmt.Fprintf(fp, "%f\n", rc.RelAd)
 		}
-	*/
+
+		fp.Flush()
+		fmt.Printf("Wrote %s\n", fname)
+	}
 }
