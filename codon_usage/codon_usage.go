@@ -144,6 +144,15 @@ type RelCodon struct {
 // A translation decorated with relative adaptation values
 type RelTranslation []RelCodon
 
+// "Effective number of codons": how many unique codons are there?
+func (r RelTranslation) ENc() int {
+	codons := make(map[string]bool)
+	for _, rc := range r {
+		codons[rc.Nts] = true
+	}
+	return len(codons)
+}
+
 func calcCAI(trans RelTranslation, ref *CodonFreqTable) float64 {
 	prodRSCU, prodBest := 1.0, 1.0
 	exceptions := 0
@@ -264,9 +273,22 @@ func main() {
 		g.Save("check", "check.fasta", 0)
 	}
 
-	for _, which := range utils.ParseInts(include, ",") {
+	var indices []int
+
+	if include == "all" {
+		indices = make([]int, g.NumGenomes())
+		for i := 0; i < len(indices); i++ {
+			indices[i] = i
+		}
+	} else {
+		indices = utils.ParseInts(include, ",")
+	}
+
+	fmt.Printf("name\tCAI\tENc\n")
+	for _, which := range indices {
 		relTrans, cai := MakeRelTranslation(g, which, ref)
-		fmt.Printf("%s: %f\n", g.Names[which], cai)
+		enc := relTrans.ENc()
+		fmt.Printf("%s\t%f\t%d\n", g.Names[which], cai, enc)
 
 		if graph {
 			makeGraphData(relTrans, ref, which, window, labels)
