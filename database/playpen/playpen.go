@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 	"genomics/database"
-	"genomics/utils"
 	"genomics/stats"
+	"genomics/utils"
 	"slices"
 	"strings"
 	"time"
@@ -309,9 +309,9 @@ func NoMuts(db *database.Database) {
 			return false
 		}
 		/*
-		if r.CollectionDate.Compare(utils.Date(2020, 6, 1)) < 0 {
-			return false
-		}
+			if r.CollectionDate.Compare(utils.Date(2020, 6, 1)) < 0 {
+				return false
+			}
 		*/
 
 		var matched bool
@@ -319,12 +319,12 @@ func NoMuts(db *database.Database) {
 		matched = len(r.NucleotideChanges) == 1
 
 		/*
-		if len(r.NucleotideChanges) == 1 {
-			ref := database.Mutation{23403, 'A', 'G', utils.NON_SILENT}
-			if r.NucleotideChanges[0] == ref {
-				matched = true
+			if len(r.NucleotideChanges) == 1 {
+				ref := database.Mutation{23403, 'A', 'G', utils.NON_SILENT}
+				if r.NucleotideChanges[0] == ref {
+					matched = true
+				}
 			}
-		}
 		*/
 
 		region := r.Region
@@ -350,8 +350,8 @@ func NoMuts(db *database.Database) {
 	})
 
 	type result struct {
-		region	string
-		ct	stats.ContingencyTable
+		region string
+		ct     stats.ContingencyTable
 	}
 	results := make([]result, 0)
 
@@ -488,10 +488,28 @@ func NonHuman(db *database.Database) {
 	})
 }
 
+func ORF8LI(db *database.Database) {
+	keys := []database.AAMutationPos{database.AAMutationPos{"ORF8", 10}}
+
+	s := database.NewAAMutationIndexSearch(db, keys)
+	results, _ := s.Get(0)
+	for id, _ := range results {
+		record := db.Get(id)
+		if record.Host != "Human" {
+			continue
+		}
+		for _, mut := range record.AAChanges {
+			if mut.Pos == 10 && mut.To == 'L' {
+				fmt.Println(db.Get(id).Summary())
+			}
+		}
+	}
+}
+
 func main() {
 	db := database.NewDatabase()
 	// EarlyReads(db)
-	NonHuman(db)
+	// NonHuman(db)
 	// EarlyLineages(db)
 	// NoMuts(db)
 	// RdRPVariants(db)
@@ -499,4 +517,5 @@ func main() {
 	// TT(db)
 	// CTRate(db)
 	// CTDistribution(db)
+	ORF8LI(db)
 }
