@@ -148,7 +148,9 @@ type RelTranslation []RelCodon
 func (r RelTranslation) ENc() int {
 	codons := make(map[string]bool)
 	for _, rc := range r {
-		codons[rc.Nts] = true
+		if _, there := genomes.CodonTable[rc.Nts]; there {
+			codons[rc.Nts] = true
+		}
 	}
 	return len(codons)
 }

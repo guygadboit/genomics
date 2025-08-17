@@ -9,7 +9,7 @@ import (
 	"slices"
 )
 
-func SortedSimilarity(g *genomes.Genomes) {
+func SortedSimilarity(g *genomes.Genomes, protein bool) {
 	type result struct {
 		index int
 		ss    float64
@@ -17,7 +17,7 @@ func SortedSimilarity(g *genomes.Genomes) {
 
 	results := make([]result, g.NumGenomes())
 	for i := 0; i < g.NumGenomes(); i++ {
-		results[i] = result{i, g.SequenceSimilarity(i, 0)}
+		results[i] = result{i, g.SequenceSimilarity(i, 0, protein)}
 	}
 
 	slices.SortFunc(results, func(a, b result) int {
@@ -35,7 +35,7 @@ func SortedSimilarity(g *genomes.Genomes) {
 	}
 }
 
-func ExhaustiveSimilarity(g *genomes.Genomes) {
+func ExhaustiveSimilarity(g *genomes.Genomes, protein bool) {
 	type result struct {
 		a, b int
 		ss   float64
@@ -44,7 +44,8 @@ func ExhaustiveSimilarity(g *genomes.Genomes) {
 	results := make([]result, 0)
 	for i := 0; i < g.NumGenomes(); i++ {
 		for j := i + 1; j < g.NumGenomes(); j++ {
-			results = append(results, result{i, j, g.SequenceSimilarity(i, j)})
+			results = append(results,
+				result{i, j, g.SequenceSimilarity(i, j, protein)})
 		}
 	}
 
@@ -65,9 +66,12 @@ func ExhaustiveSimilarity(g *genomes.Genomes) {
 }
 
 func main() {
-	var include, exclude, outName string
-	var summary, ss, sss, ess bool
-	var removeGaps bool
+	var (
+		include, exclude, outName string
+		summary, ss, sss, ess     bool
+		removeGaps                bool
+		protein                   bool
+	)
 
 	flag.StringVar(&include, "i", "", "Genomes to include")
 	flag.StringVar(&exclude, "e", "", "Genomes to exclude")
@@ -76,6 +80,7 @@ func main() {
 	flag.BoolVar(&sss, "sss", false, "Sorted similiarity summary")
 	flag.BoolVar(&ess, "ess", false, "Exhaustive similarity summary")
 	flag.BoolVar(&removeGaps, "g", false, "Remove Gaps")
+	flag.BoolVar(&protein, "p", false, "Input is a protein")
 	flag.StringVar(&outName, "o", "filtered.fasta", "Output filename")
 	flag.Parse()
 
@@ -89,15 +94,15 @@ func main() {
 
 	if ss {
 		for i, n := range g.Names {
-			ss := g.SequenceSimilarity(i, 0)
+			ss := g.SequenceSimilarity(i, 0, protein)
 			fmt.Printf("%d: %s %.2f%%\n", i, n, ss*100)
 		}
 		return
 	} else if sss {
-		SortedSimilarity(g)
+		SortedSimilarity(g, protein)
 		return
 	} else if ess {
-		ExhaustiveSimilarity(g)
+		ExhaustiveSimilarity(g, protein)
 		return
 	}
 

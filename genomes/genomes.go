@@ -429,7 +429,6 @@ func (g *Genomes) Slice(which, start, end int) []byte {
 	return nts[start:end]
 }
 
-
 /*
 Whereever there is a gap in the first genome of an alignment, just remove that
 column. You will need to do this for comparisons involving translations to work
@@ -486,25 +485,44 @@ func (g *Genomes) HaveOrfs() bool {
 	return len(g.Orfs) > 0
 }
 
+func isValidNt(c byte) bool {
+	switch c {
+	case 'A':
+		fallthrough
+	case 'C':
+		fallthrough
+	case 'G':
+		fallthrough
+	case 'T':
+		return true
+	default:
+		return false
+	}
+}
+
+func isValidAA(c byte) bool {
+	_, there := ReverseCodonTable[c]
+	return there
+}
+
 /*
 What's the sequence similarity between the a'th and b'th genomes in an
 alignment? Returns a number between 0 and 1 (so multiply by 100 if you want a
-percentage)
+percentage). protein = true if this is a protein sequence rather than a
+nucleotide one.
 */
-func (g *Genomes) SequenceSimilarity(a, b int) float64 {
+func (g *Genomes) SequenceSimilarity(a, b int, protein bool) float64 {
 	var same, total int
+
+	var isValid func(c byte) bool
+	if protein {
+		isValid = isValidAA
+	} else {
+		isValid = isValidNt
+	}
+
 	for i := 0; i < g.Length(); i++ {
-		// Only consider proper nts
-		switch g.Nts[a][i] {
-		case 'A':
-			fallthrough
-		case 'C':
-			fallthrough
-		case 'G':
-			fallthrough
-		case 'T':
-			break
-		default:
+		if !isValid(g.Nts[a][i]) {
 			continue
 		}
 		total++

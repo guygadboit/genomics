@@ -329,7 +329,7 @@ func minSimilarity(g *genomes.Genomes, which ...int) float64 {
 			if i == j {
 				continue
 			}
-			ss := g.SequenceSimilarity(i, j)
+			ss := g.SequenceSimilarity(i, j, false)
 			if ss < ret {
 				ret = ss
 			}
