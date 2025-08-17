@@ -158,7 +158,9 @@ func (r RollingAverage) Mean() float64 {
 	return r.Total / r.Count
 }
 
-// Effective Number of Codons per Wright 1989
+// Effective Number of Codons per Wright 1989. This should be a number between
+// 20 and 61. 20 means you're very biased about which codons you like, 61 you
+// use them evenly.
 func (r RelTranslation) ENc() float64 {
 	freqs := make(map[string]float64)
 	for _, codon := range r {
@@ -172,7 +174,8 @@ func (r RelTranslation) ENc() float64 {
 		if len(syns) == 1 {
 			continue
 		}
-		// Find n, the total number of times this AA appears
+
+		// First find n, the total number of times this AA appears
 		var n, sum float64
 		for _, c := range syns {
 			n += float64(freqs[c])
@@ -180,20 +183,27 @@ func (r RelTranslation) ENc() float64 {
 
 		// Now find the total squared frequency of the synonyms for this AA
 		for _, c := range syns {
+			// p is the frequency of this synonym
 			p := freqs[c] / n
 			sum += p * p
 		}
 
 		// Now find the "Homozygosity"
-		F := (n*sum - 1) / (n - 1)
+		numerator := (n*sum - 1)
+		denom := n - 1
+		if numerator == 0 || denom == 0 {
+			continue
+		}
+
+		F := numerator / denom
 
 		// And we will need an average for each "SF type" (the "SF type" of a
 		// codon is defined by the number of synonyms it has)
 		sfType := len(syns)
 		averageFs[sfType] = averageFs[sfType].Add(F)
-		fmt.Println(syns, F, sfType, averageFs[sfType])
 	}
 
+	// FIXME: This needs adjusting if any SF types are not represented.
 	return 2 + (9 / averageFs[2].Mean()) +
 		(1 / averageFs[3].Mean()) +
 		(5 / averageFs[4].Mean()) +
