@@ -144,15 +144,60 @@ type RelCodon struct {
 // A translation decorated with relative adaptation values
 type RelTranslation []RelCodon
 
-// "Effective number of codons": how many unique codons are there?
-func (r RelTranslation) ENc() int {
-	codons := make(map[string]bool)
-	for _, rc := range r {
-		if _, there := genomes.CodonTable[rc.Nts]; there {
-			codons[rc.Nts] = true
-		}
+type RollingAverage struct {
+	Total, Count float64
+}
+
+// These are defined like this (rather than as pointer methods) because we're
+// using them in a map
+func (r RollingAverage) Add(val float64) RollingAverage {
+	return RollingAverage{r.Total + val, r.Count + 1}
+}
+
+func (r RollingAverage) Mean() float64 {
+	return r.Total / r.Count
+}
+
+// Effective Number of Codons per Wright 1989
+func (r RelTranslation) ENc() float64 {
+	freqs := make(map[string]float64)
+	for _, codon := range r {
+		freqs[codon.Nts]++
 	}
-	return len(codons)
+
+	averageFs := make(map[int]RollingAverage)
+
+	// Now we consider each AA at a time.
+	for _, syns := range genomes.ReverseCodonTable {
+		if len(syns) == 1 {
+			continue
+		}
+		// Find n, the total number of times this AA appears
+		var n, sum float64
+		for _, c := range syns {
+			n += float64(freqs[c])
+		}
+
+		// Now find the total squared frequency of the synonyms for this AA
+		for _, c := range syns {
+			p := freqs[c] / n
+			sum += p * p
+		}
+
+		// Now find the "Homozygosity"
+		F := (n*sum - 1) / (n - 1)
+
+		// And we will need an average for each "SF type" (the "SF type" of a
+		// codon is defined by the number of synonyms it has)
+		sfType := len(syns)
+		averageFs[sfType] = averageFs[sfType].Add(F)
+		fmt.Println(syns, F, sfType, averageFs[sfType])
+	}
+
+	return 2 + (9 / averageFs[2].Mean()) +
+		(1 / averageFs[3].Mean()) +
+		(5 / averageFs[4].Mean()) +
+		(3 / averageFs[6].Mean())
 }
 
 func calcCAI(trans RelTranslation, ref *CodonFreqTable) float64 {
@@ -267,6 +312,10 @@ func main() {
 	}
 
 	ref := parse(refName)
+
+	if orfs == "none" {
+		orfs = ""
+	}
 	g := genomes.LoadGenomes(source, orfs, false)
 
 	if restrict != "" {
@@ -290,7 +339,7 @@ func main() {
 	for _, which := range indices {
 		relTrans, cai := MakeRelTranslation(g, which, ref)
 		enc := relTrans.ENc()
-		fmt.Printf("%s\t%f\t%d\n", g.Names[which], cai, enc)
+		fmt.Printf("%s\t%f\t%.2f\n", g.Names[which], cai, enc)
 
 		if graph {
 			makeGraphData(relTrans, ref, which, window, labels)
