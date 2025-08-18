@@ -189,22 +189,28 @@ func (r RelTranslation) ENc() float64 {
 			continue
 		}
 
-		// Track how many AAs of each SF type we saw to use for the final
-		// average calculation below.
+		// First find n, the total number of times this AA appears
+		var n float64
+		for _, c := range syns {
+			n += float64(freqs[c])
+		}
+		if n == 0 {
+			continue
+		}
+
+		// Track how many AAs of each SF type we actually saw to use for the
+		// final average calculation below.
 		sfType := len(syns)
 		sfTypeCounts[sfType] += 1
 
+		// If there's only one synonym we don't count anything because there's
+		// nothing to count.
 		if sfType == 1 {
 			continue
 		}
 
-		// First find n, the total number of times this AA appears
-		var n, sum float64
-		for _, c := range syns {
-			n += float64(freqs[c])
-		}
-
 		// Now find the total squared frequency of the synonyms for this AA
+		var sum float64
 		for _, c := range syns {
 			// p is the frequency of this synonym
 			p := freqs[c] / n
@@ -230,10 +236,14 @@ func (r RelTranslation) ENc() float64 {
 	// and 6 syns respectively, but for small samples there may be fewer of
 	// some of them, so we use what we actually found).
 	ret := float64(sfTypeCounts[1])
-	delete(sfTypeCounts, 1)	// We didn't actually count these
+	delete(sfTypeCounts, 1) // We didn't actually count these
 
 	for typ, count := range sfTypeCounts {
-		ret += float64(count) / averageFs[typ].Mean()
+		ra, there := averageFs[typ]
+		if !there {
+			continue
+		}
+		ret += float64(count) / ra.Mean()
 	}
 
 	return ret
@@ -374,12 +384,11 @@ func main() {
 		indices = utils.ParseInts(include, ",")
 	}
 
-	fmt.Printf("name\tCAI\tENc\n")
+	fmt.Printf("%20s\tCAI\t\tENc\n", "name")
 	for _, which := range indices {
 		relTrans, cai := MakeRelTranslation(g, which, ref)
 		enc := relTrans.ENc()
-		fmt.Printf("%s\t%f\t%.3f\n", g.Names[which], cai, enc)
-
+		fmt.Printf("%20s\t%f\t%.3f\n", g.Names[which], cai, enc)
 		if graph {
 			makeGraphData(relTrans, ref, which, window, labels)
 		}
