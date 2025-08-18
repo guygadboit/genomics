@@ -158,6 +158,19 @@ func (r RollingAverage) Mean() float64 {
 	return r.Total / r.Count
 }
 
+func CountSFTypes() {
+	counts := make(map[int]int)
+	for k, syns := range genomes.ReverseCodonTable {
+		if len(syns) == 3 {
+			fmt.Printf("%c has 3\n", k)
+		}
+		counts[len(syns)] += 1
+	}
+	for k, v := range counts {
+		fmt.Printf("%d: %d\n", k, v)
+	}
+}
+
 // Effective Number of Codons per Wright 1989. This should be a number between
 // 20 and 61. 20 means you're very biased about which codons you like, 61 you
 // use them evenly.
@@ -168,10 +181,20 @@ func (r RelTranslation) ENc() float64 {
 	}
 
 	averageFs := make(map[int]RollingAverage)
+	sfTypeCounts := make(map[int]int)
 
 	// Now we consider each AA at a time.
-	for _, syns := range genomes.ReverseCodonTable {
-		if len(syns) == 1 {
+	for aa, syns := range genomes.ReverseCodonTable {
+		if aa == '*' { // exclude stop codons
+			continue
+		}
+
+		// Track how many AAs of each SF type we saw to use for the final
+		// average calculation below.
+		sfType := len(syns)
+		sfTypeCounts[sfType] += 1
+
+		if sfType == 1 {
 			continue
 		}
 
@@ -199,15 +222,21 @@ func (r RelTranslation) ENc() float64 {
 
 		// And we will need an average for each "SF type" (the "SF type" of a
 		// codon is defined by the number of synonyms it has)
-		sfType := len(syns)
 		averageFs[sfType] = averageFs[sfType].Add(F)
 	}
 
-	// FIXME: This needs adjusting if any SF types are not represented.
-	return 2 + (9 / averageFs[2].Mean()) +
-		(1 / averageFs[3].Mean()) +
-		(5 / averageFs[4].Mean()) +
-		(3 / averageFs[6].Mean())
+	// Then we average those according to how many of each SF type are present
+	// in our sample (which is usually 2, 9, 1, 5, 3 for 1 syn, 2 syns, 3, 4,
+	// and 6 syns respectively, but for small samples there may be fewer of
+	// some of them, so we use what we actually found).
+	ret := float64(sfTypeCounts[1])
+	delete(sfTypeCounts, 1)	// We didn't actually count these
+
+	for typ, count := range sfTypeCounts {
+		ret += float64(count) / averageFs[typ].Mean()
+	}
+
+	return ret
 }
 
 func calcCAI(trans RelTranslation, ref *CodonFreqTable) float64 {
@@ -349,7 +378,7 @@ func main() {
 	for _, which := range indices {
 		relTrans, cai := MakeRelTranslation(g, which, ref)
 		enc := relTrans.ENc()
-		fmt.Printf("%s\t%f\t%.2f\n", g.Names[which], cai, enc)
+		fmt.Printf("%s\t%f\t%.3f\n", g.Names[which], cai, enc)
 
 		if graph {
 			makeGraphData(relTrans, ref, which, window, labels)
