@@ -201,11 +201,12 @@ func (r RelTranslation) ENc() float64 {
 		// Track how many AAs of each SF type we actually saw to use for the
 		// final average calculation below.
 		sfType := len(syns)
-		sfTypeCounts[sfType] += 1
 
 		// If there's only one synonym we don't count anything because there's
-		// nothing to count.
+		// nothing to count. But we do still record how many AAs of this SF
+		// type we saw
 		if sfType == 1 {
+			sfTypeCounts[sfType] += 1
 			continue
 		}
 
@@ -223,6 +224,7 @@ func (r RelTranslation) ENc() float64 {
 		if numerator == 0 || denom == 0 {
 			continue
 		}
+		sfTypeCounts[sfType]++
 
 		F := numerator / denom
 
@@ -231,22 +233,35 @@ func (r RelTranslation) ENc() float64 {
 		averageFs[sfType] = averageFs[sfType].Add(F)
 	}
 
-	// Then we average those according to how many of each SF type are present
-	// in our sample (which is usually 2, 9, 1, 5, 3 for 1 syn, 2 syns, 3, 4,
-	// and 6 syns respectively, but for small samples there may be fewer of
-	// some of them, so we use what we actually found).
-	ret := float64(sfTypeCounts[1])
-	delete(sfTypeCounts, 1) // We didn't actually count these
+	// The paper says that if there is no Isoleucine (which is the sole member
+	// of sfType 3) then use the average of types 2 and 4 again.
+	if _, there := averageFs[3]; !there {
+		averageFs[3] = RollingAverage{
+			averageFs[2].Total + averageFs[4].Total,
+			averageFs[2].Count + averageFs[4].Count,
+		}
+	}
 
-	for typ, count := range sfTypeCounts {
+	// We weight each SF type according to how often it appears in the codon
+	// table (not in our sample). This is what the EMBOSS code does (although
+	// it isn't clear from the paper)
+	weights := map[int]float64{
+		2: 9,
+		3: 1,
+		4: 5,
+		6: 3,
+	}
+
+	ret := 2.0
+	for typ, _ := range sfTypeCounts {
 		ra, there := averageFs[typ]
 		if !there {
 			continue
 		}
-		ret += float64(count) / ra.Mean()
+		ret += float64(weights[typ]) / ra.Mean()
 	}
 
-	return ret
+	return min(ret, 61)
 }
 
 func calcCAI(trans RelTranslation, ref *CodonFreqTable) float64 {
