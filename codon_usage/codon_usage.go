@@ -264,6 +264,26 @@ func (r RelTranslation) ENc() float64 {
 	return min(ret, 61)
 }
 
+/*
+Returns what Wright calls "RF1"-- the number of CpGs over the total number
+of nucleotides
+*/
+func CpG(g *genomes.Genomes, which int) float64 {
+	// Work with the actual nts ignoring any gaps in the alignment
+	g2 := g.Filter(which)
+	g2.DeepCopy(0)
+	g2.RemoveGaps()
+	nts := g2.Nts[0]
+
+	var count int
+	for i := 1; i < len(nts); i++ {
+		if nts[i-1] == 'C' && nts[i] == 'G' {
+			count++
+		}
+	}
+	return float64(count)/float64(len(nts))
+}
+
 func calcCAI(trans RelTranslation, ref *CodonFreqTable) float64 {
 	prodRSCU, prodBest := 1.0, 1.0
 	exceptions := 0
@@ -385,7 +405,7 @@ func main() {
 	if restrict != "" {
 		start, end := parseRestrict(g, restrict)
 		g.Truncate(start, end)
-		g.Save("check", "check.fasta", 0)
+		// g.Save("check", "check.fasta", 0)
 	}
 
 	var indices []int
@@ -399,11 +419,12 @@ func main() {
 		indices = utils.ParseInts(include, ",")
 	}
 
-	fmt.Printf("%20s\tCAI\t\tENc\n", "name")
+	fmt.Printf("%20s\tCAI\t\tENc\tCpG (%%)\n", "name")
 	for _, which := range indices {
 		relTrans, cai := MakeRelTranslation(g, which, ref)
 		enc := relTrans.ENc()
-		fmt.Printf("%20s\t%f\t%.3f\n", g.Names[which], cai, enc)
+		cpg := CpG(g, which)
+		fmt.Printf("%20s\t%f\t%.3f\t%.3f\n", g.Names[which], cai, enc, cpg*100)
 		if graph {
 			makeGraphData(relTrans, ref, which, window, labels)
 		}
