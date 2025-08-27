@@ -10,13 +10,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
-	"regexp"
 )
-
-func GnuplotEscape(s string) string {
-	pat := regexp.MustCompile(`_`)
-	return string(pat.ReplaceAll([]byte(s), []byte(`\\\_`)))
-}
 
 func RunGnuplot(fname string, g *genomes.Genomes, a, b int) {
 	gpName := "comparefa-plot.gpi"
@@ -34,7 +28,7 @@ func RunGnuplot(fname string, g *genomes.Genomes, a, b int) {
 	*/
 
 	cleanName := func(s string) string {
-		return GnuplotEscape(utils.Shorten(s, 16))
+		return utils.GnuplotEscape(utils.Shorten(s, 16))
 	}
 
 	fmt.Fprintf(w, `

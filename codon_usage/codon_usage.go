@@ -264,15 +264,20 @@ func (r RelTranslation) ENc() float64 {
 	return min(ret, 61)
 }
 
+func CopyWithoutGaps(g *genomes.Genomes, which int) *genomes.Genomes {
+	g2 := g.Filter(which)
+	g2.DeepCopy(0)
+	g2.RemoveGaps()
+	return g2
+}
+
 /*
 Returns what Wright calls "RF1"-- the number of CpGs over the total number
 of nucleotides
 */
 func CpG(g *genomes.Genomes, which int) float64 {
 	// Work with the actual nts ignoring any gaps in the alignment
-	g2 := g.Filter(which)
-	g2.DeepCopy(0)
-	g2.RemoveGaps()
+	g2 := CopyWithoutGaps(g, which)
 	nts := g2.Nts[0]
 
 	var count int
@@ -281,7 +286,23 @@ func CpG(g *genomes.Genomes, which int) float64 {
 			count++
 		}
 	}
-	return float64(count)/float64(len(nts))
+	return float64(count) / float64(len(nts))
+}
+
+// Call cb with a series of the CpG so far at nt position int into the genome
+func CumulativeCpG(g *genomes.Genomes, which int, cb func(int, int)) {
+	g2 := CopyWithoutGaps(g, which)
+	nts := g2.Nts[0]
+
+	var count int
+	for i := 1; i < len(nts); i++ {
+		if nts[i-1] == 'C' && nts[i] == 'G' {
+			count++
+		}
+		if count > 0 {
+			cb(i, count)
+		}
+	}
 }
 
 func calcCAI(trans RelTranslation, ref *CodonFreqTable) float64 {
@@ -365,6 +386,36 @@ func makeGraphData(relTrans RelTranslation, ref *CodonFreqTable,
 	fmt.Printf("Wrote %s\n", fname)
 }
 
+func writeGnuplotFile(which int, dataName string, name string) {
+	fname := fmt.Sprintf("plot-%d.gpi", which)
+	fd, fp := utils.WriteFile(fname)
+	defer fd.Close()
+
+	fmt.Fprintf(fp, "set title \"%s cumulative CpG count\"\n",
+		utils.GnuplotEscape(name))
+	fmt.Fprintf(fp, "set term png\n")
+	fmt.Fprintf(fp, "set output \"%d.png\"\n", which)
+	fmt.Fprintf(fp, "plot \"%s\" with lines notitle\n", dataName)
+
+	fp.Flush()
+	fmt.Printf("Wrote %s\n", fname)
+}
+
+func makeCpGGraphData(g *genomes.Genomes, which int) {
+	fname := fmt.Sprintf("%d.txt", which)
+	fd, fp := utils.WriteFile(fname)
+	defer fd.Close()
+
+	CumulativeCpG(g, which, func(pos int, cpgCount int) {
+		fmt.Fprintln(fp, pos+1, cpgCount)
+	})
+
+	fp.Flush()
+	fmt.Printf("Wrote %s\n", fname)
+
+	writeGnuplotFile(which, fname, g.Names[which])
+}
+
 func main() {
 	var (
 		refName      string
@@ -375,6 +426,7 @@ func main() {
 		graph        bool
 		labels       bool
 		window       int
+		graphCpG     bool
 	)
 
 	flag.StringVar(&refName, "ref", "./human", "Reference")
@@ -388,6 +440,7 @@ func main() {
 	flag.BoolVar(&labels,
 		"labels", false, "Label AAs in graph data if window==1")
 	flag.IntVar(&window, "window", 1, "Window for graph data")
+	flag.BoolVar(&graphCpG, "graph-cpg", false, "Cumulative CpG")
 	flag.Parse()
 
 	parse := ParseCUTable
@@ -427,6 +480,9 @@ func main() {
 		fmt.Printf("%20s\t%f\t%.3f\t%.3f\n", g.Names[which], cai, enc, cpg*100)
 		if graph {
 			makeGraphData(relTrans, ref, which, window, labels)
+		}
+		if graphCpG {
+			makeCpGGraphData(g, which)
 		}
 	}
 }

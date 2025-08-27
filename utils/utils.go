@@ -13,6 +13,7 @@ import (
 	"strings"
 	"time"
 	"cmp"
+	"regexp"
 )
 
 // Let's use this type for OneBased positions and regular ints for zero based.
@@ -345,4 +346,10 @@ func Max[T cmp.Ordered](x, y T) T {
 	} else {
 		return y
 	}
+}
+
+// Stop gnuplot turning _0 into a subscript
+func GnuplotEscape(s string) string {
+	pat := regexp.MustCompile(`_`)
+	return string(pat.ReplaceAll([]byte(s), []byte(`\\\_`)))
 }
