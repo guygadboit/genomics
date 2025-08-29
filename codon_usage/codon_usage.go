@@ -272,17 +272,18 @@ func CopyWithoutGaps(g *genomes.Genomes, which int) *genomes.Genomes {
 }
 
 /*
-Returns what Wright calls "RF1"-- the number of CpGs over the total number
-of nucleotides
+Returns what Wright calls "RF1"-- the number of CpGs (or TpAs) over the total
+number of nucleotides. Pattern should either be "CG" or "TA" (or whatever
+you're interested in)
 */
-func CpG(g *genomes.Genomes, which int) float64 {
+func CpG(g *genomes.Genomes, pattern string, which int) float64 {
 	// Work with the actual nts ignoring any gaps in the alignment
 	g2 := CopyWithoutGaps(g, which)
 	nts := g2.Nts[0]
 
 	var count int
 	for i := 1; i < len(nts); i++ {
-		if nts[i-1] == 'C' && nts[i] == 'G' {
+		if nts[i-1] == pattern[0] && nts[i] == pattern[1] {
 			count++
 		}
 	}
@@ -290,13 +291,14 @@ func CpG(g *genomes.Genomes, which int) float64 {
 }
 
 // Call cb with a series of the CpG so far at nt position int into the genome
-func CumulativeCpG(g *genomes.Genomes, which int, cb func(int, int)) {
+func CumulativeCpG(g *genomes.Genomes,
+	pattern string, which int, cb func(int, int)) {
 	g2 := CopyWithoutGaps(g, which)
 	nts := g2.Nts[0]
 
 	var count int
 	for i := 1; i < len(nts); i++ {
-		if nts[i-1] == 'C' && nts[i] == 'G' {
+		if nts[i-1] == pattern[0] && nts[i] == pattern[1] {
 			count++
 		}
 		if count > 0 {
@@ -401,12 +403,12 @@ func writeGnuplotFile(which int, dataName string, name string) {
 	fmt.Printf("Wrote %s\n", fname)
 }
 
-func makeCpGGraphData(g *genomes.Genomes, which int) {
+func makeCpGGraphData(g *genomes.Genomes, pattern string, which int) {
 	fname := fmt.Sprintf("%d.txt", which)
 	fd, fp := utils.WriteFile(fname)
 	defer fd.Close()
 
-	CumulativeCpG(g, which, func(pos int, cpgCount int) {
+	CumulativeCpG(g, pattern, which, func(pos int, cpgCount int) {
 		fmt.Fprintln(fp, pos+1, cpgCount)
 	})
 
@@ -427,6 +429,7 @@ func main() {
 		labels       bool
 		window       int
 		graphCpG     bool
+		pattern      string
 	)
 
 	flag.StringVar(&refName, "ref", "./human", "Reference")
@@ -440,8 +443,12 @@ func main() {
 	flag.BoolVar(&labels,
 		"labels", false, "Label AAs in graph data if window==1")
 	flag.IntVar(&window, "window", 1, "Window for graph data")
+	// You might also want to look for TpA
+	flag.StringVar(&pattern, "pattern", "cg", "Pattern to look for for 'CpG'")
 	flag.BoolVar(&graphCpG, "graph-cpg", false, "Cumulative CpG")
 	flag.Parse()
+
+	pattern = strings.ToUpper(pattern)
 
 	parse := ParseCUTable
 	if biologics {
@@ -472,17 +479,18 @@ func main() {
 		indices = utils.ParseInts(include, ",")
 	}
 
-	fmt.Printf("%20s\tCAI\t\tENc\tCpG (%%)\n", "name")
+	fmt.Printf("%20s\tCAI\t\tENc\t%cp%c (%%)\n",
+		"name", pattern[0], pattern[1])
 	for _, which := range indices {
 		relTrans, cai := MakeRelTranslation(g, which, ref)
 		enc := relTrans.ENc()
-		cpg := CpG(g, which)
+		cpg := CpG(g, pattern, which)
 		fmt.Printf("%20s\t%f\t%.3f\t%.3f\n", g.Names[which], cai, enc, cpg*100)
 		if graph {
 			makeGraphData(relTrans, ref, which, window, labels)
 		}
 		if graphCpG {
-			makeCpGGraphData(g, which)
+			makeCpGGraphData(g, pattern, which)
 		}
 	}
 }
