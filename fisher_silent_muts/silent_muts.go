@@ -75,7 +75,8 @@ func OutputResults(results []Result, which int) {
 }
 
 func MakeTestGenomes(g *genomes.Genomes) {
-	nd := mutations.NewNucDistro(g)
+	it := mutations.NewGenomeIterator(g)
+	nd := mutations.NewNucDistro(it, mutations.NT_ALPHABET)
 
 	var orfs genomes.Orfs
 	ret := genomes.NewGenomes(orfs, 2)
