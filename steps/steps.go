@@ -152,7 +152,7 @@ func MatchWindows(c *comparison.Comparison, windows []Window) bool {
 					fmt.Println()
 
 					c.GraphData(fname)
-					c.RunGnuplot(fname, trsMarkers, true)
+					c.RunGnuplot(fname, RbdMarkers, true)
 					windowDatas.SaveFasta(c, fmt.Sprintf("%s.fasta", name))
 				}
 				prevInteresting = windowDatas.Copy()
@@ -188,11 +188,12 @@ func main() {
 	flag.IntVar(&threshold, "t", 95, "Threshold")
 	flag.Parse()
 
+	g := genomes.LoadGenomes(fasta, orfs, false)
+	g.RemoveGaps()
+
 	windowSizes := utils.ParseInts(windowSizesS, ",")
 	windows := makeWindows(windowSizes[0],
 		windowSizes[1], windowSizes[2], threshold)
-
-	g := genomes.LoadGenomes(fasta, orfs, false)
 
 	for i := 0; i < g.NumGenomes(); i++ {
 		/*
@@ -202,6 +203,7 @@ func main() {
 		*/
 		for j := 0; j < i; j++ {
 			c := comparison.Compare(g, i, j)
+
 			if MatchWindows(&c, windows) {
 				fmt.Printf("%s (%d) vs %s (%d)\n", g.Names[i], i, g.Names[j], j)
 			}

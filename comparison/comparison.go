@@ -326,7 +326,8 @@ set ylabel "count"`, cleanName(g.Names[c.A]), cleanName(g.Names[c.B]))
 		pngName := utils.BaseName(fname) + ".png"
 		fmt.Fprintf(w, `
 set term png
-set output "%s"`, pngName)
+set output "%s"
+`, pngName)
 	}
 
 	fmt.Fprintln(w, extraContent)
