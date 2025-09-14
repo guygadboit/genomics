@@ -7,6 +7,7 @@ import (
 	"genomics/utils"
 	"log"
 	"os"
+	"os/exec"
 	"slices"
 )
 
@@ -223,14 +224,12 @@ func (c *Comparison) ShowTransitions() {
 
 type PosSet map[int]bool
 
-func (c *Comparison) GraphData(fname string) {
-	f, err := os.Create(fname)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer f.Close()
-	w := bufio.NewWriter(f)
+type Count struct {
+	S, NS, Ins, Del int // cumulative counts
+	NSRatio         float64
+}
 
+func (c *Comparison) CumulativeCounts(cb func(c Count, cc Count)) {
 	silent := make(PosSet)
 	nonSilent := make(PosSet)
 	for _, m := range c.NtMuts {
@@ -251,24 +250,103 @@ func (c *Comparison) GraphData(fname string) {
 	var nsRatio float64
 
 	for i := 0; i < g.Length(); i++ {
+		var deltaS, deltaNS, deltaIns, deltaDel int
+
 		if silent[i] {
+			deltaS = 1
 			s++
 		} else if nonSilent[i] {
+			deltaNS = 1
 			ns++
 		} else if insertions[i] {
+			deltaIns = 1
 			ins++
 		} else if deletions[i] {
+			deltaDel = 1
 			del++
 		}
 		if s > 0 {
 			nsRatio = float64(ns) / float64(s)
 		}
 
-		// The ratio goes in the data file but isn't plotted by default
-		fmt.Fprintf(w, "%d %d %d %d %.4f\n", s, ns, ins, del, nsRatio)
+		cb(Count{deltaS, deltaNS, deltaIns, deltaDel, 0.0},
+			Count{s, ns, ins, del, nsRatio})
 	}
+}
+
+func (c *Comparison) GraphData(fname string) {
+	fd, w := utils.WriteFile(fname)
+	defer fd.Close()
+
+	c.CumulativeCounts(func(c Count, d Count) {
+		// The ratio goes in the data file but isn't plotted by default
+		fmt.Fprintf(w, "%d %d %d %d %.4f\n", d.S, d.NS, d.Ins, d.Del, d.NSRatio)
+	})
 
 	w.Flush()
+}
+
+/*
+fname is the file you just created with GraphData above. If savePng create a
+png file, otherwise run it interactively with --persist
+*/
+func (c *Comparison) RunGnuplot(fname string, savePng bool) {
+	gpName := "comparefa-plot.gpi"
+	g := c.Genomes
+
+	var pngName string
+	if savePng {
+		pngName = utils.BaseName(fname) + ".png"
+	}
+
+	f, err := os.Create(gpName)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer f.Close()
+
+	w := bufio.NewWriter(f)
+
+	/*
+		We don't plot the ratio by default, but the data is there in the file
+		in column 5. So if you want to plot that, just edit the gpi script
+		afterwards
+	*/
+	cleanName := func(s string) string {
+		return utils.GnuplotEscape(utils.Shorten(s, 16))
+	}
+
+	fmt.Fprintf(w, `
+set title "%s vs %s"
+set xlabel "nucleotide offset"
+set ylabel "count"`, cleanName(g.Names[c.A]), cleanName(g.Names[c.B]))
+
+	if savePng {
+		pngName := utils.BaseName(fname) + ".png"
+		fmt.Fprintf(w, `
+set term png
+set output "%s"`, pngName)
+	}
+
+	fmt.Fprintf(w, `
+plot "%s" using 1 title "silent" with lines, \
+	"%s" using 2 title "non-silent" with lines, \
+	"%s" using 3 title "insertions" with lines, \
+	"%s" using 4 title "deletions" with lines
+`, fname, fname, fname, fname)
+	w.Flush()
+
+	var cmd *exec.Cmd
+	if savePng {
+		cmd = exec.Command("gnuplot", gpName)
+		fmt.Printf("Wrote %s\n", pngName)
+	} else {
+		cmd = exec.Command("gnuplot", "--persist", gpName)
+	}
+	err = cmd.Run()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+	}
 }
 
 func Compare(g *genomes.Genomes, a, b int) Comparison {

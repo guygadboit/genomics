@@ -144,20 +144,6 @@ type RelCodon struct {
 // A translation decorated with relative adaptation values
 type RelTranslation []RelCodon
 
-type RollingAverage struct {
-	Total, Count float64
-}
-
-// These are defined like this (rather than as pointer methods) because we're
-// using them in a map
-func (r RollingAverage) Add(val float64) RollingAverage {
-	return RollingAverage{r.Total + val, r.Count + 1}
-}
-
-func (r RollingAverage) Mean() float64 {
-	return r.Total / r.Count
-}
-
 func CountSFTypes() {
 	counts := make(map[int]int)
 	for k, syns := range genomes.ReverseCodonTable {
@@ -180,7 +166,7 @@ func (r RelTranslation) ENc() float64 {
 		freqs[codon.Nts]++
 	}
 
-	averageFs := make(map[int]RollingAverage)
+	averageFs := make(map[int]utils.RollingAverage)
 	sfTypeCounts := make(map[int]int)
 
 	// Now we consider each AA at a time.
@@ -236,7 +222,7 @@ func (r RelTranslation) ENc() float64 {
 	// The paper says that if there is no Isoleucine (which is the sole member
 	// of sfType 3) then use the average of types 2 and 4 again.
 	if _, there := averageFs[3]; !there {
-		averageFs[3] = RollingAverage{
+		averageFs[3] = utils.RollingAverage{
 			averageFs[2].Total + averageFs[4].Total,
 			averageFs[2].Count + averageFs[4].Count,
 		}

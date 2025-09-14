@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"flag"
 	"fmt"
 	. "genomics/comparison"
@@ -9,46 +8,7 @@ import (
 	"genomics/utils"
 	"log"
 	"os"
-	"os/exec"
 )
-
-func RunGnuplot(fname string, g *genomes.Genomes, a, b int) {
-	gpName := "comparefa-plot.gpi"
-	f, err := os.Create(gpName)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer f.Close()
-
-	w := bufio.NewWriter(f)
-
-	/*
-		We don't plot the ratio by default, but the data is there in the file in
-		column 5. So if you want to plot that, just edit the gpi script afterwards
-	*/
-
-	cleanName := func(s string) string {
-		return utils.GnuplotEscape(utils.Shorten(s, 16))
-	}
-
-	fmt.Fprintf(w, `
-set title "%s vs %s"
-set xlabel "nucleotide offset"
-set ylabel "count"
-
-plot "cumulative-muts.txt" using 1 title "silent" with lines, \
-	"cumulative-muts.txt" using 2 title "non-silent" with lines, \
-	"cumulative-muts.txt" using 3 title "insertions" with lines, \
-	"cumulative-muts.txt" using 4 title "deletions" with lines
-`, cleanName(g.Names[a]), cleanName(g.Names[b]))
-	w.Flush()
-
-	cmd := exec.Command("gnuplot", "--persist", gpName)
-	err = cmd.Run()
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-	}
-}
 
 func parseRestrict(g *genomes.Genomes, restrict string) (int, int) {
     for _, orf := range g.Orfs {
@@ -158,7 +118,7 @@ func main() {
 			fname := "cumulative-muts.txt"
 			c.GraphData(fname)
 			fmt.Printf("Wrote %s\n", fname)
-			RunGnuplot(fname, g, which[0], which[1])
+			c.RunGnuplot(fname, false)
 		}
 		if showTransitions {
 			c.ShowTransitions()

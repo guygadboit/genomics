@@ -2,6 +2,7 @@ package utils
 
 import (
 	"bufio"
+	"cmp"
 	"compress/gzip"
 	"fmt"
 	"io"
@@ -9,11 +10,10 @@ import (
 	"math/rand"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
-	"cmp"
-	"regexp"
 )
 
 // Let's use this type for OneBased positions and regular ints for zero based.
@@ -338,7 +338,6 @@ func Min[T cmp.Ordered](x, y T) T {
 	}
 }
 
-
 // Apparently this is a builtin (just max) since Go 1.something
 func Max[T cmp.Ordered](x, y T) T {
 	if x > y {
@@ -352,4 +351,36 @@ func Max[T cmp.Ordered](x, y T) T {
 func GnuplotEscape(s string) string {
 	pat := regexp.MustCompile(`_`)
 	return string(pat.ReplaceAll([]byte(s), []byte(`\\\_`)))
+}
+
+type RollingAverage struct {
+	Total, Count float64
+}
+
+// These are defined like this (rather than as pointer methods) because we're
+// using them in a map
+func (r RollingAverage) Add(val float64) RollingAverage {
+	return RollingAverage{r.Total + val, r.Count + 1}
+}
+
+func (r RollingAverage) Mean() float64 {
+	return r.Total / r.Count
+}
+
+func Sign(n int) int {
+	if n > 0 {
+		return 1
+	}
+	if n < 0 {
+		return -1
+	}
+	return 0
+}
+
+func Abs(n int) int {
+	if n < 0 {
+		return n * -1
+	} else {
+		return n
+	}
 }
