@@ -118,7 +118,7 @@ func main() {
 			fname := "cumulative-muts.txt"
 			c.GraphData(fname)
 			fmt.Printf("Wrote %s\n", fname)
-			c.RunGnuplot(fname, false)
+			c.RunGnuplot(fname, "", false)
 		}
 		if showTransitions {
 			c.ShowTransitions()

@@ -290,7 +290,8 @@ func (c *Comparison) GraphData(fname string) {
 fname is the file you just created with GraphData above. If savePng create a
 png file, otherwise run it interactively with --persist
 */
-func (c *Comparison) RunGnuplot(fname string, savePng bool) {
+func (c *Comparison) RunGnuplot(fname string,
+	extraContent string, savePng bool) {
 	gpName := "comparefa-plot.gpi"
 	g := c.Genomes
 
@@ -327,6 +328,8 @@ set ylabel "count"`, cleanName(g.Names[c.A]), cleanName(g.Names[c.B]))
 set term png
 set output "%s"`, pngName)
 	}
+
+	fmt.Fprintln(w, extraContent)
 
 	fmt.Fprintf(w, `
 plot "%s" using 1 title "silent" with lines, \

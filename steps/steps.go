@@ -152,7 +152,7 @@ func MatchWindows(c *comparison.Comparison, windows []Window) bool {
 					fmt.Println()
 
 					c.GraphData(fname)
-					c.RunGnuplot(fname, true)
+					c.RunGnuplot(fname, trsMarkers, true)
 					windowDatas.SaveFasta(c, fmt.Sprintf("%s.fasta", name))
 				}
 				prevInteresting = windowDatas.Copy()
