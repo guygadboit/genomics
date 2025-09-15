@@ -294,7 +294,7 @@ func (c *Comparison) RunGnuplot(fname string,
 	extraContent string, savePng bool) {
 	baseName := utils.BaseName(fname)
 	gpName := baseName + ".gpi"
-	defer os.Remove("gpName")
+	defer os.Remove(gpName)
 
 	g := c.Genomes
 

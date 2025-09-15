@@ -31,12 +31,16 @@ func LoadRbdMarkers() {
 	`)
 	*/
 
-	// These are the SARS1 ones
+	/*
+	SARS1 RBM
+	set arrow from 22763, graph 0 to 22763, graph 1 nohead filled lc "blue"
+	set arrow from 22968, graph 0 to 22968, graph 1 nohead filled lc "blue"
+	*/
+
+	// SARS1 RBD
 	RbdMarkers = fmt.Sprintf(`
 set arrow from 22448, graph 0 to 22448, graph 1 nohead filled lc "red"
 set arrow from 23487, graph 0 to 23487, graph 1 nohead filled lc "red"
-set arrow from 22763, graph 0 to 22763, graph 1 nohead filled lc "blue"
-set arrow from 22968, graph 0 to 22968, graph 1 nohead filled lc "blue"
 `)
 }
 

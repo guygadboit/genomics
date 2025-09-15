@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"os"
 	"genomics/comparison"
 	"genomics/genomes"
 	"genomics/utils"
@@ -153,6 +154,7 @@ func MatchWindows(c *comparison.Comparison, windows []Window) bool {
 
 					c.GraphData(fname)
 					c.RunGnuplot(fname, RbdMarkers, true)
+					os.Remove(fname)
 					windowDatas.SaveFasta(c, fmt.Sprintf("%s.fasta", name))
 				}
 				prevInteresting = windowDatas.Copy()
@@ -201,6 +203,7 @@ func main() {
 				fmt.Printf("Testing %s\n", g.Names[i])
 			}
 		*/
+
 		for j := 0; j < i; j++ {
 			c := comparison.Compare(g, i, j)
 
