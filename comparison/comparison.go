@@ -292,12 +292,15 @@ png file, otherwise run it interactively with --persist
 */
 func (c *Comparison) RunGnuplot(fname string,
 	extraContent string, savePng bool) {
-	gpName := "comparefa-plot.gpi"
+	baseName := utils.BaseName(fname)
+	gpName := baseName + ".gpi"
+	defer os.Remove("gpName")
+
 	g := c.Genomes
 
 	var pngName string
 	if savePng {
-		pngName = utils.BaseName(fname) + ".png"
+		pngName = baseName + ".png"
 	}
 
 	f, err := os.Create(gpName)
