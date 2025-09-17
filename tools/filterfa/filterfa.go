@@ -72,18 +72,20 @@ func main() {
 		removeGaps                bool
 		protein                   bool
 		dedupe                    bool
+		densestFirst              bool
 	)
 
 	flag.StringVar(&include, "i", "", "Genomes to include")
 	flag.StringVar(&exclude, "e", "", "Genomes to exclude")
 	flag.BoolVar(&summary, "s", false, "Summary")
-	flag.BoolVar(&dedupe, "dd", false, "Remove duplicates")
 	flag.BoolVar(&ss, "ss", false, "Similiarity summary")
 	flag.BoolVar(&sss, "sss", false, "Sorted similiarity summary")
 	flag.BoolVar(&ess, "ess", false, "Exhaustive similarity summary")
 	flag.BoolVar(&removeGaps, "g", false, "Remove Gaps")
 	flag.BoolVar(&protein, "p", false, "Input is a protein")
 	flag.StringVar(&outName, "o", "filtered.fasta", "Output filename")
+	flag.BoolVar(&dedupe, "dd", false, "Remove duplicates")
+	flag.BoolVar(&densestFirst, "df", false, "Put the densest first")
 	flag.Parse()
 
 	g := genomes.LoadGenomes(flag.Arg(0), "", false)
@@ -140,6 +142,9 @@ func main() {
 	}
 	if dedupe {
 		g2 = g.Dedupe()
+	}
+	if densestFirst {
+		g2 = g.LeastGapsFirst()
 	}
 
 	g2.SaveMulti(outName)

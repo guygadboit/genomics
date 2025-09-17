@@ -933,3 +933,27 @@ func (g *Genomes) Dedupe() *Genomes {
 
 	return ret
 }
+
+// Make a shallow copy ensuring that a genome with the fewest number of gaps
+// appears first.
+func (g *Genomes) LeastGapsFirst() *Genomes {
+	best, minGaps := 0, g.Length()
+
+outer:
+	for i, _ := range g.Nts {
+		gaps := 0
+		for j := 0; j < g.Length(); j++ {
+			if g.Nts[i][j] == '-' {
+				gaps++
+				if gaps > minGaps {
+					continue outer
+				}
+			}
+		}
+		if gaps < minGaps {
+			best, minGaps = i, gaps
+		}
+	}
+
+	return g.Swap(0, best)
+}
