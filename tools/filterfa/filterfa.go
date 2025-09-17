@@ -71,11 +71,13 @@ func main() {
 		summary, ss, sss, ess     bool
 		removeGaps                bool
 		protein                   bool
+		dedupe                    bool
 	)
 
 	flag.StringVar(&include, "i", "", "Genomes to include")
 	flag.StringVar(&exclude, "e", "", "Genomes to exclude")
 	flag.BoolVar(&summary, "s", false, "Summary")
+	flag.BoolVar(&dedupe, "dd", false, "Remove duplicates")
 	flag.BoolVar(&ss, "ss", false, "Similiarity summary")
 	flag.BoolVar(&sss, "sss", false, "Sorted similiarity summary")
 	flag.BoolVar(&ess, "ess", false, "Exhaustive similarity summary")
@@ -127,6 +129,7 @@ func main() {
 	}
 
 	var g2 *genomes.Genomes
+
 	if len(which) > 0 {
 		g2 = g.Filter(which...)
 	} else {
@@ -135,6 +138,10 @@ func main() {
 	if removeGaps {
 		g2.RemoveGaps()
 	}
+	if dedupe {
+		g2 = g.Dedupe()
+	}
+
 	g2.SaveMulti(outName)
 	fmt.Printf("Wrote %s\n", outName)
 }

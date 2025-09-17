@@ -902,3 +902,34 @@ func (g *Genomes) Truncate(start, end int) {
 	}
 	g.Orfs = TruncateOrfs(g.Orfs, start, end)
 }
+
+// Make a shallow copy with the duplicates removed
+func (g *Genomes) Dedupe() *Genomes {
+	dupes := make(map[int]bool)
+	for i := 0; i < g.NumGenomes(); i++ {
+		for j := 0; j < i; j++ {
+			different := false
+			for k := 0; k < g.Length(); k++ {
+				if g.Nts[i][k] != g.Nts[j][k] {
+					different = true
+					break
+				}
+			}
+			if !different {
+				dupes[j] = true
+			}
+		}
+	}
+
+	ret := NewGenomes(g.Orfs, g.NumGenomes()-len(dupes))
+	j := 0
+	for i, _ := range g.Nts {
+		if !dupes[i] {
+			ret.Nts[j] = g.Nts[i]
+			ret.Names[j] = g.Names[i]
+			j++
+		}
+	}
+
+	return ret
+}
