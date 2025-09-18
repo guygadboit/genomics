@@ -9,7 +9,7 @@ import (
 	"slices"
 )
 
-func SortedSimilarity(g *genomes.Genomes, protein bool) {
+func SortedSimilarity(g *genomes.Genomes, protein bool, ref int) {
 	type result struct {
 		index int
 		ss    float64
@@ -17,7 +17,7 @@ func SortedSimilarity(g *genomes.Genomes, protein bool) {
 
 	results := make([]result, g.NumGenomes())
 	for i := 0; i < g.NumGenomes(); i++ {
-		results[i] = result{i, g.SequenceSimilarity(i, 0, protein)}
+		results[i] = result{i, g.SequenceSimilarity(i, ref, protein)}
 	}
 
 	slices.SortFunc(results, func(a, b result) int {
@@ -73,6 +73,7 @@ func main() {
 		protein                   bool
 		dedupe                    bool
 		densestFirst              bool
+		ref                       int
 	)
 
 	flag.StringVar(&include, "i", "", "Genomes to include")
@@ -86,6 +87,7 @@ func main() {
 	flag.StringVar(&outName, "o", "filtered.fasta", "Output filename")
 	flag.BoolVar(&dedupe, "dd", false, "Remove duplicates")
 	flag.BoolVar(&densestFirst, "df", false, "Put the densest first")
+	flag.IntVar(&ref, "ref", 0, "Reference for similarity summary")
 	flag.Parse()
 
 	g := genomes.LoadGenomes(flag.Arg(0), "", false)
@@ -98,12 +100,12 @@ func main() {
 
 	if ss {
 		for i, n := range g.Names {
-			ss := g.SequenceSimilarity(i, 0, protein)
+			ss := g.SequenceSimilarity(i, ref, protein)
 			fmt.Printf("%d: %s %.2f%%\n", i, n, ss*100)
 		}
 		return
 	} else if sss {
-		SortedSimilarity(g, protein)
+		SortedSimilarity(g, protein, ref)
 		return
 	} else if ess {
 		ExhaustiveSimilarity(g, protein)
