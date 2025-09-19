@@ -92,7 +92,6 @@ func MatchWindows(c *comparison.Comparison,
 	windowDatas := NewWindowDatas(windows)
 	datas := windowDatas.Datas
 
-
 	length := c.Genomes.Length()
 	totalMuts := make([]int, length) // cumulative N+S
 
@@ -102,14 +101,8 @@ func MatchWindows(c *comparison.Comparison,
 		i++
 	})
 
-	// Fill the windows up starting at pos. Note: you could "slide" these much
-	// more efficiently just by adding and subtracting rather than totting it
-	// all up again each time.
+	// Fill the windows up starting at pos.
 	fillWindowDatas := func(pos int) bool {
-		for i, _ := range datas {
-			datas[i].Reset(pos)
-		}
-
 		currentWd := 0 // the window we're currently filling
 		offset := 0    // how much we've already put into windows
 
@@ -129,9 +122,27 @@ func MatchWindows(c *comparison.Comparison,
 		return true
 	}
 
+	// Slide the windows along one position assuming they're already filled at
+	// pos-1
+	slideWindowDatas := func(pos int) bool {
+		if pos+windowDatas.TotalSize > length {
+			return false
+		}
+		for i, _ := range datas {
+			datas[i].Total -= totalMuts[pos-1]
+			datas[i].Total += totalMuts[pos+datas[i].Size-1]
+			datas[i].Start += 1
+			pos += datas[i].Size
+		}
+		return true
+	}
+
 	var prevInteresting *WindowDatas
 
 	for i := 0; i < length; i++ {
+		if i > 0 {
+			fillWindowDatas = slideWindowDatas
+		}
 		if fillWindowDatas(i) {
 			var average utils.RollingAverage
 			interesting := true
