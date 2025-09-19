@@ -156,6 +156,10 @@ func Atoi(s string) int {
 	return ret
 }
 
+func Itoa(s int) string {
+	return fmt.Sprintf("%d", s)
+}
+
 func WriteFile(fname string) (*os.File, *bufio.Writer) {
 	fd, err := os.Create(fname)
 	if err != nil {

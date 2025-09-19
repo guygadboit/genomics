@@ -1,12 +1,13 @@
 package main
 
 import (
+	"encoding/csv"
 	"flag"
 	"fmt"
-	"os"
 	"genomics/comparison"
 	"genomics/genomes"
 	"genomics/utils"
+	"os"
 )
 
 type Window struct {
@@ -86,10 +87,11 @@ Look for places where the difference between successive windows exceeds
 the thresholds
 */
 func MatchWindows(c *comparison.Comparison,
-	windows []Window, markers bool) bool {
+	windows []Window, markers bool, csv *csv.Writer) bool {
 	ret := false
 	windowDatas := NewWindowDatas(windows)
 	datas := windowDatas.Datas
+
 
 	length := c.Genomes.Length()
 	totalMuts := make([]int, length) // cumulative N+S
@@ -100,7 +102,9 @@ func MatchWindows(c *comparison.Comparison,
 		i++
 	})
 
-	// Fill the windows up starting at pos
+	// Fill the windows up starting at pos. Note: you could "slide" these much
+	// more efficiently just by adding and subtracting rather than totting it
+	// all up again each time.
 	fillWindowDatas := func(pos int) bool {
 		for i, _ := range datas {
 			datas[i].Reset(pos)
@@ -153,6 +157,16 @@ func MatchWindows(c *comparison.Comparison,
 					}
 					fmt.Println()
 
+					wd := datas[1]
+					csv.Write([]string{
+						c.Genomes.Names[c.A],
+						c.Genomes.Names[c.B],
+						utils.Itoa(c.A),
+						utils.Itoa(c.B),
+						utils.Itoa(wd.Start + 1),
+						utils.Itoa(wd.Start + wd.Size),
+						utils.Itoa(int(average.Total))})
+
 					c.GraphData(fname)
 					var markerString string
 					if markers {
@@ -166,6 +180,7 @@ func MatchWindows(c *comparison.Comparison,
 			}
 		}
 	}
+
 	return ret
 }
 
@@ -186,7 +201,7 @@ func main() {
 		threshold    int
 		windowSizesS string
 		fasta, orfs  string
-		markers bool
+		markers      bool
 	)
 
 	flag.StringVar(&fasta, "fasta",
@@ -204,19 +219,22 @@ func main() {
 	windows := makeWindows(windowSizes[0],
 		windowSizes[1], windowSizes[2], threshold)
 
-	for i := 0; i < g.NumGenomes(); i++ {
-		/*
-			if verbose {
-				fmt.Printf("Testing %s\n", g.Names[i])
-			}
-		*/
+	fd, fp := utils.WriteFile("results.csv")
+	defer fd.Close()
 
+	csv := csv.NewWriter(fp)
+	csv.Write([]string{"Name A", "Name B",
+		"Index A", "Index B", "Start", "End", "Extra muts"})
+
+	for i := 0; i < g.NumGenomes(); i++ {
 		for j := 0; j < i; j++ {
 			c := comparison.Compare(g, i, j)
 
-			if MatchWindows(&c, windows, markers) {
+			if MatchWindows(&c, windows, markers, csv) {
 				fmt.Printf("%s (%d) vs %s (%d)\n", g.Names[i], i, g.Names[j], j)
 			}
 		}
 	}
+	fp.Flush()
+	fmt.Println("Wrote results.csv")
 }
