@@ -87,7 +87,7 @@ Look for places where the difference between successive windows exceeds
 the thresholds
 */
 func MatchWindows(c *comparison.Comparison,
-	windows []Window, markers bool, csv *csv.Writer) bool {
+	windows []Window, markers string, csv *csv.Writer) bool {
 	ret := false
 	windowDatas := NewWindowDatas(windows)
 	datas := windowDatas.Datas
@@ -179,11 +179,7 @@ func MatchWindows(c *comparison.Comparison,
 						utils.Itoa(int(average.Total))})
 
 					c.GraphData(fname)
-					var markerString string
-					if markers {
-						markerString = RbdMarkers
-					}
-					c.RunGnuplot(fname, markerString, true)
+					c.RunGnuplot(fname, markers, true)
 					os.Remove(fname)
 					windowDatas.SaveFasta(c, fmt.Sprintf("%s.fasta", name))
 				}
@@ -220,7 +216,7 @@ func main() {
 	flag.StringVar(&orfs, "orfs", "../fasta/WH1.orfs", "ORFs")
 	flag.StringVar(&windowSizesS, "windows", "2000,500,2000", "Window sizes")
 	flag.IntVar(&threshold, "t", 95, "Threshold")
-	flag.BoolVar(&markers, "m", false, "Add markers (for RBD etc.)")
+	flag.BoolVar(&markers, "markers", false, "Add markers (for Spike etc.)")
 	flag.Parse()
 
 	g := genomes.LoadGenomes(fasta, orfs, false)
@@ -237,11 +233,16 @@ func main() {
 	csv.Write([]string{"Name A", "Name B",
 		"Index A", "Index B", "Start", "End", "Extra muts"})
 
+	var markerString string
+	if markers {
+		markerString = ORFMarkers(g, "S", "ORF8")
+	}
+
 	for i := 0; i < g.NumGenomes(); i++ {
 		for j := 0; j < i; j++ {
 			c := comparison.Compare(g, i, j)
 
-			if MatchWindows(&c, windows, markers, csv) {
+			if MatchWindows(&c, windows, markerString, csv) {
 				fmt.Printf("%s (%d) vs %s (%d)\n", g.Names[i], i, g.Names[j], j)
 			}
 		}
