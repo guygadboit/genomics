@@ -265,6 +265,19 @@ func (g *Genomes) Filter(which ...int) *Genomes {
 	return ret
 }
 
+// Make a shallow copy with anything with more than threshold Ns removed
+func (g *Genomes) RemovePartial(threshold int) *Genomes {
+	which := make([]int, 0)
+
+	for i := 0; i < g.NumGenomes(); i++ {
+		if g.CountNs(i) < threshold {
+			which = append(which, i)
+		}
+	}
+
+	return g.Filter(which...)
+}
+
 // Make a shallow copy of g but with a and b swapped. You could do this with
 // filter but it would be annoying.
 func (g *Genomes) Swap(a, b int) *Genomes {
@@ -956,4 +969,14 @@ outer:
 	}
 
 	return g.Swap(0, best)
+}
+
+func (g *Genomes) CountNs(which int) int {
+	ret := 0
+	for i := 0; i < g.Length(); i++ {
+		if g.Nts[which][i] == 'N' {
+			ret++
+		}
+	}
+	return ret
 }

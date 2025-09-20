@@ -74,6 +74,7 @@ func main() {
 		dedupe                    bool
 		densestFirst              bool
 		ref                       int
+		removePartial             int
 	)
 
 	flag.StringVar(&include, "i", "", "Genomes to include")
@@ -88,6 +89,8 @@ func main() {
 	flag.BoolVar(&dedupe, "dd", false, "Remove duplicates")
 	flag.BoolVar(&densestFirst, "df", false, "Put the densest first")
 	flag.IntVar(&ref, "ref", 0, "Reference for similarity summary")
+	flag.IntVar(&removePartial,
+		"rp", -1, "Remove genomes with more than this many Ns")
 	flag.Parse()
 
 	g := genomes.LoadGenomes(flag.Arg(0), "", false)
@@ -147,6 +150,9 @@ func main() {
 	}
 	if densestFirst {
 		g2 = g.LeastGapsFirst()
+	}
+	if removePartial != -1 {
+		g2 = g.RemovePartial(removePartial)
 	}
 
 	g2.SaveMulti(outName)
