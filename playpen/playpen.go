@@ -107,7 +107,7 @@ func main() {
 		CountQN(g)
 	}
 
-	if false {
+	if true {
 		config := stats.BlastDefaultConfig()
 		br := stats.Blast(config, "viruses/SARS2", []byte("TGGTCGC"),
 			10, 10, stats.VERBOSE)

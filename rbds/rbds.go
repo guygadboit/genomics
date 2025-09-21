@@ -161,20 +161,24 @@ func main() {
 	g := genomes.LoadGenomes("../fasta/SARS2-relatives-short-names.fasta",
 		"../fasta/WH1.orfs", false)
 
-	MakeChimera(g)
+	// MakeChimera(g)
 
 	// As AA offsets into S
-	rbd := []utils.OneBasedPos{333, 679}
+	rbd := []utils.OneBasedPos{319, 541} // according to YP_009724390.1
+	// rbd := []utils.OneBasedPos{333, 679}
 	rbm := []utils.OneBasedPos{438, 506}
 
-	for ref := 0; ref < g.NumGenomes(); ref++ {
-		/*
-		fmt.Println("RBD")
-		Compare(g.Clone(), ref, SPIKE_START, rbd[0], rbd[1], false)
-		*/
+	Compare(g.Clone(), 0, SPIKE_START, rbd[0], rbd[1], true)
+	return
 
-		fmt.Println("RBM")
-		Compare(g.Clone(), ref, SPIKE_START, rbm[0], rbm[1], false)
+	for ref := 0; ref < g.NumGenomes(); ref++ {
+		fmt.Println("RBD")
+		Compare(g.Clone(), ref, SPIKE_START, rbd[0], rbd[1], true)
+
+		/*
+			fmt.Println("RBM")
+			Compare(g.Clone(), ref, SPIKE_START, rbm[0], rbm[1], false)
+		*/
 	}
 
 	return
