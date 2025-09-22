@@ -87,7 +87,7 @@ Look for places where the difference between successive windows exceeds
 the thresholds
 */
 func MatchWindows(c *comparison.Comparison,
-	windows []Window, markers string, csv *csv.Writer) bool {
+	windows []Window, markers string, csv *csv.Writer, silentOnly bool) bool {
 	ret := false
 	windowDatas := NewWindowDatas(windows)
 	datas := windowDatas.Datas
@@ -97,7 +97,10 @@ func MatchWindows(c *comparison.Comparison,
 
 	i := 0
 	c.CumulativeCounts(func(c comparison.Count, cc comparison.Count) {
-		totalMuts[i] = c.S + c.NS
+		totalMuts[i] = c.S
+		if !silentOnly {
+			totalMuts[i] += c.NS
+		}
 		i++
 	})
 
@@ -209,6 +212,7 @@ func main() {
 		windowSizesS string
 		fasta, orfs  string
 		markers      bool
+		silentOnly   bool
 	)
 
 	flag.StringVar(&fasta, "fasta",
@@ -217,6 +221,7 @@ func main() {
 	flag.StringVar(&windowSizesS, "windows", "2000,500,2000", "Window sizes")
 	flag.IntVar(&threshold, "t", 95, "Threshold")
 	flag.BoolVar(&markers, "markers", false, "Add markers (for Spike etc.)")
+	flag.BoolVar(&silentOnly, "silent", false, "Consider silent muts only")
 	flag.Parse()
 
 	g := genomes.LoadGenomes(fasta, orfs, false)
@@ -242,7 +247,7 @@ func main() {
 		for j := 0; j < i; j++ {
 			c := comparison.Compare(g, i, j)
 
-			if MatchWindows(&c, windows, markerString, csv) {
+			if MatchWindows(&c, windows, markerString, csv, silentOnly) {
 				fmt.Printf("%s (%d) vs %s (%d)\n", g.Names[i], i, g.Names[j], j)
 			}
 		}
