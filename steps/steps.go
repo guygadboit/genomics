@@ -182,7 +182,9 @@ func MatchWindows(c *comparison.Comparison,
 						utils.Itoa(int(average.Total))})
 
 					c.GraphData(fname)
-					c.RunGnuplot(fname, markers, true)
+					c.RunGnuplot(fname,
+						markers+JumpMarker(wd.Start, wd.Start+wd.Size),
+						true)
 					os.Remove(fname)
 					windowDatas.SaveFasta(c, fmt.Sprintf("%s.fasta", name))
 				}

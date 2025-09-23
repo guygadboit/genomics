@@ -65,6 +65,13 @@ func ORFMarkers(g *genomes.Genomes, which ...string) string {
 	return strings.Join(ret, "\n")
 }
 
+func JumpMarker(start, end int) string {
+	return fmt.Sprintf(`
+set arrow from %d, graph 0 to %d, graph 1 nohead filled lc "magenta"
+set arrow from %d, graph 0 to %d, graph 1 nohead filled lc "magenta"`,
+		start, start, end, end)
+}
+
 func init() {
 	LoadTrsMarkers()
 	LoadRbdMarkers()
