@@ -17,6 +17,7 @@ GENOME_NAMES = (
 # 		"Treponema",
 		"HI",	# classic CG rich
 		"HCoVs",
+		"BatHerpes",
 # 		"Streptomyces",
 # 		"Haemophilus",
 # 		"Listeria",

@@ -94,6 +94,7 @@ func getSources() []Source {
 		{"TForsyth", bacRoot + "TForsyth/TForsyth.fasta.gz"},
 		{"Treponema", bacRoot + "Treponema/Treponema.fasta.gz"},
 		{"HCoVs", "../fasta/HCoVs.fasta"},
+		{"BatHerpes", "/fs/f/genomes/viruses/BatHerpes/B7D8.fasta"},
 		/*
 			{"StrepPyogenes", bacRoot + "StrepPyogenes/StrepPyogenes.fasta.gz"},
 			{"StrepPneum", bacRoot + "StrepPneum/StrepPneum.fasta.gz"},
@@ -151,8 +152,10 @@ func Relatives() {
 }
 
 func main() {
+    /*
 	Relatives()
 	return
+    */
 
 	sources := getSources()
 
