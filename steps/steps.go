@@ -17,8 +17,9 @@ type Window struct {
 
 type WindowData struct {
 	Window
-	Start int
-	Total int
+	Start   int
+	Total   int // Total number of muts in this window
+	Missing int // Total number "missing" (indels or Ns)
 }
 
 func (w *WindowData) Reset(start int) {
@@ -93,13 +94,19 @@ func MatchWindows(c *comparison.Comparison,
 	datas := windowDatas.Datas
 
 	length := c.Genomes.Length()
-	totalMuts := make([]int, length) // cumulative N+S
+	totalMuts := make([]int, length)    // NS+S counts as we go along
+	totalMissing := make([]int, length) // counts of Ns or indels
 
 	i := 0
-	c.CumulativeCounts(func(c comparison.Count, cc comparison.Count) {
-		totalMuts[i] = c.S
+	c.CumulativeCounts(func(count comparison.Count, cc comparison.Count) {
+		nts := c.Genomes.Nts
+		totalMuts[i] = count.S
 		if !silentOnly {
-			totalMuts[i] += c.NS
+			totalMuts[i] += count.NS
+		}
+		if count.Ins > 0 || count.Del > 0 ||
+			nts[c.A][i] == 'N' || nts[c.B][i] == 'N' {
+			totalMissing[i]++
 		}
 		i++
 	})
@@ -121,6 +128,7 @@ func MatchWindows(c *comparison.Comparison,
 				datas[currentWd].Start = pos + j
 			}
 			datas[currentWd].Total += totalMuts[pos+j]
+			datas[currentWd].Missing += totalMuts[pos+j]
 		}
 		return true
 	}
@@ -134,6 +142,10 @@ func MatchWindows(c *comparison.Comparison,
 		for i, _ := range datas {
 			datas[i].Total -= totalMuts[pos-1]
 			datas[i].Total += totalMuts[pos+datas[i].Size-1]
+
+			datas[i].Missing -= totalMissing[pos-1]
+			datas[i].Missing += totalMissing[pos+datas[i].Size-1]
+
 			datas[i].Start += 1
 			pos += datas[i].Size
 		}
@@ -151,11 +163,15 @@ func MatchWindows(c *comparison.Comparison,
 			interesting := true
 			for i := 1; i < len(datas); i++ {
 				difference := datas[i].Total - datas[i-1].Total
+				// TODO take into account Missing somehow...
 				average = average.Add(float64(utils.Abs(difference)))
 				threshold := datas[i].Threshold
 
-				if utils.Sign(difference) != utils.Sign(threshold) ||
-					utils.Abs(difference) < utils.Abs(threshold) {
+				if utils.Sign(difference) != utils.Sign(threshold) {
+					interesting = false
+					break
+				}
+				if utils.Abs(difference) < utils.Abs(threshold) {
 					interesting = false
 					break
 				}
