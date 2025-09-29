@@ -128,7 +128,7 @@ func MatchWindows(c *comparison.Comparison,
 				datas[currentWd].Start = pos + j
 			}
 			datas[currentWd].Total += totalMuts[pos+j]
-			datas[currentWd].Missing += totalMuts[pos+j]
+			datas[currentWd].Missing += totalMissing[pos+j]
 		}
 		return true
 	}
@@ -163,14 +163,30 @@ func MatchWindows(c *comparison.Comparison,
 			interesting := true
 			for i := 1; i < len(datas); i++ {
 				difference := datas[i].Total - datas[i-1].Total
-				// TODO take into account Missing somehow...
 				average = average.Add(float64(utils.Abs(difference)))
 				threshold := datas[i].Threshold
+
+				// Don't allow missing nts to count
+				missing := datas[i-1].Missing + datas[i].Missing
+				if difference < 0 {
+					difference += missing
+					if difference > 0 {
+						interesting = false
+						break
+					}
+				} else {
+					difference -= missing
+					if difference < 0 {
+						interesting = false
+						break
+					}
+				}
 
 				if utils.Sign(difference) != utils.Sign(threshold) {
 					interesting = false
 					break
 				}
+
 				if utils.Abs(difference) < utils.Abs(threshold) {
 					interesting = false
 					break
