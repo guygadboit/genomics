@@ -69,7 +69,7 @@ func showCodons(g *genomes.Genomes, w *bufio.Writer, showFreq bool) {
 		for _, codon := range t {
 			counts[codon.Nts]++
 			fmt.Fprintf(w, "%d %s %c\n",
-				codon.Pos, string(codon.Nts), codon.Aa)
+				codon.Pos+1, string(codon.Nts), codon.Aa)
 		}
 	}
 
