@@ -114,7 +114,8 @@ func main() {
 		offset                  int
 		reverse                 bool
 		freq                    bool
-		include					string
+		include                 string
+		removeGaps              bool
 	)
 
 	flag.StringVar(&modeName, "mode", "translate", "Translation mode")
@@ -125,9 +126,13 @@ func main() {
 	flag.BoolVar(&freq, "freq", false, "Show codon usage table "+
 		"(if mode is codons)")
 	flag.StringVar(&include, "i", "", "Genomes to include")
+	flag.BoolVar(&removeGaps, "g", true, "Remove gaps from first genome")
 	flag.Parse()
 
 	g := genomes.LoadGenomes(flag.Arg(0), orfs, false)
+	if removeGaps {
+		g.RemoveGaps()
+	}
 
 	if include != "" {
 		which := utils.ParseInts(include, ",")
