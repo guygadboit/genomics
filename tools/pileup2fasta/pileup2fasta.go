@@ -89,7 +89,7 @@ func main() {
 	flag.Float64Var(&matchTol, "match-tol", 0.2, "Match tolerance")
 	flag.IntVar(&minDepth, "min-depth", 6, "Match min depth")
 	flag.BoolVar(&reparse, "reparse", false, "Parse our own previous show"+
-		"output rather than an mpileup file")
+		" output rather than an mpileup file")
 	flag.Parse()
 
 	if len(flag.Args()) != 1 {
