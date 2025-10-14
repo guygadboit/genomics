@@ -7,6 +7,7 @@ import (
 	"genomics/genomes"
 	"genomics/reads"
 	"genomics/utils"
+	"genomics/stats"
 	"log"
 	"os"
 )
@@ -114,6 +115,7 @@ func main() {
 		refName     string
 		subseqRange string
 		outName     string
+		blast		string
 	)
 
 	flag.BoolVar(&verbose, "v", false, "Verbose")
@@ -123,6 +125,7 @@ func main() {
 	flag.StringVar(&subseqRange, "r", "", "Where to find pattern")
 	flag.IntVar(&minMatches, "m", 1, "Minimum number of matches")
 	flag.StringVar(&outName, "o", "", "Output matching reads to fname")
+	flag.StringVar(&blast, "b", "", "Genome directory for blast")
 	flag.Parse()
 
 	if len(flag.Args()) < 1 {
@@ -147,6 +150,11 @@ func main() {
 		pattern = []byte(patS)
 	}
 
+	var bc *stats.BlastConfig
+	if blast != "" {
+		bc = stats.BlastDefaultConfig()
+	}
+
 	var outFp *bufio.Writer
 	if outName != "" {
 		fd, err := os.Create(outName)
@@ -158,7 +166,7 @@ func main() {
 		outFp = bufio.NewWriter(fd)
 	}
 
-	matches := 0
+	matches, blastHits := 0, 0
 	for _, fname := range flag.Args() {
 		readChan := make(chan reads.ReadMsg, 1)
 		go reads.ParseFastq(fname, readChan)
@@ -181,6 +189,15 @@ func main() {
 				if outFp != nil {
 					readData.Output(outFp)
 				}
+
+				if bc != nil {
+					results := stats.Blast(bc,
+						blast, readData.Nts, 1, 1, stats.NOT_VERBOSE)
+					fmt.Printf("%d BLAST hits\n", len(results))
+					if len(results) > 0 {
+					blastHits++
+				}
+				}
 				matches++
 			}
 		}
@@ -193,6 +210,9 @@ func main() {
 		os.Exit(-1)
 	}
 	if verbose {
+		if bc != nil {
+			fmt.Printf("%d reads have a blast hit\n", blastHits)
+		}
 		fmt.Printf("%d reads match\n\n", matches)
 	}
 }
