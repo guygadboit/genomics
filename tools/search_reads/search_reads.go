@@ -1,11 +1,13 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
 	"genomics/genomes"
 	"genomics/reads"
 	"genomics/utils"
+	"log"
 	"os"
 )
 
@@ -111,6 +113,7 @@ func main() {
 		minMatches  int
 		refName     string
 		subseqRange string
+		outName     string
 	)
 
 	flag.BoolVar(&verbose, "v", false, "Verbose")
@@ -119,6 +122,7 @@ func main() {
 	flag.StringVar(&refName, "ref", "", "Reference genome")
 	flag.StringVar(&subseqRange, "r", "", "Where to find pattern")
 	flag.IntVar(&minMatches, "m", 1, "Minimum number of matches")
+	flag.StringVar(&outName, "o", "", "Output matching reads to fname")
 	flag.Parse()
 
 	if len(flag.Args()) < 1 {
@@ -143,9 +147,19 @@ func main() {
 		pattern = []byte(patS)
 	}
 
+	var outFp *bufio.Writer
+	if outName != "" {
+		fd, err := os.Create(outName)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer fd.Close()
+
+		outFp = bufio.NewWriter(fd)
+	}
+
 	matches := 0
 	for _, fname := range flag.Args() {
-
 		readChan := make(chan reads.ReadMsg, 1)
 		go reads.ParseFastq(fname, readChan)
 		for {
@@ -164,9 +178,16 @@ func main() {
 						showFullAlignment(g.Nts[0], pos, ref, start)
 					}
 				}
+				if outFp != nil {
+					readData.Output(outFp)
+				}
 				matches++
 			}
 		}
+	}
+	if outFp != nil {
+		outFp.Flush()
+		fmt.Println("Wrote %s\n", outName)
 	}
 	if matches < minMatches {
 		os.Exit(-1)
