@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"genomics/genomes"
+	"genomics/reads"
 	"genomics/utils"
 	"os"
 )
@@ -144,21 +145,28 @@ func main() {
 
 	matches := 0
 	for _, fname := range flag.Args() {
-		ParseFastq(fname, func(name string, data []byte) {
+
+		readChan := make(chan reads.ReadMsg, 1)
+		go reads.ParseFastq(fname, readChan)
+		for {
+			readData := <-readChan
+			if readData.End {
+				break
+			}
 			var g genomes.Genomes
-			g.Nts = [][]byte{data}
+			g.Nts = [][]byte{readData.Nts}
 			for search := genomes.NewLinearSearch(&g,
 				0, pattern, tol); !search.End(); search.Next() {
 				pos, _ := search.Get()
 				if verbose {
-					showMatch(name, pattern, g.Nts[0], pos)
+					showMatch(readData.Name, pattern, g.Nts[0], pos)
 					if ref != nil {
 						showFullAlignment(g.Nts[0], pos, ref, start)
 					}
 				}
 				matches++
 			}
-		})
+		}
 	}
 	if matches < minMatches {
 		os.Exit(-1)
