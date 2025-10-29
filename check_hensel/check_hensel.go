@@ -35,7 +35,7 @@ func CompareRegion(a []byte, b []byte, start, end int) int {
 type Proximity struct {
 	which       int
 	differences int
-	window	int
+	window      int
 }
 
 // We assume Proximity is sorted by fewest differences first
@@ -91,9 +91,11 @@ func CompareRelatives(g *genomes.Genomes, which int, ss []float64) {
 				if differences == 0 {
 					count++
 				}
-				fmt.Println(pos, p.window, g.Names[p.which], differences)
+				fmt.Printf("%s at %d in %s (closest over %dnts either "+
+					"side) has %d differences in the site\n",
+					string(site), pos, g.Names[p.which], p.window, differences)
 			}
-			fmt.Printf("%d/3\n", count)
+			fmt.Printf("%d/3 are completely the same\n", count)
 		}
 	}
 }
@@ -112,11 +114,11 @@ func AddSite(g *genomes.Genomes, pattern []byte, which int) {
 				continue
 			}
 			silent, numMuts, _ := genomes.IsSilentWithReplacement(g, i,
-			0, 0, pattern)
+				0, 0, pattern)
 			if silent && numMuts == 1 {
 				fmt.Printf("New %s site at %d\n", string(pattern), i)
 				copy(g.Nts[which][i:i+len(pattern)], pattern)
-				g.Save("Modified", "test.fasta", 0)
+				// g.Save("Modified", "modified.fasta", 0)
 				return
 			}
 		}
