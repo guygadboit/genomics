@@ -6,6 +6,7 @@ import (
 	"genomics/mutations"
 	"genomics/stats"
 	"genomics/utils"
+	"genomics/align"
 )
 
 type CodonMap map[byte][]genomes.Codon
@@ -100,7 +101,19 @@ func ConvergentPangolin(g *genomes.Genomes) {
 	}
 }
 
+func TestAlign() {
+	g := genomes.LoadGenomes("../fasta/SARS2-relatives.fasta",
+		"../fasta/WH1.orfs", false)
+	g = g.Filter(0, 7)
+	d := g.Dealign()
+	realigned, _ := align.Align(d, "/fs/f/tmp")
+	realigned.SaveMulti("realigned.fasta")
+}
+
 func main() {
+	TestAlign()
+	return
+
 	if false {
 		g := genomes.LoadGenomes("../fasta/SARS2-relatives.fasta",
 			"../fasta/WH1.orfs", false)

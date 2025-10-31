@@ -185,6 +185,12 @@ func (g *Genomes) PrintSummary() {
 	}
 }
 
+func (g *Genomes) Write(w *bufio.Writer, name string, which int) {
+	fmt.Fprintf(w, ">%s\n", name)
+	nts := g.Nts[which]
+	utils.Wrap(w, nts)
+}
+
 func (g *Genomes) Save(name, fname string, which int) error {
 	fd, err := os.Create(fname)
 	if err != nil {
@@ -193,11 +199,9 @@ func (g *Genomes) Save(name, fname string, which int) error {
 	defer fd.Close()
 
 	fp := bufio.NewWriter(fd)
-	fmt.Fprintf(fp, ">%s\n", name)
-
-	nts := g.Nts[which]
-	utils.Wrap(fp, nts)
+	g.Write(fp, name, which)
 	fp.Flush()
+
 	return nil
 }
 
@@ -395,6 +399,9 @@ func align(ref []byte, other []byte) []byte {
 	return other
 }
 
+/*
+This is basically rubbish. Import align again and use that (which uses mafft)
+*/
 func (g *Genomes) AlignCombine(other *Genomes) error {
 	for i := 0; i < other.NumGenomes(); i++ {
 
