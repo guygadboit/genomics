@@ -32,16 +32,8 @@ func NewGenomes(orfs Orfs, numGenomes int) *Genomes {
 		make([]string, numGenomes), orfs}
 }
 
-/*
-Load genomes, which might be a fasta file containing a single genome, or
-one containing a few of them in an alignment. Be a bit careful when working
-with alignments since there may be '-' in there. You might want to call
-RemoveGaps before going any futher. If merge load everything into one
-genome even if there are multiple > lines (mammal genomes tend to be like
-that). orfsName can be empty string if you don't have any ORFs which is
-fine if you don't plan on doing any translation.
-*/
-func LoadGenomes(fname string, orfsName string, merge bool) *Genomes {
+func load(fname string, orfsName string,
+	merge bool, allowUnaligned bool) *Genomes {
 	var orfs Orfs
 
 	if orfsName != "" {
@@ -82,7 +74,7 @@ loop:
 				if length == -1 {
 					length = len(currentRow)
 				} else {
-					if len(currentRow) != length {
+					if len(currentRow) != length && !allowUnaligned {
 						log.Fatalf("Genomes are not aligned: "+
 							"%d has length %d != %d\n",
 							len(ret.Nts)+1, len(currentRow), length)
@@ -103,6 +95,24 @@ loop:
 	}
 
 	return ret
+}
+
+/*
+Load genomes, which might be a fasta file containing a single genome, or
+one containing a few of them in an alignment. Be a bit careful when working
+with alignments since there may be '-' in there. You might want to call
+RemoveGaps before going any futher. If merge load everything into one
+genome even if there are multiple > lines (mammal genomes tend to be like
+that). orfsName can be empty string if you don't have any ORFs which is
+fine if you don't plan on doing any translation.
+*/
+func LoadGenomes(fname string, orfsName string, merge bool) *Genomes {
+	return load(fname, orfsName, merge, false)
+}
+
+func LoadUnaligned(fname string, orfsName string, merge bool) []*Genomes {
+	g := load(fname, orfsName, merge, true)
+	return g.Dealign()
 }
 
 // Load genomes from a clu file

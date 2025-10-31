@@ -99,9 +99,10 @@ func CalcOR(g *genomes.Genomes) float64 {
 func ShowMaps(fnames []string) {
 	typeNames := []string{"BsaI", "BsmBI"}
 	for _, arg := range flag.Args() {
-		g := genomes.LoadGenomes(arg, "", false)
-		for i := 0; i < g.NumGenomes(); i++ {
-			fmt.Printf("%s\n", g.Names[i])
+		gs := genomes.LoadUnaligned(arg, "", false)
+		for i := 0; i < len(gs); i++ {
+			g := gs[i]
+			fmt.Printf("%s: ", g.Names[0])
 			count, maxLength, unique, _,
 				positions, types := FindRestrictionMap(g)
 			var sticky string
@@ -114,6 +115,9 @@ func ShowMaps(fnames []string) {
 				count, maxLength, sticky)
 			for i, pos := range positions {
 				fmt.Printf("%d (%s), ", pos+1, typeNames[types[i]-1])
+			}
+			if unique && count == 6 && maxLength < 8000 {
+				fmt.Printf("OK")
 			}
 			fmt.Printf("\n")
 		}
