@@ -16,7 +16,8 @@ func convertNtMuts(c *comparison.Comparison) Mutations {
 	return ret
 }
 
-func convertAAMuts(c *comparison.Comparison, g *genomes.Genomes) AAMutations {
+func convertAAMuts(c *comparison.Comparison) AAMutations {
+	g := c.Genomes
 	ret := make(AAMutations, len(c.Muts))
 	for i, mut := range c.Muts {
 		var gene string
@@ -30,6 +31,66 @@ func convertAAMuts(c *comparison.Comparison, g *genomes.Genomes) AAMutations {
 			Mutation{utils.OneBasedPos(oPos + 1),
 				mut.A, mut.B, utils.NON_SILENT},
 			gene}
+	}
+	return ret
+}
+
+func convertInsertions(c *comparison.Comparison) []Insertion {
+	g := c.Genomes
+	ret := make([]Insertion, 0)
+	pos := -1
+	seq := make([]byte, 0)
+	for _, ins := range c.Insertions {
+		nt := g.Nts[c.B][ins]
+
+		// Keep appending to the same insertion if we've got one on the go
+		if pos != 1 {
+			if ins == pos+len(seq) {
+				seq = append(seq, nt)
+				continue
+			}
+		}
+
+		// Otherwise finalize the one we have, if we do have one
+		if pos != -1 {
+			ret = append(ret, Insertion{pos+1, seq})
+		}
+
+		// And start a new one
+		pos = ins
+		seq = make([]byte, 1)
+		seq[0] = nt
+	}
+
+	if pos != -1 {
+		ret = append(ret, Insertion{pos+1, seq})
+	}
+
+	return ret
+}
+
+func convertDeletions(c *comparison.Comparison) []Range {
+	ret := make([]Range, 0)
+	current := Range{-1, -1}
+
+	for _, d := range c.Deletions {
+		del := utils.OneBasedPos(d+1)
+		// Keep going if we've got a current one on the go
+		if del == current.End+1 {
+			current.End++
+			continue
+		}
+
+		// Otherwise finalize the one we have, if we do have one
+		if current.Start != -1 {
+			ret = append(ret, current)
+			current.Start, current.End = -1, -1
+		}
+
+		current.Start, current.End = del, del
+	}
+	if current.Start != -1 {
+		ret = append(ret, current)
 	}
 	return ret
 }
@@ -53,9 +114,9 @@ func AddFromGenomes(db *Database,
 		c := comparison.Compare(g, 0, i)
 
 		record.NucleotideChanges = convertNtMuts(&c)
-		record.AAChanges = convertAAMuts(&c, g)
-
-		// FIXME: Not doing insertions or deletions for now
+		record.AAChanges = convertAAMuts(&c)
+		record.Insertions = convertInsertions(&c)
+		record.Deletions = convertDeletions(&c)
 		db.Add(&record)
 	}
 }
