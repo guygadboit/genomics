@@ -53,7 +53,7 @@ func convertInsertions(c *comparison.Comparison) []Insertion {
 
 		// Otherwise finalize the one we have, if we do have one
 		if pos != -1 {
-			ret = append(ret, Insertion{pos+1, seq})
+			ret = append(ret, Insertion{pos + 1, seq})
 		}
 
 		// And start a new one
@@ -63,7 +63,7 @@ func convertInsertions(c *comparison.Comparison) []Insertion {
 	}
 
 	if pos != -1 {
-		ret = append(ret, Insertion{pos+1, seq})
+		ret = append(ret, Insertion{pos + 1, seq})
 	}
 
 	return ret
@@ -74,7 +74,7 @@ func convertDeletions(c *comparison.Comparison) []Range {
 	current := Range{-1, -1}
 
 	for _, d := range c.Deletions {
-		del := utils.OneBasedPos(d+1)
+		del := utils.OneBasedPos(d + 1)
 		// Keep going if we've got a current one on the go
 		if del == current.End+1 {
 			current.End++
@@ -95,6 +95,26 @@ func convertDeletions(c *comparison.Comparison) []Range {
 	return ret
 }
 
+func RecordFromAlignment(g *genomes.Genomes, which int,
+	getHost func(i int) string) *Record {
+	var record Record
+	record.GisaidAccession = strings.Split(g.Names[which], " ")[0]
+
+	if getHost != nil {
+		record.Host = getHost(which)
+	} else {
+		record.Host = "ProbablyBat"
+	}
+
+	c := comparison.Compare(g, 0, which)
+
+	record.NucleotideChanges = convertNtMuts(&c)
+	record.AAChanges = convertAAMuts(&c)
+	record.Insertions = convertInsertions(&c)
+	record.Deletions = convertDeletions(&c)
+	return &record
+}
+
 /*
 Given an alignment (with WH-1 in the first position) create database records
 */
@@ -102,21 +122,6 @@ func AddFromGenomes(db *Database,
 	g *genomes.Genomes, getHost func(i int) string) {
 
 	for i := 1; i < g.NumGenomes(); i++ {
-		var record Record
-		record.GisaidAccession = strings.Split(g.Names[i], " ")[0]
-
-		if getHost != nil {
-			record.Host = getHost(i)
-		} else {
-			record.Host = "ProbablyBat"
-		}
-
-		c := comparison.Compare(g, 0, i)
-
-		record.NucleotideChanges = convertNtMuts(&c)
-		record.AAChanges = convertAAMuts(&c)
-		record.Insertions = convertInsertions(&c)
-		record.Deletions = convertDeletions(&c)
-		db.Add(&record)
+		db.Add(RecordFromAlignment(g, i, getHost))
 	}
 }

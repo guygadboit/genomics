@@ -41,12 +41,14 @@ func Align(g []*genomes.Genomes,
 		fd2.Close()
 		os.Remove(outputName)
 	}()
-	cmd.Stdout = bufio.NewWriter(fd2)
+	w := bufio.NewWriter(fd2)
+	cmd.Stdout = w
 
 	err = cmd.Run()
 	if err != nil {
 		return nil, err
 	}
+	w.Flush()
 	ret := genomes.LoadGenomes(outputName, "", false)
 	ret.Orfs = g[0].Orfs
 
