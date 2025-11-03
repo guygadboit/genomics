@@ -6,6 +6,7 @@ import (
 	"genomics/genomes"
 	"genomics/hotspots"
 	"genomics/utils"
+	"genomics/mutations"
 	"math/rand"
 )
 
@@ -125,6 +126,41 @@ func AddSite(g *genomes.Genomes, pattern []byte, which int) {
 	}
 }
 
+func AddsSite(g *genomes.Genomes, which int, m *mutations.Mutation) bool {
+	start := max(0, m.Pos-5)
+	end := min(start+6, g.Length())
+	for i := start; i < end; i++ {
+		for _, site := range hotspots.RE_SITES {
+			matched := true
+			for j := 0; j < len(site); j++ {
+				var nt byte
+				if i+j == m.Pos {
+					nt = m.To
+				} else {
+					nt = g.Nts[which][i+j]
+				}
+				if nt != site[j] {
+					matched = false
+				}
+			}
+			if matched {
+				fmt.Printf("%c%d%c adds site at %d: %s\n",
+				m.From,m.Pos+1,m.To,
+					i, string(g.Nts[which][i:i+6]))
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func Estimate(g *genomes.Genomes) {
+	possible := mutations.PossibleSilentMuts(g, 0)
+	for _, mut := range possible {
+		AddsSite(g, 0, &mut)
+	}
+}
+
 func main() {
 	var tamper bool
 
@@ -133,6 +169,9 @@ func main() {
 
 	g := genomes.LoadGenomes("../fasta/Hassanin.fasta",
 		"../fasta/WH1.orfs", false)
+
+	Estimate(g)
+	return
 
 	if tamper {
 		for _, site := range hotspots.RE_SITES {
