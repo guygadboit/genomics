@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"genomics/genomes"
 	"genomics/hotspots"
-	"genomics/utils"
 	"genomics/mutations"
+	"genomics/utils"
 	"math/rand"
 )
 
@@ -77,7 +77,12 @@ func FindClosest(g *genomes.Genomes, which int,
 	return ret
 }
 
-func CompareRelatives(g *genomes.Genomes, which int, ss []float64) {
+// Maps positions to counts of how many of 3 closest relatives matched
+type Matches map[int]int
+
+func CompareRelatives(g *genomes.Genomes,
+	which int, ss []float64, verbose bool) Matches {
+	ret := make(Matches)
 	for _, site := range hotspots.RE_SITES {
 		for search := genomes.NewLinearSearch(g,
 			0, site, 0.0); !search.End(); search.Next() {
@@ -92,13 +97,20 @@ func CompareRelatives(g *genomes.Genomes, which int, ss []float64) {
 				if differences == 0 {
 					count++
 				}
-				fmt.Printf("%s at %d in %s (closest over %dnts either "+
-					"side) has %d differences in the site\n",
-					string(site), pos, g.Names[p.which], p.window, differences)
+				if verbose {
+					fmt.Printf("%s at %d in %s (closest over %dnts either "+
+						"side) has %d differences in the site\n",
+						string(site), pos, g.Names[p.which],
+						p.window, differences)
+				}
 			}
-			fmt.Printf("%d/3 are completely the same\n", count)
+			if verbose {
+				fmt.Printf("%d/3 are completely the same\n", count)
+			}
+			ret[pos] = count
 		}
 	}
+	return ret
 }
 
 func AddSite(g *genomes.Genomes, pattern []byte, which int) {
@@ -126,7 +138,8 @@ func AddSite(g *genomes.Genomes, pattern []byte, which int) {
 	}
 }
 
-func AddsSite(g *genomes.Genomes, which int, m *mutations.Mutation) bool {
+func AddsSite(g *genomes.Genomes,
+	which int, m *mutations.Mutation) ([]byte, int) {
 	start := max(0, m.Pos-5)
 	end := min(start+6, g.Length())
 	for i := start; i < end; i++ {
@@ -144,34 +157,61 @@ func AddsSite(g *genomes.Genomes, which int, m *mutations.Mutation) bool {
 				}
 			}
 			if matched {
-				fmt.Printf("%c%d%c adds site at %d: %s\n",
-				m.From,m.Pos+1,m.To,
-					i, string(g.Nts[which][i:i+6]))
-				return true
+				return site, i
 			}
 		}
 	}
-	return false
+	return nil, 0
 }
 
-func Estimate(g *genomes.Genomes) {
-	possible := mutations.PossibleSilentMuts(g, 0)
-	for _, mut := range possible {
-		AddsSite(g, 0, &mut)
+func Estimate(g *genomes.Genomes, ss []float64, which int) {
+	numPossible, numAdd, numMatching := 0, 0, 0
+	for i := 0; i < g.NumGenomes(); i++ {
+		possible := mutations.PossibleSilentMuts(g, which)
+		numPossible += len(possible)
+
+		fmt.Println("All possible silent point muts that add a site:")
+		for _, mut := range possible {
+			if site, pos := AddsSite(g, which, &mut); site != nil {
+				numAdd++
+				// Apply the mutation
+				g.Nts[which][mut.Pos] = mut.To
+				matches := CompareRelatives(g, which, ss, false)[pos]
+				if matches != 0 {
+					numMatching++
+					fmt.Printf("%c%d%c adds site %s into %s at %d"+
+						": %d matches in relatives\n",
+						mut.From, mut.Pos+1, mut.To, string(site),
+						g.Names[which], pos+1, matches)
+				}
+				// Unapply point mutation again
+				g.Nts[which][mut.Pos] = mut.From
+			}
+		}
 	}
+	fmt.Printf("%d possible silent mutations, "+
+		"%d of which add sites of which %d match relatives\n",
+		numPossible, numAdd, numMatching)
 }
 
 func main() {
-	var tamper bool
+	var (
+		tamper   bool
+		estimate bool
+	)
 
 	flag.BoolVar(&tamper, "tamper", false, "Whether to adjust sites")
+	flag.BoolVar(&estimate, "estimate", false, "Estimate out of possible muts")
 	flag.Parse()
 
 	g := genomes.LoadGenomes("../fasta/Hassanin.fasta",
 		"../fasta/WH1.orfs", false)
 
-	Estimate(g)
-	return
+	ss := CalcSimilarities(g, 0)
+
+	if estimate {
+		Estimate(g, ss, 2)
+	}
 
 	if tamper {
 		for _, site := range hotspots.RE_SITES {
@@ -179,6 +219,5 @@ func main() {
 		}
 	}
 
-	ss := CalcSimilarities(g, 0)
-	CompareRelatives(g, 0, ss)
+	CompareRelatives(g, 0, ss, true)
 }
