@@ -131,7 +131,7 @@ func main() {
 	flag.BoolVar(&tamper, "tamper", false, "Whether to adjust sites")
 	flag.Parse()
 
-	g := genomes.LoadGenomes("../fasta/SARS2-relatives-short-names.fasta",
+	g := genomes.LoadGenomes("../fasta/Hassanin.fasta",
 		"../fasta/WH1.orfs", false)
 
 	if tamper {
