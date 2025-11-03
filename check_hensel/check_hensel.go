@@ -80,8 +80,7 @@ func FindClosest(g *genomes.Genomes, which int,
 // Maps positions to counts of how many of 3 closest relatives matched
 type Matches map[int]int
 
-func CompareRelatives(g *genomes.Genomes,
-	which int, ss []float64, verbose bool) Matches {
+func CompareRelatives(g *genomes.Genomes, which int, verbose bool) Matches {
 	ret := make(Matches)
 	for _, site := range hotspots.RE_SITES {
 		for search := genomes.NewLinearSearch(g,
@@ -164,19 +163,19 @@ func AddsSite(g *genomes.Genomes,
 	return nil, 0
 }
 
-func Estimate(g *genomes.Genomes, ss []float64, which int) {
-	numPossible, numAdd, numMatching := 0, 0, 0
-	for i := 0; i < g.NumGenomes(); i++ {
+func Estimate(g *genomes.Genomes) {
+	fmt.Println("All possible silent point muts that add a site:")
+	numPossible, numAdd, numMatching, numMin2, numMin3 := 0, 0, 0, 0, 0
+	for which := 0; which < g.NumGenomes(); which++ {
 		possible := mutations.PossibleSilentMuts(g, which)
 		numPossible += len(possible)
 
-		fmt.Println("All possible silent point muts that add a site:")
 		for _, mut := range possible {
 			if site, pos := AddsSite(g, which, &mut); site != nil {
 				numAdd++
 				// Apply the mutation
 				g.Nts[which][mut.Pos] = mut.To
-				matches := CompareRelatives(g, which, ss, false)[pos]
+				matches := CompareRelatives(g, which, false)[pos]
 				if matches != 0 {
 					numMatching++
 					fmt.Printf("%c%d%c adds site %s into %s at %d"+
@@ -184,14 +183,21 @@ func Estimate(g *genomes.Genomes, ss []float64, which int) {
 						mut.From, mut.Pos+1, mut.To, string(site),
 						g.Names[which], pos+1, matches)
 				}
+				if matches >= 2 {
+					numMin2++
+				}
+				if matches >= 3 {
+					numMin3++
+				}
 				// Unapply point mutation again
 				g.Nts[which][mut.Pos] = mut.From
 			}
 		}
 	}
 	fmt.Printf("%d possible silent mutations, "+
-		"%d of which add sites of which %d match relatives\n",
-		numPossible, numAdd, numMatching)
+		"%d of which add sites of which %d match relatives "+
+		"(min 1) or %d (min 2) or %d (min 3)\n",
+		numPossible, numAdd, numMatching, numMin2, numMin3)
 }
 
 func main() {
@@ -207,10 +213,8 @@ func main() {
 	g := genomes.LoadGenomes("../fasta/Hassanin.fasta",
 		"../fasta/WH1.orfs", false)
 
-	ss := CalcSimilarities(g, 0)
-
 	if estimate {
-		Estimate(g, ss, 2)
+		Estimate(g)
 	}
 
 	if tamper {
@@ -219,5 +223,5 @@ func main() {
 		}
 	}
 
-	CompareRelatives(g, 0, ss, true)
+	CompareRelatives(g, 0, true)
 }
