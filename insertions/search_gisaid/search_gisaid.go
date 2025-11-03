@@ -2,11 +2,10 @@ package main
 
 import (
 	"fmt"
-	"log"
-	"strings"
-	"genomics/genomes"
-	"genomics/align"
 	"genomics/database"
+	"genomics/genomes"
+	"path"
+	"strings"
 )
 
 func convertName(name string) string {
@@ -19,31 +18,24 @@ func convertName(name string) string {
 }
 
 func main() {
-	gs := genomes.LoadUnaligned(
-		"/fs/f/tmp/GISAID/gisaid_hcov-19_2025_10_31_07.fasta.gz", "", false)
+	/*
+		fname := "gisaid_hcov-19_2025_10_31_07.fasta.gz"
+		fname := "gisaid_hcov-19_2025_10_31_07.fasta.gz"
+		fname := gisaid_hcov-19_2025_11_02_09.fasta.gz"
+	fname := "gisaid_hcov-19_2025_11_03_08.fasta.gz"
+	fname := "2021-08-22.fasta.gz"
+	*/
+	fname := "B.1.1.7.fasta.gz"
+	gs := genomes.LoadUnaligned(path.Join("/fs/f/tmp/GISAID", fname), "", false)
 	ref := genomes.LoadGenomes("../../fasta/WH1.fasta",
 		"../../fasta/WH1.orfs", false)
 
-	alignment := make([]*genomes.Genomes, 2)
-	alignment[0] = ref
+	database.RecordsFromUnaligned(gs, ref, nil, convertName,
+		func(r *database.Record) {
+			for _, ins := range r.Insertions {
+				fmt.Println(r.GisaidAccession,
+					ins.Pos+1, string(ins.Sequence))
+			}
+		})
 
-	for _, g := range gs {
-		alignment[1] = g
-		aligned, err := align.Align(alignment, "/fs/f/tmp")
-		if err != nil {
-			log.Println(err)
-			continue
-		}
-
-		aligned.Names[1] = convertName(aligned.Names[1])
-		r := database.RecordFromAlignment(aligned, 1, nil)
-
-		if len(r.Insertions) != 0 {
-			fmt.Println(r.GisaidAccession,
-				len(r.Insertions),
-				r.Insertions[0].Pos,
-				len(r.Insertions[0].Sequence),
-				string(r.Insertions[0].Sequence))
-		}
-	}
 }

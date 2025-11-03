@@ -4,6 +4,7 @@ import (
 	"genomics/comparison"
 	"genomics/genomes"
 	"genomics/utils"
+	"genomics/align"
 	"strings"
 )
 
@@ -113,6 +114,28 @@ func RecordFromAlignment(g *genomes.Genomes, which int,
 	record.Insertions = convertInsertions(&c)
 	record.Deletions = convertDeletions(&c)
 	return &record
+}
+
+func RecordsFromUnaligned(gs []*genomes.Genomes, ref *genomes.Genomes,
+	getHost func(i int) string,
+	convertName func(s string) string,
+	cb func (*Record)) {
+
+	alignment := make([]*genomes.Genomes, 2)
+	alignment[0] = ref
+
+	for _, g := range gs {
+		alignment[1] = g
+		aligned, err := align.Align(alignment, "/fs/f/tmp")
+		if err != nil {
+			continue
+		}
+
+		if convertName != nil {
+		aligned.Names[1] = convertName(aligned.Names[1])
+	}
+		cb(RecordFromAlignment(aligned, 1, nil))
+	}
 }
 
 /*
