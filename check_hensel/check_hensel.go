@@ -46,6 +46,13 @@ func HaveUniqueThreeBest(p []Proximity) bool {
 	return p[3].differences > p[2].differences
 }
 
+func ShowProximities(g *genomes.Genomes, which int,
+	sitePos int, proximities []Proximity) {
+	for _, p := range proximities {
+		fmt.Println(g.Names[p.which], p.window, p.differences)
+	}
+}
+
 func FindClosest(g *genomes.Genomes, which int,
 	sitePos int, siteSize int, window int) []Proximity {
 	ret := make([]Proximity, 0)
@@ -66,6 +73,14 @@ func FindClosest(g *genomes.Genomes, which int,
 	utils.SortByKey(ret, true, func(p Proximity) int {
 		return p.differences
 	})
+
+	/*
+	if sitePos == 24101 {
+		fmt.Println("Using window", window)
+		ShowProximities(g, which, sitePos, ret)
+	}
+	*/
+
 	if !HaveUniqueThreeBest(ret) {
 		return FindClosest(g, which, sitePos, siteSize, window+1)
 	}
@@ -212,7 +227,7 @@ func main() {
 	flag.IntVar(&which, "which", 0, "Which genome to examine")
 	flag.Parse()
 
-	g := genomes.LoadGenomes("../fasta/Hassanin.fasta",
+	g := genomes.LoadGenomes("../fasta/HassaninPlus.fasta",
 		"../fasta/WH1.orfs", false)
 
 	if estimate {
