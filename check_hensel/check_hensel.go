@@ -204,10 +204,12 @@ func main() {
 	var (
 		tamper   bool
 		estimate bool
+		which int
 	)
 
 	flag.BoolVar(&tamper, "tamper", false, "Whether to adjust sites")
 	flag.BoolVar(&estimate, "estimate", false, "Estimate out of possible muts")
+	flag.IntVar(&which, "which", 0, "Which genome to examine")
 	flag.Parse()
 
 	g := genomes.LoadGenomes("../fasta/Hassanin.fasta",
@@ -219,9 +221,10 @@ func main() {
 
 	if tamper {
 		for _, site := range hotspots.RE_SITES {
-			AddSite(g, site, 0)
+			AddSite(g, site, which)
 		}
 	}
 
-	CompareRelatives(g, 0, true)
+	fmt.Printf("Comparing sites in %s\n", g.Names[which])
+	CompareRelatives(g, which, true)
 }
