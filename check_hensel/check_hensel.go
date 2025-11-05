@@ -148,7 +148,7 @@ func CompareRelatives(g *genomes.Genomes,
 
 	for _, site := range hotspots.RE_SITES {
 		for search := genomes.NewLinearSearch(g,
-			0, site, 0.0); !search.End(); search.Next() {
+			which, site, 0.0); !search.End(); search.Next() {
 			pos, _ := search.Get()
 			closest := FindNumClosest(g, which, pos, len(site), 50, 3, algo)
 			// Now the question is in how many of the three closest does the
@@ -186,7 +186,7 @@ func AddSite(g *genomes.Genomes, pattern []byte, which int) {
 				continue
 			}
 			silent, numMuts, _ := genomes.IsSilentWithReplacement(g, i,
-				0, 0, pattern)
+				which, which, pattern)
 			if silent && numMuts == 1 {
 				fmt.Printf("New %s site at %d\n", string(pattern), i)
 				copy(g.Nts[which][i:i+len(pattern)], pattern)
@@ -225,7 +225,7 @@ func AddsSite(g *genomes.Genomes,
 
 func Estimate(g *genomes.Genomes, algo Algo) {
 	fmt.Println("All possible silent point muts that add a site:")
-	numPossible, numAdd, numMatching, numMin2, numMin3 := 0, 0, 0, 0, 0
+	numPossible, numAdd, numMin1, numMin2, numMin3 := 0, 0, 0, 0, 0
 	for which := 0; which < g.NumGenomes(); which++ {
 		possible := mutations.PossibleSilentMuts(g, which)
 		numPossible += len(possible)
@@ -237,7 +237,7 @@ func Estimate(g *genomes.Genomes, algo Algo) {
 				g.Nts[which][mut.Pos] = mut.To
 				matches := CompareRelatives(g, which, algo, false)[pos]
 				if matches != 0 {
-					numMatching++
+					numMin1++
 					fmt.Printf("%c%d%c adds site %s into %s at %d"+
 						": %d matches in relatives\n",
 						mut.From, mut.Pos+1, mut.To, string(site),
@@ -257,7 +257,7 @@ func Estimate(g *genomes.Genomes, algo Algo) {
 	fmt.Printf("%d possible silent mutations, "+
 		"%d of which add sites of which %d match relatives "+
 		"(min 1) or %d (min 2) or %d (min 3)\n",
-		numPossible, numAdd, numMatching, numMin2, numMin3)
+		numPossible, numAdd, numMin1, numMin2, numMin3)
 }
 
 func main() {
@@ -267,12 +267,17 @@ func main() {
 		which    int
 		algoS    string
 		algo     Algo
+		fasta    string
+		orfs     string
 	)
 
 	flag.BoolVar(&tamper, "tamper", false, "Whether to adjust sites")
 	flag.BoolVar(&estimate, "estimate", false, "Estimate out of possible muts")
 	flag.IntVar(&which, "which", 0, "Which genome to examine")
 	flag.StringVar(&algoS, "algo", "keep_best", "Algorithm")
+	flag.StringVar(&fasta, "fasta",
+		"../fasta/Hassanin.fasta", "Alignment to use")
+	flag.StringVar(&orfs, "Orfs", "../fasta/WH1.orfs", "Orfs")
 	flag.Parse()
 
 	switch algoS {
@@ -284,8 +289,7 @@ func main() {
 		log.Fatal("Don't know that algo")
 	}
 
-	g := genomes.LoadGenomes("../fasta/Hassanin.fasta",
-		"../fasta/WH1.orfs", false)
+	g := genomes.LoadGenomes(fasta, orfs, false)
 
 	if estimate {
 		Estimate(g, algo)
