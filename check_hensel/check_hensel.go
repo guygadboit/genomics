@@ -110,7 +110,7 @@ func CompareRelatives(g *genomes.Genomes, which int, verbose bool) Matches {
 				}
 				pfn("%s at %d in %s (closest over %dnts either "+
 					"side) has %d differences in the site\n",
-					string(site), pos, g.Names[p.which],
+					string(site), pos+1, g.Names[p.which],
 					p.window, differences)
 			}
 			pfn("%d/3 are completely the same\n", count)
