@@ -279,6 +279,22 @@ func (g *Genomes) Filter(which ...int) *Genomes {
 	return ret
 }
 
+// Make a shallow copy that matches all but the specified genomes
+func (g *Genomes) FilterOut(which ...int) *Genomes {
+	bad := utils.ToSet(which)
+	ret := NewGenomes(g.Orfs, g.NumGenomes()-len(bad))
+
+	for i, j := 0, 0; i < g.NumGenomes(); i++ {
+		if !bad[i] {
+			ret.Nts[j] = g.Nts[i]
+			ret.Names[j] = g.Names[i]
+			j++
+		}
+	}
+
+	return ret
+}
+
 // Make a shallow copy with anything with more than threshold Ns removed
 func (g *Genomes) RemovePartial(threshold int) *Genomes {
 	which := make([]int, 0)

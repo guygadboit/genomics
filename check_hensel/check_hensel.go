@@ -7,6 +7,7 @@ import (
 	"genomics/hotspots"
 	"genomics/mutations"
 	"genomics/utils"
+	"log"
 	"math/rand"
 )
 
@@ -35,9 +36,9 @@ func CompareRegion(a []byte, b []byte, start, end int) int {
 
 // Describes proximity to a relative
 type Proximity struct {
-	which       int			// Which relative
-	differences int			// How many differences
-	window      int			// At what window size
+	which       int // Which relative
+	differences int // How many differences
+	window      int // At what window size
 }
 
 // We assume Proximity is sorted by fewest differences first
@@ -54,11 +55,18 @@ func ShowProximities(g *genomes.Genomes, which int,
 	}
 }
 
+type Set map[int]bool
+
+// Return the relatives that are closest window either side of the site
 func FindClosest(g *genomes.Genomes, which int,
-	sitePos int, siteSize int, window int) []Proximity {
+	sitePos int, siteSize int, window int, exclude Set) []Proximity {
 	ret := make([]Proximity, 0)
+
 	for i := 0; i < g.NumGenomes(); i++ {
 		if i == which {
+			continue
+		}
+		if exclude[i] {
 			continue
 		}
 		end := sitePos
@@ -74,17 +82,61 @@ func FindClosest(g *genomes.Genomes, which int,
 	utils.SortByKey(ret, true, func(p Proximity) int {
 		return p.differences
 	})
-
-	if !HaveUniqueThreeBest(ret) {
-		return FindClosest(g, which, sitePos, siteSize, window+1)
-	}
 	return ret
+}
+
+type Algo int
+
+const (
+	ORIGINAL = iota
+	KEEP_BEST
+)
+
+// Find the num unambiguous closest either side of the site
+func FindNumClosest(g *genomes.Genomes, which int,
+	sitePos int, siteSize int, window int, num int, algo Algo) []Proximity {
+	num = min(num, g.NumGenomes()-1)
+	ret := make([]Proximity, 0, num)
+	got := make(Set)
+
+	for {
+		need := num - len(ret) // how many more relatives do we need?
+
+		// Find the closest ones, excluding those we already have
+		prox := FindClosest(g, which, sitePos, siteSize, window, got)
+
+		// Take any clear leaders
+		for _, p := range prox {
+			if p.differences < prox[need].differences {
+				ret = append(ret, p)
+				got[p.which] = true
+			}
+		}
+
+		if len(ret) == num {
+			return ret
+		}
+
+		if algo == ORIGINAL {
+			/*
+				Under the original algorithm, if we didn't find the number we
+				wanted (which was three), we threw them all away and then
+				widened the window. This meant you threw away some quite good
+				matches and ended up with worse ones over a longer window.
+			*/
+			ret = ret[:0]
+			got = make(Set)
+		}
+
+		window++
+	}
 }
 
 // Maps positions to counts of how many of 3 closest relatives matched
 type Matches map[int]int
 
-func CompareRelatives(g *genomes.Genomes, which int, verbose bool) Matches {
+func CompareRelatives(g *genomes.Genomes,
+	which int, algo Algo, verbose bool) Matches {
 	ret := make(Matches)
 
 	pfn := func(string, ...any) (int, error) {
@@ -98,11 +150,11 @@ func CompareRelatives(g *genomes.Genomes, which int, verbose bool) Matches {
 		for search := genomes.NewLinearSearch(g,
 			0, site, 0.0); !search.End(); search.Next() {
 			pos, _ := search.Get()
-			closest := FindClosest(g, which, pos, len(site), 50)
+			closest := FindNumClosest(g, which, pos, len(site), 50, 3, algo)
 			// Now the question is in how many of the three closest does the
-			// actual site alo match?
+			// actual site also match?
 			count := 0
-			for _, p := range closest[:3] {
+			for _, p := range closest {
 				differences := CompareRegion(g.Nts[which], g.Nts[p.which],
 					pos, pos+len(site))
 				if differences == 0 {
@@ -171,7 +223,7 @@ func AddsSite(g *genomes.Genomes,
 	return nil, 0
 }
 
-func Estimate(g *genomes.Genomes) {
+func Estimate(g *genomes.Genomes, algo Algo) {
 	fmt.Println("All possible silent point muts that add a site:")
 	numPossible, numAdd, numMatching, numMin2, numMin3 := 0, 0, 0, 0, 0
 	for which := 0; which < g.NumGenomes(); which++ {
@@ -183,7 +235,7 @@ func Estimate(g *genomes.Genomes) {
 				numAdd++
 				// Apply the mutation
 				g.Nts[which][mut.Pos] = mut.To
-				matches := CompareRelatives(g, which, false)[pos]
+				matches := CompareRelatives(g, which, algo, false)[pos]
 				if matches != 0 {
 					numMatching++
 					fmt.Printf("%c%d%c adds site %s into %s at %d"+
@@ -213,18 +265,30 @@ func main() {
 		tamper   bool
 		estimate bool
 		which    int
+		algoS    string
+		algo     Algo
 	)
 
 	flag.BoolVar(&tamper, "tamper", false, "Whether to adjust sites")
 	flag.BoolVar(&estimate, "estimate", false, "Estimate out of possible muts")
 	flag.IntVar(&which, "which", 0, "Which genome to examine")
+	flag.StringVar(&algoS, "algo", "keep_best", "Algorithm")
 	flag.Parse()
 
-	g := genomes.LoadGenomes("../fasta/HassaninPlus.fasta",
+	switch algoS {
+	case "original":
+		algo = ORIGINAL
+	case "keep_best":
+		algo = KEEP_BEST
+	default:
+		log.Fatal("Don't know that algo")
+	}
+
+	g := genomes.LoadGenomes("../fasta/Hassanin.fasta",
 		"../fasta/WH1.orfs", false)
 
 	if estimate {
-		Estimate(g)
+		Estimate(g, algo)
 	}
 
 	if tamper {
@@ -234,5 +298,5 @@ func main() {
 	}
 
 	fmt.Printf("Comparing sites in %s\n", g.Names[which])
-	CompareRelatives(g, which, true)
+	CompareRelatives(g, which, algo, true)
 }
