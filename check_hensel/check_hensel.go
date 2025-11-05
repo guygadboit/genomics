@@ -33,10 +33,11 @@ func CompareRegion(a []byte, b []byte, start, end int) int {
 	return ret
 }
 
+// Describes proximity to a relative
 type Proximity struct {
-	which       int
-	differences int
-	window      int
+	which       int			// Which relative
+	differences int			// How many differences
+	window      int			// At what window size
 }
 
 // We assume Proximity is sorted by fewest differences first
@@ -74,21 +75,9 @@ func FindClosest(g *genomes.Genomes, which int,
 		return p.differences
 	})
 
-	/*
-		if sitePos == 24101 {
-			fmt.Println("Using window", window)
-			ShowProximities(g, which, sitePos, ret)
-		}
-	*/
-
 	if !HaveUniqueThreeBest(ret) {
 		return FindClosest(g, which, sitePos, siteSize, window+1)
 	}
-	/*
-		for _, p := range ret {
-			fmt.Println(sitePos, window, g.Names[p.which], p)
-		}
-	*/
 	return ret
 }
 
