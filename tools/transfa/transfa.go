@@ -61,6 +61,16 @@ type CodonFreq struct {
 	count int
 }
 
+// Just return them sorted
+func AAs() []byte {
+	ret := make([]byte, 0)
+	for k, _ := range genomes.ReverseCodonTable {
+		ret = append(ret, k)
+	}
+	utils.SortByKey(ret, true, func(b byte) byte { return b })
+	return ret
+}
+
 func showCodons(g *genomes.Genomes, w *bufio.Writer, showFreq bool) {
 	counts := make(map[string]int)
 	showCodons := !showFreq
@@ -81,7 +91,8 @@ func showCodons(g *genomes.Genomes, w *bufio.Writer, showFreq bool) {
 
 	if showFreq {
 		fmt.Fprintln(w, "Codon Usage Table")
-		for k, v := range genomes.ReverseCodonTable {
+		for _, k := range AAs() {
+			v := genomes.ReverseCodonTable[k]
 			fmt.Fprintf(w, "%c\n", k)
 			values := make([]CodonFreq, 0)
 			total := 0
