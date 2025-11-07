@@ -16,6 +16,7 @@ type Mode int
 const (
 	TRANSLATE Mode = iota
 	CODONS
+	FREQ
 	SIDE_BY_SIDE
 	DONT
 )
@@ -62,13 +63,16 @@ type CodonFreq struct {
 
 func showCodons(g *genomes.Genomes, w *bufio.Writer, showFreq bool) {
 	counts := make(map[string]int)
+	showCodons := !showFreq
 
 	for i := 0; i < g.NumGenomes(); i++ {
-		fmt.Fprintf(w, ">%s\n", g.Names[i])
+		if showCodons {
+			fmt.Fprintf(w, ">%s\n", g.Names[i])
+		}
 		t := genomes.Translate(g, i)
 		for _, codon := range t {
 			counts[codon.Nts]++
-			if !showFreq {
+			if showCodons {
 				fmt.Fprintf(w, "%d %s %c\n",
 					codon.Pos+1, string(codon.Nts), codon.Aa)
 			}
@@ -108,6 +112,7 @@ func main() {
 	modes := map[string]Mode{
 		"translate": TRANSLATE,
 		"codons":    CODONS,
+		"freq":      FREQ,
 		"ss":        SIDE_BY_SIDE,
 		"dont":      DONT,
 	}
@@ -115,7 +120,6 @@ func main() {
 		modeName, orfs, outName string
 		offset                  int
 		reverse                 bool
-		freq                    bool
 		include                 string
 		removeGaps              bool
 	)
@@ -125,8 +129,6 @@ func main() {
 	flag.StringVar(&outName, "o", "", "Output filename")
 	flag.IntVar(&offset, "offset", 0, "Frame offset (0, 1 or 2)")
 	flag.BoolVar(&reverse, "reverse", false, "Treat as reverse complement")
-	flag.BoolVar(&freq, "freq", false, "Show codon usage table "+
-		"(if mode is codons)")
 	flag.StringVar(&include, "i", "", "Genomes to include")
 	flag.BoolVar(&removeGaps, "g", true, "Remove gaps from first genome")
 	flag.Parse()
@@ -175,8 +177,10 @@ func main() {
 	case TRANSLATE:
 		writeFile(outName, g, translate)
 	case CODONS:
+		fallthrough
+	case FREQ:
 		writeFile(outName, g, func(g *genomes.Genomes, w *bufio.Writer) {
-			showCodons(g, w, freq)
+			showCodons(g, w, mode == FREQ)
 		})
 	case DONT:
 		g.SaveClu(outName, nil)
