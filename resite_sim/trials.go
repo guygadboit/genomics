@@ -117,6 +117,8 @@ func ShowMaps(fnames []string) {
 				fmt.Printf("%d (%s), ", pos+1, typeNames[types[i]-1])
 			}
 			if unique && count == 6 && maxLength < 8000 {
+				fmt.Printf("OK Exact")
+			} else if unique && count >= 5 && count <= 8 && maxLength < 8000 {
 				fmt.Printf("OK")
 			}
 			fmt.Printf("\n")
