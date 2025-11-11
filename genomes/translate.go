@@ -9,6 +9,7 @@ import (
 	"log"
 	"os"
 	"reflect"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
@@ -108,6 +109,7 @@ var ReverseCodonTable map[byte][]string
 type Orf struct {
 	Start, End int
 	Name       string
+	Reverse    bool // Reverse Complement
 }
 
 type Orfs []Orf
@@ -135,8 +137,24 @@ loop:
 			log.Fatal("Can't read file")
 		}
 
+		var reverse bool
+		pat := regexp.MustCompile(`complement\((.*)\)`)
+
 		line = strings.TrimSpace(line)
+		m := pat.FindSubmatch([]byte(line))
+		if len(m) != 0 {
+			reverse = true
+			line = string(m[1])
+		}
+
 		fields := strings.Fields(line)
+
+		if strings.Contains(fields[0], ".") {
+			subFields := strings.FieldsFunc(fields[0], func(r rune) bool {
+				return r == '.'
+			})
+			fields = append(subFields, fields[1:]...)
+		}
 
 		start, err := strconv.Atoi(fields[0])
 		if err != nil {
@@ -156,7 +174,7 @@ loop:
 			name = fields[2]
 		}
 
-		ret = append(ret, Orf{start, end, name})
+		ret = append(ret, Orf{start, end, name, reverse})
 	}
 
 	return ret
@@ -527,6 +545,7 @@ func (it *CodonIter) Init(genome *Genomes, which int) {
 
 func (it *CodonIter) Next() (pos int, codon string, aa byte, err error) {
 	genome := it.genome
+	nts := genome.Nts
 	for ; it.orfI < len(genome.Orfs); it.orfI++ {
 		orf := genome.Orfs[it.orfI]
 		if it.pos == -1 {
@@ -534,7 +553,13 @@ func (it *CodonIter) Next() (pos int, codon string, aa byte, err error) {
 		}
 		pos = it.pos
 		if pos+3 <= orf.End {
-			codon = string(genome.Nts[it.which][pos : pos+3])
+			if orf.Reverse {
+				rpos := orf.End - (pos - orf.Start) - 3
+				codon = string(utils.ReverseComplement(
+					nts[it.which][rpos : rpos+3]))
+			} else {
+				codon = string(nts[it.which][pos : pos+3])
+			}
 			var there bool
 			aa, there = CodonTable[codon]
 			if !there {

@@ -91,7 +91,7 @@ loop:
 	ret.Nts = append(ret.Nts, currentRow)
 
 	if len(ret.Orfs) == 0 {
-		ret.Orfs = []Orf{{0, ret.Length(), ""}}
+		ret.Orfs = []Orf{{0, ret.Length(), "", false}}
 	}
 
 	return ret
@@ -930,13 +930,13 @@ func TruncateOrfs(orfs Orfs, start, end int) Orfs {
 		if newEnd <= newStart {
 			continue
 		}
-		ret = append(ret, Orf{newStart, newEnd, orf.Name})
+		ret = append(ret, Orf{newStart, newEnd, orf.Name, false})
 	}
 	return ret
 }
 
 func (g *Genomes) ResetOrfs() {
-	g.Orfs = []Orf{Orf{0, g.Length(), ""}}
+	g.Orfs = []Orf{Orf{0, g.Length(), "", false}}
 }
 
 /*
