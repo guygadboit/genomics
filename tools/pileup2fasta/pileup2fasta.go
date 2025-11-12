@@ -72,7 +72,7 @@ func main() {
 		subseq               string
 		matchExpr            string
 		matchTol             float64
-		minDepth        int
+		minDepth             int
 		reparse              bool
 	)
 

@@ -17,7 +17,7 @@ def make_cmd(index, fnames):
 			elif base[-2:] == "_2":
 				two = fname
 
-	cmd = ["bowtie2", "-x", index, "-S", "output.sam"]
+	cmd = ["bowtie2", "--no-unal", "-x", index, "-S", "output.sam"]
 
 	if one and two:
 		cmd.extend(["-1", one, "-2", two])

@@ -158,7 +158,7 @@ loop:
 
 		start, err := strconv.Atoi(fields[0])
 		if err != nil {
-			log.Fatal("Parse error in ORFs")
+			log.Fatalf("Parse error in ORFs: <%s>\n", line)
 		}
 
 		// ORFs seem to be conventionally 1-based
@@ -166,7 +166,7 @@ loop:
 
 		end, err := strconv.Atoi(fields[1])
 		if err != nil {
-			log.Fatal("Parse error in ORFs")
+			log.Fatalf("Parse error in ORFs: <%s>", line)
 		}
 
 		var name string
