@@ -49,13 +49,13 @@ outer:
 			if read.Nt == c && read.Depth >= minDepth {
 				continue outer
 			}
-			fails++
 		}
+		fails++
 		if fails > allowedFails {
 			break
 		}
 	}
-	return fails < allowedFails
+	return fails <= allowedFails
 }
 
 func ParseMatchExpr(matchExpr string) (int, []byte) {
