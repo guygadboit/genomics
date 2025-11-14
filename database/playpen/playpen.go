@@ -506,6 +506,58 @@ func ORF8LI(db *database.Database) {
 	}
 }
 
+func AntarcticLike(db *database.Database) {
+	muts := database.ParseMutations("C8782T,C13694T,A16156G,A17039G," +
+		"C17634G,C18060T,A18082G,C23525T,C25498T," +
+		"G26458T,C26895T,T28144C,G29449T")
+	/*
+	muts := database.ParseMutations("A16156G,A17039G," +
+		"C17634G,C18060T,A18082G,C23525T,C25498T," +
+		"G26458T,C26895T,G29449T")
+	*/
+
+	positions := make([]utils.OneBasedPos, len(muts))
+	for i, mut := range muts {
+		positions[i] = mut.Pos
+	}
+	search := database.NewNtMutationIndexSearch(db, positions)
+
+	counts := make(map[database.Id]int)
+	for i, _ := range muts {
+		ids, _ := search.Get(i)
+		for id, _ := range ids {
+			counts[id]++
+		}
+	}
+
+	type result struct {
+		id      database.Id
+		count   int
+		numMuts int
+		ratio   float64 // num matches over total nt muts
+	}
+	results := make([]result, 0, len(counts))
+	for k, v := range counts {
+		record := db.Get(k)
+		numMuts := len(record.NucleotideChanges)
+		results = append(results, result{k, v,
+			numMuts, float64(v) / float64(numMuts)})
+	}
+	utils.SortByKey(results, false, func(r result) int { return r.count })
+
+	for _, r := range results {
+		fmt.Printf("ID %d has %d/%d matches\n", r.id, r.count, r.numMuts)
+		record := db.Get(r.id)
+		if record.Host == "Human" {
+			fmt.Println(record.Summary(),
+				record.DeletionsSummary(), record.SRAs())
+		}
+	}
+
+	// G21761del
+
+}
+
 func main() {
 	db := database.NewDatabase()
 	// EarlyReads(db)
@@ -517,5 +569,6 @@ func main() {
 	// TT(db)
 	// CTRate(db)
 	// CTDistribution(db)
-	ORF8LI(db)
+	// ORF8LI(db)
+	AntarcticLike(db)
 }
