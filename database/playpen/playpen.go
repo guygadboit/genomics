@@ -507,13 +507,19 @@ func ORF8LI(db *database.Database) {
 }
 
 func AntarcticLike(db *database.Database) {
-	muts := database.ParseMutations("C8782T,C13694T,A16156G,A17039G," +
-		"C17634G,C18060T,A18082G,C23525T,C25498T," +
-		"G26458T,C26895T,T28144C,G29449T")
+	// muts := database.ParseMutations("C17634G") // not in 2020 at all
+	// muts := database.ParseMutations("A16156G")
+	muts := database.ParseMutations("C23525T")
+	// muts := database.ParseMutations("C8782T")
 	/*
-	muts := database.ParseMutations("A16156G,A17039G," +
-		"C17634G,C18060T,A18082G,C23525T,C25498T," +
-		"G26458T,C26895T,G29449T")
+		muts := database.ParseMutations("C8782T,C13694T,A16156G,A17039G," +
+			"C17634G,C18060T,A18082G,C23525T,C25498T," +
+			"G26458T,C26895T,T28144C,G29449T")
+	*/
+	/*
+		muts := database.ParseMutations("A16156G,A17039G," +
+			"C17634G,C18060T,A18082G,C23525T,C25498T," +
+			"G26458T,C26895T,G29449T")
 	*/
 
 	positions := make([]utils.OneBasedPos, len(muts))
@@ -523,9 +529,17 @@ func AntarcticLike(db *database.Database) {
 	search := database.NewNtMutationIndexSearch(db, positions)
 
 	counts := make(map[database.Id]int)
-	for i, _ := range muts {
+	for i, target := range muts {
 		ids, _ := search.Get(i)
 		for id, _ := range ids {
+			record := db.Get(id)
+			if record.Host != "Human" {
+				continue
+			}
+			got := record.HasMuts(database.Mutations{target})
+			if len(got) != 1 {
+				continue
+			}
 			counts[id]++
 		}
 	}
@@ -543,15 +557,13 @@ func AntarcticLike(db *database.Database) {
 		results = append(results, result{k, v,
 			numMuts, float64(v) / float64(numMuts)})
 	}
-	utils.SortByKey(results, false, func(r result) int { return r.count })
+	utils.SortByKey(results, false, func(r result) database.Id { return r.id })
 
 	for _, r := range results {
 		fmt.Printf("ID %d has %d/%d matches\n", r.id, r.count, r.numMuts)
 		record := db.Get(r.id)
-		if record.Host == "Human" {
-			fmt.Println(record.Summary(),
-				record.DeletionsSummary(), record.SRAs())
-		}
+		fmt.Println(record.Summary(),
+			record.DeletionsSummary(), record.SRAs())
 	}
 
 	// G21761del

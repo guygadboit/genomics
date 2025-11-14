@@ -511,7 +511,7 @@ loop:
 func (d *Database) AddSRAs(fname string) {
 	utils.Lines(fname, func(line string, err error) bool {
 		fields := strings.Fields(line)
-		accession, wrapper, sra  := fields[0], fields[1], fields[2]
+		accession, wrapper, sra := fields[0], fields[1], fields[2]
 
 		ids := d.GetByAccession(accession)
 		for _, id := range ids {
@@ -529,7 +529,7 @@ func (r *Record) HasMuts(muts Mutations) Mutations {
 	ret := make([]Mutation, 0)
 	for _, s := range muts {
 		for _, m := range r.NucleotideChanges {
-			if reflect.DeepEqual(s, m) {
+			if s.Pos == m.Pos && s.From == m.From && s.To == m.To {
 				ret = append(ret, m)
 			}
 		}

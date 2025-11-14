@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"genomics/genomes"
 	"genomics/reads"
-	"genomics/utils"
 	"genomics/stats"
+	"genomics/utils"
 	"log"
 	"os"
 )
@@ -115,7 +115,7 @@ func main() {
 		refName     string
 		subseqRange string
 		outName     string
-		blast		string
+		blast       string
 	)
 
 	flag.BoolVar(&verbose, "v", false, "Verbose")
@@ -195,8 +195,8 @@ func main() {
 						blast, readData.Nts, 1, 1, stats.NOT_VERBOSE)
 					fmt.Printf("%d BLAST hits\n", len(results))
 					if len(results) > 0 {
-					blastHits++
-				}
+						blastHits++
+					}
 				}
 				matches++
 			}
