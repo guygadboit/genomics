@@ -3,134 +3,13 @@ package main
 import (
 	"flag"
 	"fmt"
+	. "genomics/outgroup"
 	"genomics/genomes"
 	"genomics/hotspots"
 	"genomics/mutations"
-	"genomics/utils"
 	"log"
 	"math/rand"
 )
-
-func CalcSimilarities(g *genomes.Genomes, which int) []float64 {
-	ret := make([]float64, g.NumGenomes())
-	for i := 0; i < g.NumGenomes(); i++ {
-		ret[i] = g.SequenceSimilarity(which, i, false)
-	}
-	return ret
-}
-
-// Return the number of differences. Assume a and b are the same length
-func CompareRegion(a []byte, b []byte, start, end int) int {
-	aRegion := a[start:end]
-	bRegion := b[start:end]
-
-	ret := 0
-	for i, val := range aRegion {
-		if bRegion[i] != val {
-			ret++
-		}
-	}
-
-	return ret
-}
-
-// Describes proximity to a relative
-type Proximity struct {
-	which       int // Which relative
-	differences int // How many differences
-	window      int // At what window size
-}
-
-// We assume Proximity is sorted by fewest differences first
-func HaveUniqueThreeBest(p []Proximity) bool {
-	// We just need fresh air between the third and the fourth to satisfy the
-	// criterion.
-	return p[3].differences > p[2].differences
-}
-
-func ShowProximities(g *genomes.Genomes, which int,
-	sitePos int, proximities []Proximity) {
-	for _, p := range proximities {
-		fmt.Println(g.Names[p.which], p.window, p.differences)
-	}
-}
-
-type Set map[int]bool
-
-// Return the relatives that are closest window either side of the site
-func FindClosest(g *genomes.Genomes, which int,
-	sitePos int, siteSize int, window int, exclude Set) []Proximity {
-	ret := make([]Proximity, 0)
-
-	for i := 0; i < g.NumGenomes(); i++ {
-		if i == which {
-			continue
-		}
-		if exclude[i] {
-			continue
-		}
-		end := sitePos
-		start := max(0, end-window)
-		differences := CompareRegion(g.Nts[which], g.Nts[i], start, end)
-
-		start = min(g.Length(), sitePos+siteSize)
-		end = min(g.Length(), start+window)
-
-		differences += CompareRegion(g.Nts[which], g.Nts[i], start, end)
-		ret = append(ret, Proximity{i, differences, window})
-	}
-	utils.SortByKey(ret, true, func(p Proximity) int {
-		return p.differences
-	})
-	return ret
-}
-
-type Algo int
-
-const (
-	ORIGINAL = iota
-	KEEP_BEST
-)
-
-// Find the num unambiguous closest either side of the site
-func FindNumClosest(g *genomes.Genomes, which int,
-	sitePos int, siteSize int, window int, num int, algo Algo) []Proximity {
-	num = min(num, g.NumGenomes()-1)
-	ret := make([]Proximity, 0, num)
-	got := make(Set)
-
-	for {
-		need := num - len(ret) // how many more relatives do we need?
-
-		// Find the closest ones, excluding those we already have
-		prox := FindClosest(g, which, sitePos, siteSize, window, got)
-
-		// Take any clear leaders
-		for _, p := range prox {
-			if p.differences < prox[need].differences {
-				ret = append(ret, p)
-				got[p.which] = true
-			}
-		}
-
-		if len(ret) == num {
-			return ret
-		}
-
-		if algo == ORIGINAL {
-			/*
-				Under the original algorithm, if we didn't find the number we
-				wanted (which was three), we threw them all away and then
-				widened the window. This meant you threw away some quite good
-				matches and ended up with worse ones over a longer window.
-			*/
-			ret = ret[:0]
-			got = make(Set)
-		}
-
-		window++
-	}
-}
 
 // Maps positions to counts of how many of 3 closest relatives matched
 type Matches map[int]int
@@ -155,15 +34,15 @@ func CompareRelatives(g *genomes.Genomes,
 			// actual site also match?
 			count := 0
 			for _, p := range closest {
-				differences := CompareRegion(g.Nts[which], g.Nts[p.which],
+				differences := CompareRegion(g.Nts[which], g.Nts[p.Which],
 					pos, pos+len(site))
 				if differences == 0 {
 					count++
 				}
 				pfn("%s at %d in %s (closest over %dnts either "+
 					"side) has %d differences in the site\n",
-					string(site), pos+1, g.Names[p.which],
-					p.window, differences)
+					string(site), pos+1, g.Names[p.Which],
+					p.Window, differences)
 			}
 			pfn("%d/3 are completely the same\n", count)
 			ret[pos] = count
