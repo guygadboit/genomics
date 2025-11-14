@@ -6,9 +6,9 @@ import (
 	"genomics/genomes"
 	"genomics/outgroup"
 	"genomics/utils"
+	"log"
 	"os"
 	"path"
-	"log"
 )
 
 func main() {
@@ -31,32 +31,34 @@ func main() {
 			"src/genomics/fasta/Hassanin.fasta")
 	}
 
-	// start:end (one-based) or a single position
-	subseq := flag.Args()[0]
-
-	ss := utils.ParseInts(subseq, ":")
-	switch len(ss) {
-	case 1:
-		start, end = ss[0]-1, ss[0]
-	case 2:
-		start, end = ss[0]-1, ss[1]
-	default:
-		log.Fatal("Invalid subsequence")
-	}
-
 	g := genomes.LoadGenomes(fasta, "", false)
-	start = max(0, start)
-	end = min(end, g.Length())
-
 	if all {
 		num = g.NumGenomes() - 2
 	}
 
-	prox := outgroup.FindNumClosest(g, 0,
-		start, end-start, window, num, outgroup.KEEP_BEST)
+	for _, subseq := range flag.Args() {
 
-	for _, p := range prox {
-		seq := string(g.Nts[p.Which][start:end])
-		fmt.Printf("%d %s: %s\n", p.Which, g.Names[p.Which], seq)
+		// start:end (one-based) or a single position
+		ss := utils.ParseInts(subseq, ":")
+		switch len(ss) {
+		case 1:
+			start, end = ss[0]-1, ss[0]
+		case 2:
+			start, end = ss[0]-1, ss[1]
+		default:
+			log.Fatal("Invalid subsequence")
+		}
+
+		start = max(0, start)
+		end = min(end, g.Length())
+
+		prox := outgroup.FindNumClosest(g, 0,
+			start, end-start, window, num, outgroup.KEEP_BEST)
+
+		fmt.Printf("%s:%s\n", subseq, string(g.Nts[0][start:end]))
+		for _, p := range prox {
+			seq := string(g.Nts[p.Which][start:end])
+			fmt.Printf("%d %s: %s\n", p.Which, g.Names[p.Which], seq)
+		}
 	}
 }
