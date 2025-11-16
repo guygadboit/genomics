@@ -116,6 +116,7 @@ func main() {
 		subseqRange string
 		outName     string
 		blast       string
+		showBlast   bool
 	)
 
 	flag.BoolVar(&verbose, "v", false, "Verbose")
@@ -126,6 +127,7 @@ func main() {
 	flag.IntVar(&minMatches, "m", 1, "Minimum number of matches")
 	flag.StringVar(&outName, "o", "", "Output matching reads to fname")
 	flag.StringVar(&blast, "b", "", "Genome directory for blast")
+	flag.BoolVar(&showBlast, "show-blast", false, "Show blast results")
 	flag.Parse()
 
 	if len(flag.Args()) < 1 {
@@ -193,12 +195,24 @@ func main() {
 				if bc != nil {
 					results := stats.Blast(bc,
 						blast, readData.Nts, 1, 1, stats.NOT_VERBOSE)
-					fmt.Printf("%d BLAST hits\n", len(results))
 					if len(results) > 0 {
+						fmt.Printf("%d BLAST hits\n", len(results))
 						blastHits++
+						if showBlast {
+							for _, r := range results {
+								fmt.Printf("%s %s %.2g\n",
+									readData.Name, r.Organism, r.E)
+							}
+						}
 					}
 				}
 				matches++
+
+				// You might be blasting without a pattern at all, in which
+				// case don't keep searching for nothing over and over again.
+				if len(pattern) == 0 {
+					break
+				}
 			}
 		}
 	}
