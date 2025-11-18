@@ -85,7 +85,8 @@ func (o *Outgroup) DisplaySorted(counts map[int]int) {
 		return 0
 	})
 	for _, result := range results {
-		ss := fmt.Sprintf("%.2f%%", o.g.SequenceSimilarity(0, result.index)*100)
+		ss := fmt.Sprintf("%.2f%%",
+			o.g.SequenceSimilarity(0, result.index, false)*100)
 		fmt.Println(result.index, o.g.Names[result.index], result.count, ss)
 	}
 }

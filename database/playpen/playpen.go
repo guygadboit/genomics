@@ -570,6 +570,20 @@ func AntarcticLike(db *database.Database) {
 
 }
 
+func InterestingDeletions(db *database.Database) {
+	// interesting := database.Range{21762, 21788}
+	interesting := database.Range{21765, 21785}
+	db.Filter(nil, func(r *database.Record) bool {
+		for _, d := range r.Deletions {
+			if d == interesting {
+				fmt.Println(r.Summary(), r.DeletionsSummary())
+				break
+			}
+		}
+		return true
+	})
+}
+
 func main() {
 	db := database.NewDatabase()
 	// EarlyReads(db)
@@ -583,4 +597,5 @@ func main() {
 	// CTDistribution(db)
 	// ORF8LI(db)
 	AntarcticLike(db)
+	// InterestingDeletions(db)
 }
