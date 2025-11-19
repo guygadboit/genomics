@@ -114,8 +114,8 @@ func Unmatched(fnameA, fnameB string, onlyNames NameSet) {
 
 func main() {
 	root := "/fs/j/genomes/raw_reads/AntarcticSamples"
-	fnameA := path.Join(root, "SRR13441708_2.fastq")
-	fnameB := path.Join(root, "SRR13441708_1.fastq")
+	fnameB := path.Join(root, "SRR13441704_2.fastq")
+	fnameA := path.Join(root, "SRR13441704_1.fastq")
 
 	// names := LoadNames(path.Join(root, "04_2-matches.fastq"))
 	Unmatched(fnameA, fnameB, nil)

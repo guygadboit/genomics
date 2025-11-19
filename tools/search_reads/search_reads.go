@@ -117,6 +117,7 @@ func main() {
 		outName     string
 		blast       string
 		showBlast   bool
+		remoteBlast bool
 	)
 
 	flag.BoolVar(&verbose, "v", false, "Verbose")
@@ -127,12 +128,18 @@ func main() {
 	flag.IntVar(&minMatches, "m", 1, "Minimum number of matches")
 	flag.StringVar(&outName, "o", "", "Output matching reads to fname")
 	flag.StringVar(&blast, "b", "", "Genome directory for blast")
+	flag.BoolVar(&remoteBlast, "remote", false, "Remote blast")
 	flag.BoolVar(&showBlast, "show-blast", false, "Show blast results")
 	flag.Parse()
 
 	if len(flag.Args()) < 1 {
 		flag.PrintDefaults()
 		return
+	}
+
+	remote := ""
+	if remoteBlast {
+		remote = "nt"
 	}
 
 	var pattern []byte
@@ -153,7 +160,7 @@ func main() {
 	}
 
 	var bc *stats.BlastConfig
-	if blast != "" {
+	if blast != "" || remote != "" {
 		bc = stats.BlastDefaultConfig()
 	}
 
@@ -193,9 +200,10 @@ func main() {
 				}
 
 				if bc != nil {
-					results := stats.Blast(bc,
-						blast, readData.Nts, 1, 1, stats.NOT_VERBOSE)
-					if len(results) > 0 {
+					results, err := stats.Blast(bc,
+						blast, readData.Nts, 1, 1,
+						remote, stats.NOT_VERBOSE)
+					if err != nil && len(results) > 0 {
 						fmt.Printf("%d BLAST hits\n", len(results))
 						blastHits++
 						if showBlast {

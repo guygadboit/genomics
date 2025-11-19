@@ -85,18 +85,29 @@ const (
 maxHSP is the maximum number of "high scoring pairs". I think it basically just
 means the maximum number of results you want back. If verbose, print the
 commands out and don't delete the temporary files.
+
+remote should be "nt" for nucleotides, "nr" for protein (I think) and
+whatever else they provide (idk), or "" if you want to do a local search.
+
+taxid might be something like "10239" for Viruses
 */
 func Blast(c *BlastConfig, genome string,
 	query []byte, maxE float64, maxHSP int,
-	verbosity BlastVerbosity) BlastResults {
+	remote string, verbosity BlastVerbosity) (BlastResults, error) {
 	verbose := verbosity == VERBOSE
 	tmpName := path.Join(c.TmpDir, writeFasta(c, query))
 	args := []string{
-		fmt.Sprintf("-db=%s", path.Join(c.Prefix, genome, c.Suffix)),
 		fmt.Sprintf("-max_hsps=%d", maxHSP),
 		fmt.Sprintf("-evalue=%f", maxE),
 		fmt.Sprintf("-query=%s", tmpName),
 		"-outfmt=6",
+	}
+
+	if remote != "" {
+		args = append(args, "-remote", fmt.Sprintf("-db=%s", remote))
+	} else {
+		args = append(args, fmt.Sprintf("-db=%s",
+			path.Join(c.Prefix, genome, c.Suffix)))
 	}
 
 	if len(query) < 50 {
@@ -149,6 +160,7 @@ func Blast(c *BlastConfig, genome string,
 	if err != nil {
 		printCmd()
 		log.Fatal("blast returned error")
+		return nil, err
 	} else {
 		if !verbose {
 			err = os.Remove(tmpName)
@@ -158,5 +170,5 @@ func Blast(c *BlastConfig, genome string,
 		}
 	}
 
-	return ret
+	return ret, nil
 }
