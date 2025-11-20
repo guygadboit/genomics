@@ -508,8 +508,8 @@ func ORF8LI(db *database.Database) {
 
 func AntarcticLike(db *database.Database) {
 	// muts := database.ParseMutations("C17634G") // not in 2020 at all
-	// muts := database.ParseMutations("A16156G")
-	muts := database.ParseMutations("C23525T")
+	muts := database.ParseMutations("A16156G")
+	// muts := database.ParseMutations("C23525T")
 	// muts := database.ParseMutations("C8782T")
 	/*
 		muts := database.ParseMutations("C8782T,C13694T,A16156G,A17039G," +
@@ -557,7 +557,17 @@ func AntarcticLike(db *database.Database) {
 		results = append(results, result{k, v,
 			numMuts, float64(v) / float64(numMuts)})
 	}
-	utils.SortByKey(results, false, func(r result) database.Id { return r.id })
+	slices.SortFunc(results, func(a, b result) int {
+		ar := db.Get(a.id)
+		br := db.Get(b.id)
+		return ar.CollectionDate.Compare(br.CollectionDate)
+	})
+	/*
+	utils.SortByKey(results, false, func(r result) time.Time {
+		record := db.Get(r.id)
+		return record.CollectionDate
+	})
+	*/
 
 	for _, r := range results {
 		fmt.Printf("ID %d has %d/%d matches\n", r.id, r.count, r.numMuts)
