@@ -507,10 +507,34 @@ func ORF8LI(db *database.Database) {
 }
 
 func AntarcticLike(db *database.Database) {
+	// This is with min-ratio of 0.44
+	/*
+		muts := database.ParseMutations("C865T,C8782T,T9440A,G11083T," +
+			"C13694T,A16156G,A17039G,C18060T,A18082G,A21975C,C23525T," +
+			"C25498T,G26458T,C26895T,T28144C,T29867A,G29868A,C29870A")
+	*/
 
-	muts := database.ParseMutations("C865T,C8782T,T9440A,G11083T,"+
-	"C13694T,A16156G,A17039G,C18060T,A18082G,A21975C,C23525T,"+
-	"C25498T,G26458T,C26895T,T28144C,T29867A,G29868A,C29870A")
+	// The same but leaving out those ones in the tail
+	/*
+		muts := database.ParseMutations("C865T,C8782T,T9440A,G11083T," +
+			"C13694T,A16156G,A17039G,C18060T,A18082G,A21975C,C23525T," +
+			"C25498T,G26458T,C26895T,T28144C")
+	*/
+
+	// And this is with 0.26 (so as to include C17634G)
+	/*
+		muts := database.ParseMutations("C865T,C1498T,T1510G,G1738T," +
+			"G6094T,T7737C,C8782T,A9313G,T9440A," +
+			"C10851G,G11083T,T13018C,C13694T,A16156G,A17039G,C18060T,A18082G" +
+			",A21975C,C23525T,A24302G,T24326A,T25077G,C25498T,G26458T,C26895T" +
+			",T28144C,G29449T,T29867A,G29868A,C29870A")
+	*/
+	// The same but leaving out those ones in the tail
+	muts := database.ParseMutations("C865T,C1498T,T1510G,G1738T," +
+		"G6094T,T7737C,C8782T,A9313G,T9440A," +
+		"C10851G,G11083T,T13018C,C13694T,A16156G,A17039G,C18060T,A18082G" +
+		",A21975C,C23525T,A24302G,T24326A,T25077G,C25498T,G26458T,C26895T" +
+		",T28144C")
 	// muts := database.ParseMutations("C17634G") // not in 2020 at all
 	// muts := database.ParseMutations("A16156G")
 	// muts := database.ParseMutations("C23525T")
@@ -561,20 +585,19 @@ func AntarcticLike(db *database.Database) {
 		results = append(results, result{k, v,
 			numMuts, float64(v) / float64(numMuts)})
 	}
-	slices.SortFunc(results, func(a, b result) int {
-		ar := db.Get(a.id)
-		br := db.Get(b.id)
-		return ar.CollectionDate.Compare(br.CollectionDate)
-	})
 	/*
-	utils.SortByKey(results, false, func(r result) time.Time {
-		record := db.Get(r.id)
-		return record.CollectionDate
-	})
+		slices.SortFunc(results, func(a, b result) int {
+			ar := db.Get(a.id)
+			br := db.Get(b.id)
+			return ar.CollectionDate.Compare(br.CollectionDate)
+		})
 	*/
+	utils.SortByKey(results, false, func(r result) int {
+		return r.count
+	})
 
 	for _, r := range results {
-		fmt.Printf("ID %d has %d/%d matches\n", r.id, r.count, r.numMuts)
+		fmt.Printf("%d/%d matches: ", r.count, r.numMuts)
 		record := db.Get(r.id)
 		fmt.Println(record.Summary(),
 			record.DeletionsSummary(), record.SRAs())

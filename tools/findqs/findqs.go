@@ -159,7 +159,7 @@ func Compare(pu *pileup.Pileup,
 				break
 			}
 			if rank > 0 && minRatio != 0.0 {
-				if float64(read.Depth) / float64(rank0Depth) < minRatio {
+				if float64(read.Depth)/float64(rank0Depth) < minRatio {
 					break
 				}
 			}
@@ -206,15 +206,15 @@ func Compare(pu *pileup.Pileup,
 			if showReads {
 				fmt.Println(pileup.FormatRecord(rec))
 			} else {
-			fmt.Printf("%c%d%c%s%s depth:%d rank:%d matches:%d:%s ",
-				g.Nts[0][i], rec.Pos+1, read.Nt, silentS, majS, read.Depth,
-				rank, len(matches), strings.Join(matches, ","))
+				fmt.Printf("%c%d%c%s%s depth:%d rank:%d matches:%d:%s ",
+					g.Nts[0][i], rec.Pos+1, read.Nt, silentS, majS, read.Depth,
+					rank, len(matches), strings.Join(matches, ","))
 
-			for k, v := range alleles {
-				fmt.Printf("%c:%d ", k, v)
+				for k, v := range alleles {
+					fmt.Printf("%c:%d ", k, v)
+				}
+				fmt.Printf("\n")
 			}
-			fmt.Printf("\n")
-		}
 		}
 	}
 	rate := float64(totalMaj) / float64(diffs)
@@ -253,7 +253,7 @@ func main() {
 		silent      bool
 		tc          bool
 		reparse     bool
-		showReads bool
+		showReads   bool
 	)
 
 	flag.StringVar(&fasta, "fasta", "", "Reference alignment")
