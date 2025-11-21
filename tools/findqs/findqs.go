@@ -148,7 +148,7 @@ func Compare(pileup *pileup.Pileup,
 			if read.Nt == g.Nts[0][i] {
 				continue
 			}
-			if read.Depth <= minDepth {
+			if read.Depth < minDepth {
 				continue
 			}
 			silent, _, _ := genomes.IsSilentWithReplacement(g,
@@ -235,22 +235,31 @@ func main() {
 		minDepth    int
 		silent      bool
 		tc          bool
+		reparse     bool
 	)
 
 	flag.StringVar(&fasta, "fasta", "", "Reference alignment")
 	flag.StringVar(&orfs, "orfs", "", "Reference ORFs")
 	flag.IntVar(&minDepth, "min-depth", 4, "Minimum depth")
 	flag.BoolVar(&silent, "silent", false, "Require silent")
+	flag.BoolVar(&reparse, "reparse", false, "Parse our own .txt.gz format")
 	flag.BoolVar(&tc, "tc", false, "Only look at TC")
 	flag.Parse()
 
 	g := genomes.LoadGenomes(fasta, orfs, false)
 
 	for _, arg := range flag.Args() {
-		pileup, err := pileup.Parse(arg)
+		var pu *pileup.Pileup
+		var err error
+
+		if reparse {
+			pu, err = pileup.Parse2(arg)
+		} else {
+			pu, err = pileup.Parse(arg)
+		}
 		if err != nil {
 			log.Fatal(err)
 		}
-		Compare(pileup, g, minDepth, silent, tc)
+		Compare(pu, g, minDepth, silent, tc)
 	}
 }

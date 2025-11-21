@@ -181,6 +181,7 @@ func Parse2(fname string) (*Pileup, error) {
 	ret.Init()
 
 	utils.Lines(fname, func(line string, lineErr error) bool {
+		line = strings.TrimRight(line, " ")
 		fields := strings.Split(line, ":")
 		pos := utils.Atoi(fields[0]) - 1
 
