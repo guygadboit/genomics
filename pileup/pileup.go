@@ -176,6 +176,14 @@ func Parse(fname string) (*Pileup, error) {
 	return &ret, nil
 }
 
+func FormatRecord(record *Record) string {
+	items := make([]string, len(record.Reads))
+	for i, read := range record.Reads {
+		items[i] = fmt.Sprintf("%cx%d", read.Nt, read.Depth)
+	}
+	return fmt.Sprintf("%d: %s", record.Pos+1, strings.Join(items, ", "))
+}
+
 func (pu *Pileup) Show(onlyPos []int) {
 	displayRecord := func(pos int) {
 		recordI, there := pu.Index[pos]
@@ -184,11 +192,7 @@ func (pu *Pileup) Show(onlyPos []int) {
 			return
 		}
 		record := &pu.Records[recordI]
-		items := make([]string, len(record.Reads))
-		for i, read := range record.Reads {
-			items[i] = fmt.Sprintf("%cx%d", read.Nt, read.Depth)
-		}
-		fmt.Printf("%d: %s\n", record.Pos+1, strings.Join(items, ", "))
+		fmt.Println(FormatRecord(record))
 	}
 
 	if onlyPos != nil {

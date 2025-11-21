@@ -507,8 +507,12 @@ func ORF8LI(db *database.Database) {
 }
 
 func AntarcticLike(db *database.Database) {
+
+	muts := database.ParseMutations("C865T,C8782T,T9440A,G11083T,"+
+	"C13694T,A16156G,A17039G,C18060T,A18082G,A21975C,C23525T,"+
+	"C25498T,G26458T,C26895T,T28144C,T29867A,G29868A,C29870A")
 	// muts := database.ParseMutations("C17634G") // not in 2020 at all
-	muts := database.ParseMutations("A16156G")
+	// muts := database.ParseMutations("A16156G")
 	// muts := database.ParseMutations("C23525T")
 	// muts := database.ParseMutations("C8782T")
 	/*

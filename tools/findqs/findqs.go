@@ -125,8 +125,10 @@ func ExpectedMatchRate(g *genomes.Genomes,
 	return count, total - count, float64(count) / float64(total)
 }
 
-func Compare(pileup *pileup.Pileup,
-	g *genomes.Genomes, minDepth int, requireSilent bool, requireTC bool) {
+func Compare(pu *pileup.Pileup,
+	g *genomes.Genomes, minDepth int,
+	minRatio float64, requireSilent bool,
+	requireTC bool, showReads bool) {
 	counts := make(map[int]int)
 
 	// The total number of differences from g.Nts[0] with at least minDepth,
@@ -139,17 +141,27 @@ func Compare(pileup *pileup.Pileup,
 	// The number of diffs that match something in the outgroup
 	totalMatches := 0
 
+	rank0Depth := 0
+
 	for i := 0; i < g.Length(); i++ {
-		rec := pileup.Get(i)
+		rec := pu.Get(i)
 		if rec == nil {
 			continue
 		}
 		for rank, read := range rec.Reads {
+			if rank == 0 {
+				rank0Depth = read.Depth
+			}
 			if read.Nt == g.Nts[0][i] {
 				continue
 			}
 			if read.Depth < minDepth {
-				continue
+				break
+			}
+			if rank > 0 && minRatio != 0.0 {
+				if float64(read.Depth) / float64(rank0Depth) < minRatio {
+					break
+				}
 			}
 			silent, _, _ := genomes.IsSilentWithReplacement(g,
 				i, 0, 0, []byte{read.Nt})
@@ -191,6 +203,9 @@ func Compare(pileup *pileup.Pileup,
 				totalMaj++
 			}
 
+			if showReads {
+				fmt.Println(pileup.FormatRecord(rec))
+			} else {
 			fmt.Printf("%c%d%c%s%s depth:%d rank:%d matches:%d:%s ",
 				g.Nts[0][i], rec.Pos+1, read.Nt, silentS, majS, read.Depth,
 				rank, len(matches), strings.Join(matches, ","))
@@ -199,6 +214,7 @@ func Compare(pileup *pileup.Pileup,
 				fmt.Printf("%c:%d ", k, v)
 			}
 			fmt.Printf("\n")
+		}
 		}
 	}
 	rate := float64(totalMaj) / float64(diffs)
@@ -233,17 +249,22 @@ func main() {
 	var (
 		fasta, orfs string
 		minDepth    int
+		minRatio    float64
 		silent      bool
 		tc          bool
 		reparse     bool
+		showReads bool
 	)
 
 	flag.StringVar(&fasta, "fasta", "", "Reference alignment")
 	flag.StringVar(&orfs, "orfs", "", "Reference ORFs")
 	flag.IntVar(&minDepth, "min-depth", 4, "Minimum depth")
+	flag.Float64Var(&minRatio, "min-ratio", 0, "Minimum ratio of QS to majority")
 	flag.BoolVar(&silent, "silent", false, "Require silent")
 	flag.BoolVar(&reparse, "reparse", false, "Parse our own .txt.gz format")
 	flag.BoolVar(&tc, "tc", false, "Only look at TC")
+	flag.BoolVar(&showReads, "show-reads",
+		false, "Just show the reads in our pileup format")
 	flag.Parse()
 
 	g := genomes.LoadGenomes(fasta, orfs, false)
@@ -260,6 +281,6 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		Compare(pu, g, minDepth, silent, tc)
+		Compare(pu, g, minDepth, minRatio, silent, tc, showReads)
 	}
 }
