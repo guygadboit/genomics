@@ -43,6 +43,7 @@ func (p *Pileup) Init() {
 	p.Records = make([]Record, 0)
 }
 
+// reads are expected to already be sorted by highest depth first
 func (p *Pileup) Add(pos int, reads []Read) {
 	var totalDepth int
 	for _, read := range reads {
@@ -53,7 +54,51 @@ func (p *Pileup) Add(pos int, reads []Read) {
 	if pos > p.MaxPos {
 		p.MaxPos = pos
 	}
+}
 
+func CombineReads(a, b []Read) []Read {
+	m := make(map[byte]int)
+	for _, r := range a {
+		m[r.Nt] += r.Depth
+	}
+	for _, r := range b {
+		m[r.Nt] += r.Depth
+	}
+	ret := make([]Read, 0, len(m))
+	for k, v := range m {
+		ret = append(ret, Read{k, v})
+	}
+	utils.SortByKey(ret, false, func(r Read) int { return r.Depth })
+	return ret
+}
+
+func CloneReads(r []Read) []Read {
+	ret := make([]Read, len(r))
+	copy(ret, r)
+	return ret
+}
+
+// Return a new Pileup which is the sum of two others
+func Combine(a, b *Pileup) *Pileup {
+	var ret Pileup
+	ret.Init()
+
+	for pos := 0; pos < max(a.MaxPos, b.MaxPos); pos++ {
+		aRec := a.Get(pos)
+		bRec := b.Get(pos)
+
+		var reads []Read
+		if aRec != nil && bRec != nil {
+			reads = CombineReads(aRec.Reads, bRec.Reads)
+		} else if aRec != nil {
+			reads = CloneReads(aRec.Reads)
+		} else if bRec != nil {
+			reads = CloneReads(bRec.Reads)
+		}
+
+		ret.Add(pos, reads)
+	}
+	return &ret
 }
 
 func (p *Pileup) Get(pos int) *Record {
