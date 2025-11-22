@@ -8,8 +8,9 @@ import (
 	"genomics/pileup"
 	"genomics/stats"
 	"log"
+	"os"
+	"path"
 	"slices"
-	"strings"
 )
 
 func printSorted(counts map[int]int) {
@@ -125,22 +126,40 @@ func ExpectedMatchRate(g *genomes.Genomes,
 	return count, total - count, float64(count) / float64(total)
 }
 
+type Outgroup struct {
+	totalSilentMuts int
+	totalOGMatches  int
+	recCA           *genomes.Genomes
+}
+
+func (o *Outgroup) Init(recCA, g *genomes.Genomes) {
+	o.recCA = recCA
+
+	possible := mutations.PossibleSilentMuts(g, 0)
+	o.totalSilentMuts = len(possible)
+	for _, mut := range possible {
+		if recCA.Nts[0][mut.Pos] == mut.To {
+			o.totalOGMatches++
+		}
+	}
+}
+
+func (o *Outgroup) Matches(pos int, nt byte) bool {
+	return o.recCA.Nts[0][pos] == nt
+}
+
+func (o *Outgroup) IsRemarkable(numMatches, numMuts int) (float64, float64) {
+	var ct stats.ContingencyTable
+	ct.Init(numMatches, numMuts, o.totalOGMatches, o.totalSilentMuts)
+	return ct.FisherExact(stats.GREATER)
+}
+
 func Compare(pu *pileup.Pileup,
 	g *genomes.Genomes, minDepth int,
 	minRatio float64, requireSilent bool,
-	requireTC bool, showReads bool) {
-	counts := make(map[int]int)
+	requireTC bool, showReads bool, og *Outgroup) {
 
-	// The total number of differences from g.Nts[0] with at least minDepth,
-	// and also silent if requireSilent.
-	diffs := 0
-
-	// The number of diffs that match the majority allele in the outgroup
-	totalMaj := 0
-
-	// The number of diffs that match something in the outgroup
-	totalMatches := 0
-
+	total, totalOGMatches := 0, 0
 	rank0Depth := 0
 
 	for i := 0; i < g.Length(); i++ {
@@ -175,79 +194,35 @@ func Compare(pu *pileup.Pileup,
 				}
 			}
 
-			diffs++
-			matches := make([]string, 0)
-			alleles := make(map[byte]int)
-
-			var matched bool
-			for j := 1; j < g.NumGenomes(); j++ {
-				alleles[g.Nts[j][i]]++
-				if read.Nt == g.Nts[j][i] {
-					matches = append(matches, fmt.Sprintf("%d", j))
-					counts[j]++
-					matched = true
-				}
-			}
-			if matched {
-				totalMatches++
-			}
-
 			var silentS string
 			if silent {
 				silentS = "*"
 			}
 
-			var majS string
-			if read.Nt == majority(alleles) {
-				majS = "M"
-				totalMaj++
+			total++
+			matchesOg := og.Matches(i, read.Nt)
+			if matchesOg {
+				totalOGMatches++
 			}
 
 			if showReads {
 				fmt.Println(pileup.FormatRecord(rec))
 			} else {
-				fmt.Printf("%c%d%c%s%s depth:%d rank:%d matches:%d:%s ",
-					g.Nts[0][i], rec.Pos+1, read.Nt, silentS, majS, read.Depth,
-					rank, len(matches), strings.Join(matches, ","))
-
-				for k, v := range alleles {
-					fmt.Printf("%c:%d ", k, v)
-				}
-				fmt.Printf("\n")
+				fmt.Printf("%c%d%c%s depth:%d rank:%d OG:%t\n",
+					g.Nts[0][i], rec.Pos+1, read.Nt, silentS, read.Depth,
+					rank, matchesOg)
 			}
 		}
 	}
-	rate := float64(totalMaj) / float64(diffs)
-	printSorted(counts)
-
-	a, b, rate := totalMaj, diffs-totalMaj, float64(totalMaj)/float64(diffs)
-	c, d, expectedRate := ExpectedMajorityRate(g, requireSilent, requireTC)
-
-	fmt.Printf("%d/%d %.2f are majority\n", totalMaj, diffs, rate)
-	fmt.Printf("Expected majority rate: %.2f\n", expectedRate)
-
-	var ct stats.ContingencyTable
-	ct.Init(a, b, c, d)
-	OR, p := ct.FisherExact(stats.GREATER)
-	fmt.Printf("Majority matches: OR=%.2f p=%g\n", OR, p)
-
-	fmt.Println()
-
-	a, b, rate = totalMatches,
-		diffs-totalMatches, float64(totalMatches)/float64(diffs)
-	c, d, expectedRate = ExpectedMatchRate(g, requireSilent, requireTC)
-
-	fmt.Printf("%d/%d %.2f matches\n", totalMatches, diffs, rate)
-	fmt.Printf("Expected match rate: %.2f\n", expectedRate)
-
-	ct.Init(a, b, c, d)
-	OR, p = ct.FisherExact(stats.GREATER)
-	fmt.Printf("Matches: OR=%.2f p=%g\n", OR, p)
+	fmt.Printf("%d/%d are OG matches\n", totalOGMatches, total)
+	OR, p := og.IsRemarkable(totalOGMatches, total)
+	fmt.Printf("OR=%.2f p=%.5f\n", OR, p)
 }
 
 func main() {
 	var (
 		fasta, orfs string
+		recCAS      string
 		minDepth    int
 		minRatio    float64
 		silent      bool
@@ -256,7 +231,8 @@ func main() {
 		showReads   bool
 	)
 
-	flag.StringVar(&fasta, "fasta", "", "Reference alignment")
+	flag.StringVar(&fasta, "fasta", "", "Reference genome")
+	flag.StringVar(&recCAS, "recCA", "", "RecCA genome")
 	flag.StringVar(&orfs, "orfs", "", "Reference ORFs")
 	flag.IntVar(&minDepth, "min-depth", 4, "Minimum depth")
 	flag.Float64Var(&minRatio, "min-ratio", 0, "Minimum ratio of QS to majority")
@@ -268,6 +244,15 @@ func main() {
 	flag.Parse()
 
 	g := genomes.LoadGenomes(fasta, orfs, false)
+
+	if recCAS == "" {
+		recCAS = path.Join(os.Getenv("GOPATH"),
+			"src/genomics/fasta/recCA.fasta")
+	}
+	recCA := genomes.LoadGenomes(recCAS, orfs, false)
+
+	var og Outgroup
+	og.Init(recCA, g)
 
 	for _, arg := range flag.Args() {
 		var pu *pileup.Pileup
@@ -281,6 +266,6 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		Compare(pu, g, minDepth, minRatio, silent, tc, showReads)
+		Compare(pu, g, minDepth, minRatio, silent, tc, showReads, &og)
 	}
 }

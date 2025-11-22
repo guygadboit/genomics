@@ -73,7 +73,18 @@ const (
 	KEEP_BEST
 )
 
-// Find the num unambiguous closest either side of the site
+func CountMatches(prox []Proximity, minDifferences int) int {
+	ret := 0
+	for _, p := range prox {
+		if p.Differences <= minDifferences {
+			ret++
+		}
+	}
+	return ret
+}
+
+// Find the num unambiguous closest either side of the site. We usually use 25
+// and 3 for window and num.
 func FindNumClosest(g *genomes.Genomes, which int,
 	sitePos int, siteSize int, window int, num int, algo Algo) []Proximity {
 	num = min(num, g.NumGenomes()-1)
@@ -110,4 +121,18 @@ func FindNumClosest(g *genomes.Genomes, which int,
 		}
 		window++
 	}
+}
+
+func FindRecCA(g *genomes.Genomes, which int, siteSize int,
+	window int, num int) *genomes.Genomes {
+	ret := genomes.NewGenomes(g.Orfs, 1)
+	ret.Nts[0] = make([]byte, g.Length())
+	for i := 0; i < g.Length(); i++ {
+		prox := FindNumClosest(g, which,
+			i, siteSize, window, num, KEEP_BEST)
+		best := prox[0]
+		ret.Nts[0][i] = g.Nts[best.Which][i]
+		fmt.Println(i)
+	}
+	return ret
 }
