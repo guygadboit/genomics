@@ -150,7 +150,8 @@ func (o *Outgroup) Matches(pos int, nt byte) bool {
 
 func (o *Outgroup) IsRemarkable(numMatches, numMuts int) (float64, float64) {
 	var ct stats.ContingencyTable
-	ct.Init(numMatches, numMuts, o.totalOGMatches, o.totalSilentMuts)
+	ct.Init(numMatches, numMuts-numMatches,
+		o.totalOGMatches, o.totalSilentMuts-o.totalOGMatches)
 	return ct.FisherExact(stats.GREATER)
 }
 
