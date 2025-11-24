@@ -128,11 +128,10 @@ func FindRecCA(g *genomes.Genomes, which int, siteSize int,
 	ret := genomes.NewGenomes(g.Orfs, 1)
 	ret.Nts[0] = make([]byte, g.Length())
 	for i := 0; i < g.Length(); i++ {
-		prox := FindNumClosest(g, which,
-			i, siteSize, window, num, KEEP_BEST)
+		prox := FindNumClosest(g, which, i, siteSize, window, num, KEEP_BEST)
 		best := prox[0]
 		ret.Nts[0][i] = g.Nts[best.Which][i]
-		fmt.Println(i)
 	}
+	ret.Names[0] = "RecCA"
 	return ret
 }

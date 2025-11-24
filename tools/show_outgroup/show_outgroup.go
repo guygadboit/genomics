@@ -18,12 +18,14 @@ func main() {
 		num        int
 		all        bool
 		start, end int
+		recCA bool
 	)
 
 	flag.StringVar(&fasta, "fasta", "", "Alignment to use")
 	flag.IntVar(&window, "window", 50, "Window Size")
 	flag.IntVar(&num, "num", 3, "Number of relatives to look for")
 	flag.BoolVar(&all, "all", false, "Ignore num and look at basically all")
+	flag.BoolVar(&recCA, "rec", false, "Reconstruct a \"recCA\"")
 	flag.Parse()
 
 	if fasta == "" {
@@ -34,6 +36,12 @@ func main() {
 	g := genomes.LoadGenomes(fasta, "", false)
 	if all {
 		num = g.NumGenomes() - 2
+	}
+
+	if recCA {
+		recCA := outgroup.FindRecCA(g, 0, 1, window, num)
+		recCA.SaveMulti("recCA.fasta")
+		fmt.Println("Wrote recCA.fasta")
 	}
 
 	for _, subseq := range flag.Args() {
@@ -58,8 +66,8 @@ func main() {
 		fmt.Printf("%s:%s\n", subseq, string(g.Nts[0][start:end]))
 		for _, p := range prox {
 			seq := string(g.Nts[p.Which][start:end])
-			fmt.Printf("%d %s: %s (%d)\n",
-				p.Which, g.Names[p.Which], seq, p.Differences)
+			fmt.Printf("%d %s: %s (%d/%d)\n",
+				p.Which, g.Names[p.Which], seq, p.Differences, p.Window)
 		}
 	}
 }
