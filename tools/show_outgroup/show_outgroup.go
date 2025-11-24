@@ -58,7 +58,8 @@ func main() {
 		fmt.Printf("%s:%s\n", subseq, string(g.Nts[0][start:end]))
 		for _, p := range prox {
 			seq := string(g.Nts[p.Which][start:end])
-			fmt.Printf("%d %s: %s\n", p.Which, g.Names[p.Which], seq)
+			fmt.Printf("%d %s: %s (%d)\n",
+				p.Which, g.Names[p.Which], seq, p.Differences)
 		}
 	}
 }

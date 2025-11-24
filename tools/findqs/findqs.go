@@ -207,6 +207,7 @@ func Compare(pu *pileup.Pileup,
 
 			if showReads {
 				fmt.Println(pileup.FormatRecord(rec))
+				break
 			} else {
 				fmt.Printf("%c%d%c%s depth:%d rank:%d OG:%t\n",
 					g.Nts[0][i], rec.Pos+1, read.Nt, silentS, read.Depth,
