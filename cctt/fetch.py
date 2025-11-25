@@ -14,7 +14,7 @@ def process(i, sra):
 	print("fasterq-dump {}".format(sra))
 	for j, index in enumerate(("WH1-index",)):
 		print("echo aligning with {}...".format(index))
-		print("python3 align.py -x {} *.fastq".format(index))
+		print("bowtie-align.py -x {} *.fastq".format(index))
 		print("samtools sort -O sam output.sam > sorted.sam")
 		print("samtools mpileup sorted.sam > pileup")
 		print("pileup2fasta -show pileup | gzip -c > {}-{}.txt.gz".format(
