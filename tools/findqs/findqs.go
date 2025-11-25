@@ -158,7 +158,8 @@ func (o *Outgroup) IsRemarkable(numMatches, numMuts int) (float64, float64) {
 func Compare(pu *pileup.Pileup,
 	g *genomes.Genomes, minDepth int,
 	minRatio float64, requireSilent bool,
-	requireTC bool, showReads bool, og *Outgroup) {
+	requireTC bool, showReads bool, verbose bool,
+	og *Outgroup) {
 
 	total, totalOGMatches := 0, 0
 	rank0Depth := 0
@@ -209,7 +210,7 @@ func Compare(pu *pileup.Pileup,
 			if showReads {
 				fmt.Println(pileup.FormatRecord(rec))
 				break
-			} else {
+			} else if verbose {
 				fmt.Printf("%c%d%c%s depth:%d rank:%d OG:%t\n",
 					g.Nts[0][i], rec.Pos+1, read.Nt, silentS, read.Depth,
 					rank, matchesOg)
@@ -231,9 +232,10 @@ func main() {
 		tc          bool
 		reparse     bool
 		showReads   bool
+		quiet       bool
 	)
 
-	flag.StringVar(&fasta, "fasta", "", "Reference genome")
+	flag.StringVar(&fasta, "ref", "", "Reference genome")
 	flag.StringVar(&recCAS, "recCA", "", "RecCA genome")
 	flag.StringVar(&orfs, "orfs", "", "Reference ORFs")
 	flag.IntVar(&minDepth, "min-depth", 4, "Minimum depth")
@@ -243,6 +245,7 @@ func main() {
 	flag.BoolVar(&tc, "tc", false, "Only look at TC")
 	flag.BoolVar(&showReads, "show-reads",
 		false, "Just show the reads in our pileup format")
+	flag.BoolVar(&quiet, "q", false, "Just output OR/p")
 	flag.Parse()
 
 	g := genomes.LoadGenomes(fasta, orfs, false)
@@ -268,6 +271,6 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		Compare(pu, g, minDepth, minRatio, silent, tc, showReads, &og)
+		Compare(pu, g, minDepth, minRatio, silent, tc, showReads, !quiet, &og)
 	}
 }

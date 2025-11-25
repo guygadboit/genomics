@@ -530,11 +530,17 @@ func AntarcticLike(db *database.Database) {
 			",T28144C,G29449T,T29867A,G29868A,C29870A")
 	*/
 	// The same but leaving out those ones in the tail
-	muts := database.ParseMutations("C865T,C1498T,T1510G,G1738T," +
-		"G6094T,T7737C,C8782T,A9313G,T9440A," +
-		"C10851G,G11083T,T13018C,C13694T,A16156G,A17039G,C18060T,A18082G" +
-		",A21975C,C23525T,A24302G,T24326A,T25077G,C25498T,G26458T,C26895T" +
-		",T28144C")
+	/*
+		muts := database.ParseMutations("C865T,C1498T,T1510G,G1738T," +
+			"G6094T,T7737C,C8782T,A9313G,T9440A," +
+			"C10851G,G11083T,T13018C,C13694T,A16156G,A17039G,C18060T,A18082G" +
+			",A21975C,C23525T,A24302G,T24326A,T25077G,C25498T,G26458T,C26895T" +
+			",T28144C")
+	*/
+
+	muts := database.ParseMutations(
+		"C1059T,C3037T,C10851T,C14408T,G22094A,A23403G,G25563T,C241T")
+
 	// muts := database.ParseMutations("C17634G") // not in 2020 at all
 	// muts := database.ParseMutations("A16156G")
 	// muts := database.ParseMutations("C23525T")
