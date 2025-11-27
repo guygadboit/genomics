@@ -2,6 +2,7 @@ package pileup
 
 import (
 	"fmt"
+	"errors"
 	"genomics/utils"
 	"slices"
 	"strings"
@@ -159,6 +160,10 @@ func Parse(fname string) (*Pileup, error) {
 			return false
 		}
 		fields := strings.Split(line, "\t")
+		if len(fields) < 5 {
+			err = errors.New("Invalid mpileup file")
+			return false
+		}
 
 		pos := utils.Atoi(fields[1]) - 1
 		reads := parseReadBases(fields[4])

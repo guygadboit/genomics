@@ -217,7 +217,7 @@ func Compare(pu *pileup.Pileup,
 			}
 		}
 	}
-	fmt.Printf("%d/%d are OG matches\n", totalOGMatches, total)
+	fmt.Printf("%d/%d are OG matches ", totalOGMatches, total)
 	OR, p := og.IsRemarkable(totalOGMatches, total)
 	fmt.Printf("OR=%.2f p=%.5g\n", OR, p)
 }
