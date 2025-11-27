@@ -463,6 +463,17 @@ func EarlyLineages(db *database.Database) {
 }
 
 func EarlyReads(db *database.Database) {
+	sras := []string{
+		"ERR5729183",
+		"ERR5055362",
+		"ERR4854357",
+		"ERR4579015",
+		"ERR4686261",
+		"ERR4854068",
+		"ERR5029374",
+	}
+	interesting := utils.ToSet(sras)
+
 	db.Filter(nil, func(r *database.Record) bool {
 		if r.Host != "Human" {
 			return false
@@ -470,11 +481,24 @@ func EarlyReads(db *database.Database) {
 		if len(r.SRA) == 0 {
 			return false
 		}
-		sras := strings.Join(r.SRA, ",")
+		ok := false
+		for _, sra := range r.SRA {
+			if interesting[sra] {
+				ok = true
+				break
+			}
+		}
+		if !ok {
+			return false
+		}
+		// sras := strings.Join(r.SRA, ",")
 
+		/*
 		fmt.Println(sras, len(r.NucleotideChanges),
 			r.GisaidAccession, r.SampleSRA, r.Country,
 			r.CollectionDate.Format(time.DateOnly))
+		*/
+		fmt.Println(r.Summary())
 		return true
 	})
 }
@@ -629,7 +653,7 @@ func InterestingDeletions(db *database.Database) {
 
 func main() {
 	db := database.NewDatabase()
-	// EarlyReads(db)
+	EarlyReads(db)
 	// NonHuman(db)
 	// EarlyLineages(db)
 	// NoMuts(db)
@@ -639,6 +663,6 @@ func main() {
 	// CTRate(db)
 	// CTDistribution(db)
 	// ORF8LI(db)
-	AntarcticLike(db)
+	// AntarcticLike(db)
 	// InterestingDeletions(db)
 }

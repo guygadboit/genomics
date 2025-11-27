@@ -69,11 +69,13 @@ def main():
 # 	return
 
 	with open("read_info2.txt", "wt") as output:
-		with open("read_info.txt") as fp:
+# 		with open("read_info.txt") as fp:
+		with open("/fs/j/genomes/raw_reads/BEI/srx") as fp:
 			for i, line in enumerate(fp):
 				line = line.strip()
 				fields = line.split()
-				sras = list(find_sras(http, make_url(fields[1])))
+# 				sras = list(find_sras(http, make_url(fields[1])))
+				sras = list(find_sras(http, make_url(fields[0])))
 
 				if sras:
 					sras = ",".join(sras)

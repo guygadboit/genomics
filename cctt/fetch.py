@@ -43,7 +43,7 @@ def main():
 			fields = line.split()
 			name = fields[0]
 			process(i, name)
-# 			process2(i, name, "WH1-dFCS.fasta", "23591:23630")
+# 			process2(i, name, "dFCS.fasta", "23591:23630")
 #			process2(i, name, "WH1-dRandom.fasta", "23481:23540")
 
 
