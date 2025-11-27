@@ -75,13 +75,15 @@ func NewNucDistro(it NtIterator, alphabet string) *NucDistro {
 		ret.alphabet[c] = true
 	}
 
-	ret.Count(it)
+	if it != nil {
+		ret.Count(it)
+	}
 	return &ret
 }
 
 type Count struct {
-	value	byte
-	count	int
+	value byte
+	count int
 }
 
 func (nd *NucDistro) Show() {

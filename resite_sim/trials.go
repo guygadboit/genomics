@@ -170,13 +170,15 @@ func main() {
 	}
 
 	fnames := []string{
+		"recCA",
+		/*
 		"RpYN06",
-		"BtSY2",
 		"ChimericAncestor",
 		"BANAL-20-236",
 		"BANAL-20-103",
 		"RaTG13",
 		"BANAL-20-52",
+		*/
 	}
 
 	g := loadGenomes(fnames)
