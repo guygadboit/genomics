@@ -464,13 +464,14 @@ func EarlyLineages(db *database.Database) {
 
 func EarlyReads(db *database.Database) {
 	sras := []string{
-		"ERR5729183",
-		"ERR5055362",
-		"ERR4854357",
-		"ERR4579015",
-		"ERR4686261",
-		"ERR4854068",
-		"ERR5029374",
+		"ERR4164763",
+		"ERR4451134",
+		"ERR5871724",
+		"ERR5871949",
+		"ERR5871950",
+		"ERR7736243",
+		"ERR7929175",
+		"SRR14859525",
 	}
 	interesting := utils.ToSet(sras)
 
@@ -491,14 +492,14 @@ func EarlyReads(db *database.Database) {
 		if !ok {
 			return false
 		}
-		// sras := strings.Join(r.SRA, ",")
+		sras := strings.Join(r.SRA, ",")
 
 		/*
-		fmt.Println(sras, len(r.NucleotideChanges),
-			r.GisaidAccession, r.SampleSRA, r.Country,
-			r.CollectionDate.Format(time.DateOnly))
+			fmt.Println(sras, len(r.NucleotideChanges),
+				r.GisaidAccession, r.SampleSRA, r.Country,
+				r.CollectionDate.Format(time.DateOnly))
 		*/
-		fmt.Println(r.Summary())
+		fmt.Printf("%s,%s\n", sras, r.CollectionDate.Format(time.DateOnly))
 		return true
 	})
 }
