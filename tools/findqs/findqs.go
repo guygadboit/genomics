@@ -211,9 +211,9 @@ func Compare(pu *pileup.Pileup,
 				fmt.Println(pileup.FormatRecord(rec))
 				break
 			} else if verbose {
-				fmt.Printf("%c%d%c%s depth:%d rank:%d OG:%t\n",
+				fmt.Printf("%c%d%c%s depth:%d rank:%d sig:%.2g OG:%t\n",
 					g.Nts[0][i], rec.Pos+1, read.Nt, silentS, read.Depth,
-					rank, matchesOg)
+					rank, pu.Significance(read.Depth), matchesOg)
 			}
 		}
 	}
@@ -224,15 +224,16 @@ func Compare(pu *pileup.Pileup,
 
 func main() {
 	var (
-		fasta, orfs string
-		recCAS      string
-		minDepth    int
-		minRatio    float64
-		silent      bool
-		tc          bool
-		reparse     bool
-		showReads   bool
-		quiet       bool
+		fasta, orfs    string
+		recCAS         string
+		minDepth       int
+		minRatio       float64
+		silent         bool
+		tc             bool
+		reparse        bool
+		showReads      bool
+		quiet          bool
+		outputPossible bool
 	)
 
 	flag.StringVar(&fasta, "ref", "", "Reference genome")
@@ -246,9 +247,18 @@ func main() {
 	flag.BoolVar(&showReads, "show-reads",
 		false, "Just show the reads in our pileup format")
 	flag.BoolVar(&quiet, "q", false, "Just output OR/p")
+	flag.BoolVar(&outputPossible, "op",
+		false, "Output all possible silent muts")
 	flag.Parse()
 
 	g := genomes.LoadGenomes(fasta, orfs, false)
+
+	if outputPossible {
+		iterateSilent(g, func(pos int, from, to byte) {
+			fmt.Printf("%c%d%c*\n", from, pos+1, to)
+		})
+		return
+	}
 
 	if recCAS == "" {
 		recCAS = path.Join(os.Getenv("GOPATH"),

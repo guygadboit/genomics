@@ -1,8 +1,8 @@
 package pileup
 
 import (
-	"fmt"
 	"errors"
+	"fmt"
 	"genomics/utils"
 	"slices"
 	"strings"
@@ -31,12 +31,19 @@ func (r *Record) GetDepthOf(nt byte) int {
 	return 0
 }
 
+// How many reads are there above each minimum depth?
+type DepthCounts map[int]int
+
 type Pileup struct {
 	// The index maps genome positions to positions in the reads array. It will
 	// just be 1:1 most of the time since you will have reads at every position
 	Index   map[int]int
 	Records []Record
 	MaxPos  int
+
+	// How many reads (*excluding* the rank 0 one) we have at each minimum
+	// depth. Can be used to decide how significant a minority read might be.
+	depthCounts DepthCounts
 }
 
 func (p *Pileup) Init() {
@@ -254,4 +261,26 @@ func Parse2(fname string) (*Pileup, error) {
 		return true
 	})
 	return &ret, nil
+}
+
+func (pu *Pileup) CountDepths() DepthCounts {
+	if pu.depthCounts != nil {
+		return pu.depthCounts
+	}
+	ret := make(DepthCounts)
+	for _, rec := range pu.Records {
+		for _, read := range rec.Reads[1:] {
+			for i := 0; i < read.Depth; i++ {
+				ret[i+1] += 1
+			}
+		}
+	}
+	pu.depthCounts = ret
+	return ret
+}
+
+// Small numbers are better
+func (pu *Pileup) Significance(depth int) float64 {
+	dc := pu.CountDepths()
+	return float64(dc[depth]) / float64(len(pu.Records))
 }
