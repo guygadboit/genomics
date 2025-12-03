@@ -157,12 +157,11 @@ func (o *Outgroup) IsRemarkable(numMatches, numMuts int) (float64, float64) {
 
 func Compare(pu *pileup.Pileup,
 	g *genomes.Genomes, minDepth int,
-	minRatio float64, requireSilent bool,
+	maxSig float64, requireSilent bool,
 	requireTC bool, showReads bool, verbose bool,
 	og *Outgroup) {
 
 	total, totalOGMatches := 0, 0
-	rank0Depth := 0
 
 	for i := 0; i < g.Length(); i++ {
 		rec := pu.Get(i)
@@ -170,17 +169,14 @@ func Compare(pu *pileup.Pileup,
 			continue
 		}
 		for rank, read := range rec.Reads {
-			if rank == 0 {
-				rank0Depth = read.Depth
-			}
 			if read.Nt == g.Nts[0][i] {
 				continue
 			}
 			if read.Depth < minDepth {
 				break
 			}
-			if rank > 0 && minRatio != 0.0 {
-				if float64(read.Depth)/float64(rank0Depth) < minRatio {
+			if rank > 0 && maxSig != 0.0 {
+				if pu.Significance(read.Depth) > maxSig {
 					break
 				}
 			}
@@ -227,21 +223,21 @@ func main() {
 		fasta, orfs    string
 		recCAS         string
 		minDepth       int
-		minRatio       float64
+		maxSig         float64
 		silent         bool
 		tc             bool
 		reparse        bool
 		showReads      bool
 		quiet          bool
 		outputPossible bool
-		sig				int
+		sig            int
 	)
 
 	flag.StringVar(&fasta, "ref", "", "Reference genome")
 	flag.StringVar(&recCAS, "recCA", "", "RecCA genome")
 	flag.StringVar(&orfs, "orfs", "", "Reference ORFs")
 	flag.IntVar(&minDepth, "min-depth", 4, "Minimum depth")
-	flag.Float64Var(&minRatio, "min-ratio", 0, "Minimum ratio of QS to majority")
+	flag.Float64Var(&maxSig, "max-sig", 0, "Maximum significance value")
 	flag.BoolVar(&silent, "silent", false, "Require silent")
 	flag.BoolVar(&reparse, "reparse", false, "Parse our own .txt.gz format")
 	flag.BoolVar(&tc, "tc", false, "Only look at TC")
@@ -290,6 +286,6 @@ func main() {
 			continue
 		}
 
-		Compare(pu, g, minDepth, minRatio, silent, tc, showReads, !quiet, &og)
+		Compare(pu, g, minDepth, maxSig, silent, tc, showReads, !quiet, &og)
 	}
 }
