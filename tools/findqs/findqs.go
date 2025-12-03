@@ -234,6 +234,7 @@ func main() {
 		showReads      bool
 		quiet          bool
 		outputPossible bool
+		sig				int
 	)
 
 	flag.StringVar(&fasta, "ref", "", "Reference genome")
@@ -249,6 +250,7 @@ func main() {
 	flag.BoolVar(&quiet, "q", false, "Just output OR/p")
 	flag.BoolVar(&outputPossible, "op",
 		false, "Output all possible silent muts")
+	flag.IntVar(&sig, "sig", -1, "Just show significance of a given depth")
 	flag.Parse()
 
 	g := genomes.LoadGenomes(fasta, orfs, false)
@@ -281,6 +283,13 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
+
+		if sig != -1 {
+			dc := pu.CountDepths()
+			fmt.Printf("%d: %d %.2g\n", sig, dc[sig], pu.Significance(sig))
+			continue
+		}
+
 		Compare(pu, g, minDepth, minRatio, silent, tc, showReads, !quiet, &og)
 	}
 }
