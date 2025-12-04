@@ -148,18 +148,20 @@ func (o *Outgroup) Matches(pos int, nt byte) bool {
 	return o.recCA.Nts[0][pos] == nt
 }
 
-func (o *Outgroup) IsRemarkable(numMatches, numMuts int) (float64, float64) {
+/* You usually want stats.GREATER for alt */
+func (o *Outgroup) IsRemarkable(numMatches,
+	numMuts int, alt stats.FisherAlternative) (float64, float64) {
 	var ct stats.ContingencyTable
 	ct.Init(numMatches, numMuts-numMatches,
 		o.totalOGMatches, o.totalSilentMuts-o.totalOGMatches)
-	return ct.FisherExact(stats.GREATER)
+	return ct.FisherExact(alt)
 }
 
 func Compare(pu *pileup.Pileup,
 	g *genomes.Genomes, minDepth int,
 	maxSig float64, requireSilent bool,
 	requireTC bool, showReads bool, verbose bool,
-	og *Outgroup) {
+	og *Outgroup, alt stats.FisherAlternative) {
 
 	total, totalOGMatches := 0, 0
 
@@ -214,7 +216,7 @@ func Compare(pu *pileup.Pileup,
 		}
 	}
 	fmt.Printf("%d/%d are OG matches ", totalOGMatches, total)
-	OR, p := og.IsRemarkable(totalOGMatches, total)
+	OR, p := og.IsRemarkable(totalOGMatches, total, alt)
 	fmt.Printf("OR=%.2f p=%.5g\n", OR, p)
 }
 
@@ -231,6 +233,7 @@ func main() {
 		quiet          bool
 		outputPossible bool
 		sig            int
+		fewer          bool
 	)
 
 	flag.StringVar(&fasta, "ref", "", "Reference genome")
@@ -246,6 +249,8 @@ func main() {
 	flag.BoolVar(&quiet, "q", false, "Just output OR/p")
 	flag.BoolVar(&outputPossible, "op",
 		false, "Output all possible silent muts")
+	flag.BoolVar(&fewer, "fewer",
+		false, "Look for reads that match the OG *less* not more.")
 	flag.IntVar(&sig, "sig", -1, "Just show significance of a given depth")
 	flag.Parse()
 
@@ -286,6 +291,12 @@ func main() {
 			continue
 		}
 
-		Compare(pu, g, minDepth, maxSig, silent, tc, showReads, !quiet, &og)
+		alt := stats.GREATER
+		if fewer {
+			alt = stats.LESS
+		}
+
+		Compare(pu, g, minDepth, maxSig,
+			silent, tc, showReads, !quiet, &og, alt)
 	}
 }
