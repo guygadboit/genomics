@@ -5,12 +5,15 @@ import (
 	"fmt"
 	"genomics/database"
 	"genomics/utils"
+	"time"
 )
 
 func main() {
-	db := database.NewDatabase()
+	var withDates bool
 
+	flag.BoolVar(&withDates, "d", false, "output the dates as well")
 	flag.Parse()
+	db := database.NewDatabase()
 
 	// Given a list of EPI_ISL numbers print out the SRAs for any we can find
 	for _, fname := range flag.Args() {
@@ -19,7 +22,12 @@ func main() {
 			for _, id := range ids {
 				record := db.Get(id)
 				for _, sra := range record.SRA {
-					fmt.Println(sra)
+					if withDates {
+						fmt.Printf("%s,%s\n", sra, record.CollectionDate.Format(
+							time.DateOnly))
+					} else {
+						fmt.Println(sra)
+					}
 				}
 			}
 			return true
