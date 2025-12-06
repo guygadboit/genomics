@@ -6,6 +6,7 @@ import (
 	"genomics/genomes"
 	"genomics/mutations"
 	"log"
+	"math/rand"
 	"os"
 	"reflect"
 )
@@ -172,4 +173,56 @@ func (p *PosInfo) ShowSites(g *genomes.Genomes) {
 			}
 		}
 	}
+}
+
+// Redistribute the silent mutations randomly according to position. Do this in
+// all the genomes.
+func Redistribute(g *genomes.Genomes, possible *PossibleMap) *genomes.Genomes {
+	ret := g.Clone()
+
+	if possible.Window != 1 {
+		log.Fatal("Can't do this with non-1 based possible maps")
+	}
+
+	for i := 1; i < ret.NumGenomes(); i++ {
+		g2 := ret.Filter(0, i)
+		numSilent, _ := mutations.CountMutations(g2)
+		fmt.Printf("There are %d silent muts\n", numSilent)
+
+		positions := make([]int, 0, len(possible.Mutations))
+		for k, _ := range possible.Mutations {
+			positions = append(positions, k)
+		}
+
+		// They're in a fairly random order anyway (because map keys) but
+		// shuffle them again to be sure.
+		rand.Shuffle(len(positions), func(i, j int) {
+			positions[i], positions[j] = positions[j], positions[i]
+		})
+
+		// Set the i'th genome to a copy of the 0th, ready to apply the random
+		// mutations.
+		ret.Nts[i] = ret.Nts[0]
+		ret.DeepCopy(i)
+
+		mutsToApply := numSilent
+		for j := 0; j < len(positions); j++ {
+			muts := possible.Mutations[positions[j]]
+			k := rand.Intn(len(muts))
+			mut := muts[k]
+			ret.Nts[i][mut.Pos] = mut.To[0]
+			mutsToApply--
+			if mutsToApply == 0 {
+				break
+			}
+		}
+
+		if mutsToApply != 0 {
+			// This is pretty unlikely
+			fmt.Printf("Wasn't able to apply all of them. %d left\n",
+				mutsToApply)
+		}
+	}
+
+	return ret
 }
