@@ -164,6 +164,7 @@ func Compare(pu *pileup.Pileup,
 	og *Outgroup, alt stats.FisherAlternative) {
 
 	total, totalOGMatches := 0, 0
+	var rank0Depth float64
 
 	for i := 0; i < g.Length(); i++ {
 		rec := pu.Get(i)
@@ -171,6 +172,9 @@ func Compare(pu *pileup.Pileup,
 			continue
 		}
 		for rank, read := range rec.Reads {
+			if rank == 0 {
+				rank0Depth = float64(read.Depth)
+			}
 			if read.Nt == g.Nts[0][i] {
 				continue
 			}
@@ -209,9 +213,11 @@ func Compare(pu *pileup.Pileup,
 				fmt.Println(pileup.FormatRecord(rec))
 				break
 			} else if verbose {
-				fmt.Printf("%c%d%c%s depth:%d rank:%d sig:%.2g OG:%t\n",
+				ratio := float64(read.Depth)/rank0Depth
+				fmt.Printf("%c%d%c%s depth:%d rank:%d sig:%.2g "+
+					"ratio:%.2g OG:%t\n",
 					g.Nts[0][i], rec.Pos+1, read.Nt, silentS, read.Depth,
-					rank, pu.Significance(read.Depth), matchesOg)
+					rank, pu.Significance(read.Depth), ratio, matchesOg)
 			}
 		}
 	}
