@@ -506,6 +506,27 @@ func (g *Genomes) RemoveGaps() int {
 }
 
 /*
+Wherever genomes other than the 0th have a nucleotide missing (whether - or N),
+just fill that in from the 0th. Useful when doing PCA on very sketchy
+assemblies because it means ignore anything you don't have data about in a
+consistent way.
+*/
+func (g *Genomes) FillGaps() {
+	nts := g.Nts
+
+	for i := 1; i < g.NumGenomes(); i++ {
+		for j := 0; j < g.Length(); j++ {
+			switch nts[i][j] {
+			case '-':
+				fallthrough
+			case 'N':
+				nts[i][j] = nts[0][j]
+			}
+		}
+	}
+}
+
+/*
 Just remove all gaps from each genome thus breaking the alignment. Returns an
 array of split genomes.
 */

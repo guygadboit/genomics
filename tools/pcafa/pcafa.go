@@ -207,7 +207,7 @@ func makeLabels(g *genomes.Genomes,
 	}
 
 	labels := make([]Label, 1)
-	labels[0] = Label{name, start, start+nGenomes}
+	labels[0] = Label{name, start, start + nGenomes}
 
 	return rowLabels, labels
 }
@@ -539,6 +539,7 @@ func main() {
 		outName   string
 		hass      bool
 		spikeOnly bool
+		fill      bool
 
 		sepKeys     SeparateKeys
 		exclude     string
@@ -554,6 +555,7 @@ func main() {
 	flag.StringVar(&outName, "o", "output.dat", "Output file")
 	flag.BoolVar(&hass, "hass", false, "Include Hassanin data")
 	flag.BoolVar(&spikeOnly, "spike", false, "Spike Only")
+	flag.BoolVar(&fill, "fill", false, "Fill gaps from reference")
 	flag.StringVar(&analysisS, "mode", "nt", "deg|prot|nt|snt")
 	flag.Var(&sepKeys, "separate", "Strings to separate on (e.g. 'Pangolin')")
 	flag.StringVar(&sepIndicesS, "sepint", "", "Indices to separate")
@@ -607,7 +609,12 @@ func main() {
 
 	for _, s := range sources {
 		g := genomes.LoadGenomes(s.fasta, s.orfs, false)
-		g.RemoveGaps()
+		g.RemoveGaps() // that's in the first one
+
+		if fill {
+			g.FillGaps() // that's in the others
+		}
+
 		if spikeOnly {
 			S, err := g.Orfs.Find("S")
 			if err == nil {
