@@ -652,8 +652,38 @@ func InterestingDeletions(db *database.Database) {
 	})
 }
 
+func MutCounts(db *database.Database) {
+	counts := make(map[int]int)
+	db.Filter(nil, func(r *database.Record) bool {
+		/*
+		for _, c := range r.NucleotideChanges {
+			fmt.Println(c.ToString())
+		}
+		*/
+		counts[len(r.NucleotideChanges)]++
+		return true
+	})
+
+	type result struct {
+		k, v int
+	}
+	results := make([]result, 0, len(counts))
+	for k, v := range counts {
+		results = append(results, result{k, v})
+	}
+	utils.SortByKey(results, false, func(r result) int {
+		return r.v
+	})
+	for _, r := range results {
+		fmt.Printf("%d %d\n", r.k, r.v)
+	}
+}
+
 func main() {
 	db := database.NewDatabase()
+	MutCounts(db)
+	return
+
 	EarlyReads(db)
 	// NonHuman(db)
 	// EarlyLineages(db)
