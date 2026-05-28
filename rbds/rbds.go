@@ -45,11 +45,19 @@ func PrintComparisons(c []Comparison, g *genomes.Genomes, caption string) {
 func PrintNtComparisons(c []NtComparison,
 	g *genomes.Genomes, caption string) NtComparison {
 	slices.SortFunc(c, func(a, b NtComparison) int {
-		ar, br := a.SNRatio(), b.SNRatio()
-		if ar < br {
+		/*
+			ar, br := a.SNRatio(), b.SNRatio()
+			if ar < br {
+				return 1
+			}
+			if ar > br {
+				return -1
+			}
+		*/
+		if a.similarity < b.similarity {
 			return 1
 		}
-		if ar > br {
+		if a.similarity > b.similarity {
 			return -1
 		}
 		return 0
@@ -168,17 +176,15 @@ func main() {
 	// rbd := []utils.OneBasedPos{333, 679}
 	rbm := []utils.OneBasedPos{438, 506}
 
-	Compare(g.Clone(), 0, SPIKE_START, rbd[0], rbd[1], true)
-	return
-
 	for ref := 0; ref < g.NumGenomes(); ref++ {
 		fmt.Println("RBD")
 		Compare(g.Clone(), ref, SPIKE_START, rbd[0], rbd[1], true)
 
-		/*
-			fmt.Println("RBM")
-			Compare(g.Clone(), ref, SPIKE_START, rbm[0], rbm[1], false)
-		*/
+		fmt.Println("RBM")
+		Compare(g.Clone(), ref, SPIKE_START, rbm[0], rbm[1], true)
+
+		// Just look at the closest to SC2
+		break
 	}
 
 	return
