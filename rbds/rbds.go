@@ -45,21 +45,21 @@ func PrintComparisons(c []Comparison, g *genomes.Genomes, caption string) {
 func PrintNtComparisons(c []NtComparison,
 	g *genomes.Genomes, caption string) NtComparison {
 	slices.SortFunc(c, func(a, b NtComparison) int {
+		ar, br := a.SNRatio(), b.SNRatio()
+		if ar < br {
+			return 1
+		}
+		if ar > br {
+			return -1
+		}
 		/*
-			ar, br := a.SNRatio(), b.SNRatio()
-			if ar < br {
+			if a.similarity < b.similarity {
 				return 1
 			}
-			if ar > br {
+			if a.similarity > b.similarity {
 				return -1
 			}
 		*/
-		if a.similarity < b.similarity {
-			return 1
-		}
-		if a.similarity > b.similarity {
-			return -1
-		}
 		return 0
 	})
 	for _, c := range c {
@@ -130,7 +130,8 @@ func Compare(g *genomes.Genomes, ref int, orfStart utils.OneBasedPos,
 	}
 	highest := PrintNtComparisons(ntComparisons, g, "Nucleotide")
 	fmt.Printf("%.4f\t%d\t%d\t%s vs %s G\n",
-		highest.SNRatio(), highest.S, highest.N, g.Names[ref], g.Names[highest.index])
+		highest.SNRatio(), highest.S, highest.N,
+		g.Names[ref], g.Names[highest.index])
 }
 
 func swap() {
@@ -177,14 +178,16 @@ func main() {
 	rbm := []utils.OneBasedPos{438, 506}
 
 	for ref := 0; ref < g.NumGenomes(); ref++ {
-		fmt.Println("RBD")
-		Compare(g.Clone(), ref, SPIKE_START, rbd[0], rbd[1], true)
+		/*
+			fmt.Println("RBD")
+			Compare(g.Clone(), ref, SPIKE_START, rbd[0], rbd[1], false)
+		*/
 
 		fmt.Println("RBM")
-		Compare(g.Clone(), ref, SPIKE_START, rbm[0], rbm[1], true)
+		Compare(g.Clone(), ref, SPIKE_START, rbm[0], rbm[1], false)
 
 		// Just look at the closest to SC2
-		break
+		// break
 	}
 
 	return
