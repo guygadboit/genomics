@@ -656,9 +656,9 @@ func MutCounts(db *database.Database) {
 	counts := make(map[int]int)
 	db.Filter(nil, func(r *database.Record) bool {
 		/*
-		for _, c := range r.NucleotideChanges {
-			fmt.Println(c.ToString())
-		}
+			for _, c := range r.NucleotideChanges {
+				fmt.Println(c.ToString())
+			}
 		*/
 		counts[len(r.NucleotideChanges)]++
 		return true
@@ -679,11 +679,36 @@ func MutCounts(db *database.Database) {
 	}
 }
 
+func UnmutatedRDBs(db *database.Database) {
+	const spikeStart utils.OneBasedPos = 21563
+	var have, dontHave int
+
+	db.Filter(nil, func(r *database.Record) bool {
+		if r.Host != "Human" {
+			return false
+		}
+		for _, mut := range r.NucleotideChanges {
+			if mut.Pos >= spikeStart+319*3 && mut.Pos < spikeStart+541*3 {
+				have++
+				return false
+			}
+		}
+		fmt.Println(r.Summary())
+		dontHave++
+		return false
+	})
+
+	total := have + dontHave
+	fmt.Printf("%d/%d %.2f%% don't have any RBD mutations\n",
+		dontHave, total, float64(dontHave*100)/float64(total))
+}
+
 func main() {
 	db := database.NewDatabase()
-	MutCounts(db)
+	UnmutatedRDBs(db)
 	return
 
+	MutCounts(db)
 	EarlyReads(db)
 	// NonHuman(db)
 	// EarlyLineages(db)
