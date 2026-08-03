@@ -682,11 +682,20 @@ func MutCounts(db *database.Database) {
 func UnmutatedRDBs(db *database.Database) {
 	const spikeStart utils.OneBasedPos = 21563
 	var have, dontHave int
+	pat := "ERR4164"
 
 	db.Filter(nil, func(r *database.Record) bool {
 		if r.Host != "Human" {
 			return false
 		}
+
+		sras := r.SRAs()
+		ok := len(sras) > len(pat) && sras[0:len(pat)] == pat
+
+		if !ok {
+			return false
+		}
+
 		for _, mut := range r.NucleotideChanges {
 			if mut.Pos >= spikeStart+319*3 && mut.Pos < spikeStart+541*3 {
 				have++
