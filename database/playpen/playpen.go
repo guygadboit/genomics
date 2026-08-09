@@ -712,11 +712,36 @@ func UnmutatedRDBs(db *database.Database) {
 		dontHave, total, float64(dontHave*100)/float64(total))
 }
 
+func LostFCS(db *database.Database) {
+	muts := database.AAMutations{
+		database.AAMutation{database.Mutation{
+			682, 'R', 'W', utils.NON_SILENT}, "S"},
+	}
+	matches := db.SearchByAAMut(muts, 1)
+	for _, m := range matches {
+		r := db.Get(m.Id)
+		if r.Country != "India" {
+			continue
+		}
+		fmt.Println(r.Summary())
+		/*
+			fmt.Printf("%s %s %s %s %s %s\n",
+				r.GisaidAccession,
+				r.SRAs(),
+				r.CollectionDate.Format(time.DateOnly),
+				r.Country,
+				r.Region,
+				r.City)
+		*/
+	}
+}
+
 func main() {
 	db := database.NewDatabase()
-	UnmutatedRDBs(db)
+	LostFCS(db)
 	return
 
+	UnmutatedRDBs(db)
 	MutCounts(db)
 	EarlyReads(db)
 	// NonHuman(db)
