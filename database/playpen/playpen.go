@@ -736,10 +736,28 @@ func LostFCS(db *database.Database) {
 	}
 }
 
+func CountDeletions(db *database.Database) {
+	var deletions, mutations, total int
+	db.Filter(nil, func(r *database.Record) bool {
+		if len(r.Deletions) > 0 {
+			deletions++
+		}
+		if len(r.AAChanges) > 0 {
+			mutations++
+		}
+		total++
+		return true
+	})
+	fmt.Printf("%d have deletions, %d have muts out of %d\n",
+		deletions, mutations, total)
+}
+
 func main() {
 	db := database.NewDatabase()
-	LostFCS(db)
+	CountDeletions(db)
 	return
+
+	LostFCS(db)
 
 	UnmutatedRDBs(db)
 	MutCounts(db)
