@@ -114,7 +114,7 @@ func GetSources(class Classification) []Source {
 			"Porphyromonas", "AActinom", "TForsyth",
 			"Treponema", "BactFragilis",
 		*/
-		"AVisc", "ANaesl", "AIsrael",
+		"AVisc", "ANaesl", "AIsrael", "PA", "Mycoplasma",
 		"Treponema", "AActinom", "TForsyth", "Porphyromonas",
 	}
 

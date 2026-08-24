@@ -332,7 +332,8 @@ func Search(ins *Insertion, index string, cb func(*Insertion, int, bool)) {
 	}
 }
 
-func findInVirus(insertions []Insertion, minLength, maxLength int) {
+func findInVirus(insertions []Insertion, virusName string,
+	minLength, maxLength int) {
 	reportFound := func(ins *Insertion) {
 		ins.InWH1 = true
 	}
@@ -351,14 +352,15 @@ func findInVirus(insertions []Insertion, minLength, maxLength int) {
 		}
 		count++
 
-		Search(ins, "/fs/f/genomes/viruses/SARS2/index", func(ins *Insertion,
+		path := fmt.Sprintf("/fs/f/genomes/viruses/%s/index", virusName)
+		Search(ins, path, func(ins *Insertion,
 			pos int, forwards bool) {
 			reportFound(ins)
 			found++
 		})
 	}
 
-	fmt.Printf("Min length %d: %d (/%d) were found in SARS-CoV-2\n", minLength,
+	fmt.Printf("Min length %d: %d (/%d) were found in the virus\n", minLength,
 		found, count)
 }
 
@@ -725,11 +727,9 @@ func OutputFasta(fname string, insertions []Insertion,
 	cb := func(ins *Insertion) {
 		genomes.Nts = append(genomes.Nts, ins.Nts)
 		name := fmt.Sprintf("ins_%d_%d", ins.Pos, ins.Id)
-		/*
 		if ins.InWH1 {
 			name += "_from_self"
 		}
-		*/
 		genomes.Names = append(genomes.Names, name)
 	}
 
@@ -987,8 +987,9 @@ func CountPattern(sources []Source, pattern []byte) {
 	fmt.Printf("Wrote %s\n", fname)
 }
 
-func CountAndSave(id *InsertionData) {
-	id.Find("insertions2.txt", 6, 1)
+func CountAndSave(id *InsertionData, fname, virusName string) {
+	fmt.Printf("Loading from %s\n", fname)
+	id.Find(fname, 6, 1)
 
 	insertions := id.Insertions
 	utils.LegacySort(len(insertions), true,
@@ -1000,7 +1001,7 @@ func CountAndSave(id *InsertionData) {
 			return float64(len(insertions[i].Nts))
 		})
 
-	findInVirus(id.Insertions, 12, 200)
+	findInVirus(id.Insertions, virusName, 12, 200)
 
 	/*
 		filters := []filterFunc{
@@ -1029,7 +1030,7 @@ func AddSource(data *InsertionData,
 	}
 
 	if len(sources) == 0 {
-		log.Fatal("Can't find %s\n", name)
+		log.Fatalf("Can't find %s\n", name)
 	}
 
 	filters := []filterFunc{
@@ -1140,7 +1141,8 @@ func ShowCGGInsertions(id *InsertionData) {
 	total := 0
 	for _, ins := range id.Insertions {
 		if strings.Contains(string(ins.Nts), "CGGCGG") {
-			fmt.Printf("%d %s\n", len(ins.Nts), ins.ToString())
+			fmt.Printf("%d %d %s (in WH1: %t)\n",
+				ins.Id, len(ins.Nts), ins.ToString(), ins.InWH1)
 		}
 		if len(ins.Nts) == 12 {
 			total++
@@ -1176,6 +1178,8 @@ func main() {
 		iterations           int
 		outputFasta          bool
 		tol                  float64
+		virusName            string
+		fname                string
 	)
 
 	flag.BoolVar(&countCGG, "cgg", false, "Count CGGCGG")
@@ -1199,12 +1203,15 @@ func main() {
 	flag.BoolVar(&outputFasta,
 		"output-fasta", false, "Output a fasta file")
 	flag.Float64Var(&tol, "tol", 0.0, "Tolerance")
+	flag.StringVar(&virusName, "virus",
+		"SARS2", "The virus we're talking about")
+	flag.StringVar(&fname, "fname", "insertions2.txt", "filename to use")
 	flag.Parse()
 
 	if _, err := os.Stat("insertions2.gob"); err == nil {
 		data.Load("insertions2.gob")
 	} else {
-		CountAndSave(&data)
+		CountAndSave(&data, fname, virusName)
 	}
 
 	if outputName != "" {
@@ -1238,11 +1245,12 @@ func main() {
 		filters := []filterFunc{
 			makeMinLengthFilter(12),
 			makeMaxLengthFilter(24),
-			makeMinSeqsFilter(2),
-			makeMinStrictNumHereFilter(1),
+			//makeMinSeqsFilter(2),
+			//makeMinStrictNumHereFilter(1),
 			makeSillyFilter(),
 			makeCodonAlignFilter(),
 			makePositionFilter(0, 29870),
+			makeFlagFilter(EXCLUDE_WH1),
 		}
 		OutputFasta("../fasta/SplitInsertions.fasta",
 			data.Insertions, filters, false)
