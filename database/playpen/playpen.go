@@ -754,11 +754,10 @@ func CountDeletions(db *database.Database) {
 
 func main() {
 	db := database.NewDatabase()
-	CountDeletions(db)
+	LostFCS(db)
 	return
 
-	LostFCS(db)
-
+	CountDeletions(db)
 	UnmutatedRDBs(db)
 	MutCounts(db)
 	EarlyReads(db)

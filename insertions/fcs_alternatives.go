@@ -29,7 +29,7 @@ func CheckAlternatives() {
 	insertions := make([]Insertion, 0)
 
 	for i, alt := range alternatives {
-		ins := Insertion{i+1, 23601,
+		ins := Insertion{i + 1, 23601,
 			alt.Nts, 2, false, false,
 			0, UNKNOWN, false, 50, 50, nil,
 		}

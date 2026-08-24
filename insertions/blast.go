@@ -19,7 +19,8 @@ func BlastInsertions(insertions []Insertion, genome string) []BlastResult {
 	ret := make([]BlastResult, 0)
 
 	for _, ins := range insertions {
-		results := stats.Blast(bc, genome, ins.Nts, 1, 1, stats.NOT_VERBOSE)
+		results, _ := stats.Blast(bc, genome,
+			ins.Nts, 1, 1, "", stats.NOT_VERBOSE)
 		switch len(results) {
 		case 0:
 			continue

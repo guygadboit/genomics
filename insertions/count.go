@@ -244,8 +244,8 @@ func CountInGenomes(wh1 *genomes.Genomes,
 
 					var blastResult stats.BlastResult
 					if actions&BLAST != 0 {
-						results := stats.Blast(bc, source.Path,
-							ins.Nts, 1, 1, stats.NOT_VERBOSE)
+						results, _ := stats.Blast(bc, source.Path,
+							ins.Nts, 1, 1, "", stats.NOT_VERBOSE)
 						if len(results) != 1 {
 							continue
 						}
@@ -383,7 +383,8 @@ func GetFullMatch(source *Source, ins *Insertion,
 		source.Genome.Nts[0][pos+n:pos+n+forwards])
 
 	if doBlast {
-		results := stats.Blast(bc, source.Path, match, 1, 1, stats.NOT_VERBOSE)
+		results, _ := stats.Blast(bc, source.Path,
+			match, 1, 1, "", stats.NOT_VERBOSE)
 		if len(results) == 1 {
 			if !matchIsForwards {
 				match = utils.ReverseComplement(match)

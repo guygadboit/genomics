@@ -908,8 +908,8 @@ loop:
 
 func testBlast() {
 	bc := stats.BlastDefaultConfig()
-	results := stats.Blast(bc, "bacteria/Treponema",
-		[]byte("GCGGTGGAGCATGGGGTTTAATTCG"), 1e-4, 1, stats.VERBOSE)
+	results, _ := stats.Blast(bc, "bacteria/Treponema",
+		[]byte("GCGGTGGAGCATGGGGTTTAATTCG"), 1e-4, 1, "", stats.VERBOSE)
 	fmt.Println(results)
 }
 
@@ -986,7 +986,7 @@ func CountAndSave(id *InsertionData) {
 	id.Find("insertions2.txt", 6, 1)
 
 	insertions := id.Insertions
-	utils.Sort(len(insertions), true,
+	utils.LegacySort(len(insertions), true,
 		func(i, j int) {
 			insertions[i], insertions[j] = insertions[j], insertions[i]
 		},
@@ -1053,8 +1053,8 @@ func BlastFCS(sources []Source) {
 		for rightMargin := 0; rightMargin < 20; rightMargin++ {
 			blastPat := pattern[fcs-leftMargin : fcs+fcsLen+rightMargin]
 			for _, source := range sources {
-				results := stats.Blast(bc, source.Path,
-					blastPat, 1, 1, stats.NOT_VERBOSE)
+				results, _ := stats.Blast(bc, source.Path,
+					blastPat, 1, 1, "", stats.NOT_VERBOSE)
 				if len(results) == 1 {
 					fmt.Printf("%s %d %s %d len=%d %g\n", source.Name,
 						leftMargin,
@@ -1170,7 +1170,7 @@ func main() {
 		randomize            bool
 		iterations           int
 		outputFasta          bool
-		tol					float64
+		tol                  float64
 	)
 
 	flag.BoolVar(&countCGG, "cgg", false, "Count CGGCGG")
@@ -1229,21 +1229,21 @@ func main() {
 		return
 	}
 
-    if outputFasta {
-        filters := []filterFunc{
-            makeMinLengthFilter(12),
-            makeMaxLengthFilter(24),
-            makeMinSeqsFilter(1),
-            makeMinStrictNumHereFilter(1),
-            makeSillyFilter(),
-            makeCodonAlignFilter(),
-            makePositionFilter(0, 29870),
-        }
-        OutputFasta("../fasta/SplitInsertions.fasta",
+	if outputFasta {
+		filters := []filterFunc{
+			makeMinLengthFilter(12),
+			makeMaxLengthFilter(24),
+			makeMinSeqsFilter(1),
+			makeMinStrictNumHereFilter(1),
+			makeSillyFilter(),
+			makeCodonAlignFilter(),
+			makePositionFilter(0, 29870),
+		}
+		OutputFasta("../fasta/SplitInsertions.fasta",
 			data.Insertions, filters, false)
-        OutputCombinedFasta("../fasta/CombinedInsertions.fasta",
+		OutputCombinedFasta("../fasta/CombinedInsertions.fasta",
 			"Insertions", data.Insertions, filters, false)
-    }
+	}
 
 	/*
 		findInVirus(data.Insertions, 12, 200)
