@@ -725,6 +725,11 @@ func OutputFasta(fname string, insertions []Insertion,
 	cb := func(ins *Insertion) {
 		genomes.Nts = append(genomes.Nts, ins.Nts)
 		name := fmt.Sprintf("ins_%d_%d", ins.Pos, ins.Id)
+		/*
+		if ins.InWH1 {
+			name += "_from_self"
+		}
+		*/
 		genomes.Names = append(genomes.Names, name)
 	}
 
@@ -1233,7 +1238,7 @@ func main() {
 		filters := []filterFunc{
 			makeMinLengthFilter(12),
 			makeMaxLengthFilter(24),
-			makeMinSeqsFilter(1),
+			makeMinSeqsFilter(2),
 			makeMinStrictNumHereFilter(1),
 			makeSillyFilter(),
 			makeCodonAlignFilter(),
