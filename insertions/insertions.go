@@ -1180,6 +1180,7 @@ func main() {
 		tol                  float64
 		virusName            string
 		fname                string
+		gisaid               bool
 	)
 
 	flag.BoolVar(&countCGG, "cgg", false, "Count CGGCGG")
@@ -1206,6 +1207,7 @@ func main() {
 	flag.StringVar(&virusName, "virus",
 		"SARS2", "The virus we're talking about")
 	flag.StringVar(&fname, "fname", "insertions2.txt", "filename to use")
+	flag.BoolVar(&gisaid, "gisaid", true, "This is GISAID data")
 	flag.Parse()
 
 	if _, err := os.Stat("insertions2.gob"); err == nil {
@@ -1245,12 +1247,17 @@ func main() {
 		filters := []filterFunc{
 			makeMinLengthFilter(12),
 			makeMaxLengthFilter(24),
-			//makeMinSeqsFilter(2),
-			//makeMinStrictNumHereFilter(1),
 			makeSillyFilter(),
 			makeCodonAlignFilter(),
 			makePositionFilter(0, 29870),
 			makeFlagFilter(EXCLUDE_WH1),
+		}
+		if gisaid {
+			filters = append(filters,
+				[]filterFunc{
+					makeMinSeqsFilter(2),
+					makeMinStrictNumHereFilter(1),
+				}...)
 		}
 		OutputFasta("../fasta/SplitInsertions.fasta",
 			data.Insertions, filters, false)
