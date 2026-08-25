@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"genomics/stats"
+	"genomics/utils"
 	"log"
 	"slices"
 )
@@ -52,7 +53,7 @@ func ProkBlast(insertions []Insertion, filters []filterFunc) []BlastResult {
 		fmt.Printf("%s: %dnts\n", ins.ToString(), len(ins.Nts))
 		results, err := stats.Blast(bc,
 			"/fs/f/genomes/blast/prok/ref_prok_rep_genomes",
-			ins.Nts, 10, 10, "", stats.VERBOSE)
+			ins.Nts, 10, 10, "", stats.NOT_VERBOSE)
 		if err != nil {
 			log.Print(err)
 			return
@@ -71,5 +72,21 @@ func showResults(results []BlastResult) {
 	for _, r := range results {
 		organisms[r.Organism]++
 		fmt.Printf("%d %s %d %f\n", r.id, r.Organism, r.Length, r.E)
+	}
+
+	type count struct {
+		key   string
+		value int
+	}
+	counts := make([]count, 0, len(results))
+
+	for k, v := range organisms {
+		counts = append(counts, count{k, v})
+	}
+	utils.SortByKey(counts, true, func(c count) int {
+		return c.value
+	})
+	for _, c := range counts {
+		fmt.Printf("%s: %d\n", c.key, c.value)
 	}
 }

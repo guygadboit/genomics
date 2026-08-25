@@ -9,7 +9,7 @@ def main():
 
 	for i in [7653, 19792, 20968, 2936, 10475]:
 		datum = data[i]
-# 		print(mappings[datum["read_id"]])
+		print(mappings[datum["read_id"]])
 		print(i, datum["insert_sequence"], len(datum["insert_sequence"]))
 
 
