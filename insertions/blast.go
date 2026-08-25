@@ -44,3 +44,32 @@ func BlastInsertions(insertions []Insertion, genome string) []BlastResult {
 
 	return ret
 }
+
+func ProkBlast(insertions []Insertion, filters []filterFunc) []BlastResult {
+	ret := make([]BlastResult, 0)
+	bc := stats.BlastDefaultConfig()
+	filterInsertions(insertions, filters, func(ins *Insertion) {
+		fmt.Printf("%s: %dnts\n", ins.ToString(), len(ins.Nts))
+		results, err := stats.Blast(bc,
+			"/fs/f/genomes/blast/prok/ref_prok_rep_genomes",
+			ins.Nts, 10, 10, "", stats.VERBOSE)
+		if err != nil {
+			log.Print(err)
+			return
+		}
+		for _, r := range results {
+			fmt.Println(ins.Id, r.E, r.Organism)
+			ret = append(ret, BlastResult{r, ins.Id})
+		}
+
+	}, false)
+	return ret
+}
+
+func showResults(results []BlastResult) {
+	organisms := make(map[string]int)
+	for _, r := range results {
+		organisms[r.Organism]++
+		fmt.Printf("%d %s %d %f\n", r.id, r.Organism, r.Length, r.E)
+	}
+}

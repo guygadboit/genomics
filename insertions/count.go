@@ -116,6 +116,7 @@ func GetSources(class Classification) []Source {
 		*/
 		"AVisc", "ANaesl", "AIsrael", "PA", "Mycoplasma",
 		"Treponema", "AActinom", "TForsyth", "Porphyromonas",
+		"StrepGris",
 	}
 
 	bacteria := make([]Source, len(bacNames))

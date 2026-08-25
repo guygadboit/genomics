@@ -89,7 +89,7 @@ commands out and don't delete the temporary files.
 remote should be "nt" for nucleotides, "nr" for protein (I think) and
 whatever else they provide (idk), or "" if you want to do a local search.
 
-taxid might be something like "10239" for Viruses
+taxid might be something like "10239" for Viruses, or "2" for bacteria
 */
 func Blast(c *BlastConfig, genome string,
 	query []byte, maxE float64, maxHSP int,
@@ -106,11 +106,16 @@ func Blast(c *BlastConfig, genome string,
 	if remote != "" {
 		args = append(args, "-remote", fmt.Sprintf("-db=%s", remote))
 	} else {
-		args = append(args, fmt.Sprintf("-db=%s",
-			path.Join(c.Prefix, genome, c.Suffix)))
+		var db string
+		if len(genome) > 0 && genome[0] != '/' {
+			db = path.Join(c.Prefix, genome, c.Suffix)
+		} else {
+			db = genome
+		}
+		args = append(args, fmt.Sprintf("-db=%s", db))
 	}
 
-	if len(query) < 50 {
+	if len(query) < 30 {
 		args = append(args, "-task=blastn-short")
 	}
 

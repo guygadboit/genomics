@@ -1035,7 +1035,7 @@ func AddSource(data *InsertionData,
 
 	filters := []filterFunc{
 		makeMinLengthFilter(12),
-		makeMaxLengthFilter(24),
+		makeMaxLengthFilter(40),
 		makePositionFilter(0, 29870),
 		makeSillyFilter(),
 		makeCodonAlignFilter(),
@@ -1162,6 +1162,25 @@ func CGGMC(its int) {
 	fmt.Printf("%d/%d = %f\n", success, its, float64(success)/float64(its))
 }
 
+func makeFilters(gisaid bool) []filterFunc {
+	filters := []filterFunc{
+		makeMinLengthFilter(12),
+		makeMaxLengthFilter(24),
+		makeSillyFilter(),
+		makeCodonAlignFilter(),
+		makePositionFilter(0, 29870),
+		makeFlagFilter(EXCLUDE_WH1),
+	}
+	if gisaid {
+		filters = append(filters,
+			[]filterFunc{
+				makeMinSeqsFilter(2),
+				makeMinStrictNumHereFilter(1),
+			}...)
+	}
+	return filters
+}
+
 func main() {
 	var (
 		data                 InsertionData
@@ -1181,6 +1200,7 @@ func main() {
 		virusName            string
 		fname                string
 		gisaid               bool
+		prokBlast            bool
 	)
 
 	flag.BoolVar(&countCGG, "cgg", false, "Count CGGCGG")
@@ -1208,6 +1228,7 @@ func main() {
 		"SARS2", "The virus we're talking about")
 	flag.StringVar(&fname, "fname", "insertions2.txt", "filename to use")
 	flag.BoolVar(&gisaid, "gisaid", true, "This is GISAID data")
+	flag.BoolVar(&prokBlast, "blast-p", false, "Prokaryote blast")
 	flag.Parse()
 
 	if _, err := os.Stat("insertions2.gob"); err == nil {
@@ -1244,21 +1265,7 @@ func main() {
 	}
 
 	if outputFasta {
-		filters := []filterFunc{
-			makeMinLengthFilter(12),
-			makeMaxLengthFilter(24),
-			makeSillyFilter(),
-			makeCodonAlignFilter(),
-			makePositionFilter(0, 29870),
-			makeFlagFilter(EXCLUDE_WH1),
-		}
-		if gisaid {
-			filters = append(filters,
-				[]filterFunc{
-					makeMinSeqsFilter(2),
-					makeMinStrictNumHereFilter(1),
-				}...)
-		}
+		filters := makeFilters(gisaid)
 		OutputFasta("../fasta/SplitInsertions.fasta",
 			data.Insertions, filters, false)
 		OutputCombinedFasta("../fasta/CombinedInsertions.fasta",
@@ -1303,5 +1310,18 @@ func main() {
 	if outputGob {
 		data.OutputMatches("matches.txt")
 		data.OutputInsertions("insertion-data.txt")
+	}
+
+	if prokBlast {
+		filters := []filterFunc{
+			makeMinLengthFilter(30),
+			makeCodonAlignFilter(),
+			makeFlagFilter(EXCLUDE_WH1),
+		}
+		utils.SortByKey(data.Insertions, false, func(ins Insertion) int {
+			return len(ins.Nts)
+		})
+		results := ProkBlast(data.Insertions, filters)
+		showResults(results)
 	}
 }
