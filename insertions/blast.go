@@ -6,12 +6,17 @@ import (
 	"genomics/utils"
 	"log"
 	"slices"
+	"os"
+	"bufio"
+	"encoding/gob"
 )
 
 type BlastResult struct {
 	stats.BlastResult
 	id int
 }
+
+type BlastResults []BlastResult
 
 // Maps insertion id to a BlastResult. We will do one of these for each
 // organism we're interested in.
@@ -46,8 +51,50 @@ func BlastInsertions(insertions []Insertion, genome string) []BlastResult {
 	return ret
 }
 
-func ProkBlast(insertions []Insertion, filters []filterFunc) []BlastResult {
-	ret := make([]BlastResult, 0)
+
+func (br *BlastResults) Save(fname string) {
+	fd, err := os.Create(fname)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer fd.Close()
+
+	fp := bufio.NewWriter(fd)
+	enc := gob.NewEncoder(fp)
+	err = enc.Encode(br)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fp.Flush()
+	fmt.Printf("Blast results saved to %s\n", fname)
+}
+
+func (br *BlastResults) Load(fname string) error {
+	fd, err := os.Open(fname)
+	if err != nil {
+		return err
+	}
+	defer fd.Close()
+
+	fp := bufio.NewReader(fd)
+	dec := gob.NewDecoder(fp)
+	err = dec.Decode(&br)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("Blast results loaded from %s\n", fname)
+	return nil
+}
+
+func ProkBlast(insertions []Insertion,
+	filters []filterFunc) BlastResults {
+	fname := "blast-results.gob"
+	ret := make(BlastResults, 0)
+	err := ret.Load(fname)
+	if err == nil {
+		return ret
+	}
+
 	bc := stats.BlastDefaultConfig()
 	filterInsertions(insertions, filters, func(ins *Insertion) {
 		fmt.Printf("%s: %dnts\n", ins.ToString(), len(ins.Nts))
@@ -64,10 +111,12 @@ func ProkBlast(insertions []Insertion, filters []filterFunc) []BlastResult {
 		}
 
 	}, false)
+
+	ret.Save(fname)
 	return ret
 }
 
-func showResults(results []BlastResult) {
+func showResults(results BlastResults) {
 	organisms := make(map[string]int)
 	for _, r := range results {
 		organisms[r.Organism]++

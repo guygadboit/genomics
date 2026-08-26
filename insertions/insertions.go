@@ -1165,7 +1165,7 @@ func CGGMC(its int) {
 func makeFilters(gisaid bool) []filterFunc {
 	filters := []filterFunc{
 		makeMinLengthFilter(12),
-		makeMaxLengthFilter(24),
+		// makeMaxLengthFilter(24),
 		makeSillyFilter(),
 		makeCodonAlignFilter(),
 		makePositionFilter(0, 29870),
@@ -1206,7 +1206,7 @@ func main() {
 	flag.BoolVar(&countCGG, "cgg", false, "Count CGGCGG")
 	flag.BoolVar(&blastFCS, "fcs", false, "Blast FCS with context")
 	flag.BoolVar(&expectedHomology, "calc-ef", false, "Calculate expected"+
-		"homology frequency")
+		" homology frequency")
 	flag.StringVar(&outputName, "output", "", "Output")
 	flag.BoolVar(&findHomology, "homol", false, "Update homology")
 	flag.BoolVar(&fcsAlternatives,
@@ -1314,9 +1314,9 @@ func main() {
 
 	if prokBlast {
 		filters := []filterFunc{
-			makeMinLengthFilter(12),
-			makeMaxLengthFilter(30),
-			makeCodonAlignFilter(),
+			makeMinLengthFilter(30),
+			// makeMaxLengthFilter(30),
+			// makeCodonAlignFilter(),
 			makeFlagFilter(EXCLUDE_WH1),
 		}
 		utils.SortByKey(data.Insertions, false, func(ins Insertion) int {
