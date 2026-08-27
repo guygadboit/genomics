@@ -1167,8 +1167,8 @@ func makeFilters(gisaid bool) []filterFunc {
 		makeMinLengthFilter(12),
 		// makeMaxLengthFilter(24),
 		makeSillyFilter(),
-		makeCodonAlignFilter(),
-		makePositionFilter(0, 29870),
+		//makeCodonAlignFilter(),
+		//makePositionFilter(0, 29870),
 		makeFlagFilter(EXCLUDE_WH1),
 	}
 	if gisaid {
@@ -1314,8 +1314,8 @@ func main() {
 
 	if prokBlast {
 		filters := []filterFunc{
-			makeMinLengthFilter(30),
-			// makeMaxLengthFilter(30),
+			makeMinLengthFilter(12),
+			makeMaxLengthFilter(29),
 			// makeCodonAlignFilter(),
 			makeFlagFilter(EXCLUDE_WH1),
 		}
