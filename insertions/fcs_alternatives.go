@@ -38,7 +38,7 @@ func CheckAlternatives() {
 
 	// And let's throw the actual FCS in the list as well
 	insertions = appendFCS(insertions)
-	data := InsertionData{nil, nil, insertions, nil}
+	data := InsertionData{nil, nil, nil, insertions, nil}
 
 	CountInGenomes(wh1d, &data, sources, nil, 0.0, 1, APPEND)
 	OutputMatches(insertions, "alternative-fcs-matches.txt")

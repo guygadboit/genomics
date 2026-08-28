@@ -1,19 +1,19 @@
 package main
 
 import (
+	"bufio"
+	"encoding/gob"
 	"fmt"
 	"genomics/stats"
 	"genomics/utils"
 	"log"
-	"slices"
 	"os"
-	"bufio"
-	"encoding/gob"
+	"slices"
 )
 
 type BlastResult struct {
 	stats.BlastResult
-	id int
+	Id int
 }
 
 type BlastResults []BlastResult
@@ -50,7 +50,6 @@ func BlastInsertions(insertions []Insertion, genome string) []BlastResult {
 
 	return ret
 }
-
 
 func (br *BlastResults) Save(fname string) {
 	fd, err := os.Create(fname)
@@ -99,7 +98,8 @@ func ProkBlast(insertions []Insertion,
 	filterInsertions(insertions, filters, func(ins *Insertion) {
 		fmt.Printf("%s: %dnts\n", ins.ToString(), len(ins.Nts))
 		results, err := stats.Blast(bc,
-			"/fs/f/genomes/blast/prok/ref_prok_rep_genomes",
+			// "/fs/f/genomes/blast/prok/ref_prok_rep_genomes",
+			"/fs/f/genomes/blast/rRNA/LSU_prokaryote_rRNA",
 			ins.Nts, 10, 10, "", stats.NOT_VERBOSE)
 		if err != nil {
 			log.Print(err)
@@ -116,11 +116,24 @@ func ProkBlast(insertions []Insertion,
 	return ret
 }
 
-func showResults(results BlastResults) {
+func showResults(insertions *InsertionData, results BlastResults) {
+	utils.SortByKey(results, true, func(r BlastResult) float64 {
+		return r.E
+	})
+	seen := make(map[int]bool)
+	for _, r := range results {
+		if seen[r.Id] {
+			continue
+		}
+		ins := insertions.Get(r.Id)
+		fmt.Printf("%d %s %d/%d %g %s (%d seqs)\n", r.Id,
+			r.Organism, r.Length, len(ins.Nts), r.E, ins.Nts, ins.NSeqs)
+		seen[r.Id] = true
+	}
+
 	organisms := make(map[string]int)
 	for _, r := range results {
 		organisms[r.Organism]++
-		fmt.Printf("%d %s %d %f\n", r.id, r.Organism, r.Length, r.E)
 	}
 
 	type count struct {
@@ -132,7 +145,7 @@ func showResults(results BlastResults) {
 	for k, v := range organisms {
 		counts = append(counts, count{k, v})
 	}
-	utils.SortByKey(counts, true, func(c count) int {
+	utils.SortByKey(counts, false, func(c count) int {
 		return c.value
 	})
 	for _, c := range counts {

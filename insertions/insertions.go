@@ -65,6 +65,7 @@ func (i *Insertion) ToString() string {
 type InsertionData struct {
 	Locations       map[utils.OneBasedPos]int // maps position to count
 	LocationsStrict map[utils.OneBasedPos]int // require nseqs > 1
+	Ids             map[int]int
 	Insertions      []Insertion
 	NucDistro       *mutations.NucDistro
 }
@@ -133,6 +134,10 @@ func (id *InsertionData) Randomize(filters []filterFunc) {
 		ins := &id.Insertions[i]
 		nd.RandomSequence(ins.Nts)
 	}
+}
+
+func (insData *InsertionData) Get(id int) *Insertion {
+	return &insData.Insertions[insData.Ids[id]]
 }
 
 func LoadInsertions(fname string, minLen int, minSeqs int) []Insertion {
@@ -499,6 +504,14 @@ func byLocation(insertions []Insertion, minSeqs int) map[utils.OneBasedPos]int {
 		}
 	}
 	return positions
+}
+
+func byId(insertions []Insertion) map[int]int {
+	ret := make(map[int]int)
+	for i, ins := range insertions {
+		ret[ins.Id] = i
+	}
+	return ret
 }
 
 func SaveLocations(insertions []Insertion, minLength int) map[utils.OneBasedPos]int {
@@ -1001,6 +1014,7 @@ func CountAndSave(id *InsertionData, fname, virusName string) {
 			return float64(len(insertions[i].Nts))
 		})
 
+	id.Ids = byId(id.Insertions)
 	findInVirus(id.Insertions, virusName, 12, 200)
 
 	/*
@@ -1165,7 +1179,7 @@ func CGGMC(its int) {
 func makeFilters(gisaid bool) []filterFunc {
 	filters := []filterFunc{
 		makeMinLengthFilter(12),
-		// makeMaxLengthFilter(24),
+		// makeMaxLengthFilter(30),
 		makeSillyFilter(),
 		//makeCodonAlignFilter(),
 		//makePositionFilter(0, 29870),
@@ -1315,14 +1329,24 @@ func main() {
 	if prokBlast {
 		filters := []filterFunc{
 			makeMinLengthFilter(12),
-			makeMaxLengthFilter(29),
+			makeMaxLengthFilter(30),
 			// makeCodonAlignFilter(),
 			makeFlagFilter(EXCLUDE_WH1),
 		}
-		utils.SortByKey(data.Insertions, false, func(ins Insertion) int {
-			return len(ins.Nts)
-		})
+		if gisaid {
+			filters = append(filters,
+				[]filterFunc{
+					makeMinSeqsFilter(2),
+					makeMinStrictNumHereFilter(1),
+				}...)
+		}
+		/*
+			// Messes up the ids in the results at the end
+			utils.SortByKey(data.Insertions, false, func(ins Insertion) int {
+				return len(ins.Nts)
+			})
+		*/
 		results := ProkBlast(data.Insertions, filters)
-		showResults(results)
+		showResults(&data, results)
 	}
 }
