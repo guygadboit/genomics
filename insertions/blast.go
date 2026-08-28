@@ -100,6 +100,7 @@ func ProkBlast(insertions []Insertion,
 		results, err := stats.Blast(bc,
 			// "/fs/f/genomes/blast/prok/ref_prok_rep_genomes",
 			"/fs/f/genomes/blast/rRNA/LSU_prokaryote_rRNA",
+			// "/fs/f/genomes/blast/rRNA/LSU_eukaryote_rRNA",
 			ins.Nts, 10, 10, "", stats.NOT_VERBOSE)
 		if err != nil {
 			log.Print(err)

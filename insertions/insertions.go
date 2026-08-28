@@ -62,6 +62,14 @@ func (i *Insertion) ToString() string {
 		i.Pos, i.NSeqs)
 }
 
+func (i *Insertion) ToOrgString() string {
+	return fmt.Sprintf("%d ins_%d:%s (%d seqs)",
+		i.Id,
+		i.Pos,
+		i.Nts,
+		i.NSeqs)
+}
+
 type InsertionData struct {
 	Locations       map[utils.OneBasedPos]int // maps position to count
 	LocationsStrict map[utils.OneBasedPos]int // require nseqs > 1
@@ -1005,15 +1013,11 @@ func CountAndSave(id *InsertionData, fname, virusName string) {
 	id.Find(fname, 6, 1)
 
 	insertions := id.Insertions
-	utils.LegacySort(len(insertions), true,
-		func(i, j int) {
-			insertions[i], insertions[j] = insertions[j], insertions[i]
-		},
-		nil,
-		func(i int) float64 {
-			return float64(len(insertions[i].Nts))
-		})
+	utils.SortByKey(insertions, false, func(ins Insertion) int {
+		return len(ins.Nts)
+	})
 
+	// Need to do this after the sort
 	id.Ids = byId(id.Insertions)
 	findInVirus(id.Insertions, virusName, 12, 200)
 
@@ -1215,6 +1219,7 @@ func main() {
 		fname                string
 		gisaid               bool
 		prokBlast            bool
+		sort                 bool
 	)
 
 	flag.BoolVar(&countCGG, "cgg", false, "Count CGGCGG")
@@ -1243,12 +1248,20 @@ func main() {
 	flag.StringVar(&fname, "fname", "insertions2.txt", "filename to use")
 	flag.BoolVar(&gisaid, "gisaid", true, "This is GISAID data")
 	flag.BoolVar(&prokBlast, "blast-p", false, "Prokaryote blast")
+	flag.BoolVar(&sort, "sort", false, "Just output them sorted")
 	flag.Parse()
 
 	if _, err := os.Stat("insertions2.gob"); err == nil {
 		data.Load("insertions2.gob")
 	} else {
 		CountAndSave(&data, fname, virusName)
+	}
+
+	if sort {
+		for _, ins := range data.Insertions {
+			fmt.Println(ins.ToOrgString())
+		}
+		return
 	}
 
 	if outputName != "" {
@@ -1340,12 +1353,6 @@ func main() {
 					makeMinStrictNumHereFilter(1),
 				}...)
 		}
-		/*
-			// Messes up the ids in the results at the end
-			utils.SortByKey(data.Insertions, false, func(ins Insertion) int {
-				return len(ins.Nts)
-			})
-		*/
 		results := ProkBlast(data.Insertions, filters)
 		showResults(&data, results)
 	}
