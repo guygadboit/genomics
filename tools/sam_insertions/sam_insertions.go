@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"genomics/utils"
+	"log"
 	"regexp"
 	"strings"
 )
@@ -17,7 +18,6 @@ type CigarField struct {
 	Op    byte
 	Value int
 }
-
 
 func (cf CigarField) String() string {
 	return fmt.Sprintf("%d%c", cf.Value, cf.Op)
@@ -43,27 +43,31 @@ func FindInsertions(samLine string) []Insertion {
 		return ret
 	}
 
-	nts := fields[9]
+	pos := utils.OneBasedPos(utils.Atoi(fields[3]))
+	nts := []byte(fields[9])
 	cigar := ParseCigar(fields[5])
 
-	pos := 0
+	readPos := 0
 	for _, cf := range cigar {
 		switch cf.Op {
-		case 'M':
-			fallthrough
 		case 'S':
-			pos += cf.Value
+			fallthrough
+		case 'M':
+			readPos += cf.Value
 		case 'I':
-
-			// FIXME YOU ARE HERE
-
-			
+			end := readPos + cf.Value
+			if readPos+end < len(nts) {
+				ins := Insertion{pos + utils.OneBasedPos(readPos),
+					nts[readPos:end]}
+				ret = append(ret, ins)
+				fmt.Printf("%d: %s\n", ins.Pos, string(ins.Nts))
+			} else {
+				// This shouldn't happen unless your SAM file is invalid
+				log.Printf("Out of bounds!")
+			}
 		}
-
 	}
 
-
-	fmt.Println(cigar, cf, nts)
 	return ret
 }
 
@@ -72,6 +76,9 @@ func main() {
 	fname := flag.Arg(0)
 
 	utils.Lines(fname, func(line string, err error) bool {
+		if line[0] == '@' {
+			return true // skip header lines
+		}
 		FindInsertions(line)
 		return true
 	})
