@@ -27,7 +27,7 @@ def process(i, sra):
 # 		if j == 0:
 # 			print('pileup2fasta -match 23595:CTAATTCACGTA pileup '
 # 				'&& echo "FOUND in {}"'.format(sra))
-	print("rm *.fastq")
+	print("rm *.fastq *.sam")
 	print("df -h .")
 	print("echo processed {}\n".format(i+1))
 

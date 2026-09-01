@@ -19,7 +19,7 @@ def make_cmd(index, samname, fnames, insertions):
 
 	cmd = ["bowtie2", "--no-unal", "-x", index, "-S", samname]
 	if insertions:
-		cmd.append("--rdg 5,0")
+		cmd.extend(["--rdg", "5,0"])
 
 	if one and two:
 		cmd.extend(["-1", one, "-2", two])
