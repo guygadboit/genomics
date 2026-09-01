@@ -283,7 +283,7 @@ func (c *Comparison) GraphData(fname string) {
 		fmt.Fprintf(w, "%d %d %d %d %.4f\n", d.S, d.NS, d.Ins, d.Del, d.NSRatio)
 	})
 
-	w.Flush()
+	w.Close()
 }
 
 /*

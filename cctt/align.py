@@ -6,7 +6,7 @@ import sys
 from pdb import set_trace as brk
 
 
-def make_cmd(index, samname, fnames):
+def make_cmd(index, samname, fnames, insertions):
 	one, two = None, None
 
 	if len(fnames) > 1:
@@ -18,6 +18,8 @@ def make_cmd(index, samname, fnames):
 				two = fname
 
 	cmd = ["bowtie2", "--no-unal", "-x", index, "-S", samname]
+	if insertions:
+		cmd.append("--rdg 5,0")
 
 	if one and two:
 		cmd.extend(["-1", one, "-2", two])
@@ -31,10 +33,11 @@ def main():
 	ap = ArgumentParser()
 	ap.add_argument("-x", "--index", type=str)
 	ap.add_argument("-s", "--samname", default="output.sam")
+	ap.add_argument("-i", "--insertions", action="store_true")
 	ap.add_argument("fname", type=str, nargs="+")
 	args = ap.parse_args()
 
-	cmd = make_cmd(args.index, args.samname, args.fname)
+	cmd = make_cmd(args.index, args.samname, args.fname, args.insertions)
 	print(cmd)
 	sp.check_call(cmd)
 
