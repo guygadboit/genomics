@@ -160,7 +160,7 @@ func LoadInsertions(fname string, minLen int, minSeqs int) []Insertion {
 
 	// Match for [GATC]+, so ignore any with Ns or weird ambiguous nts like HDK
 	// etc.
-	pat := regexp.MustCompile(`(\d+) ins_(\d+):([GATC]+) \((\d+) seqs\)`)
+	pat := regexp.MustCompile(`(\d+) ins_(\d+):([GATC]+) \((\d+) (seqs|reads)\)`)
 
 reading:
 	for {
@@ -1220,6 +1220,7 @@ func main() {
 		gisaid               bool
 		prokBlast            bool
 		sort                 bool
+		refreshBlast         bool
 	)
 
 	flag.BoolVar(&countCGG, "cgg", false, "Count CGGCGG")
@@ -1249,6 +1250,7 @@ func main() {
 	flag.BoolVar(&gisaid, "gisaid", true, "This is GISAID data")
 	flag.BoolVar(&prokBlast, "blast-p", false, "Prokaryote blast")
 	flag.BoolVar(&sort, "sort", false, "Just output them sorted")
+	flag.BoolVar(&refreshBlast, "r", false, "Don't use saved blast results")
 	flag.Parse()
 
 	if _, err := os.Stat("insertions2.gob"); err == nil {
@@ -1353,7 +1355,7 @@ func main() {
 					makeMinStrictNumHereFilter(1),
 				}...)
 		}
-		results := ProkBlast(data.Insertions, filters)
+		results := ProkBlast(data.Insertions, filters, !refreshBlast)
 		showResults(&data, results)
 	}
 }

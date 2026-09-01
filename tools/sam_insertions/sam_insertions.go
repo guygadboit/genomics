@@ -1,10 +1,12 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
 	"genomics/utils"
 	"log"
+	"path"
 	"regexp"
 	"strings"
 )
@@ -40,7 +42,7 @@ func ParseCigar(cigar string) Cigar {
 	return ret
 }
 
-func FindInsertions(samLine string, minLen int) []Insertion {
+func FindInsertions(samLine string, minLen, maxLen int) []Insertion {
 	ret := make([]Insertion, 0)
 	fields := strings.Fields(samLine)
 	if len(fields) < 10 {
@@ -66,6 +68,9 @@ func FindInsertions(samLine string, minLen int) []Insertion {
 			if cf.Value < minLen {
 				continue
 			}
+			if maxLen != -1 && cf.Value > maxLen {
+				continue
+			}
 			end := readPos + cf.Value
 			if end < len(nts) {
 				// -1 here seems to be the convention for how insertions are
@@ -84,35 +89,64 @@ func FindInsertions(samLine string, minLen int) []Insertion {
 	return ret
 }
 
-func main() {
-	flag.Parse()
-	fname := flag.Arg(0)
+type CountedInsertion struct {
+	Insertion
+	Count int
+}
 
-	type countedInsertion struct {
-		Insertion
-		Count int
+func ShowCountedInsertions(insMap map[string]CountedInsertion, fp *bufio.Writer) {
+	inss := make([]CountedInsertion, 0, len(insMap))
+	for _, ci := range insMap {
+		inss = append(inss, ci)
 	}
-	allInsertions := make(map[string]countedInsertion)
-
-	var lineNo int
-	utils.Lines(fname, func(line string, err error) bool {
-		lineNo++
-		if line[0] == '@' {
-			return true // skip header lines
-		}
-		insertions := FindInsertions(line, 12)
-		for _, ins := range insertions {
-			key := ins.String()
-			record, there := allInsertions[key]
-			if there {
-				allInsertions[key] = countedInsertion{ins, record.Count + 1}
-			} else {
-				allInsertions[key] = countedInsertion{ins, 1}
-			}
-		}
-		return true
+	utils.SortByKey(inss, false, func(ci CountedInsertion) int {
+		return len(ci.Insertion.Nts)
 	})
-	for k, v := range allInsertions {
-		fmt.Printf("%s: %d\n", k, v.Count)
+	for i, ins := range inss {
+		fmt.Fprintf(fp, "%d ins_%d:%s (%d reads)\n",
+			i+1, ins.Pos, string(ins.Nts), ins.Count)
+	}
+}
+
+func main() {
+	var (
+		minLen, maxLen int
+	)
+
+	flag.IntVar(&minLen, "min", 12, "Minimum length")
+	flag.IntVar(&maxLen, "max", -1, "Maximum length")
+
+	flag.Parse()
+	for _, fname := range flag.Args() {
+
+		allInsertions := make(map[string]CountedInsertion)
+
+		var lineNo int
+		utils.Lines(fname, func(line string, err error) bool {
+			lineNo++
+			if line[0] == '@' {
+				return true // skip header lines
+			}
+			insertions := FindInsertions(line, minLen, maxLen)
+			for _, ins := range insertions {
+				key := ins.String()
+				record, there := allInsertions[key]
+				if there {
+					allInsertions[key] = CountedInsertion{ins, record.Count + 1}
+				} else {
+					allInsertions[key] = CountedInsertion{ins, 1}
+				}
+			}
+			return true
+		})
+
+		_, f := path.Split(fname)
+		outFname := utils.BaseName(f) + ".ins"
+		fd, fp := utils.WriteFile(outFname)
+		defer fd.Close()
+
+		ShowCountedInsertions(allInsertions, fp)
+		fp.Flush()
+		fmt.Printf("Wrote %s\n", outFname)
 	}
 }

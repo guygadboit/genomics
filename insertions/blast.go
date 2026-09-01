@@ -86,12 +86,14 @@ func (br *BlastResults) Load(fname string) error {
 }
 
 func ProkBlast(insertions []Insertion,
-	filters []filterFunc) BlastResults {
+	filters []filterFunc, useGob bool) BlastResults {
 	fname := "blast-results.gob"
 	ret := make(BlastResults, 0)
-	err := ret.Load(fname)
-	if err == nil {
-		return ret
+	if useGob {
+		err := ret.Load(fname)
+		if err == nil {
+			return ret
+		}
 	}
 
 	bc := stats.BlastDefaultConfig()
