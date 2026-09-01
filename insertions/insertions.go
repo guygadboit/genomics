@@ -1344,7 +1344,7 @@ func main() {
 	if prokBlast {
 		filters := []filterFunc{
 			makeMinLengthFilter(12),
-			makeMaxLengthFilter(30),
+			makeMaxLengthFilter(60),
 			// makeCodonAlignFilter(),
 			makeFlagFilter(EXCLUDE_WH1),
 		}

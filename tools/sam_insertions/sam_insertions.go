@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"flag"
 	"fmt"
 	"genomics/utils"
@@ -9,6 +8,8 @@ import (
 	"path"
 	"regexp"
 	"strings"
+	"os"
+	"io"
 )
 
 type Insertion struct {
@@ -94,7 +95,7 @@ type CountedInsertion struct {
 	Count int
 }
 
-func ShowCountedInsertions(insMap map[string]CountedInsertion, fp *bufio.Writer) {
+func ShowCountedInsertions(insMap map[string]CountedInsertion, fp io.Writer) {
 	inss := make([]CountedInsertion, 0, len(insMap))
 	for _, ci := range insMap {
 		inss = append(inss, ci)
@@ -111,12 +112,22 @@ func ShowCountedInsertions(insMap map[string]CountedInsertion, fp *bufio.Writer)
 func main() {
 	var (
 		minLen, maxLen int
+		gzip bool
 	)
 
 	flag.IntVar(&minLen, "min", 12, "Minimum length")
 	flag.IntVar(&maxLen, "max", -1, "Maximum length")
+	flag.BoolVar(&gzip, "z", false, "Gzip output")
 
 	flag.Parse()
+
+	var writeFn func(string) (*os.File, io.WriteCloser)
+	if gzip {
+		writeFn = utils.WriteFileGz
+	} else {
+		writeFn = utils.WriteFile
+	}
+
 	for _, fname := range flag.Args() {
 
 		allInsertions := make(map[string]CountedInsertion)
@@ -142,11 +153,15 @@ func main() {
 
 		_, f := path.Split(fname)
 		outFname := utils.BaseName(f) + ".ins"
-		fd, fp := utils.WriteFile(outFname)
+		if gzip {
+			outFname += ".gz"
+		}
+
+		fd, fp := writeFn(outFname)
 		defer fd.Close()
 
 		ShowCountedInsertions(allInsertions, fp)
-		fp.Flush()
+		fp.Close()
 		fmt.Printf("Wrote %s\n", outFname)
 	}
 }

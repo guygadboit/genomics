@@ -160,12 +160,33 @@ func Itoa(s int) string {
 	return fmt.Sprintf("%d", s)
 }
 
-func WriteFile(fname string) (*os.File, *bufio.Writer) {
+/*
+bufio.Writer doesn't have a Close(). The Gzip one does. So create our own
+wrapper tha implements WriteCloser and does a Flush in Close
+*/
+type BufioWriter struct {
+	*bufio.Writer
+}
+
+func (b BufioWriter) Close() error {
+	b.Flush()
+	return nil
+}
+
+func WriteFile(fname string) (*os.File, io.WriteCloser) {
 	fd, err := os.Create(fname)
 	if err != nil {
 		log.Fatal(err)
 	}
-	return fd, bufio.NewWriter(fd)
+	return fd, BufioWriter{bufio.NewWriter(fd)}
+}
+
+func WriteFileGz(fname string) (*os.File, io.WriteCloser) {
+	fd, err := os.Create(fname)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return fd, gzip.NewWriter(fd)
 }
 
 func Atof(s string) float64 {

@@ -14,11 +14,16 @@ def process(i, sra):
 	print("fasterq-dump {}".format(sra))
 	for j, index in enumerate(("WH1-index",)):
 		print("echo aligning with {}...".format(index))
-		print("bowtie-align.py -x {} *.fastq".format(index))
-		print("samtools sort -O sam output.sam > sorted.sam")
-		print("samtools mpileup sorted.sam > pileup")
-		print("pileup2fasta -show pileup | gzip -c > {}-{}.txt.gz".format(
-			sra, index))
+		base = os.path.splitext(sra)[0]
+		sam_name = base + ".sam"
+		ins_name = base + ".ins"
+		print("bowtie-align.py -x {} -O {} *.fastq".format(index, sam_name))
+		print("sam_insertions -z {}".format(sam_name))
+
+# 		print("samtools sort -O sam output.sam > sorted.sam")
+# 		print("samtools mpileup sorted.sam > pileup")
+# 		print("pileup2fasta -show pileup | gzip -c > {}-{}.txt.gz".format(
+# 			sra, index))
 # 		if j == 0:
 # 			print('pileup2fasta -match 23595:CTAATTCACGTA pileup '
 # 				'&& echo "FOUND in {}"'.format(sra))
