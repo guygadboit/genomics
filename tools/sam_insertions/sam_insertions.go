@@ -4,12 +4,12 @@ import (
 	"flag"
 	"fmt"
 	"genomics/utils"
+	"io"
 	"log"
+	"os"
 	"path"
 	"regexp"
 	"strings"
-	"os"
-	"io"
 )
 
 type Insertion struct {
@@ -95,7 +95,25 @@ type CountedInsertion struct {
 	Count int
 }
 
-func ShowCountedInsertions(insMap map[string]CountedInsertion, fp io.Writer) {
+func (im InsertionMap) Add(ins *Insertion, count int) {
+	key := ins.String()
+	record, there := im[key]
+	if there {
+		im[key] = CountedInsertion{*ins, record.Count + count}
+	} else {
+		im[key] = CountedInsertion{*ins, count}
+	}
+}
+
+type InsertionMap map[string]CountedInsertion
+
+func (im InsertionMap) Combine(other InsertionMap) {
+	for _, v := range other {
+		im.Add(&v.Insertion, 1)
+	}
+}
+
+func (insMap InsertionMap) Display(fp io.Writer) {
 	inss := make([]CountedInsertion, 0, len(insMap))
 	for _, ci := range insMap {
 		inss = append(inss, ci)
@@ -109,17 +127,79 @@ func ShowCountedInsertions(insMap map[string]CountedInsertion, fp io.Writer) {
 	}
 }
 
+func (insMap InsertionMap) FromFile(fname string) {
+	pat := regexp.MustCompile(`\d+ ins_(\d+):([GNATC]+) \((\d+) reads\)`)
+	utils.Lines(fname, func(line string, err error) bool {
+		groups := pat.FindAllStringSubmatch(line, -1)
+		ins := Insertion{
+			utils.OneBasedPos(utils.Atoi(groups[0][1])),
+			[]byte(groups[0][2])}
+		count := utils.Atoi(groups[0][3])
+		insMap.Add(&ins, count)
+		return true
+	})
+}
+
+func Load(fname string, minLen, maxLen int) InsertionMap {
+	ret := make(InsertionMap)
+
+	var lineNo int
+	utils.Lines(fname, func(line string, err error) bool {
+		lineNo++
+		if line[0] == '@' {
+			return true // skip header lines
+		}
+		insertions := FindInsertions(line, minLen, maxLen)
+		for _, ins := range insertions {
+			key := ins.String()
+			record, there := ret[key]
+			if there {
+				ret[key] = CountedInsertion{ins, record.Count + 1}
+			} else {
+				ret[key] = CountedInsertion{ins, 1}
+			}
+		}
+		return true
+	})
+	return ret
+}
+
+func Merge(outName string, fnames ...string) {
+	all := make(InsertionMap)
+
+	for _, fname := range fnames {
+		im := make(InsertionMap)
+		im.FromFile(fname)
+		all.Combine(im)
+	}
+
+	fd, fp := utils.WriteFileGz(outName)
+	defer fd.Close()
+
+	all.Display(fp)
+	fp.Close()
+}
+
 func main() {
 	var (
 		minLen, maxLen int
-		gzip bool
+		gzip           bool
+		outName        string
+		merge          bool
 	)
 
 	flag.IntVar(&minLen, "min", 12, "Minimum length")
 	flag.IntVar(&maxLen, "max", -1, "Maximum length")
 	flag.BoolVar(&gzip, "z", false, "Gzip output")
+	flag.StringVar(&outName, "0", "output.ins.gz", "Output name for merge")
+	flag.BoolVar(&merge, "merge", false, "Merge a bunch of .ins.gz files")
 
 	flag.Parse()
+
+	if merge {
+		Merge(outName, flag.Args()...)
+		return
+	}
 
 	var writeFn func(string) (*os.File, io.WriteCloser)
 	if gzip {
@@ -129,27 +209,7 @@ func main() {
 	}
 
 	for _, fname := range flag.Args() {
-
-		allInsertions := make(map[string]CountedInsertion)
-
-		var lineNo int
-		utils.Lines(fname, func(line string, err error) bool {
-			lineNo++
-			if line[0] == '@' {
-				return true // skip header lines
-			}
-			insertions := FindInsertions(line, minLen, maxLen)
-			for _, ins := range insertions {
-				key := ins.String()
-				record, there := allInsertions[key]
-				if there {
-					allInsertions[key] = CountedInsertion{ins, record.Count + 1}
-				} else {
-					allInsertions[key] = CountedInsertion{ins, 1}
-				}
-			}
-			return true
-		})
+		allInsertions := Load(fname, minLen, maxLen)
 
 		_, f := path.Split(fname)
 		outFname := utils.BaseName(f) + ".ins"
@@ -160,7 +220,7 @@ func main() {
 		fd, fp := writeFn(outFname)
 		defer fd.Close()
 
-		ShowCountedInsertions(allInsertions, fp)
+		allInsertions.Display(fp)
 		fp.Close()
 		fmt.Printf("Wrote %s\n", outFname)
 	}
