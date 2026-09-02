@@ -17,7 +17,7 @@ def process(i, sra):
 		base = os.path.splitext(sra)[0]
 		sam_name = base + ".sam"
 		ins_name = base + ".ins"
-		print("bowtie-align.py -i -x {} -s {} *.fastq".format(index, sam_name))
+		print("bowtie-align.py -x {} -s {} *.fastq".format(index, sam_name))
 		print("sam_insertions -z {}".format(sam_name))
 
 # 		print("samtools sort -O sam output.sam > sorted.sam")
