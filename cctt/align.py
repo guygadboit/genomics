@@ -17,7 +17,7 @@ def make_cmd(index, samname, fnames, insertions):
 			elif base[-2:] == "_2":
 				two = fname
 
-	cmd = ["bowtie2", "--no-unal", "-x", index, "-S", samname]
+	cmd = ["bowtie2", "--no-unal", "-x", index, "-S", samname, "-p", "2"]
 	if insertions:
 		cmd.extend(["--rdg", "5,0"])
 
