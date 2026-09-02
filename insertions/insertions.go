@@ -149,14 +149,10 @@ func (insData *InsertionData) Get(id int) *Insertion {
 }
 
 func LoadInsertions(fname string, minLen int, minSeqs int) []Insertion {
-	fd, err := os.Open(fname)
-	if err != nil {
-		log.Fatal("Can't open %s", fname)
-	}
-	defer fd.Close()
+	fp := utils.NewFileReader(fname)
+	defer fp.Close()
 
 	ret := make([]Insertion, 0)
-	fp := bufio.NewReader(fd)
 
 	// Match for [GATC]+, so ignore any with Ns or weird ambiguous nts like HDK
 	// etc.
