@@ -1057,7 +1057,7 @@ func AddSource(data *InsertionData,
 		makeMaxLengthFilter(40),
 		makePositionFilter(0, 29870),
 		makeSillyFilter(),
-		makeCodonAlignFilter(),
+		// makeCodonAlignFilter(),
 		makeFlagFilter(EXCLUDE_WH1),
 	}
 
