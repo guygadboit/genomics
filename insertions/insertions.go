@@ -1032,7 +1032,7 @@ func CountAndSave(id *InsertionData, fname, virusName string) {
 
 // Note that if randomize it randomizes the actual insertion data
 func AddSource(data *InsertionData,
-	 save bool, iterations int,
+	save bool, iterations int,
 	tol float64, actions MatchAction, names ...string) {
 	sources := make([]Source, 0)
 
