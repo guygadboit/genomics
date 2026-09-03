@@ -1032,19 +1032,24 @@ func CountAndSave(id *InsertionData, fname, virusName string) {
 
 // Note that if randomize it randomizes the actual insertion data
 func AddSource(data *InsertionData,
-	name string, save bool, iterations int,
-	tol float64, actions MatchAction) {
+	 save bool, iterations int,
+	tol float64, actions MatchAction, names ...string) {
 	sources := make([]Source, 0)
+
+	nameSet := make(map[string]bool)
+	for _, name := range names {
+		nameSet[name] = true
+	}
 
 	all := GetSources(ANIMAL | BACTERIA)
 	for _, source := range all {
-		if source.Name == name {
+		if nameSet[source.Name] {
 			sources = append(sources, source)
 		}
 	}
 
 	if len(sources) == 0 {
-		log.Fatalf("Can't find %s\n", name)
+		log.Fatalf("Can't find any of those sources\n")
 	}
 
 	filters := []filterFunc{
@@ -1195,11 +1200,24 @@ func makeFilters(gisaid bool) []filterFunc {
 	return filters
 }
 
+type MultiFlag []string
+
+// String is an implementation of the flag.Value interface
+func (m *MultiFlag) String() string {
+	return fmt.Sprintf("%v", *m)
+}
+
+// Set is an implementation of the flag.Value interface
+func (m *MultiFlag) Set(value string) error {
+	*m = append(*m, value)
+	return nil
+}
+
 func main() {
 	var (
 		data                 InsertionData
 		countCGG, blastFCS   bool
-		outputName           string
+		outputName           MultiFlag
 		expectedHomology     bool
 		findHomology         bool
 		fcsAlternatives      bool
@@ -1223,7 +1241,7 @@ func main() {
 	flag.BoolVar(&blastFCS, "fcs", false, "Blast FCS with context")
 	flag.BoolVar(&expectedHomology, "calc-ef", false, "Calculate expected"+
 		" homology frequency")
-	flag.StringVar(&outputName, "output", "", "Output")
+	flag.Var(&outputName, "output", "Output")
 	flag.BoolVar(&findHomology, "homol", false, "Update homology")
 	flag.BoolVar(&fcsAlternatives,
 		"fcs-alt", false, "Look at FCS alternatives")
@@ -1262,7 +1280,7 @@ func main() {
 		return
 	}
 
-	if outputName != "" {
+	if outputName != nil {
 		var actions MatchAction = OUTPUT
 
 		if blast {
@@ -1276,7 +1294,7 @@ func main() {
 		} else if iterations > 1 {
 			log.Fatal("More than one iteration with randomize is pointless")
 		}
-		AddSource(&data, outputName, false, iterations, tol, actions)
+		AddSource(&data, false, iterations, tol, actions, outputName...)
 	}
 
 	if blastFCS {
