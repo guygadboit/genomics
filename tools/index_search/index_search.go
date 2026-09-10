@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"genomics/genomes"
 	"log"
+	"strings"
 )
 
 func Search(root string, needle []byte, g *genomes.Genomes, context int) {
@@ -49,6 +50,7 @@ func main() {
 		g = genomes.LoadGenomes(fasta, "", true)
 	}
 
+	pattern = strings.ToUpper(pattern)
 	needle := []byte(pattern)
 	for _, arg := range flag.Args() {
 		fmt.Println(arg)
