@@ -179,6 +179,7 @@ func main() {
 		"BANAL-20-52",
 		"BANAL-20-116",
 		"BANAL-20-247",
+		"Rp22DB167",
 		"Ra22QT77",
 		"Ra22QT106",
 		"Ra22QT137",
@@ -186,6 +187,7 @@ func main() {
 		"RacCS264",
 		"RacCS224",
 		"RacCS253",
+		"Rp22DB159",
 		"BtSY2",
 	}
 

@@ -1,4 +1,5 @@
 import numpy as np
+import sys
 import matplotlib as mp
 import matplotlib.pyplot as plot
 from collections import namedtuple, OrderedDict
@@ -25,11 +26,11 @@ def is_mononucleotide_repeat(pattern):
 
 species = []
 
-def parse():
+def parse(fname):
 	global species
 	ret = {}
 
-	with open("./results.txt") as fp:
+	with open(fname) as fp:
 		for i, line in enumerate(fp):
 			line = line.strip()
 			fields = line.split()
@@ -60,8 +61,7 @@ def summary(results):
 	for k, v in results.items():
 		for f in v._fields[2:]:
 			count = getattr(v, f)
-			print("{} {} {} {} {}".format(v.id, f, count.num, count.E)
-
+			print("{} {} {} {} {}".format(v.id, f, count.num, count.E))
 			x[v.id] = True
 			y[f] = True
 
@@ -93,8 +93,9 @@ def longest_matches(results):
 
 
 def main():
-	results = parse()
-	# summary(results)
+	fname = sys.argv[1]
+	results = parse(fname)
+	summary(results)
 	longest_matches(results)
 
 if __name__ == "__main__":

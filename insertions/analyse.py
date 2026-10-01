@@ -190,6 +190,7 @@ def count_records(records):
 	hh = 0
 	hh_set = set()
 	for r in records:
+		print(r.id, r.forwards_h + r.backwards_h)
 		c[r.id] += 1
 		if r.forwards_h + r.backwards_h >= 3:
 			hh += 1
@@ -530,7 +531,7 @@ def codon_optimization(records):
 
 def main():
 	ap = ArgumentParser()
-	ap.add_argument("-f", "--optional-filters", default="u")
+	ap.add_argument("-f", "--optional-filters", default="")
 	ap.add_argument("-s", "--sort-by", default="homology")
 	ap.add_argument("-m", "--matches", default="matches.txt")
 	ap.add_argument("-d", "--docbook", action="store_true")
