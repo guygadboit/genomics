@@ -102,6 +102,8 @@ func FindNumClosest(g *genomes.Genomes, which int,
 			if p.Differences < prox[need].Differences {
 				ret = append(ret, p)
 				got[p.Which] = true
+			} else {
+				break	// they're sorted
 			}
 		}
 
