@@ -18,7 +18,8 @@ func main() {
 		num        int
 		all        bool
 		start, end int
-		recCA bool
+		recCA      bool
+		xre        bool
 	)
 
 	flag.StringVar(&fasta, "fasta", "", "Alignment to use")
@@ -26,6 +27,8 @@ func main() {
 	flag.IntVar(&num, "num", 3, "Number of relatives to look for")
 	flag.BoolVar(&all, "all", false, "Ignore num and look at basically all")
 	flag.BoolVar(&recCA, "rec", false, "Reconstruct a \"recCA\"")
+	flag.BoolVar(&xre, "xre", false, "Exclude BsaI/BsmBI when "+
+		"making \"recCA\"")
 	flag.Parse()
 
 	if fasta == "" {
@@ -39,7 +42,7 @@ func main() {
 	}
 
 	if recCA {
-		recCA := outgroup.FindRecCA(g, 0, 1, window, num)
+		recCA := outgroup.FindRecCA(g, 0, 1, window, num, xre)
 		recCA.SaveMulti("recCA.fasta")
 		fmt.Println("Wrote recCA.fasta")
 	}

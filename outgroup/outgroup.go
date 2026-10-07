@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"genomics/genomes"
 	"genomics/utils"
+	"genomics/hotspots"
 )
 
 // Return the number of differences. Assume a and b are the same length
@@ -125,12 +126,34 @@ func FindNumClosest(g *genomes.Genomes, which int,
 	}
 }
 
+func isSitePos(nts []byte, pos int) bool {
+	n := len(nts)
+	if pos < 6 || pos > n-6 {
+		return false
+	}
+
+sites:
+	for _, site := range hotspots.RE_SITES {
+		for i := 0; i < len(site); i++ {
+			if nts[pos+i] != site[i] {
+				continue sites
+			}
+		}
+		return true
+	}
+	return false
+}
+
 func FindRecCA(g *genomes.Genomes, which int, siteSize int,
-	window int, num int) *genomes.Genomes {
+	window int, num int, xre bool) *genomes.Genomes {
 	ret := genomes.NewGenomes(g.Orfs, 1)
 	ret.Nts[0] = make([]byte, g.Length())
 	for i := 0; i < g.Length(); i++ {
-		prox := FindNumClosest(g, which, i, siteSize, window, num, KEEP_BEST)
+		z := siteSize
+		if xre && isSitePos(g.Nts[which], i) {
+			z = 6
+		}
+		prox := FindNumClosest(g, which, i, z, window, num, KEEP_BEST)
 		best := prox[0]
 		ret.Nts[0][i] = g.Nts[best.Which][i]
 	}
