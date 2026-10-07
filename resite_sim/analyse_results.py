@@ -4,7 +4,19 @@ from argparse import ArgumentParser
 from pdb import set_trace as brk
 
 
+def convert_list(s):
+	if s[0] != "[":
+		raise RuntimeError
+	s = s.strip("[]")
+	fields = s.split(",")
+	return [int(x) for x in fields]
+
+
 def convert_field(s):
+	try:
+		return convert_list(s)
+	except:
+		pass
 	try:
 		return {"true": True, "false": False}[s]
 	except KeyError:
@@ -104,7 +116,14 @@ plot '{sub_name}' using (rounded($1)):(1) smooth \
 
 
 def rates(results, max_count=None,
-		  exact_count=None, require_not_interleaved=False, ors=False):
+		  exact_count=None, require_not_interleaved=False,
+		  ors=False, remove=None):
+
+	if remove is not None:
+		remove = set(remove)
+	else:
+		remove = set()
+
 	for k, v in results.items():
 		if ors: w = writeOR(k); next(w)
 		good, total = 0, 0
@@ -116,11 +135,18 @@ def rates(results, max_count=None,
 			# out as we go along. So we might as well check it here.
 			assert acceptable == (result.unique and result.max_length < 8000)
 
+			count = result.count
+			if remove:
+				positions = set(result.positions)
+				positions -= remove
+				# Count is the number of segments, not of sites.
+				count = len(positions)+1
+
 			if max_count is not None:
-				acceptable = acceptable and result.count <= max_count
+				acceptable = acceptable and count <= max_count
 
 			if exact_count is not None:
-				acceptable = acceptable and result.count == exact_count
+				acceptable = acceptable and count == exact_count
 
 			if require_not_interleaved:
 				acceptable = acceptable and not result.interleaved
@@ -247,10 +273,16 @@ def main():
 	ap.add_argument("-e", "--exact-count", type=int)
 	ap.add_argument("-i", "--require-not-interleaved", action="store_true")
 	ap.add_argument("-x", "--extras", action="store_true")
+	ap.add_argument("--remove", type=int,
+				 nargs="+", help="Remove sites (one-based)")
 	ap.add_argument("--ors", action="store_true")
 
 	args = ap.parse_args()
 	results = parse_all_results(args.fname[0])
+
+	remove = None
+	if args.remove:
+		remove = [x-1 for x in args.remove]
 
 	if args.extras:
 		extra_sites_in_special(results)
@@ -263,7 +295,7 @@ def main():
 
 	if args.max_count or args.exact_count or args.require_not_interleaved:
 		rates(results, args.max_count,
-			args.exact_count, args.require_not_interleaved, args.ors)
+			args.exact_count, args.require_not_interleaved, args.ors, remove)
 	elif args.rates:
 		rates(results, args.ors)
 

@@ -171,12 +171,13 @@ func main() {
 
 	fnames := []string{
 		"recCA",
+		"RaTG13",
+		"BANAL-20-52",
+		/*
 		"RpYN06",
 		"ChimericAncestor",
 		"BANAL-20-236",
 		"BANAL-20-103",
-		"RaTG13",
-		"BANAL-20-52",
 		"BANAL-20-116",
 		"BANAL-20-247",
 		"Rp22DB167",
@@ -189,6 +190,7 @@ func main() {
 		"RacCS253",
 		"Rp22DB159",
 		"BtSY2",
+		*/
 	}
 
 	g := loadGenomes(fnames)
