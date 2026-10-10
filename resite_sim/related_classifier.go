@@ -257,10 +257,47 @@ func isReSite(pattern []byte) bool {
 	return false
 }
 
-func (c *Classifier) ExploreMissingSites() {
-	// The places where one of the close relatives has a site and we don't
-	// missing := []int{10443, 11647, 22921, 22922, 23291, 24508}
+type Site struct {
+	Pos   int
+	Count int
+}
+
+func CountCombinations(sites []Site) {
+	n := len(sites)
+	if n > 64 {
+		fmt.Println("Not enough bits")
+		return
+	}
+
+	var total, totalGood int
+
+	for i := 0; i < 1<<n; i++ {
+		var numSites, maxGap, weight int
+
+		for j := 0; j < n; j++ {
+			if i&(1<<j) != 0 {
+				weight += sites[j].Count
+				numSites++
+				if j > 0 {
+					gap := sites[j].Pos - sites[j-1].Pos
+					maxGap = max(maxGap, gap)
+				}
+			}
+		}
+		total += weight
+		if numSites == 6 && maxGap <= 8000 {
+			totalGood += weight
+		}
+	}
+	fmt.Printf("%d/%d %.4f\n", totalGood,
+		total, float64(totalGood)/float64(total))
+
+}
+
+func (c *Classifier) ExploreMissingSites() []Site {
+	ret := make([]Site, 0)
 	g := c.relatives
+	// g = g.FilterOut(0)
 
 	countWithPat := func(location int, pat []byte) int {
 		count := 0
@@ -272,37 +309,40 @@ func (c *Classifier) ExploreMissingSites() {
 		return count
 	}
 
-	// for _, location := range missing {
 	for _, location := range c.sites {
 		have := g.Nts[0][location : location+6]
 
-		// We're interested in the missing ones, where SC2 does not have a
-		// site, but somebody else does.
+		// Show places where either SC2 has a site...
+		good := false
+		var haveSite string
 		if isReSite(have) {
-			continue
+			haveSite = "*"
+			good = true
 		}
 
 		var env genomes.Environment
 		env.Init(g, location, 6, 0)
 		alternatives := env.FindAlternatives(1, true)
 
-		// We're also only interested in places where SC2 differs silently from
-		// a site.
-		good := false
-		for _, alt := range alternatives {
-			if isReSite(alt.Nts) {
-				good = true
-				break
-			}
-		}
 		if !good {
-			continue
+			// ... or where it differs silently from some alternative that has
+			// one.
+			for _, alt := range alternatives {
+				if isReSite(alt.Nts) {
+					good = true
+					break
+				}
+			}
+			if !good {
+				continue
+			}
 		}
 
 		s := countWithPat(location, have)
 
-		fmt.Printf("Location %d have %s shared by %d (%s)\n",
-			location+1, string(have), s, string(env.Protein()))
+		fmt.Printf("Location %d have %s%s shared by %d (%s)\n",
+			location+1, string(have), haveSite, s, string(env.Protein()))
+		ret = append(ret, Site{location, s})
 
 		for _, alt := range alternatives {
 			var isSite string
@@ -315,4 +355,5 @@ func (c *Classifier) ExploreMissingSites() {
 				string(alt.Nts), count, alt.CodonPos, isSite)
 		}
 	}
+	return ret
 }
