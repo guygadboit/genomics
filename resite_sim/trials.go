@@ -97,6 +97,8 @@ func CalcOR(g *genomes.Genomes) float64 {
 }
 
 func ShowMaps(fnames []string) {
+	var totalSites, totalGenomes int
+
 	typeNames := []string{"BsaI", "BsmBI"}
 	for _, arg := range flag.Args() {
 		gs := genomes.LoadUnaligned(arg, "", false)
@@ -122,8 +124,13 @@ func ShowMaps(fnames []string) {
 				fmt.Printf("OK")
 			}
 			fmt.Printf("\n")
+
+			totalSites += count-1
+			totalGenomes++
 		}
 	}
+	meanSites := float64(totalSites)/float64(totalGenomes)
+	fmt.Printf("Mean number of sites: %.02f\n", meanSites)
 }
 
 func main() {

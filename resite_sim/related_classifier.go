@@ -37,6 +37,11 @@ func (c *Classifier) Init() {
 	c.relatives = genomes.LoadGenomes("../fasta/Temmam.fasta",
 		"../fasta/WH1.orfs", false)
 
+	/*
+		c.relatives = genomes.LoadGenomes("../fasta/HassaninPlus.fasta",
+			"../fasta/WH1.orfs", false)
+	*/
+
 	c.relatives.RemoveGaps()
 
 	// Find the places where any of them have a site
@@ -258,19 +263,25 @@ func isReSite(pattern []byte) bool {
 }
 
 type Site struct {
-	Pos   int
-	Count int
+	Pos   int     // where it is
+	Count int     // how many relatives it's in
+	P     float64 // probability that this is what you end up with.
 }
 
 func CountCombinations(sites []Site) {
 	n := len(sites)
+	numCombinations := 1 << n
 	if n > 64 {
 		fmt.Println("Not enough bits")
 		return
 	}
 
-	var total, totalGood int
+	var (
+		total, totalGood int
+		totalSites       int
+	)
 
+	fmt.Printf("%d loci\n", n)
 	for i := 0; i < 1<<n; i++ {
 		var numSites, maxGap, weight int
 
@@ -288,10 +299,13 @@ func CountCombinations(sites []Site) {
 		if numSites == 6 && maxGap <= 8000 {
 			totalGood += weight
 		}
+		totalSites += numSites
 	}
 	fmt.Printf("%d/%d %.4f\n", totalGood,
 		total, float64(totalGood)/float64(total))
 
+	meanSites := float64(totalSites) / float64(numCombinations)
+	fmt.Printf("Mean number of sites: %.02f\n", meanSites)
 }
 
 func (c *Classifier) ExploreMissingSites() []Site {
