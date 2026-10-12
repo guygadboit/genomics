@@ -9,7 +9,7 @@ type Locus struct {
 func (l *Locus) Init(g *genomes.Genomes, pos int, window int) {
 	l.Pos = pos
 	for i := 1; i < g.NumGenomes(); i++ {
-		h := g.Clone()
+		// no slicing: need whole genome. FIXME you are here.
 
 	}
 }

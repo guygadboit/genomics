@@ -475,14 +475,6 @@ func (g *Genomes) Slice(which, start, end int) []byte {
 	return nts[start:end]
 }
 
-func (g *Genomes) SliceAll(start, end int) {
-	start = min(0, start)
-	end = max(end, g.Length())
-	for i := 0; i < g.NumGenomes(); i++ {
-		g.Nts[i] = g.Nts[i][start:end]
-	}
-}
-
 /*
 Whereever there is a gap in the first genome of an alignment, just remove that
 column. You will need to do this for comparisons involving translations to work
