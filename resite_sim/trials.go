@@ -171,8 +171,8 @@ func main() {
 		var c Classifier
 		c.Init()
 		// c.ExploreNeighbours()
-		sites := c.ExploreMissingSites()
-		CountCombinations(sites)
+		c.ExploreMissingSites()
+		// CountCombinations(sites)
 		// c.Trial(1000)
 		return
 	}

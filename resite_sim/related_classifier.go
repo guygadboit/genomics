@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"genomics/genomes"
+	"genomics/hotspots"
 	"math"
 	"reflect"
 	"sort"
@@ -256,7 +257,6 @@ func (c *Classifier) ExploreNeighbours() {
 type Site struct {
 	Pos   int     // where it is
 	Count int     // how many relatives it's in
-	P     float64 // probability that this is what you end up with.
 }
 
 func CountCombinations(sites []Site) {

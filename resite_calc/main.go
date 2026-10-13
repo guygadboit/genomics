@@ -13,8 +13,8 @@ const SITE_LEN = 6
 // Represents anywhere you might end up with a site because somebody in the set
 // has one.
 type Locus struct {
-	Pos   int
-	P     float64 // Probability of SC2 having a site here after mutations
+	Pos int
+	P   float64 // Probability of SC2 having a site here after mutations
 }
 
 func (l *Locus) Init(g *genomes.Genomes, pos int, window int) {
@@ -60,6 +60,7 @@ func (l *Locus) Init(g *genomes.Genomes, pos int, window int) {
 		var selected, total float64
 		for _, alt := range alternatives {
 			p := math.Pow(perNt, float64(alt.NumMuts))
+			fmt.Println(string(alt.Nts), hotspots.IsReSite(alt.Nts))
 			if hotspots.IsReSite(alt.Nts) != haveSite {
 				selected += p
 			}
@@ -86,20 +87,27 @@ and point mutation from the family members in g
 func FindLoci(g *genomes.Genomes, window int) []Locus {
 	ret := make([]Locus, 0)
 
-	for i := 0; i < g.NumGenomes(); i++ {
-		for j := 0; j < g.Length()-SITE_LEN; j++ {
-			if hotspots.IsReSite(g.Nts[i][j : j+SITE_LEN]) {
+	for i := 0; i < g.Length()-SITE_LEN; i++ {
+		for j := 0; j < g.NumGenomes(); j++ {
+			if hotspots.IsReSite(g.Nts[j][i : i+SITE_LEN]) {
 				var locus Locus
-				locus.Init(g, j, window)
+				locus.Init(g, i, window)
 				ret = append(ret, locus)
+				break
 			}
 		}
 	}
 	return ret
 }
 
+/*
+func TestCombinations(loci []Locus) {
+	n :=
+}
+*/
+
 func main() {
-	g := genomes.LoadGenomes("../fasta/Hassanin.fasta",
+	g := genomes.LoadGenomes("../fasta/Temmam.fasta",
 		"../fasta/WH1.orfs", false)
 	g.RemoveGaps()
 	loci := FindLoci(g, 50)
