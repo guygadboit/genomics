@@ -6,6 +6,7 @@ import (
 	"genomics/hotspots"
 	"genomics/mutations"
 	"math"
+	"math/rand"
 )
 
 const SITE_LEN = 6
@@ -17,10 +18,35 @@ type Locus struct {
 	P   float64 // Probability of SC2 having a site here after mutations
 }
 
+// How many unique places can you have a silent mutation in?
+func totalSlots(og []byte, alternatives genomes.Alternatives) int {
+	var ret int
+	for i, nt := range og {
+		for _, alt := range alternatives {
+			if alt.Nts[i] != nt {
+				ret++
+				break
+			}
+		}
+	}
+	return ret
+}
+
+// How many unique mutatable positions in a set of mutations? (more than one
+// mut may be possible in the same place)
+func countPositions(muts []mutations.Mutation) int {
+	locations := make(map[int]bool)
+	for _, mut := range muts {
+		locations[mut.Pos] = true
+	}
+	return len(locations)
+}
+
 func (l *Locus) Init(g *genomes.Genomes, pos int, window int) {
 	l.Pos = pos
 
-	// Now the harder part: compute P
+	// Now compute P: an estimate of the probability that SC2 will end up with
+	// a site here.
 	for i := 1; i < g.NumGenomes(); i++ {
 		start := max(0, pos-window)
 		end := min(g.Length(), pos+window)
@@ -37,9 +63,8 @@ func (l *Locus) Init(g *genomes.Genomes, pos int, window int) {
 
 		haveSite := hotspots.IsReSite(g.Nts[i][pos : pos+SITE_LEN])
 
-		// If there aren't any actual mutations, the the probability that you
-		// have a site here (if you got ths bit from this relative) is just 1
-		// or 0.
+		// If there aren't any actual mutations, the probability that you have
+		// a site here (if you got this bit from this relative) is just 1 or 0.
 		if totalActual == 0 {
 			if haveSite {
 				l.P += 1.0
@@ -47,32 +72,32 @@ func (l *Locus) Init(g *genomes.Genomes, pos int, window int) {
 			continue
 		}
 
-		// This gives us an estimate of the probability of each nt in this
-		// region getting mutated. Of course you don't know whether the muts
-		// happened ages ago and the recombination yesterday though.
-		perNt := float64(totalActual) / float64(len(possibleMuts))
+		// perNt is an estimate of the probability of each nt in this region
+		// getting mutated. Of course you don't know whether the muts happened
+		// ages ago and the recombination yesterday though.
+		numPoss := countPositions(possibleMuts)
+		perNt := float64(totalActual) / float64(numPoss)
 
 		// Now look at the silent alternatives in the region.
 		var env genomes.Environment
 		env.Init(g, pos, SITE_LEN, 0)
-		alternatives := env.FindAlternatives(6, true)
+		alternatives := env.FindAlternatives(SITE_LEN, true)
 
-		var selected, total float64
-		for _, alt := range alternatives {
-			p := math.Pow(perNt, float64(alt.NumMuts))
-			fmt.Println(string(alt.Nts), hotspots.IsReSite(alt.Nts))
-			if hotspots.IsReSite(alt.Nts) != haveSite {
-				selected += p
-			}
-			total += p
-		}
 		if haveSite {
-			// If we have a site then we're talking about the probability of
-			// losing it...
-			l.P += 1.0 - (selected / total)
+			slots := totalSlots(g.Nts[0][pos:pos+SITE_LEN], alternatives)
+			// A mutation in any of those slots will silently remove the site
+			l.P = 1.0 - math.Pow(1-perNt, float64(slots))
 		} else {
-			// ... and of gaining one if we don't
-			l.P += selected / total
+			for _, alt := range alternatives {
+				if haveSite {
+					if hotspots.IsReSite(alt.Nts) {
+						// To get the site you need to get lucky for each of
+						// the mutations you need.
+						l.P = math.Pow(perNt, float64(alt.NumMuts))
+						break
+					}
+				}
+			}
 		}
 	}
 	// We're averaging these over all the relatives in the set.
@@ -81,7 +106,7 @@ func (l *Locus) Init(g *genomes.Genomes, pos int, window int) {
 
 /*
 Find anywhere either SC2 or one of the others has a site. Each Locus contains
-an estimated probabilty that SC2 would have a site there after recombination
+an estimated probability that SC2 would have a site there after recombination
 and point mutation from the family members in g
 */
 func FindLoci(g *genomes.Genomes, window int) []Locus {
@@ -100,11 +125,46 @@ func FindLoci(g *genomes.Genomes, window int) []Locus {
 	return ret
 }
 
-/*
-func TestCombinations(loci []Locus) {
-	n :=
+func Montecarlo(loci []Locus, iterations int) float64 {
+	r := rand.New(rand.NewSource(78))
+
+	var total, totalGood float64
+	for ; iterations > 0; iterations-- {
+		var (
+			bad      bool
+			maxGap   int
+			numSites int
+			weight   float64
+		)
+		for i, locus := range loci {
+			weight += locus.P
+
+			// 50% chance of getting each possible site by recombination. Can't
+			// be right.
+			if r.Int()%2 != 0 {
+				numSites++
+				if numSites > 5 {
+					bad = true
+				}
+				var gap int
+				if i > 0 {
+					gap = locus.Pos - loci[i-1].Pos
+				} else {
+					gap = locus.Pos
+				}
+				maxGap = max(maxGap, gap)
+				if maxGap > 8000 {
+					bad = true
+				}
+			}
+		}
+		total += weight
+		if !bad {
+			totalGood += weight
+		}
+	}
+	return totalGood / total
 }
-*/
 
 func main() {
 	g := genomes.LoadGenomes("../fasta/Temmam.fasta",
@@ -114,4 +174,6 @@ func main() {
 	for _, locus := range loci {
 		fmt.Println(locus)
 	}
+	result := Montecarlo(loci, 1000000)
+	fmt.Printf("Result: %f\n", result)
 }
