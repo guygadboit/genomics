@@ -253,15 +253,6 @@ func (c *Classifier) ExploreNeighbours() {
 	fmt.Println("Wrote alignment.clu")
 }
 
-func isReSite(pattern []byte) bool {
-	for _, site := range RE_SITES {
-		if reflect.DeepEqual(pattern, site.pattern) {
-			return true
-		}
-	}
-	return false
-}
-
 type Site struct {
 	Pos   int     // where it is
 	Count int     // how many relatives it's in
@@ -329,7 +320,7 @@ func (c *Classifier) ExploreMissingSites() []Site {
 		// Show places where either SC2 has a site...
 		good := false
 		var haveSite string
-		if isReSite(have) {
+		if hotspots.IsReSite(have) {
 			haveSite = "*"
 			good = true
 		}
@@ -342,7 +333,7 @@ func (c *Classifier) ExploreMissingSites() []Site {
 			// ... or where it differs silently from some alternative that has
 			// one.
 			for _, alt := range alternatives {
-				if isReSite(alt.Nts) {
+				if hotspots.IsReSite(alt.Nts) {
 					good = true
 					break
 				}
@@ -360,7 +351,7 @@ func (c *Classifier) ExploreMissingSites() []Site {
 
 		for _, alt := range alternatives {
 			var isSite string
-			if isReSite(alt.Nts) {
+			if hotspots.IsReSite(alt.Nts) {
 				isSite = "*"
 				good = true
 			}

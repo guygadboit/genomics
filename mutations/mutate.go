@@ -263,7 +263,7 @@ func possibleMuts(g *genomes.Genomes,
 			if replacement == nt {
 				continue
 			}
-			cb(pos+start, nt, replacement)
+			cb(pos, nt, replacement)
 		}
 	}
 }
@@ -294,7 +294,7 @@ func PossibleSilentMuts(g *genomes.Genomes, which int) []Mutation {
 
 func PossibleSilentMutsRegion(g *genomes.Genomes,
 	which, start, end int) []Mutation {
-	return getPossibleMuts(g, which, start, end true)
+	return getPossibleMuts(g, which, start, end, true)
 }
 
 func PossibleNonSilentMuts(g *genomes.Genomes, which int) []Mutation {

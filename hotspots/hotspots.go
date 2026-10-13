@@ -5,6 +5,7 @@ import (
 	"genomics/mutations"
 	"genomics/stats"
 	"math/rand"
+	"reflect"
 )
 
 var RE_SITES = [][]byte{
@@ -203,4 +204,13 @@ func Mutate(g* genomes.Genomes,
 		g.Nts[0][mut.Pos] = mut.To[0]
 		done[j] = true
 	}
+}
+
+func IsReSite(pattern []byte) bool {
+	for _, site := range RE_SITES {
+		if reflect.DeepEqual(pattern, site) {
+			return true
+		}
+	}
+	return false
 }
