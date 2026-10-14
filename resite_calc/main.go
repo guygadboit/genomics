@@ -89,8 +89,10 @@ func (l *Locus) Init(g *genomes.Genomes, pos int, window int) {
 
 		if haveSite {
 			slots := totalSlots(g.Nts[0][pos:pos+SITE_LEN], alternatives)
-			// A mutation in any of those slots will silently remove the site
-			l.P = 1.0 - math.Pow(1-perNt, float64(slots))
+			// A mutation in any of those slots will silently remove the site.
+			// Th probability of missing each one of them is 1-perNt, and so
+			// the probability of missing all of them is 1-perNt ** slots
+			l.P = math.Pow(1-perNt, float64(slots))
 		} else {
 			for _, alt := range alternatives {
 				if haveSite {
@@ -117,6 +119,7 @@ func FindLoci(g *genomes.Genomes, window int) []Locus {
 	ret := make([]Locus, 0)
 
 	for i := 0; i < g.Length()-SITE_LEN; i++ {
+		//i = 10443
 		for j := 0; j < g.NumGenomes(); j++ {
 			if hotspots.IsReSite(g.Nts[j][i : i+SITE_LEN]) {
 				var locus Locus
@@ -125,6 +128,7 @@ func FindLoci(g *genomes.Genomes, window int) []Locus {
 				break
 			}
 		}
+		//break
 	}
 	return ret
 }
@@ -138,7 +142,6 @@ func Montecarlo(loci []Locus, iterations int) float64 {
 	)
 	for i := 0; i < iterations; i++ {
 		var (
-			bad      bool
 			maxGap   int
 			numSites int
 		)
@@ -148,9 +151,6 @@ func Montecarlo(loci []Locus, iterations int) float64 {
 					continue
 				}
 				numSites++
-				if numSites != 5 {
-					bad = true
-				}
 				var gap int
 				if i > 0 {
 					gap = locus.Pos - loci[i-1].Pos
@@ -158,14 +158,11 @@ func Montecarlo(loci []Locus, iterations int) float64 {
 					gap = locus.Pos
 				}
 				maxGap = max(maxGap, gap)
-				if maxGap > 8000 {
-					bad = true
-				}
 			}
 		}
-		fmt.Println(numSites)
 		totalSites += numSites
-		if !bad {
+		fmt.Println(numSites)
+		if numSites == 5 && maxGap <= 8000 {
 			totalGood++
 		}
 	}
@@ -182,6 +179,6 @@ func main() {
 	for _, locus := range loci {
 		fmt.Println(locus)
 	}
-	// result := Montecarlo(loci, 1000000)
-	// fmt.Printf("Result: %f\n", result)
+	result := Montecarlo(loci, 1000000)
+	fmt.Printf("Result: %f\n", result)
 }
