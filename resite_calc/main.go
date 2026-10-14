@@ -7,6 +7,8 @@ import (
 	"genomics/mutations"
 	"math"
 	"math/rand"
+	"path"
+	"reflect"
 )
 
 const SITE_LEN = 6
@@ -14,9 +16,16 @@ const SITE_LEN = 6
 // Represents anywhere you might end up with a site because somebody in the set
 // has one.
 type Locus struct {
-	Pos   int
-	Count int     // How many relatives have a site here
-	P     float64 // Probability of SC2 having a site here after mutations
+	Pos       int
+	SC2       bool    // Does SC2 have a site here?
+	Count     int     // How many relatives have a site here
+	SameCount int     // How many relatives have the same thing as SC2 here
+	P         float64 // Probability of SC2 having a site here after mutations
+}
+
+func (l Locus) String() string {
+	return fmt.Sprintf("%d %t %d %d %.04f",
+		l.Pos, l.SC2, l.Count, l.SameCount, l.P)
 }
 
 // How many unique places can you have a silent mutation in?
@@ -45,10 +54,15 @@ func countPositions(muts []mutations.Mutation) int {
 
 func (l *Locus) Init(g *genomes.Genomes, pos int, window int) {
 	l.Pos = pos
+	l.SC2 = hotspots.IsReSite(g.Nts[0][pos : pos+SITE_LEN])
 
 	// Now compute P: an estimate of the probability that SC2 will end up with
 	// a site here.
 	for i := 1; i < g.NumGenomes(); i++ {
+		if reflect.DeepEqual(g.Nts[0][pos:pos+SITE_LEN],
+			g.Nts[i][pos:pos+SITE_LEN]) {
+			l.SameCount++
+		}
 		start := max(0, pos-window)
 		end := min(g.Length(), pos+window)
 		possibleMuts := mutations.PossibleSilentMutsRegion(g, i, start, end)
@@ -169,7 +183,8 @@ func Montecarlo(loci []Locus, iterations int) float64 {
 }
 
 func main() {
-	g := genomes.LoadGenomes("../fasta/Temmam.fasta",
+	fname := "HassaninPlus.fasta"
+	g := genomes.LoadGenomes(path.Join("../fasta", fname),
 		"../fasta/WH1.orfs", false)
 	g.RemoveGaps()
 	loci := FindLoci(g, 50)
@@ -179,6 +194,8 @@ func main() {
 		total += locus.P
 	}
 	fmt.Printf("Total P: %f\n", total)
+	/*
 	result := Montecarlo(loci, 1000000)
 	fmt.Printf("Result: %f\n", result)
+	*/
 }
