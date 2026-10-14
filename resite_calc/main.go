@@ -9,6 +9,7 @@ import (
 	"math"
 	"math/rand"
 	"path"
+	"reflect"
 )
 
 const SITE_LEN = 6
@@ -26,7 +27,7 @@ type Locus struct {
 
 func (l Locus) String() string {
 	return fmt.Sprintf("%d %t %d %d %d %.04f",
-		l.Pos, l.SC2, l.Count, l.SameCount, l.AltCount, l.P)
+		l.Pos+1, l.SC2, l.Count, l.SameCount, l.AltCount, l.P)
 }
 
 // How many unique places can you have a silent mutation in?
@@ -56,6 +57,16 @@ func countPositions(muts []mutations.Mutation) int {
 func (l *Locus) Init(g *genomes.Genomes, pos int, window int) {
 	l.Pos = pos
 	l.SC2 = hotspots.IsReSite(g.Nts[0][pos : pos+SITE_LEN])
+
+	for i := 1; i < g.NumGenomes(); i++ {
+		if hotspots.IsReSite(g.Nts[i][pos : pos+SITE_LEN]) {
+			l.Count++
+		}
+		if reflect.DeepEqual(g.Nts[i][pos:pos+SITE_LEN],
+			g.Nts[0][pos:pos+SITE_LEN]) {
+			l.SameCount++
+		}
+	}
 
 	closest := outgroup.FindClosest(g, 0, pos, SITE_LEN, window, nil)
 	other := closest[0].Which
@@ -90,6 +101,7 @@ func (l *Locus) Init(g *genomes.Genomes, pos int, window int) {
 		if haveSite {
 			l.P = 1.0
 		}
+		return
 	}
 
 	// perNt is an estimate of the probability of each nt in this region
@@ -110,7 +122,7 @@ func (l *Locus) Init(g *genomes.Genomes, pos int, window int) {
 				if hotspots.IsReSite(alt.Nts) {
 					// To get the site you need to get lucky for each of
 					// the mutations you need.
-					l.P += math.Pow(perNt, float64(alt.NumMuts))
+					l.P = math.Pow(perNt, float64(alt.NumMuts))
 					break
 				}
 			}
@@ -127,7 +139,6 @@ func FindLoci(g *genomes.Genomes, window int) []Locus {
 	ret := make([]Locus, 0)
 
 	for i := 0; i < g.Length()-SITE_LEN; i++ {
-		//i = 10443
 		for j := 0; j < g.NumGenomes(); j++ {
 			if hotspots.IsReSite(g.Nts[j][i : i+SITE_LEN]) {
 				var locus Locus
@@ -136,7 +147,6 @@ func FindLoci(g *genomes.Genomes, window int) []Locus {
 				break
 			}
 		}
-		//break
 	}
 	return ret
 }
@@ -144,13 +154,11 @@ func FindLoci(g *genomes.Genomes, window int) []Locus {
 func Montecarlo(loci []Locus, iterations int) float64 {
 	r := rand.New(rand.NewSource(78))
 
-	var (
-		totalGood  float64
-		totalSites int
-	)
+	var good, total float64
 	for i := 0; i < iterations; i++ {
 		var (
 			maxGap   int
+			weight   float64
 			numSites int
 		)
 		for i, locus := range loci {
@@ -158,6 +166,8 @@ func Montecarlo(loci []Locus, iterations int) float64 {
 				continue
 			}
 			numSites++
+			weight += locus.P
+
 			var gap int
 			if i > 0 {
 				gap = locus.Pos - loci[i-1].Pos
@@ -166,14 +176,13 @@ func Montecarlo(loci []Locus, iterations int) float64 {
 			}
 			maxGap = max(maxGap, gap)
 		}
-		totalSites += numSites
+		total += weight
+		fmt.Println(numSites)
 		if numSites == 5 && maxGap <= 8000 {
-			totalGood++
+			good += weight
 		}
 	}
-	fmt.Printf("Average number of sites: %.02f\n",
-		float64(totalSites)/float64(iterations))
-	return totalGood / float64(iterations)
+	return good / total
 }
 
 func main() {
@@ -189,6 +198,7 @@ func main() {
 		total += locus.P
 	}
 	fmt.Printf("Total P: %f\n", total)
+
 	/*
 	result := Montecarlo(loci, 1000000)
 	fmt.Printf("Result: %f\n", result)
