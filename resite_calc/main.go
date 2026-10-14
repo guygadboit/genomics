@@ -108,7 +108,6 @@ func (l *Locus) Init(g *genomes.Genomes, pos int, window int) {
 	}
 	// We're averaging these over all the relatives in the set.
 	l.P /= float64(g.NumGenomes() - 1)
-	fmt.Printf("At end: %f\n", l.P)
 }
 
 /*
@@ -147,19 +146,17 @@ func Montecarlo(loci []Locus, iterations int) float64 {
 			numSites int
 		)
 		for i, locus := range loci {
-			if r.Int()%2 != 0 {
-				if r.Float64() > locus.P {
-					continue
-				}
-				numSites++
-				var gap int
-				if i > 0 {
-					gap = locus.Pos - loci[i-1].Pos
-				} else {
-					gap = locus.Pos
-				}
-				maxGap = max(maxGap, gap)
+			if r.Float64() > locus.P {
+				continue
 			}
+			numSites++
+			var gap int
+			if i > 0 {
+				gap = locus.Pos - loci[i-1].Pos
+			} else {
+				gap = locus.Pos
+			}
+			maxGap = max(maxGap, gap)
 		}
 		totalSites += numSites
 		if numSites == 5 && maxGap <= 8000 {
@@ -176,9 +173,12 @@ func main() {
 		"../fasta/WH1.orfs", false)
 	g.RemoveGaps()
 	loci := FindLoci(g, 50)
+	var total float64
 	for _, locus := range loci {
 		fmt.Println(locus)
+		total += locus.P
 	}
+	fmt.Printf("Total P: %f\n", total)
 	result := Montecarlo(loci, 1000000)
 	fmt.Printf("Result: %f\n", result)
 }
