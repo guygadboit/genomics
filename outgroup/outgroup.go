@@ -47,7 +47,7 @@ func FindClosest(g *genomes.Genomes, which int,
 		if i == which {
 			continue
 		}
-		if exclude[i] {
+		if exclude != nil && exclude[i] {
 			continue
 		}
 		end := sitePos
