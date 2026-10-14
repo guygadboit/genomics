@@ -20,12 +20,17 @@ type Locus struct {
 	SC2       bool    // Does SC2 have a site here?
 	Count     int     // How many relatives have a site here
 	SameCount int     // How many relatives have the same thing as SC2 here
+	AltCount  int     // How many silent alternatives here.
+
+	// I think you can also just have an OR/p here for which alternative you
+	// picked.
+
 	P         float64 // Probability of SC2 having a site here after mutations
 }
 
 func (l Locus) String() string {
-	return fmt.Sprintf("%d %t %d %d %.04f",
-		l.Pos, l.SC2, l.Count, l.SameCount, l.P)
+	return fmt.Sprintf("%d %t %d %d %d %.04f",
+		l.Pos, l.SC2, l.Count, l.SameCount, l.AltCount, l.P)
 }
 
 // How many unique places can you have a silent mutation in?
@@ -81,6 +86,11 @@ func (l *Locus) Init(g *genomes.Genomes, pos int, window int) {
 			l.Count++
 		}
 
+		var env genomes.Environment
+		env.Init(g, pos, SITE_LEN, 0)
+		alternatives := env.FindAlternatives(SITE_LEN, true)
+		l.AltCount = len(alternatives) + 1
+
 		// If there aren't any actual mutations, the probability that you have
 		// a site here (if you got this bit from this relative) is just 1 or 0.
 		if totalActual == 0 {
@@ -95,11 +105,6 @@ func (l *Locus) Init(g *genomes.Genomes, pos int, window int) {
 		// ages ago and the recombination yesterday though.
 		numPoss := countPositions(possibleMuts)
 		perNt := float64(totalActual) / float64(numPoss)
-
-		// Now look at the silent alternatives in the region.
-		var env genomes.Environment
-		env.Init(g, pos, SITE_LEN, 0)
-		alternatives := env.FindAlternatives(SITE_LEN, true)
 
 		if haveSite {
 			slots := totalSlots(g.Nts[0][pos:pos+SITE_LEN], alternatives)
@@ -195,7 +200,7 @@ func main() {
 	}
 	fmt.Printf("Total P: %f\n", total)
 	/*
-	result := Montecarlo(loci, 1000000)
-	fmt.Printf("Result: %f\n", result)
+		result := Montecarlo(loci, 1000000)
+		fmt.Printf("Result: %f\n", result)
 	*/
 }
