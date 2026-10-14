@@ -92,14 +92,14 @@ func (l *Locus) Init(g *genomes.Genomes, pos int, window int) {
 			// A mutation in any of those slots will silently remove the site.
 			// Th probability of missing each one of them is 1-perNt, and so
 			// the probability of missing all of them is 1-perNt ** slots
-			l.P = math.Pow(1-perNt, float64(slots))
+			l.P += math.Pow(1-perNt, float64(slots))
 		} else {
 			for _, alt := range alternatives {
 				if haveSite {
 					if hotspots.IsReSite(alt.Nts) {
 						// To get the site you need to get lucky for each of
 						// the mutations you need.
-						l.P = math.Pow(perNt, float64(alt.NumMuts))
+						l.P += math.Pow(perNt, float64(alt.NumMuts))
 						break
 					}
 				}
@@ -108,6 +108,7 @@ func (l *Locus) Init(g *genomes.Genomes, pos int, window int) {
 	}
 	// We're averaging these over all the relatives in the set.
 	l.P /= float64(g.NumGenomes() - 1)
+	fmt.Printf("At end: %f\n", l.P)
 }
 
 /*
@@ -161,7 +162,6 @@ func Montecarlo(loci []Locus, iterations int) float64 {
 			}
 		}
 		totalSites += numSites
-		fmt.Println(numSites)
 		if numSites == 5 && maxGap <= 8000 {
 			totalGood++
 		}
