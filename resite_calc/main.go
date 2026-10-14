@@ -14,8 +14,9 @@ const SITE_LEN = 6
 // Represents anywhere you might end up with a site because somebody in the set
 // has one.
 type Locus struct {
-	Pos int
-	P   float64 // Probability of SC2 having a site here after mutations
+	Pos   int
+	Count int     // How many relatives have a site here
+	P     float64 // Probability of SC2 having a site here after mutations
 }
 
 // How many unique places can you have a silent mutation in?
@@ -62,6 +63,9 @@ func (l *Locus) Init(g *genomes.Genomes, pos int, window int) {
 		}
 
 		haveSite := hotspots.IsReSite(g.Nts[i][pos : pos+SITE_LEN])
+		if haveSite {
+			l.Count++
+		}
 
 		// If there aren't any actual mutations, the probability that you have
 		// a site here (if you got this bit from this relative) is just 1 or 0.
@@ -128,22 +132,23 @@ func FindLoci(g *genomes.Genomes, window int) []Locus {
 func Montecarlo(loci []Locus, iterations int) float64 {
 	r := rand.New(rand.NewSource(78))
 
-	var total, totalGood float64
-	for ; iterations > 0; iterations-- {
+	var (
+		totalGood  float64
+		totalSites int
+	)
+	for i := 0; i < iterations; i++ {
 		var (
 			bad      bool
 			maxGap   int
 			numSites int
-			weight   float64
 		)
 		for i, locus := range loci {
-			weight += locus.P
-
-			// 50% chance of getting each possible site by recombination. Can't
-			// be right.
 			if r.Int()%2 != 0 {
+				if r.Float64() > locus.P {
+					continue
+				}
 				numSites++
-				if numSites > 5 {
+				if numSites != 5 {
 					bad = true
 				}
 				var gap int
@@ -158,12 +163,15 @@ func Montecarlo(loci []Locus, iterations int) float64 {
 				}
 			}
 		}
-		total += weight
+		fmt.Println(numSites)
+		totalSites += numSites
 		if !bad {
-			totalGood += weight
+			totalGood++
 		}
 	}
-	return totalGood / total
+	fmt.Printf("Average number of sites: %.02f\n",
+		float64(totalSites)/float64(iterations))
+	return totalGood / float64(iterations)
 }
 
 func main() {
@@ -174,6 +182,6 @@ func main() {
 	for _, locus := range loci {
 		fmt.Println(locus)
 	}
-	result := Montecarlo(loci, 1000000)
-	fmt.Printf("Result: %f\n", result)
+	// result := Montecarlo(loci, 1000000)
+	// fmt.Printf("Result: %f\n", result)
 }
