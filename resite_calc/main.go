@@ -158,15 +158,37 @@ func FindLoci(g *genomes.Genomes, window int) []Locus {
 	return ret
 }
 
-func Montecarlo(loci []Locus, numGenomes int, iterations int) float64 {
+func canFix(positions []int) bool {
+	if len(positions) != 6 {
+		return false
+	}
+	for i := 0; i < len(positions); i++ {
+		var maxGap, prev int
+		for j := 0; j < len(positions); j++ {
+			if j == i {
+				continue
+			}
+			maxGap = max(maxGap, positions[i]-prev)
+			prev = positions[i]
+			if maxGap >= 8000 {
+				return false
+			}
+		}
+	}
+	return true
+}
+
+func Montecarlo(loci []Locus,
+	numGenomes int, iterations int) (float64, float64) {
 	r := rand.New(rand.NewSource(78))
 
-	var good, totalSites int
+	var good, fixable, totalSites int
 	for i := 0; i < iterations; i++ {
 		var (
 			maxGap   int
 			numSites int
 		)
+		positions := make([]int, 0, 15)
 		for i, locus := range loci {
 			if r.Int()%numGenomes > locus.Count {
 				continue
@@ -179,10 +201,15 @@ func Montecarlo(loci []Locus, numGenomes int, iterations int) float64 {
 			} else {
 				gap = locus.Pos
 			}
+			positions = append(positions, locus.Pos)
 			maxGap = max(maxGap, gap)
 		}
 		if numSites == 5 && maxGap < 8000 {
 			good++
+		} else {
+			if canFix(positions) {
+				fixable++
+			}
 		}
 		totalSites += numSites
 	}
@@ -190,7 +217,8 @@ func Montecarlo(loci []Locus, numGenomes int, iterations int) float64 {
 	fmt.Printf("%.02f sites on average\n",
 		float64(totalSites)/float64(iterations))
 
-	return float64(good) / float64(iterations)
+	return float64(good) / float64(iterations),
+		float64(good+fixable) / float64(iterations)
 }
 
 func main() {
@@ -216,8 +244,9 @@ func main() {
 	var total float64
 
 	if mc {
-		result := Montecarlo(loci, g.NumGenomes(), 1000000)
-		fmt.Printf("Fraction of chimeras that are 6,<8k: %f\n", result)
+		good, fixable := Montecarlo(loci, g.NumGenomes(), 1000000)
+		fmt.Printf("Fraction of chimeras that are 6,<8k: %f (%f)\n",
+			good, fixable)
 	} else {
 		for _, locus := range loci {
 			fmt.Println(locus)
