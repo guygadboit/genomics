@@ -68,7 +68,8 @@ func (l *Locus) Init(g *genomes.Genomes, pos int, window int) {
 		}
 	}
 
-	closest := outgroup.FindClosest(g, 0, pos, SITE_LEN, window, nil)
+	closest := outgroup.FindNumClosest(g, 0, pos,
+		SITE_LEN, window, 3, outgroup.KEEP_BEST)
 	other := closest[0].Which
 	window = closest[0].Window
 
