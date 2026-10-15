@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"genomics/genomes"
 	"genomics/hotspots"
@@ -92,7 +93,12 @@ func (l *Locus) Init(g *genomes.Genomes, pos int, window int) {
 	}
 
 	var env genomes.Environment
-	env.Init(g, pos, SITE_LEN, 0)
+	err := env.Init(g, pos, SITE_LEN, 0)
+	if err != nil {
+		// This can happen if you removed 0 from the alignment. We only do that
+		// when we're doing the Montecarlo, which doesn't use P anyway.
+		return
+	}
 	alternatives := env.FindAlternatives(SITE_LEN, true)
 	l.AltCount = len(alternatives) + 1
 
@@ -152,23 +158,21 @@ func FindLoci(g *genomes.Genomes, window int) []Locus {
 	return ret
 }
 
-func Montecarlo(loci []Locus, iterations int) float64 {
+func Montecarlo(loci []Locus, numGenomes int, iterations int) float64 {
 	r := rand.New(rand.NewSource(78))
 
-	var good, total float64
+	var good, totalSites int
 	for i := 0; i < iterations; i++ {
 		var (
 			maxGap   int
-			weight   float64
 			numSites int
 		)
 		for i, locus := range loci {
-			if r.Int()%2 == 0 {
+			if r.Int()%numGenomes > locus.Count {
 				continue
 			}
-			numSites++
-			weight += locus.P
 
+			numSites++
 			var gap int
 			if i > 0 {
 				gap = locus.Pos - loci[i-1].Pos
@@ -177,31 +181,48 @@ func Montecarlo(loci []Locus, iterations int) float64 {
 			}
 			maxGap = max(maxGap, gap)
 		}
-		total += weight
-		fmt.Println(numSites)
-		if numSites == 5 && maxGap <= 8000 {
-			good += weight
+		if numSites == 5 && maxGap < 8000 {
+			good++
 		}
+		totalSites += numSites
 	}
-	return good / total
+
+	fmt.Printf("%.02f sites on average\n",
+		float64(totalSites)/float64(iterations))
+
+	return float64(good) / float64(iterations)
 }
 
 func main() {
-	fname := "HassaninPlus.fasta"
-	// fname := "Temmam.fasta"
+	var (
+		mc    bool
+		fname string
+	)
+
+	flag.BoolVar(&mc, "mc", false, "Montecarlo chimeras")
+	flag.StringVar(&fname, "fname", "HassaninPlus.fasta", "Alignment to use")
+	flag.Parse()
+
 	g := genomes.LoadGenomes(path.Join("../fasta", fname),
 		"../fasta/WH1.orfs", false)
 	g.RemoveGaps()
+
+	if mc {
+		// Exclude SC2 as it's causally downstream
+		g = g.FilterOut(0)
+	}
+
 	loci := FindLoci(g, 50)
 	var total float64
-	for _, locus := range loci {
-		fmt.Println(locus)
-		total += locus.P
-	}
-	fmt.Printf("Total P: %f\n", total)
 
-	/*
-	result := Montecarlo(loci, 1000000)
-	fmt.Printf("Result: %f\n", result)
-	*/
+	if mc {
+		result := Montecarlo(loci, g.NumGenomes(), 1000000)
+		fmt.Printf("Fraction of chimeras that are 6,<8k: %f\n", result)
+	} else {
+		for _, locus := range loci {
+			fmt.Println(locus)
+			total += locus.P
+		}
+		fmt.Printf("Total P: %f\n", total)
+	}
 }
