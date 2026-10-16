@@ -83,7 +83,7 @@ func calcWeight(g *genomes.Genomes,
 		weight := math.Pow(0.25, float64(p.Differences))
 
 		// Since the weight expresses how likely you are to have a site here,
-		// it's nagtive if the relative doesn't have one.
+		// it's negative if the relative doesn't have one.
 		if !hotspots.IsReSite(g.Nts[p.Which][pos : pos+SITE_LEN]) {
 			weight *= -1
 		}
@@ -234,7 +234,7 @@ func Montecarlo(g *genomes.Genomes,
 			lastPos  int
 			weight   float64
 		)
-		weight = 1.0
+		weight = 0.0
 		for i, locus := range loci {
 			if r.Int()%g.NumGenomes() > locus.Count {
 				continue
@@ -249,7 +249,7 @@ func Montecarlo(g *genomes.Genomes,
 			}
 			maxGap = max(maxGap, gap)
 			lastPos = locus.Pos
-			weight *= locus.Weight
+			weight += locus.Weight
 		}
 		lastGap := g.Length() - lastPos
 		maxGap = max(maxGap, lastGap)
