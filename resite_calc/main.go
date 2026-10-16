@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/gob"
 	"flag"
 	"fmt"
 	"genomics/genomes"
@@ -9,6 +10,7 @@ import (
 	"genomics/outgroup"
 	"math"
 	"math/rand"
+	"os"
 	"path"
 	"reflect"
 )
@@ -56,19 +58,37 @@ func countPositions(muts []mutations.Mutation) int {
 	return len(locations)
 }
 
-func bestSS(g *genomes.Genomes, start, end, pos int) float64 {
+func countMuts(a, b []byte) int {
+	var ret int
+	for i := 0; i < len(a); i++ {
+		if a[i] != b[i] {
+			ret++
+		}
+	}
+	return ret
+}
+
+func bestSS(g *genomes.Genomes, pos, window int) float64 {
 	var ret float64
+
+	start := max(0, pos-window)
+	end := min(g.Length(), pos+window)
 
 	for i := 1; i < g.NumGenomes(); i++ {
 		// Exclude the site itself
-		before := g.SubSequenceSimilarity(0, i, start, pos, true)
-		after := g.SubSequenceSimilarity(0, i, pos, end, true)
+		/*
+			before := g.SubSequenceSimilarity(0, i, start, pos, true)
+			after := g.SubSequenceSimilarity(0, i, pos, end, true)
+		*/
+		before := countMuts(g.Nts[0][start:pos], g.Nts[i][start:pos])
+		after := countMuts(g.Nts[0][pos:end], g.Nts[i][pos:end])
 
-		mean := (before + after) / 2
+		p := math.Pow(4, float64(before+after))
+
 		if i == 1 {
-			ret = mean
+			ret = 1 / p
 		} else {
-			ret = max(ret, mean)
+			ret = max(ret, 1/p)
 		}
 	}
 	return ret
@@ -93,9 +113,10 @@ func (l *Locus) Init(g *genomes.Genomes, pos int, window int) {
 	other := closest[0].Which
 	window = closest[0].Window
 
+	l.SS = 1 - float64(closest[0].Differences)/float64(closest[0].Window)
+
 	start := max(0, pos-window)
 	end := min(g.Length(), pos+window)
-	l.SS = bestSS(g, start, end, pos)
 	possibleMuts := mutations.PossibleSilentMutsRegion(g, other, start, end)
 
 	// Of all the possible silent mutations in the region, how many are
@@ -178,21 +199,51 @@ func FindLoci(g *genomes.Genomes, window int) []Locus {
 	return ret
 }
 
-func Montecarlo(g *genomes.Genomes,
-	loci []Locus, iterations int) float64 {
-	r := rand.New(rand.NewSource(78))
+type Result struct {
+	Count         int
+	WeightedCount float64
+}
 
-	var good, totalSites int
+type Results struct {
+	TotalWeight float64
+	TotalCount  int
+	PerCount    map[int]Result
+}
+
+func (r *Results) Show() {
+	for i := 5; i <= 8; i++ {
+		if counts, there := r.PerCount[i]; there {
+			rate := float64(counts.Count) / float64(r.TotalCount)
+			weightedRate := counts.WeightedCount / r.TotalWeight
+			fmt.Printf("%d: %.06f %.06f\n", i, rate, weightedRate)
+		}
+	}
+}
+
+func Montecarlo(g *genomes.Genomes,
+	loci []Locus, iterations int) Results {
+	r := rand.New(rand.NewSource(78))
+	var ret Results
+	ret.PerCount = make(map[int]Result)
+
+	var totalSites int
 	for i := 0; i < iterations; i++ {
 		var (
 			maxGap   int
 			numSites int
 			lastPos  int
+			weight   float64
 		)
+		weight = 1.0
 		for i, locus := range loci {
 			if r.Int()%g.NumGenomes() > locus.Count {
 				continue
 			}
+			/*
+				if r.Float64() > locus.P {
+					continue
+				}
+			*/
 
 			numSites++
 			var gap int
@@ -203,27 +254,55 @@ func Montecarlo(g *genomes.Genomes,
 			}
 			maxGap = max(maxGap, gap)
 			lastPos = locus.Pos
+			weight *= locus.SS
 		}
-		maxGap = max(g.Length() - lastPos)
-		if numSites == 5 && maxGap < 8000 {
-			good++
+		lastGap := g.Length() - lastPos
+		maxGap = max(maxGap, lastGap)
+		if maxGap < 8000 {
+			counts := ret.PerCount[numSites]
+			counts.Count++
+			counts.WeightedCount += weight
+			ret.PerCount[numSites] = counts
 		}
 		totalSites += numSites
+		ret.TotalWeight += weight
 	}
+	ret.TotalCount = iterations
 
 	fmt.Printf("%.02f sites on average\n",
 		float64(totalSites)/float64(iterations))
 
-	return float64(good) / float64(iterations)
+	return ret
+}
+
+func SaveLoci(loci []Locus) {
+	fd, _ := os.Create("loci.gob")
+	defer fd.Close()
+
+	encoder := gob.NewEncoder(fd)
+	encoder.Encode(loci)
+}
+
+func LoadLoci() []Locus {
+	fd, err := os.Open("loci.gob")
+	if err != nil {
+		return nil
+	}
+	decoder := gob.NewDecoder(fd)
+	ret := make([]Locus, 0)
+	decoder.Decode(&ret)
+	return ret
 }
 
 func main() {
 	var (
-		mc    bool
-		fname string
+		mc       bool
+		fname    string
+		useSaved bool
 	)
 
 	flag.BoolVar(&mc, "mc", false, "Montecarlo chimeras")
+	flag.BoolVar(&useSaved, "load", true, "Use saved loci")
 	flag.StringVar(&fname, "fname", "HassaninPlus.fasta", "Alignment to use")
 	flag.Parse()
 
@@ -231,23 +310,23 @@ func main() {
 		"../fasta/WH1.orfs", false)
 	g.RemoveGaps()
 
-	if mc {
-		// Exclude SC2 as it's causally downstream
-		g = g.FilterOut(0)
+	var loci []Locus
+	if useSaved {
+		loci = LoadLoci()
+	} else {
+		loci = FindLoci(g, 50)
+		SaveLoci(loci)
 	}
 
-	loci := FindLoci(g, 50)
 	var total float64
 
 	if mc {
-		good := Montecarlo(g, loci, 10000)
-		fmt.Printf("Fraction of chimeras that are 6,<8k: %f\n",
-			good)
+		results := Montecarlo(g, loci, 10000)
+		results.Show()
 	} else {
 		for _, locus := range loci {
 			fmt.Println(locus)
 			total += locus.P
 		}
-		fmt.Printf("Total P: %f\n", total)
 	}
 }
