@@ -21,17 +21,22 @@ const SITE_LEN = 6
 // has one.
 type Locus struct {
 	Pos       int
-	SC2       bool    // Does SC2 have a site here?
-	Count     int     // How many relatives have a site here
-	SameCount int     // How many relatives have the same thing as SC2 here
-	AltCount  int     // How many silent alternatives here.
-	P         float64 // Probability of SC2 having a site here after mutations
-	SS        float64 // Best sequence similarity in window around site
+	SC2       bool // Does SC2 have a site here?
+	Count     int  // How many relatives have a site here
+	SameCount int  // How many relatives have the same thing as SC2 here
+	AltCount  int  // How many silent alternatives here.
+
+	// Probability of SC2 having a site here after mutations
+	P float64
+
+	// A weighting fow how likely SC2 is to have a site here based on proximity
+	// to neighbours.
+	Weight float64
 }
 
 func (l Locus) String() string {
 	return fmt.Sprintf("%d %t %d %d %d %.04f %.04f",
-		l.Pos+1, l.SC2, l.Count, l.SameCount, l.AltCount, l.P, l.SS)
+		l.Pos+1, l.SC2, l.Count, l.SameCount, l.AltCount, l.P, l.Weight)
 }
 
 // How many unique places can you have a silent mutation in?
@@ -68,30 +73,25 @@ func countMuts(a, b []byte) int {
 	return ret
 }
 
-func bestSS(g *genomes.Genomes, pos, window int) float64 {
+func calcWeight(g *genomes.Genomes,
+	pos int, closest []outgroup.Proximity) float64 {
 	var ret float64
 
-	start := max(0, pos-window)
-	end := min(g.Length(), pos+window)
+	for _, p := range closest {
+		// If there are say 6 differences, then the probability of getting them
+		// all as random reversions is ~0.25**6
+		weight := math.Pow(0.25, float64(p.Differences))
 
-	for i := 1; i < g.NumGenomes(); i++ {
-		// Exclude the site itself
-		/*
-			before := g.SubSequenceSimilarity(0, i, start, pos, true)
-			after := g.SubSequenceSimilarity(0, i, pos, end, true)
-		*/
-		before := countMuts(g.Nts[0][start:pos], g.Nts[i][start:pos])
-		after := countMuts(g.Nts[0][pos:end], g.Nts[i][pos:end])
-
-		p := math.Pow(4, float64(before+after))
-
-		if i == 1 {
-			ret = 1 / p
-		} else {
-			ret = max(ret, 1/p)
+		// Since the weight expresses how likely you are to have a site here,
+		// it's nagtive if the relative doesn't have one.
+		if !hotspots.IsReSite(g.Nts[p.Which][pos : pos+SITE_LEN]) {
+			weight *= -1
 		}
+
+		// We average the weight over the n closest neighbours
+		ret += weight
 	}
-	return ret
+	return ret / float64(len(closest))
 }
 
 func (l *Locus) Init(g *genomes.Genomes, pos int, window int) {
@@ -113,7 +113,7 @@ func (l *Locus) Init(g *genomes.Genomes, pos int, window int) {
 	other := closest[0].Which
 	window = closest[0].Window
 
-	l.SS = 1 - float64(closest[0].Differences)/float64(closest[0].Window)
+	l.Weight = calcWeight(g, pos, closest)
 
 	start := max(0, pos-window)
 	end := min(g.Length(), pos+window)
@@ -215,7 +215,7 @@ func (r *Results) Show() {
 		if counts, there := r.PerCount[i]; there {
 			rate := float64(counts.Count) / float64(r.TotalCount)
 			weightedRate := counts.WeightedCount / r.TotalWeight
-			fmt.Printf("%d: %.06f %.06f\n", i, rate, weightedRate)
+			fmt.Printf("%d: %.06f %.06g\n", i, rate, weightedRate)
 		}
 	}
 }
@@ -239,11 +239,6 @@ func Montecarlo(g *genomes.Genomes,
 			if r.Int()%g.NumGenomes() > locus.Count {
 				continue
 			}
-			/*
-				if r.Float64() > locus.P {
-					continue
-				}
-			*/
 
 			numSites++
 			var gap int
@@ -254,7 +249,7 @@ func Montecarlo(g *genomes.Genomes,
 			}
 			maxGap = max(maxGap, gap)
 			lastPos = locus.Pos
-			weight *= locus.SS
+			weight *= locus.Weight
 		}
 		lastGap := g.Length() - lastPos
 		maxGap = max(maxGap, lastGap)
