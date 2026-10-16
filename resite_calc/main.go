@@ -24,11 +24,12 @@ type Locus struct {
 	SameCount int     // How many relatives have the same thing as SC2 here
 	AltCount  int     // How many silent alternatives here.
 	P         float64 // Probability of SC2 having a site here after mutations
+	SS        float64 // Best sequence similarity in window around site
 }
 
 func (l Locus) String() string {
-	return fmt.Sprintf("%d %t %d %d %d %.04f",
-		l.Pos+1, l.SC2, l.Count, l.SameCount, l.AltCount, l.P)
+	return fmt.Sprintf("%d %t %d %d %d %.04f %.04f",
+		l.Pos+1, l.SC2, l.Count, l.SameCount, l.AltCount, l.P, l.SS)
 }
 
 // How many unique places can you have a silent mutation in?
@@ -55,6 +56,24 @@ func countPositions(muts []mutations.Mutation) int {
 	return len(locations)
 }
 
+func bestSS(g *genomes.Genomes, start, end, pos int) float64 {
+	var ret float64
+
+	for i := 1; i < g.NumGenomes(); i++ {
+		// Exclude the site itself
+		before := g.SubSequenceSimilarity(0, i, start, pos, true)
+		after := g.SubSequenceSimilarity(0, i, pos, end, true)
+
+		mean := (before + after) / 2
+		if i == 1 {
+			ret = mean
+		} else {
+			ret = max(ret, mean)
+		}
+	}
+	return ret
+}
+
 func (l *Locus) Init(g *genomes.Genomes, pos int, window int) {
 	l.Pos = pos
 	l.SC2 = hotspots.IsReSite(g.Nts[0][pos : pos+SITE_LEN])
@@ -76,6 +95,7 @@ func (l *Locus) Init(g *genomes.Genomes, pos int, window int) {
 
 	start := max(0, pos-window)
 	end := min(g.Length(), pos+window)
+	l.SS = bestSS(g, start, end, pos)
 	possibleMuts := mutations.PossibleSilentMutsRegion(g, other, start, end)
 
 	// Of all the possible silent mutations in the region, how many are
