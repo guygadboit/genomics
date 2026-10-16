@@ -158,39 +158,19 @@ func FindLoci(g *genomes.Genomes, window int) []Locus {
 	return ret
 }
 
-func canFix(positions []int) bool {
-	if len(positions) != 6 {
-		return false
-	}
-	for i := 0; i < len(positions); i++ {
-		var maxGap, prev int
-		for j := 0; j < len(positions); j++ {
-			if j == i {
-				continue
-			}
-			maxGap = max(maxGap, positions[i]-prev)
-			prev = positions[i]
-			if maxGap >= 8000 {
-				return false
-			}
-		}
-	}
-	return true
-}
-
-func Montecarlo(loci []Locus,
-	numGenomes int, iterations int) (float64, float64) {
+func Montecarlo(g *genomes.Genomes,
+	loci []Locus, iterations int) float64 {
 	r := rand.New(rand.NewSource(78))
 
-	var good, fixable, totalSites int
+	var good, totalSites int
 	for i := 0; i < iterations; i++ {
 		var (
 			maxGap   int
 			numSites int
+			lastPos  int
 		)
-		positions := make([]int, 0, 15)
 		for i, locus := range loci {
-			if r.Int()%numGenomes > locus.Count {
+			if r.Int()%g.NumGenomes() > locus.Count {
 				continue
 			}
 
@@ -201,15 +181,12 @@ func Montecarlo(loci []Locus,
 			} else {
 				gap = locus.Pos
 			}
-			positions = append(positions, locus.Pos)
 			maxGap = max(maxGap, gap)
+			lastPos = locus.Pos
 		}
+		maxGap = max(g.Length() - lastPos)
 		if numSites == 5 && maxGap < 8000 {
 			good++
-		} else {
-			if canFix(positions) {
-				fixable++
-			}
 		}
 		totalSites += numSites
 	}
@@ -217,8 +194,7 @@ func Montecarlo(loci []Locus,
 	fmt.Printf("%.02f sites on average\n",
 		float64(totalSites)/float64(iterations))
 
-	return float64(good) / float64(iterations),
-		float64(good+fixable) / float64(iterations)
+	return float64(good) / float64(iterations)
 }
 
 func main() {
@@ -244,9 +220,9 @@ func main() {
 	var total float64
 
 	if mc {
-		good, fixable := Montecarlo(loci, g.NumGenomes(), 1000000)
-		fmt.Printf("Fraction of chimeras that are 6,<8k: %f (%f)\n",
-			good, fixable)
+		good := Montecarlo(g, loci, 10000)
+		fmt.Printf("Fraction of chimeras that are 6,<8k: %f\n",
+			good)
 	} else {
 		for _, locus := range loci {
 			fmt.Println(locus)
