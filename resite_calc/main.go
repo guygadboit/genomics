@@ -7,6 +7,7 @@ import (
 	"genomics/genomes"
 	"genomics/hotspots"
 	"genomics/mutations"
+	"log"
 	"math"
 	"math/rand"
 	"os"
@@ -20,13 +21,11 @@ const SITE_LEN = 6
 // has one.
 type Locus struct {
 	Pos       int
-	SC2       bool // Does SC2 have a site here?
-	Count     int  // How many relatives have a site here
-	SameCount int  // How many relatives have the same thing as SC2 here
-	AltCount  int  // How many silent alternatives here.
-
-	// Probability of SC2 having a site here after mutations
-	P float64
+	SC2       bool    // Does SC2 have a site here?
+	Count     int     // How many relatives have a site here
+	SameCount int     // How many relatives have the same thing as SC2 here
+	AltCount  int     // How many silent alternatives here.
+	P         float64 // Estimated probability of SC2 having a site here
 }
 
 func (l Locus) String() string {
@@ -82,7 +81,7 @@ func (l *Locus) Init(g *genomes.Genomes, pos int, window int) {
 		}
 	}
 
-	var p float64
+	var totalWeight float64
 	for i := 1; i < g.NumGenomes(); i++ {
 		start := max(0, pos-window)
 		end := min(g.Length(), pos+window)
@@ -107,7 +106,7 @@ func (l *Locus) Init(g *genomes.Genomes, pos int, window int) {
 		if err != nil {
 			// This can happen if you removed 0 from the alignment. We only do that
 			// when we're doing the Montecarlo, which doesn't use P anyway.
-			return
+			log.Fatal(err)
 		}
 		alternatives := env.FindAlternatives(SITE_LEN, true)
 		l.AltCount = len(alternatives) + 1
@@ -117,9 +116,10 @@ func (l *Locus) Init(g *genomes.Genomes, pos int, window int) {
 		// The weight is also 1, because no mutations.
 		if totalActual == 0 {
 			if haveSite {
-				p = 1.0
+				l.P += 1.0
 			}
-			break
+			totalWeight += 1.0
+			continue
 		}
 
 		// perNt is an estimate of the probability of each nt in this region
@@ -133,31 +133,29 @@ func (l *Locus) Init(g *genomes.Genomes, pos int, window int) {
 
 		// Now factor in the probability of keeping or losing the site due to
 		// mutational drift.
+		var p float64
 		if haveSite {
 			slots := totalSlots(g.Nts[0][pos:pos+SITE_LEN], alternatives)
 			// A mutation in any of those slots will silently remove the site.
 			// Th probability of missing each one of them is 1-perNt, and so
 			// the probability of missing all of them is 1-perNt ** slots
-			p = weight * math.Pow(1-perNt, float64(slots))
+			p = math.Pow(1-perNt, float64(slots))
 		} else {
 			for _, alt := range alternatives {
 				if haveSite {
 					if hotspots.IsReSite(alt.Nts) {
 						// To get the site you need to get lucky for each of
 						// the mutations you need.
-						p = weight * math.Pow(perNt, float64(alt.NumMuts))
+						p = math.Pow(perNt, float64(alt.NumMuts))
 						break
 					}
 				}
 			}
 		}
-		if pos == 9750 {
-			fmt.Printf("%d: %.06f\n", i, p)
-		}
+		l.P += p * weight
+		totalWeight += weight
 	}
-	l.P += p
-	numRelatives := float64(g.NumGenomes() - 1)
-	l.P /= numRelatives
+	l.P /= totalWeight
 }
 
 /*
