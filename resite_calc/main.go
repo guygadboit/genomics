@@ -7,7 +7,6 @@ import (
 	"genomics/genomes"
 	"genomics/hotspots"
 	"genomics/mutations"
-	"genomics/outgroup"
 	"math"
 	"math/rand"
 	"os"
@@ -28,15 +27,11 @@ type Locus struct {
 
 	// Probability of SC2 having a site here after mutations
 	P float64
-
-	// A weighting fow how likely SC2 is to have a site here based on proximity
-	// to neighbours.
-	Weight float64
 }
 
 func (l Locus) String() string {
-	return fmt.Sprintf("%d %t %d %d %d %.04f %.04f",
-		l.Pos+1, l.SC2, l.Count, l.SameCount, l.AltCount, l.P, l.Weight)
+	return fmt.Sprintf("%d %t %d %d %d %.04f",
+		l.Pos+1, l.SC2, l.Count, l.SameCount, l.AltCount, l.P)
 }
 
 // How many unique places can you have a silent mutation in?
@@ -73,27 +68,6 @@ func countMuts(a, b []byte) int {
 	return ret
 }
 
-func calcWeight(g *genomes.Genomes,
-	pos int, closest []outgroup.Proximity) float64 {
-	var ret float64
-
-	for _, p := range closest {
-		// If there are say 6 differences, then the probability of getting them
-		// all as random reversions is ~0.25**6
-		weight := math.Pow(0.25, float64(p.Differences))
-
-		// Since the weight expresses how likely you are to have a site here,
-		// it's negative if the relative doesn't have one.
-		if !hotspots.IsReSite(g.Nts[p.Which][pos : pos+SITE_LEN]) {
-			weight *= -1
-		}
-
-		// We average the weight over the n closest neighbours
-		ret += weight
-	}
-	return ret / float64(len(closest))
-}
-
 func (l *Locus) Init(g *genomes.Genomes, pos int, window int) {
 	l.Pos = pos
 	l.SC2 = hotspots.IsReSite(g.Nts[0][pos : pos+SITE_LEN])
@@ -108,74 +82,82 @@ func (l *Locus) Init(g *genomes.Genomes, pos int, window int) {
 		}
 	}
 
-	closest := outgroup.FindNumClosest(g, 0, pos,
-		SITE_LEN, window, 3, outgroup.KEEP_BEST)
-	other := closest[0].Which
-	window = closest[0].Window
+	var p float64
+	for i := 1; i < g.NumGenomes(); i++ {
+		start := max(0, pos-window)
+		end := min(g.Length(), pos+window)
+		possibleMuts := mutations.PossibleSilentMutsRegion(g, i, start, end)
 
-	l.Weight = calcWeight(g, pos, closest)
-
-	start := max(0, pos-window)
-	end := min(g.Length(), pos+window)
-	possibleMuts := mutations.PossibleSilentMutsRegion(g, other, start, end)
-
-	// Of all the possible silent mutations in the region, how many are
-	// actually there?
-	totalActual := 0
-	for _, mut := range possibleMuts {
-		if g.Nts[0][mut.Pos] == mut.To {
-			totalActual++
+		// Of all the possible silent mutations in the region, how many are
+		// actually there?
+		totalActual := 0
+		for _, mut := range possibleMuts {
+			if g.Nts[0][mut.Pos] == mut.To {
+				totalActual++
+			}
 		}
-	}
 
-	haveSite := hotspots.IsReSite(g.Nts[other][pos : pos+SITE_LEN])
-	if haveSite {
-		l.Count++
-	}
-
-	var env genomes.Environment
-	err := env.Init(g, pos, SITE_LEN, 0)
-	if err != nil {
-		// This can happen if you removed 0 from the alignment. We only do that
-		// when we're doing the Montecarlo, which doesn't use P anyway.
-		return
-	}
-	alternatives := env.FindAlternatives(SITE_LEN, true)
-	l.AltCount = len(alternatives) + 1
-
-	// If there aren't any actual mutations, the probability that you have
-	// a site here (if you got this bit from this relative) is just 1 or 0.
-	if totalActual == 0 {
+		haveSite := hotspots.IsReSite(g.Nts[i][pos : pos+SITE_LEN])
 		if haveSite {
-			l.P = 1.0
+			l.Count++
 		}
-		return
-	}
 
-	// perNt is an estimate of the probability of each nt in this region
-	// getting mutated. Of course you don't know whether the muts happened
-	// ages ago and the recombination yesterday though.
-	numPoss := countPositions(possibleMuts)
-	perNt := float64(totalActual) / float64(numPoss)
+		var env genomes.Environment
+		err := env.Init(g, pos, SITE_LEN, 0)
+		if err != nil {
+			// This can happen if you removed 0 from the alignment. We only do that
+			// when we're doing the Montecarlo, which doesn't use P anyway.
+			return
+		}
+		alternatives := env.FindAlternatives(SITE_LEN, true)
+		l.AltCount = len(alternatives) + 1
 
-	if haveSite {
-		slots := totalSlots(g.Nts[0][pos:pos+SITE_LEN], alternatives)
-		// A mutation in any of those slots will silently remove the site.
-		// Th probability of missing each one of them is 1-perNt, and so
-		// the probability of missing all of them is 1-perNt ** slots
-		l.P = math.Pow(1-perNt, float64(slots))
-	} else {
-		for _, alt := range alternatives {
+		// If there aren't any actual mutations, the probability that you have
+		// a site here (if you got this bit from this relative) is just 1 or 0.
+		// The weight is also 1, because no mutations.
+		if totalActual == 0 {
 			if haveSite {
-				if hotspots.IsReSite(alt.Nts) {
-					// To get the site you need to get lucky for each of
-					// the mutations you need.
-					l.P = math.Pow(perNt, float64(alt.NumMuts))
-					break
+				p = 1.0
+			}
+			break
+		}
+
+		// perNt is an estimate of the probability of each nt in this region
+		// getting mutated. Of course you don't know whether the muts happened
+		// ages ago and the recombination yesterday though.
+		numPoss := countPositions(possibleMuts)
+		perNt := float64(totalActual) / float64(numPoss)
+
+		// Downweight this result by how distant the relative is in this region
+		weight := math.Pow(perNt, float64(totalActual))
+
+		// Now factor in the probability of keeping or losing the site due to
+		// mutational drift.
+		if haveSite {
+			slots := totalSlots(g.Nts[0][pos:pos+SITE_LEN], alternatives)
+			// A mutation in any of those slots will silently remove the site.
+			// Th probability of missing each one of them is 1-perNt, and so
+			// the probability of missing all of them is 1-perNt ** slots
+			p = weight * math.Pow(1-perNt, float64(slots))
+		} else {
+			for _, alt := range alternatives {
+				if haveSite {
+					if hotspots.IsReSite(alt.Nts) {
+						// To get the site you need to get lucky for each of
+						// the mutations you need.
+						p = weight * math.Pow(perNt, float64(alt.NumMuts))
+						break
+					}
 				}
 			}
 		}
+		if pos == 9750 {
+			fmt.Printf("%d: %.06f\n", i, p)
+		}
 	}
+	l.P += p
+	numRelatives := float64(g.NumGenomes() - 1)
+	l.P /= numRelatives
 }
 
 /*
@@ -249,7 +231,6 @@ func Montecarlo(g *genomes.Genomes,
 			}
 			maxGap = max(maxGap, gap)
 			lastPos = locus.Pos
-			weight += locus.Weight
 		}
 		lastGap := g.Length() - lastPos
 		maxGap = max(maxGap, lastGap)
