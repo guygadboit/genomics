@@ -7,7 +7,6 @@ import (
 	"genomics/genomes"
 	"genomics/hotspots"
 	"genomics/mutations"
-	"log"
 	"math"
 	"math/rand"
 	"os"
@@ -104,9 +103,9 @@ func (l *Locus) Init(g *genomes.Genomes, pos int, window int) {
 		var env genomes.Environment
 		err := env.Init(g, pos, SITE_LEN, 0)
 		if err != nil {
-			// This can happen if you removed 0 from the alignment. We only do that
-			// when we're doing the Montecarlo, which doesn't use P anyway.
-			log.Fatal(err)
+			// This can happen if you swapped genomes around and end up with -
+			// in the alignment. In that case just skip this site.
+			continue
 		}
 		alternatives := env.FindAlternatives(SITE_LEN, true)
 		l.AltCount = len(alternatives) + 1
@@ -270,19 +269,22 @@ func LoadLoci() []Locus {
 
 func main() {
 	var (
-		mc       bool
 		fname    string
 		useSaved bool
+		ref      int
 	)
 
-	flag.BoolVar(&mc, "mc", false, "Montecarlo chimeras")
-	flag.BoolVar(&useSaved, "load", true, "Use saved loci")
+	flag.BoolVar(&useSaved, "load", false, "Use saved loci")
+	flag.IntVar(&ref, "ref", 0, "Use different genome for the reference")
 	flag.StringVar(&fname, "fname", "HassaninPlus.fasta", "Alignment to use")
 	flag.Parse()
 
 	g := genomes.LoadGenomes(path.Join("../fasta", fname),
 		"../fasta/WH1.orfs", false)
-	g.RemoveGaps()
+
+	if ref != 0 {
+		g = g.Swap(0, ref)
+	}
 
 	var loci []Locus
 	if useSaved {
@@ -292,15 +294,7 @@ func main() {
 		SaveLoci(loci)
 	}
 
-	var total float64
-
-	if mc {
-		results := Montecarlo(g, loci, 10000)
-		results.Show()
-	} else {
-		for _, locus := range loci {
-			fmt.Println(locus)
-			total += locus.P
-		}
+	for _, locus := range loci {
+		fmt.Println(locus)
 	}
 }
