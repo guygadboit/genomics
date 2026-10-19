@@ -62,7 +62,7 @@ func main() {
 
 	g := genomes.LoadGenomes(fasta, "", false)
 	if removeGaps {
-		g.RemoveGaps()
+		g.RemoveGaps(false)
 	}
 
 	checkRanges(g, ranges)

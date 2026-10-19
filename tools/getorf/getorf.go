@@ -41,7 +41,7 @@ func main() {
 			log.Fatal("Bad ORF name")
 		}
 		if removeGaps {
-			g.RemoveGaps()
+			g.RemoveGaps(false)
 		}
 
 		for j := 0; j < g.NumGenomes(); j++ {

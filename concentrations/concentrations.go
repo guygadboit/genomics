@@ -347,7 +347,7 @@ func main() {
 		which := utils.ParseInts(restrict, ",")
 		g = g.Filter(which...)
 	}
-	g.RemoveGaps()
+	g.RemoveGaps(false)
 
 	if summary {
 		mutations.Summary(g)

@@ -258,7 +258,7 @@ func main() {
 	var stack Stack
 	argi := len(os.Args) - flag.NArg()
 	g := genomes.LoadGenomes(os.Args[argi], orfs, false)
-	g.RemoveGaps()
+	g.RemoveGaps(false)
 
 	results := make(Results)
 

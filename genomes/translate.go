@@ -180,6 +180,18 @@ loop:
 	return ret
 }
 
+func (orfs Orfs) Save(fname string) {
+	fd, fp := utils.WriteFile(fname)
+	defer func() {
+		fp.Close()
+		fd.Close()
+	}()
+
+	for _, orf := range orfs {
+		fmt.Fprintf(fp, "%-5d %-5d %s\n", orf.Start+1, orf.End, orf.Name)
+	}
+}
+
 /*
 Return the start of the codon and where pos is in it. We just do a linear
 search since there aren't usually that many ORFs and this is probably as
@@ -382,6 +394,21 @@ type Alternative struct {
 }
 
 type Alternatives []Alternative
+
+func (a Alternatives) Print() {
+	for _, alt := range a {
+		fmt.Printf("%d: %s\n", alt.NumMuts, string(alt.Nts))
+	}
+}
+
+func (a Alternatives) Contains(nts []byte) bool {
+	for _, alt := range a {
+		if reflect.DeepEqual(alt.Nts, nts) {
+			return true
+		}
+	}
+	return false
+}
 
 // Iterator for finding the alternatives to a given subsequence
 type altIter struct {

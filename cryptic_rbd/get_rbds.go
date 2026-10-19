@@ -8,7 +8,7 @@ import (
 func main() {
 	g := genomes.LoadGenomes("../fasta/more_relatives.fasta",
 		"../fasta/WH1.orfs", false)
-	g.RemoveGaps()
+	g.RemoveGaps(false)
 
 	/*
 	translation := genomes.Translate(g, 0)

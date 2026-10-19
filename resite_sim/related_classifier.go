@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"genomics/genomes"
+	"genomics/hotspots"
 	"math"
 	"reflect"
 	"sort"
@@ -37,7 +38,12 @@ func (c *Classifier) Init() {
 	c.relatives = genomes.LoadGenomes("../fasta/Temmam.fasta",
 		"../fasta/WH1.orfs", false)
 
-	c.relatives.RemoveGaps()
+	/*
+		c.relatives = genomes.LoadGenomes("../fasta/HassaninPlus.fasta",
+			"../fasta/WH1.orfs", false)
+	*/
+
+	c.relatives.RemoveGaps(false)
 
 	// Find the places where any of them have a site
 	sites := make(map[int]bool)
@@ -248,29 +254,25 @@ func (c *Classifier) ExploreNeighbours() {
 	fmt.Println("Wrote alignment.clu")
 }
 
-func isReSite(pattern []byte) bool {
-	for _, site := range RE_SITES {
-		if reflect.DeepEqual(pattern, site.pattern) {
-			return true
-		}
-	}
-	return false
-}
-
 type Site struct {
-	Pos   int
-	Count int
+	Pos   int     // where it is
+	Count int     // how many relatives it's in
 }
 
 func CountCombinations(sites []Site) {
 	n := len(sites)
+	numCombinations := 1 << n
 	if n > 64 {
 		fmt.Println("Not enough bits")
 		return
 	}
 
-	var total, totalGood int
+	var (
+		total, totalGood int
+		totalSites       int
+	)
 
+	fmt.Printf("%d loci\n", n)
 	for i := 0; i < 1<<n; i++ {
 		var numSites, maxGap, weight int
 
@@ -288,10 +290,13 @@ func CountCombinations(sites []Site) {
 		if numSites == 6 && maxGap <= 8000 {
 			totalGood += weight
 		}
+		totalSites += numSites
 	}
 	fmt.Printf("%d/%d %.4f\n", totalGood,
 		total, float64(totalGood)/float64(total))
 
+	meanSites := float64(totalSites) / float64(numCombinations)
+	fmt.Printf("Mean number of sites: %.02f\n", meanSites)
 }
 
 func (c *Classifier) ExploreMissingSites() []Site {
@@ -315,7 +320,7 @@ func (c *Classifier) ExploreMissingSites() []Site {
 		// Show places where either SC2 has a site...
 		good := false
 		var haveSite string
-		if isReSite(have) {
+		if hotspots.IsReSite(have) {
 			haveSite = "*"
 			good = true
 		}
@@ -328,7 +333,7 @@ func (c *Classifier) ExploreMissingSites() []Site {
 			// ... or where it differs silently from some alternative that has
 			// one.
 			for _, alt := range alternatives {
-				if isReSite(alt.Nts) {
+				if hotspots.IsReSite(alt.Nts) {
 					good = true
 					break
 				}
@@ -346,7 +351,7 @@ func (c *Classifier) ExploreMissingSites() []Site {
 
 		for _, alt := range alternatives {
 			var isSite string
-			if isReSite(alt.Nts) {
+			if hotspots.IsReSite(alt.Nts) {
 				isSite = "*"
 				good = true
 			}

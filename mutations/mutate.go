@@ -251,8 +251,13 @@ func Summary(g *genomes.Genomes) {
 }
 
 func possibleMuts(g *genomes.Genomes,
-	which int, cb func(int, byte, byte)) {
-	for pos := 0; pos < g.Length(); pos++ {
+	which, start, end int, cb func(int, byte, byte)) {
+
+	if end == -1 {
+		end = g.Length()
+	}
+
+	for pos := start; pos < end; pos++ {
 		nt := g.Nts[which][pos]
 		for _, replacement := range []byte{'G', 'A', 'C', 'T'} {
 			if replacement == nt {
@@ -264,9 +269,9 @@ func possibleMuts(g *genomes.Genomes,
 }
 
 func getPossibleMuts(g *genomes.Genomes,
-	which int, wantSilent bool) []Mutation {
+	which, start, end int, wantSilent bool) []Mutation {
 	ret := make([]Mutation, 0)
-	possibleMuts(g, which, func(pos int, from, to byte) {
+	possibleMuts(g, which, start, end, func(pos int, from, to byte) {
 		silent, _, err := genomes.IsSilentWithReplacement(g, pos, 0, 0,
 			[]byte{to})
 		if err != nil {
@@ -284,11 +289,16 @@ All the possible silent muts (excludes those outside ORFs), looking at one nt
 at a time. Approximates isolated SNVs.
 */
 func PossibleSilentMuts(g *genomes.Genomes, which int) []Mutation {
-	return getPossibleMuts(g, which, true)
+	return getPossibleMuts(g, which, 0, -1, true)
+}
+
+func PossibleSilentMutsRegion(g *genomes.Genomes,
+	which, start, end int) []Mutation {
+	return getPossibleMuts(g, which, start, end, true)
 }
 
 func PossibleNonSilentMuts(g *genomes.Genomes, which int) []Mutation {
-	return getPossibleMuts(g, which, false)
+	return getPossibleMuts(g, which, 0, -1, false)
 }
 
 /*

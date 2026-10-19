@@ -622,7 +622,7 @@ func main() {
 		g = genomes.LoadGenomes("../fasta/relatives.fasta",
 			"../fasta/WH1.orfs", false)
 	}
-	g.RemoveGaps()
+	g.RemoveGaps(false)
 
 	var tags []Tag
 

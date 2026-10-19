@@ -223,7 +223,7 @@ func main() {
 	/*
 		g := genomes.LoadGenomes("../fasta/more_relatives.fasta",
 			"../fasta/WH1.orfs", false)
-		g.RemoveGaps()
+		g.RemoveGaps(false)
 	*/
 	g := genomes.LoadGenomes("./RelativesPlusKhosta.fasta",
 		"../fasta/WH1.orfs", false)

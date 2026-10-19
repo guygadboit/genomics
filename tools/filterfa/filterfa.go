@@ -143,7 +143,7 @@ func main() {
 		g2 = g
 	}
 	if removeGaps {
-		g2.RemoveGaps()
+		g2.RemoveGaps(false)
 	}
 	if dedupe {
 		g2 = g.Dedupe()

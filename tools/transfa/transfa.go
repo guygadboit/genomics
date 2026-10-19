@@ -146,7 +146,7 @@ func main() {
 
 	g := genomes.LoadGenomes(flag.Arg(0), orfs, false)
 	if removeGaps {
-		g.RemoveGaps()
+		g.RemoveGaps(false)
 	}
 
 	if include != "" {

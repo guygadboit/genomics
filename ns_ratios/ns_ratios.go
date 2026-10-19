@@ -38,7 +38,7 @@ func main() {
 	flag.Parse()
 
 	g := genomes.LoadGenomes(fasta, orfs, false)
-	g.RemoveGaps()
+	g.RemoveGaps(false)
 
 	if spikeOnly {
 		S, err := g.Orfs.Find("S")

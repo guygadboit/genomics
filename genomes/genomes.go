@@ -475,13 +475,42 @@ func (g *Genomes) Slice(which, start, end int) []byte {
 	return nts[start:end]
 }
 
+func scrunchOrfs(orfs Orfs, orf, pos int) {
+	// All the orfs above the current one need translating
+	for i := orf + 1; i < len(orfs); i++ {
+		orfs[i].Start--
+		orfs[i].End--
+	}
+
+	// If we aren't in the first orf yet, or off the end of the last one then
+	// we're done
+	if orf == -1 || orf == len(orfs) {
+		return
+	}
+
+	// If we are in one, the End moves down, and also the Start if we're right
+	// on the start.
+	orfs[orf].End--
+	if pos == 0 {
+		orfs[orf].Start--
+	}
+}
+
+// Just for debugging
+func (g *Genomes) ShowORFStarts(which int) {
+	for _, orf := range g.Orfs {
+		nts := g.Nts[which][orf.Start : orf.Start+20]
+		fmt.Printf("%s: %d %s\n", orf.Name, orf.Start, string(nts))
+	}
+}
+
 /*
 Whereever there is a gap in the first genome of an alignment, just remove that
 column. You will need to do this for comparisons involving translations to work
 as the Orfs don't take into account gaps, and neither do Environment
 operations. Returns how many we dropped.
 */
-func (g *Genomes) RemoveGaps() int {
+func (g *Genomes) RemoveGaps(adjustOrfs bool) int {
 	var ret int
 	nts := g.Nts
 	newNts := make([][]byte, g.NumGenomes())
@@ -490,9 +519,31 @@ func (g *Genomes) RemoveGaps() int {
 		newNts[i] = make([]byte, 0, g.Length())
 	}
 
-	for i := 0; i < g.Length(); i++ {
+	orf := -1 // Before start of first orf
+	orfPos := 0
+
+	for i := 0; i < g.Length(); i, orfPos = i+1, orfPos+1 {
+		switch orf {
+		case -1:
+			if orfPos == g.Orfs[0].Start {
+				orf, orfPos = 0, 0
+			}
+		case len(g.Orfs):
+			break
+		default:
+			if i == g.Orfs[orf].End {
+				orf++
+				orfPos = 0
+			}
+		}
+
 		if nts[0][i] == '-' {
 			ret++
+
+			if adjustOrfs {
+				scrunchOrfs(g.Orfs, orf, orfPos)
+			}
+
 			continue
 		}
 

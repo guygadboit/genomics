@@ -259,7 +259,7 @@ func main() {
 	flag.Parse()
 
 	g := genomes.LoadGenomes(fasta, orfs, false)
-	g.RemoveGaps()
+	g.RemoveGaps(false)
 
 	windowSizes := utils.ParseInts(windowSizesS, ",")
 	windows := makeWindows(windowSizes[0],

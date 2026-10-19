@@ -53,7 +53,7 @@ func main() {
 
 	argi := len(os.Args) - flag.NArg()
 	g := genomes.LoadGenomes(os.Args[argi], orfs, false)
-	g.RemoveGaps()
+	g.RemoveGaps(false)
 
 	start -= 1 // because 1-based
 	results := countPattern(g, start, end)

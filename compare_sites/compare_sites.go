@@ -437,7 +437,7 @@ func main() {
 		g := genomes.LoadGenomes("../fasta/relatives.fasta",
 			"../fasta/WH1.orfs", false)
 	*/
-	g.RemoveGaps()
+	g.RemoveGaps(false)
 
 	interesting := []string{
 		"GGTCTC", // BsaI

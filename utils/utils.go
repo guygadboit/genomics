@@ -173,6 +173,8 @@ func (b BufioWriter) Close() error {
 	return nil
 }
 
+// FIXME: Really you should just return one object which you close, which
+// closes both.
 func WriteFile(fname string) (*os.File, io.WriteCloser) {
 	fd, err := os.Create(fname)
 	if err != nil {

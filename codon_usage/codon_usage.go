@@ -253,7 +253,7 @@ func (r RelTranslation) ENc() float64 {
 func CopyWithoutGaps(g *genomes.Genomes, which int) *genomes.Genomes {
 	g2 := g.Filter(which)
 	g2.DeepCopy(0)
-	g2.RemoveGaps()
+	g2.RemoveGaps(false)
 	return g2
 }
 

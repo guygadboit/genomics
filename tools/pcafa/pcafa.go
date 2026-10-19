@@ -609,7 +609,7 @@ func main() {
 
 	for _, s := range sources {
 		g := genomes.LoadGenomes(s.fasta, s.orfs, false)
-		g.RemoveGaps() // that's in the first one
+		g.RemoveGaps(false) // that's in the first one
 
 		if fill {
 			g.FillGaps() // that's in the others

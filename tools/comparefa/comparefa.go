@@ -59,7 +59,7 @@ func main() {
 		if i == 0 {
 			g = genomes.LoadGenomes(fname, orfName, false)
 			if !keepGaps {
-				g.RemoveGaps()
+				g.RemoveGaps(false)
 			}
 		} else {
 			g2 := genomes.LoadGenomes(fname, orfName, false)
