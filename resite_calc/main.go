@@ -128,20 +128,9 @@ func (l *Locus) Init(g *genomes.Genomes,
 			l.Count++
 		}
 
-		// If there aren't any actual mutations, the probability that you have
-		// a site here (if you got this bit from this relative) is just 1 or 0.
-		// The weight is also 1, because no mutations.
-		if totalActual == 0 {
-			if haveSite {
-				l.P += 1.0
-			}
-			totalWeight += 1.0
-			continue
-		}
-
 		// pMut is an estimate of the probability of getting each possible
-		// mutation.
-		pMut := float64(totalActual) / float64(len(possibleMuts))
+		// mutation. +1 because uniform priors
+		pMut := float64(totalActual+1) / float64(len(possibleMuts))
 
 		// Downweight this result by how distant the relative is in this region
 		weight := math.Pow(pMut, float64(totalActual))
