@@ -1,0 +1,26 @@
+\documentclass{article}
+\usepackage{amsmath}
+\begin{document}
+$
+\bar{p} = \frac{\sum_i w_i\, p_i}{\sum_i w_i},
+\qquad
+w_i = r_i^{N_i},
+\qquad
+p_i =
+\begin{cases}
+	(1-r_i)^{s_i} & \text{if } \text{got}_i \\
+	r_i^{t_i}(1-r_i)^{6-t_i} & \text{otherwise} \footnotemark \\
+\end{cases}
+$
+\begin{itemize}
+	\item[$i$] ranges over the related viruses
+	\item[$\text{got}_i$] true if the $i$th member has a site at this location
+	\item[$r_i$] silent mutation rate in the window
+	\item[$s_i$] the number of mutations that would remove a site
+	\item[$t_i$] the number of mutations required to add a site
+	\item[$N_i$] the number of actual silent mutations in the window
+\end{itemize}
+\begin{footnotesize}
+\noindent\textit{1:} In the rare cases where more than one site is possible with silent mutations (e.g. sometimes GAGACC and GAGACG) we sum over those, but I haven't written the formula for that for simplicity.
+\end{footnotesize}
+\end{document}
