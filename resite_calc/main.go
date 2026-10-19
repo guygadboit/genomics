@@ -105,7 +105,7 @@ func (l *Locus) Init(g *genomes.Genomes,
 		have := g.Nts[i][pos : pos+SITE_LEN]
 
 		start := max(0, pos-window)
-		end := min(g.Length(), pos+window)
+		end := min(g.Length(), pos+SITE_LEN+window)
 
 		possBefore := mutations.PossibleSilentMutsRegion(g, i, start, pos)
 		possAfter := mutations.PossibleSilentMutsRegion(g, i, pos+SITE_LEN, end)
