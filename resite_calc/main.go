@@ -106,7 +106,13 @@ func (l *Locus) Init(g *genomes.Genomes,
 
 		start := max(0, pos-window)
 		end := min(g.Length(), pos+window)
-		possibleMuts := mutations.PossibleSilentMutsRegion(g, i, start, end)
+
+		possBefore := mutations.PossibleSilentMutsRegion(g, i, start, pos)
+		possAfter := mutations.PossibleSilentMutsRegion(g, i, pos+SITE_LEN, end)
+		possibleMuts := make([]mutations.Mutation,
+			0, len(possBefore)+len(possAfter))
+		possibleMuts = append(possibleMuts, possBefore...)
+		possibleMuts = append(possibleMuts, possAfter...)
 
 		// Of all the possible silent mutations in the region, how many are
 		// actually there?
