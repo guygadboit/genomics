@@ -77,7 +77,7 @@ func countMuts(a, b []byte) int {
 func (l *Locus) Init(g *genomes.Genomes,
 	alternatives genomes.Alternatives,
 	have0 bool, pos, window int,
-	weightCb func(i int, weight float64)) {
+	weightCb func(i, pos int, weight float64)) {
 
 	// Put what SC2 has in as the first alternative so it's just a complete
 	// set.
@@ -146,7 +146,7 @@ func (l *Locus) Init(g *genomes.Genomes,
 		// Downweight this result by how distant the relative is in this region
 		weight := math.Pow(pMut, float64(totalActual))
 		if weightCb != nil {
-			weightCb(i, weight)
+			weightCb(i, pos, weight)
 		}
 
 		// Now factor in the probability of keeping or losing the site due to
@@ -182,7 +182,61 @@ func (l *Locus) Init(g *genomes.Genomes,
 	l.P /= totalWeight
 }
 
-type Weights map[int]float64
+type WeightMap struct {
+	entries map[int]float64
+	total   float64
+}
+
+func (wm *WeightMap) Init() {
+	wm.entries = make(map[int]float64)
+}
+
+func (wm *WeightMap) Add(relative int, weight float64) {
+	wm.entries[relative] += weight
+	wm.total += weight
+}
+
+func (wm WeightMap) Summarize(g *genomes.Genomes) {
+	type record struct {
+		index  int
+		weight float64
+	}
+	data := make([]record, 0, len(wm.entries))
+	for k, v := range wm.entries {
+		data = append(data, record{k, v})
+	}
+	utils.SortByKey(data, false, func(datum record) float64 {
+		return datum.weight
+	})
+	for i := 0; i < min(20, len(data)); i++ {
+		datum := data[i]
+		fmt.Printf("%-20s %f\n", g.Names[datum.index], datum.weight/wm.total)
+	}
+}
+
+type Weights struct {
+	overall WeightMap
+	perSite map[int]WeightMap
+}
+
+func (w *Weights) Init() {
+	w.overall.Init()
+	w.perSite = make(map[int]WeightMap)
+}
+
+func (w *Weights) Update(relative, pos int, weight float64) {
+	var (
+		perSite WeightMap
+		there   bool
+	)
+	if perSite, there = w.perSite[pos]; !there {
+		perSite.Init()
+	}
+
+	perSite.Add(relative, weight)
+	w.perSite[pos] = perSite
+	w.overall.Add(relative, weight)
+}
 
 /*
 Find anywhere there is something that either is or could be silently mutated
@@ -193,7 +247,8 @@ func FindLoci(g *genomes.Genomes, window int) ([]Locus, Weights) {
 	ret := make([]Locus, 0)
 
 	// Track which viruses contribute the most weight to the final result
-	weights := make(Weights)
+	var weights Weights
+	weights.Init()
 
 	const (
 		NO_SITE = iota
@@ -232,8 +287,8 @@ func FindLoci(g *genomes.Genomes, window int) ([]Locus, Weights) {
 
 		var locus Locus
 		locus.Init(g, alternatives, status == HAVE, i, window,
-			func(i int, weight float64) {
-				weights[i] += weight
+			func(i, pos int, weight float64) {
+				weights.Update(i, pos, weight)
 			})
 		ret = append(ret, locus)
 	}
@@ -304,23 +359,20 @@ func LoadLoci() []Locus {
 }
 
 func (w Weights) Summarize(g *genomes.Genomes) {
-	type record struct {
-		index  int
-		weight float64
-	}
-	data := make([]record, 0, len(w))
-	var total float64
-	for k, v := range w {
-		data = append(data, record{k, v})
-		total += v
-	}
-	utils.SortByKey(data, false, func(datum record) float64 {
-		return datum.weight
-	})
 	fmt.Printf("Top contributing relatives by proportion of total weight:\n")
-	for i := 0; i < min(20, len(data)); i++ {
-		datum := data[i]
-		fmt.Printf("%s: %f\n", g.Names[datum.index], datum.weight)
+	fmt.Println("Overall")
+	w.overall.Summarize(g)
+
+	fmt.Println("Per site")
+	sites := make([]int, 0, len(w.perSite))
+	for k, _ := range w.perSite {
+		sites = append(sites, k)
+	}
+	slices.Sort(sites)
+
+	for _, pos := range sites {
+		fmt.Printf("Location %d\n", pos+1)
+		w.perSite[pos].Summarize(g)
 	}
 }
 
