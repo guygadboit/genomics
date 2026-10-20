@@ -412,12 +412,12 @@ func pickBetaParams(prior, weight float64) (α float64, β float64) {
 	return
 }
 
-func ScanBetas(g *genomes.Genomes, its int) {
-	for w := 1e-3; w < 1e3; w *= 10 {
-		α, β := pickBetaParams(0.005, w)
+func ScanBetas(g *genomes.Genomes, ratio float64, its int) {
+	for w := 1e-6; w < 1e3; w *= 10 {
+		α, β := pickBetaParams(ratio, w)
 		loci, _ := FindLoci(g, 50, α, β)
 		result := Montecarlo(g, loci, its, false)
-		fmt.Printf("%f %f %f\n", α, β, result)
+		fmt.Printf("Beta(%f, %f) %f\n", α, β, result)
 	}
 }
 
@@ -429,14 +429,15 @@ func main() {
 		mc     bool
 		beta   string
 		its    int
-		scan   bool
+		scan   float64
 	)
 
 	flag.IntVar(&ref, "ref", 0, "Use different genome for the reference")
 	flag.StringVar(&fname, "fname", "HassaninPlus.fasta", "Alignment to use")
 	flag.IntVar(&window, "window", 50, "What window size to use")
 	flag.BoolVar(&mc, "mc", false, "Montecarlo")
-	flag.BoolVar(&scan, "scan", false, "Try different Beta functions")
+	flag.Float64Var(&scan,
+		"scan", 0.0, "Try different Beta for given pseudocount ratio")
 	flag.StringVar(&beta, "beta", "", "Beta Function coefficients")
 	flag.IntVar(&its, "iterations", 100000, "Montecarlo iterations")
 	flag.Parse()
@@ -449,8 +450,16 @@ func main() {
 		g.RemoveGaps(true)
 	}
 
-	if scan {
-		ScanBetas(g, its)
+	if scan != 0.0 {
+		/*
+			0.005 is probably right for the ratio to get a prior based on
+			50nts either side, 1e-4 silent muts per site per year, and 50
+			years. At reasonable weights it doesn't make much difference. MBW
+			reckons 1,-1 (which just adds one to the numerator) is justified.
+			That's a uniform prior which seems too high as we know these are
+			closely related sequences.
+		*/
+		ScanBetas(g, scan, its)
 		return
 	}
 
