@@ -302,7 +302,7 @@ func FindLoci(g *genomes.Genomes, window int, α, β float64) ([]Locus, Weights)
 }
 
 func Montecarlo(g *genomes.Genomes,
-	loci []Locus, iterations int) {
+	loci []Locus, iterations int, verbose bool) float64 {
 	r := rand.New(rand.NewSource(78))
 
 	var totalSites int
@@ -338,11 +338,16 @@ func Montecarlo(g *genomes.Genomes,
 
 	passRate := float64(good) / float64(iterations)
 	meanSites := float64(totalSites) / float64(iterations)
-	fmt.Printf(`Montecarlo
+
+	if verbose {
+		fmt.Printf(`Montecarlo
 ==========
 Average number of sites: %f
 Fraction passing DEFUSE criteria: %f
 `, meanSites, passRate)
+	}
+
+	return passRate
 }
 
 func SaveLoci(loci []Locus) {
@@ -377,7 +382,11 @@ func (w Weights) Summarize(g *genomes.Genomes) {
 	slices.Sort(sites)
 
 	for _, pos := range sites {
-		fmt.Printf("Location %d\n", pos+1)
+		s := "Location"
+		if hotspots.IsReSite(g.Nts[0][pos : pos+SITE_LEN]) {
+			s += "*"
+		}
+		fmt.Printf("%s %d\n", s, pos+1)
 		w.perSite[pos].Summarize(g)
 	}
 }
@@ -397,6 +406,21 @@ func parseBeta(s string) (float64, float64) {
 	return α, β
 }
 
+func pickBetaParams(prior, weight float64) (α float64, β float64) {
+	α = weight
+	β = weight * ((1 / prior) - 1)
+	return
+}
+
+func ScanBetas(g *genomes.Genomes, its int) {
+	for w := 1e-3; w < 1e3; w *= 10 {
+		α, β := pickBetaParams(0.005, w)
+		loci, _ := FindLoci(g, 50, α, β)
+		result := Montecarlo(g, loci, its, false)
+		fmt.Printf("%f %f %f\n", α, β, result)
+	}
+}
+
 func main() {
 	var (
 		fname  string
@@ -405,12 +429,14 @@ func main() {
 		mc     bool
 		beta   string
 		its    int
+		scan   bool
 	)
 
 	flag.IntVar(&ref, "ref", 0, "Use different genome for the reference")
 	flag.StringVar(&fname, "fname", "HassaninPlus.fasta", "Alignment to use")
 	flag.IntVar(&window, "window", 50, "What window size to use")
 	flag.BoolVar(&mc, "mc", false, "Montecarlo")
+	flag.BoolVar(&scan, "scan", false, "Try different Beta functions")
 	flag.StringVar(&beta, "beta", "", "Beta Function coefficients")
 	flag.IntVar(&its, "iterations", 100000, "Montecarlo iterations")
 	flag.Parse()
@@ -423,6 +449,11 @@ func main() {
 		g.RemoveGaps(true)
 	}
 
+	if scan {
+		ScanBetas(g, its)
+		return
+	}
+
 	α, β := parseBeta(beta)
 	loci, weights := FindLoci(g, window, α, β)
 
@@ -432,7 +463,7 @@ func main() {
 
 	// Gotta do this before you sort the loci
 	if mc {
-		Montecarlo(g, loci, its)
+		Montecarlo(g, loci, its, true)
 	}
 
 	utils.SortByKey(loci, true, func(l Locus) float64 {
