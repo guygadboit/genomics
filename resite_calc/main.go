@@ -9,12 +9,14 @@ import (
 	"genomics/mutations"
 	"genomics/outgroup"
 	"genomics/utils"
+	"log"
 	"math"
 	"math/rand"
 	"os"
 	"path"
 	"reflect"
 	"slices"
+	"strings"
 )
 
 const SITE_LEN = 6
@@ -76,6 +78,7 @@ func countMuts(a, b []byte) int {
 
 func (l *Locus) Init(g *genomes.Genomes,
 	alternatives genomes.Alternatives,
+	α, β float64,
 	have0 bool, pos, window int,
 	weightCb func(i, pos int, weight float64)) {
 
@@ -128,20 +131,21 @@ func (l *Locus) Init(g *genomes.Genomes,
 			l.Count++
 		}
 
+		// pMut is an estimate of the probability of getting each possible
+		// mutation.
+		pMut := (float64(totalActual) + α) /
+			(float64(len(possibleMuts)) + α + β)
+
 		// If there aren't any actual mutations, the probability that you have
 		// a site here (if you got this bit from this relative) is just 1 or 0.
 		// The weight is also 1, because no mutations.
-		if totalActual == 0 {
+		if pMut == 0.0 {
 			if haveSite {
 				l.P += 1.0
 			}
 			totalWeight += 1.0
 			continue
 		}
-
-		// pMut is an estimate of the probability of getting each possible
-		// mutation.
-		pMut := float64(totalActual) / float64(len(possibleMuts))
 
 		// Downweight this result by how distant the relative is in this region
 		weight := math.Pow(pMut, float64(totalActual))
@@ -243,7 +247,7 @@ Find anywhere there is something that either is or could be silently mutated
 into a site. Each Locus contains an estimated probability that SC2 would have a
 site there after recombination and point mutation from the family members in g
 */
-func FindLoci(g *genomes.Genomes, window int) ([]Locus, Weights) {
+func FindLoci(g *genomes.Genomes, window int, α, β float64) ([]Locus, Weights) {
 	ret := make([]Locus, 0)
 
 	// Track which viruses contribute the most weight to the final result
@@ -286,7 +290,9 @@ func FindLoci(g *genomes.Genomes, window int) ([]Locus, Weights) {
 		}
 
 		var locus Locus
-		locus.Init(g, alternatives, status == HAVE, i, window,
+		locus.Init(g, alternatives,
+			α, β,
+			status == HAVE, i, window,
 			func(i, pos int, weight float64) {
 				weights.Update(i, pos, weight)
 			})
@@ -376,18 +382,37 @@ func (w Weights) Summarize(g *genomes.Genomes) {
 	}
 }
 
+func parseBeta(s string) (float64, float64) {
+	if s == "" {
+		return 0.0, 0.0
+	}
+
+	fields := strings.Split(s, ",")
+	if len(fields) != 2 {
+		log.Fatal("Invalid beta params <%s>", s)
+	}
+
+	α := utils.Atof(fields[0])
+	β := utils.Atof(fields[1])
+	return α, β
+}
+
 func main() {
 	var (
 		fname  string
 		ref    int
 		window int
 		mc     bool
+		beta   string
+		its    int
 	)
 
 	flag.IntVar(&ref, "ref", 0, "Use different genome for the reference")
 	flag.StringVar(&fname, "fname", "HassaninPlus.fasta", "Alignment to use")
 	flag.IntVar(&window, "window", 50, "What window size to use")
 	flag.BoolVar(&mc, "mc", false, "Montecarlo")
+	flag.StringVar(&beta, "beta", "", "Beta Function coefficients")
+	flag.IntVar(&its, "iterations", 100000, "Montecarlo iterations")
 	flag.Parse()
 
 	g := genomes.LoadGenomes(path.Join("../fasta", fname),
@@ -398,7 +423,8 @@ func main() {
 		g.RemoveGaps(true)
 	}
 
-	loci, weights := FindLoci(g, window)
+	α, β := parseBeta(beta)
+	loci, weights := FindLoci(g, window, α, β)
 
 	totalP := 0.0
 	totalOff := 0.0
@@ -406,7 +432,7 @@ func main() {
 
 	// Gotta do this before you sort the loci
 	if mc {
-		Montecarlo(g, loci, 100000)
+		Montecarlo(g, loci, its)
 	}
 
 	utils.SortByKey(loci, true, func(l Locus) float64 {
