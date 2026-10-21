@@ -471,7 +471,7 @@ func ScanBetas(g *genomes.Genomes, ratio float64, its int) {
 		win := FixedWindow(50)
 		loci, _ := FindLoci(g, &win, α, β)
 		result := Montecarlo(g, loci, its, false)
-		fmt.Printf("Beta(%f, %f) %f\n", α, β, result)
+		fmt.Printf("Beta(%f, %f) w=%f ratio=%f %f\n", α, β, w, ratio, result)
 	}
 }
 
