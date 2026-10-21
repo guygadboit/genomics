@@ -143,6 +143,9 @@ func (l *Locus) Init(g *genomes.Genomes,
 			if haveSite {
 				l.P += 1.0
 			}
+			if weightCb != nil {
+				weightCb(i, pos, 1.0)
+			}
 			totalWeight += 1.0
 			continue
 		}
