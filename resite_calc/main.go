@@ -78,8 +78,7 @@ func countMuts(a, b []byte) int {
 
 func (l *Locus) Init(g *genomes.Genomes,
 	alternatives genomes.Alternatives,
-	α, β float64,
-	have0 bool, pos, window int,
+	α, β float64, have0 bool, pos int, window Window,
 	weightCb func(i, pos int, weight float64)) {
 
 	// Put what SC2 has in as the first alternative so it's just a complete
@@ -106,9 +105,10 @@ func (l *Locus) Init(g *genomes.Genomes,
 	var totalWeight float64
 	for i := 1; i < g.NumGenomes(); i++ {
 		have := g.Nts[i][pos : pos+SITE_LEN]
+		win := window.Get(pos)
 
-		start := max(0, pos-window)
-		end := min(g.Length(), pos+SITE_LEN+window)
+		start := max(0, pos-win)
+		end := min(g.Length(), pos+SITE_LEN+win)
 
 		possBefore := mutations.PossibleSilentMutsRegion(g, i, start, pos)
 		possAfter := mutations.PossibleSilentMutsRegion(g, i, pos+SITE_LEN, end)
@@ -200,7 +200,7 @@ func (wm *WeightMap) Add(relative int, weight float64) {
 	wm.total += weight
 }
 
-func (wm WeightMap) Summarize(g *genomes.Genomes) {
+func (wm WeightMap) Summarize(g *genomes.Genomes, pos int) {
 	type record struct {
 		index  int
 		weight float64
@@ -214,18 +214,27 @@ func (wm WeightMap) Summarize(g *genomes.Genomes) {
 	})
 	for i := 0; i < min(20, len(data)); i++ {
 		datum := data[i]
-		fmt.Printf("%-20s %f\n", g.Names[datum.index], datum.weight/wm.total)
+
+		name := strings.Clone(g.Names[datum.index])
+		if pos != -1 &&
+			hotspots.IsReSite(g.Nts[datum.index][pos:pos+SITE_LEN]) {
+			name += "*"
+		}
+
+		fmt.Printf("%-20s %f\n", name, datum.weight/wm.total)
 	}
 }
 
 type Weights struct {
 	overall WeightMap
 	perSite map[int]WeightMap
+	window  Window
 }
 
-func (w *Weights) Init() {
+func (w *Weights) Init(window Window) {
 	w.overall.Init()
 	w.perSite = make(map[int]WeightMap)
+	w.window = window
 }
 
 func (w *Weights) Update(relative, pos int, weight float64) {
@@ -242,17 +251,59 @@ func (w *Weights) Update(relative, pos int, weight float64) {
 	w.overall.Add(relative, weight)
 }
 
+type Window interface {
+	Get(pos int) int
+}
+
+type FixedWindow int
+
+func (f FixedWindow) Get(pos int) int {
+	return int(f)
+}
+
+type PerPos map[int]int
+
+type AdaptiveWindow struct {
+	g       *genomes.Genomes
+	initial int
+	algo    outgroup.Algo
+
+	// Maps postions to window sizes
+	cache map[int]int
+}
+
+func (aw *AdaptiveWindow) Init(g *genomes.Genomes,
+	initial int, algo outgroup.Algo) {
+	aw.g = g
+	aw.initial = initial
+	aw.algo = algo
+	aw.cache = make(map[int]int)
+}
+
+func (aw *AdaptiveWindow) Get(pos int) int {
+	if ret, there := aw.cache[pos]; there {
+		return ret
+	}
+	prox := outgroup.FindNumClosest(aw.g, 0,
+		pos, SITE_LEN, aw.initial, 3, aw.algo)
+	ret := prox[0].Window
+
+	aw.cache[pos] = ret
+	return ret
+}
+
 /*
 Find anywhere there is something that either is or could be silently mutated
 into a site. Each Locus contains an estimated probability that SC2 would have a
 site there after recombination and point mutation from the family members in g
 */
-func FindLoci(g *genomes.Genomes, window int, α, β float64) ([]Locus, Weights) {
+func FindLoci(g *genomes.Genomes,
+	window Window, α, β float64) ([]Locus, Weights) {
 	ret := make([]Locus, 0)
 
 	// Track which viruses contribute the most weight to the final result
 	var weights Weights
-	weights.Init()
+	weights.Init(window)
 
 	const (
 		NO_SITE = iota
@@ -291,8 +342,7 @@ func FindLoci(g *genomes.Genomes, window int, α, β float64) ([]Locus, Weights)
 
 		var locus Locus
 		locus.Init(g, alternatives,
-			α, β,
-			status == HAVE, i, window,
+			α, β, status == HAVE, i, window,
 			func(i, pos int, weight float64) {
 				weights.Update(i, pos, weight)
 			})
@@ -372,7 +422,7 @@ func LoadLoci() []Locus {
 func (w Weights) Summarize(g *genomes.Genomes) {
 	fmt.Printf("Top contributing relatives by proportion of total weight:\n")
 	fmt.Println("Overall")
-	w.overall.Summarize(g)
+	w.overall.Summarize(g, -1)
 
 	fmt.Println("Per site")
 	sites := make([]int, 0, len(w.perSite))
@@ -382,12 +432,12 @@ func (w Weights) Summarize(g *genomes.Genomes) {
 	slices.Sort(sites)
 
 	for _, pos := range sites {
-		s := "Location"
+		s := fmt.Sprintf("Location %d (window %d)", pos+1, w.window.Get(pos))
 		if hotspots.IsReSite(g.Nts[0][pos : pos+SITE_LEN]) {
 			s += "*"
 		}
-		fmt.Printf("%s %d\n", s, pos+1)
-		w.perSite[pos].Summarize(g)
+		fmt.Println(s)
+		w.perSite[pos].Summarize(g, pos)
 	}
 }
 
@@ -415,7 +465,8 @@ func pickBetaParams(prior, weight float64) (α float64, β float64) {
 func ScanBetas(g *genomes.Genomes, ratio float64, its int) {
 	for w := 1e-6; w < 1e3; w *= 10 {
 		α, β := pickBetaParams(ratio, w)
-		loci, _ := FindLoci(g, 50, α, β)
+		win := FixedWindow(50)
+		loci, _ := FindLoci(g, &win, α, β)
 		result := Montecarlo(g, loci, its, false)
 		fmt.Printf("Beta(%f, %f) %f\n", α, β, result)
 	}
@@ -423,18 +474,22 @@ func ScanBetas(g *genomes.Genomes, ratio float64, its int) {
 
 func main() {
 	var (
-		fname  string
-		ref    int
-		window int
-		mc     bool
-		beta   string
-		its    int
-		scan   float64
+		fname      string
+		ref        int
+		win        int
+		grow       bool
+		ogGrowAlgo bool
+		mc         bool
+		beta       string
+		its        int
+		scan       float64
 	)
 
 	flag.IntVar(&ref, "ref", 0, "Use different genome for the reference")
 	flag.StringVar(&fname, "fname", "HassaninPlus.fasta", "Alignment to use")
-	flag.IntVar(&window, "window", 50, "What window size to use")
+	flag.IntVar(&win, "window", 50, "What window size to use")
+	flag.BoolVar(&grow, "grow", false, "Grow the window to find 3 winners")
+	flag.BoolVar(&ogGrowAlgo, "og-algo", false, "Use OG grow algo")
 	flag.BoolVar(&mc, "mc", false, "Montecarlo")
 	flag.Float64Var(&scan,
 		"scan", 0.0, "Try different Beta for given pseudocount ratio")
@@ -461,6 +516,19 @@ func main() {
 		*/
 		ScanBetas(g, scan, its)
 		return
+	}
+
+	var window Window
+	if grow {
+		var aw AdaptiveWindow
+		algo := outgroup.KEEP_BEST
+		if ogGrowAlgo {
+			algo = outgroup.ORIGINAL
+		}
+		aw.Init(g, win, algo)
+		window = &aw
+	} else {
+		window = FixedWindow(win)
 	}
 
 	α, β := parseBeta(beta)

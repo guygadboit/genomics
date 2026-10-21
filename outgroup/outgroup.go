@@ -70,7 +70,7 @@ type Algo int
 
 // KEEP_BEST is better. ORIGINAL is what Hensel used in his paper.
 const (
-	ORIGINAL = iota
+	ORIGINAL Algo = iota
 	KEEP_BEST
 )
 
