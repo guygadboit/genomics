@@ -474,7 +474,7 @@ func pickBetaParams(μ, σ2 float64) (α float64, β float64) {
 	return
 }
 
-func ScanBetas(g *genomes.Genomes, its int) {
+func ScanBetasTime(g *genomes.Genomes, its int) {
 	for T := 1000; T >= 0; T -= 50 {
 		μ := float64(T) * 1e-4
 		σ2 := estimateVariance(μ, 100, 800)
@@ -484,6 +484,25 @@ func ScanBetas(g *genomes.Genomes, its int) {
 		result := Montecarlo(g, loci, its, false)
 		fmt.Printf("T=%dy μ=%f σ2=%f -> Beta(%f, %f): %f\n",
 			T, μ, σ2, α, β, result)
+	}
+}
+
+// Pick Beta params based on a simple weighting
+func pickBetaParamsWeight(μ, weight float64) (α float64, β float64) {
+	α = weight
+	β = weight * ((1 / μ) - 1)
+	return
+}
+
+func ScanBetasRatio(g *genomes.Genomes, ratio float64, its int) {
+	for i := 0; i < 10; i++ {
+		f := 1 << i
+		w := 1 / float64(f)
+		α, β := pickBetaParamsWeight(ratio, w)
+		win := FixedWindow(50)
+		loci, _ := FindLoci(g, &win, α, β)
+		result := Montecarlo(g, loci, its, false)
+		fmt.Printf("Beta(%f, %f) w=%f ratio=%f %f\n", α, β, w, ratio, result)
 	}
 }
 
@@ -498,6 +517,7 @@ func main() {
 		beta       string
 		its        int
 		scan       bool
+		scanR      float64
 	)
 
 	flag.IntVar(&ref, "ref", 0, "Use different genome for the reference")
@@ -507,6 +527,8 @@ func main() {
 	flag.BoolVar(&ogGrowAlgo, "og-algo", false, "Use OG grow algo")
 	flag.BoolVar(&mc, "mc", false, "Montecarlo")
 	flag.BoolVar(&scan, "scan", false, "Explore Beta function params")
+	flag.Float64Var(&scanR,
+		"scanr", 0.0, "Try different Beta for given pseudocount ratio")
 	flag.StringVar(&beta, "beta", "", "Beta Function coefficients")
 	flag.IntVar(&its, "iterations", 100000, "Montecarlo iterations")
 	flag.Parse()
@@ -519,8 +541,13 @@ func main() {
 		g.RemoveGaps(true)
 	}
 
+	if scanR != 0.0 {
+		ScanBetasRatio(g, scanR, its)
+		return
+	}
+
 	if scan {
-		ScanBetas(g, its)
+		ScanBetasTime(g, its)
 		return
 	}
 
