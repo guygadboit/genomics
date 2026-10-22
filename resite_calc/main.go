@@ -459,19 +459,31 @@ func parseBeta(s string) (float64, float64) {
 	return α, β
 }
 
-func pickBetaParams(prior, weight float64) (α float64, β float64) {
-	α = weight
-	β = weight * ((1 / prior) - 1)
+// The sample variance for picking n things out a population of N and getting a
+// rate of p
+func estimateVariance(p, n, N float64) (σ2 float64) {
+	σ2 = ((p * (1 - p)) / n) * ((N - n) / (N - 1))
 	return
 }
 
-func ScanBetas(g *genomes.Genomes, ratio float64, its int) {
-	for w := 1e-6; w < 1e3; w *= 10 {
-		α, β := pickBetaParams(ratio, w)
+// Pick Beta parameters based on your prior mean and variance
+func pickBetaParams(μ, σ2 float64) (α float64, β float64) {
+	t := (μ*(1-μ))/σ2 - 1
+	α = μ * t
+	β = (1 - μ) * t
+	return
+}
+
+func ScanBetas(g *genomes.Genomes, its int) {
+	for T := 1000; T >= 0; T -= 50 {
+		μ := float64(T) * 1e-4
+		σ2 := estimateVariance(μ, 100, 800)
+		α, β := pickBetaParams(μ, σ2)
 		win := FixedWindow(50)
 		loci, _ := FindLoci(g, &win, α, β)
 		result := Montecarlo(g, loci, its, false)
-		fmt.Printf("Beta(%f, %f) w=%f ratio=%f %f\n", α, β, w, ratio, result)
+		fmt.Printf("T=%dy μ=%f σ2=%f -> Beta(%f, %f): %f\n",
+			T, μ, σ2, α, β, result)
 	}
 }
 
@@ -485,7 +497,7 @@ func main() {
 		mc         bool
 		beta       string
 		its        int
-		scan       float64
+		scan       bool
 	)
 
 	flag.IntVar(&ref, "ref", 0, "Use different genome for the reference")
@@ -494,8 +506,7 @@ func main() {
 	flag.BoolVar(&grow, "grow", false, "Grow the window to find 3 winners")
 	flag.BoolVar(&ogGrowAlgo, "og-algo", false, "Use OG grow algo")
 	flag.BoolVar(&mc, "mc", false, "Montecarlo")
-	flag.Float64Var(&scan,
-		"scan", 0.0, "Try different Beta for given pseudocount ratio")
+	flag.BoolVar(&scan, "scan", false, "Explore Beta function params")
 	flag.StringVar(&beta, "beta", "", "Beta Function coefficients")
 	flag.IntVar(&its, "iterations", 100000, "Montecarlo iterations")
 	flag.Parse()
@@ -508,16 +519,8 @@ func main() {
 		g.RemoveGaps(true)
 	}
 
-	if scan != 0.0 {
-		/*
-			0.005 is probably right for the ratio to get a prior based on
-			50nts either side, 1e-4 silent muts per site per year, and 50
-			years. At reasonable weights it doesn't make much difference. MBW
-			reckons 1,-1 (which just adds one to the numerator) is justified.
-			That's a uniform prior which seems too high as we know these are
-			closely related sequences.
-		*/
-		ScanBetas(g, scan, its)
+	if scan {
+		ScanBetas(g, its)
 		return
 	}
 
