@@ -435,8 +435,10 @@ func (w Weights) Summarize(g *genomes.Genomes) {
 	slices.Sort(sites)
 
 	for _, pos := range sites {
-		s := fmt.Sprintf("Location %d (window %d)", pos+1, w.window.Get(pos))
-		if hotspots.IsReSite(g.Nts[0][pos : pos+SITE_LEN]) {
+		pattern := g.Nts[0][pos : pos+SITE_LEN]
+		s := fmt.Sprintf("Location %d (window %d) %s",
+			pos+1, w.window.Get(pos), string(pattern))
+		if hotspots.IsReSite(pattern) {
 			s += "*"
 		}
 		fmt.Println(s)
@@ -529,6 +531,8 @@ func main() {
 	flag.BoolVar(&scan, "scan", false, "Explore Beta function params")
 	flag.Float64Var(&scanR,
 		"scanr", 0.0, "Try different Beta for given pseudocount ratio")
+
+	// MBW using 1,79
 	flag.StringVar(&beta, "beta", "", "Beta Function coefficients")
 	flag.IntVar(&its, "iterations", 100000, "Montecarlo iterations")
 	flag.Parse()
@@ -567,10 +571,6 @@ func main() {
 	α, β := parseBeta(beta)
 	loci, weights := FindLoci(g, window, α, β)
 
-	totalP := 0.0
-	totalOff := 0.0
-	actual := 0
-
 	// Gotta do this before you sort the loci
 	if mc {
 		Montecarlo(g, loci, its, true)
@@ -581,6 +581,10 @@ func main() {
 	})
 
 	correct := make([]float64, 0)
+	totalP := 0.0
+	totalOff := 0.0
+	actual := 0
+	totalNew := 0.0
 
 	for _, locus := range loci {
 		fmt.Println(locus)
@@ -591,12 +595,16 @@ func main() {
 			totalOff += locus.P
 		}
 		totalP += locus.P
+		if locus.Count == 0 {
+			totalNew += locus.P
+		}
 	}
 	fmt.Printf(`
 Number of sites expected: %f (actual %d)
 Total of non-sites: %f
+Total of new sites: %f
 
-`, totalP, actual, totalOff)
+`, totalP, actual, totalOff, totalNew)
 
 	slices.Sort(correct)
 	slices.Reverse(correct)
