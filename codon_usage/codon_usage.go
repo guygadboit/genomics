@@ -370,7 +370,7 @@ func makeGraphData(relTrans RelTranslation, ref *CodonFreqTable,
 		}
 	}
 
-	fp.Flush()
+	fp.Close()
 	fmt.Printf("Wrote %s\n", fname)
 }
 
@@ -385,7 +385,7 @@ func writeGnuplotFile(which int, dataName string, name string) {
 	fmt.Fprintf(fp, "set output \"%d.png\"\n", which)
 	fmt.Fprintf(fp, "plot \"%s\" with lines notitle\n", dataName)
 
-	fp.Flush()
+	fp.Close()
 	fmt.Printf("Wrote %s\n", fname)
 }
 
@@ -398,7 +398,7 @@ func makeCpGGraphData(g *genomes.Genomes, pattern string, which int) {
 		fmt.Fprintln(fp, pos+1, cpgCount)
 	})
 
-	fp.Flush()
+	fp.Close()
 	fmt.Printf("Wrote %s\n", fname)
 
 	writeGnuplotFile(which, fname, g.Names[which])

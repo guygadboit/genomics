@@ -539,7 +539,6 @@ func ScanBetasRatio(g *genomes.Genomes, ratio float64, its int) {
 }
 
 func countAll(g *genomes.Genomes, window Window, α, β float64) {
-
 	for i := 0; i < g.NumGenomes(); i++ {
 		g = g.Swap(0, i)
 		loci, _ := FindLoci(g, window, α, β)
@@ -587,6 +586,10 @@ func main() {
 	if ref != 0 {
 		g = g.Swap(0, ref)
 		g.RemoveGaps(true)
+		g.SaveMulti("swapped.fasta")
+		g.Orfs.Save("swapped-orfs.fasta")
+		fmt.Println("New alignment saved to swapped.fasta "+
+		"and swapped-orfs.fasta")
 	}
 
 	if scanR != 0.0 {
