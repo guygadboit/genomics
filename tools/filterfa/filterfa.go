@@ -70,11 +70,13 @@ func main() {
 		include, exclude, outName string
 		summary, ss, sss, ess     bool
 		removeGaps                bool
+		removeGaps2               bool
 		protein                   bool
 		dedupe                    bool
 		densestFirst              bool
 		ref                       int
 		removePartial             int
+		orfs                      string
 	)
 
 	flag.StringVar(&include, "i", "", "Genomes to include")
@@ -84,6 +86,7 @@ func main() {
 	flag.BoolVar(&sss, "sss", false, "Sorted similiarity summary")
 	flag.BoolVar(&ess, "ess", false, "Exhaustive similarity summary")
 	flag.BoolVar(&removeGaps, "g", false, "Remove Gaps")
+	flag.BoolVar(&removeGaps2, "gg", false, "Remove Gaps and output new ORFs")
 	flag.BoolVar(&protein, "p", false, "Input is a protein")
 	flag.StringVar(&outName, "o", "filtered.fasta", "Output filename")
 	flag.BoolVar(&dedupe, "dd", false, "Remove duplicates")
@@ -91,9 +94,14 @@ func main() {
 	flag.IntVar(&ref, "ref", 0, "Reference for similarity summary")
 	flag.IntVar(&removePartial,
 		"rp", -1, "Remove genomes with more than this many Ns")
+	flag.StringVar(&orfs, "orfs", "", "ORFs. Needed for gg")
 	flag.Parse()
 
-	g := genomes.LoadGenomes(flag.Arg(0), "", false)
+	if removeGaps2 && orfs == "" {
+		log.Fatal("I need orfs for gg")
+	}
+
+	g := genomes.LoadGenomes(flag.Arg(0), orfs, false)
 
 	if summary {
 		fmt.Printf("%d nucleotides\n", g.Length())
@@ -142,7 +150,11 @@ func main() {
 	} else {
 		g2 = g
 	}
-	if removeGaps {
+	if removeGaps2 {
+		g2.RemoveGaps(true)
+		g2.Orfs.Save("filtered.orfs")
+		fmt.Println("Wrote filtered.orfs")
+	} else if removeGaps {
 		g2.RemoveGaps(false)
 	}
 	if dedupe {
