@@ -1,9 +1,9 @@
 package utils
 
 import (
+	"cmp"
 	"slices"
 	"sort"
-	"cmp"
 )
 
 type sorter struct {

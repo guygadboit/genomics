@@ -1,9 +1,9 @@
 package utils
 
 type PatternIterator struct {
-	Limit		int		// the limit of each counter (we go < limit)
-	Counters	[]int	// the "digits" on the "odometer"
-	atEnd		bool
+	Limit    int   // the limit of each counter (we go < limit)
+	Counters []int // the "digits" on the "odometer"
+	atEnd    bool
 }
 
 func (p *PatternIterator) Init(limit, numCounters int) {

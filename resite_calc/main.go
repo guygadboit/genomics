@@ -422,6 +422,36 @@ func LoadLoci() []Locus {
 	return ret
 }
 
+type Counts struct {
+	correct  []float64 // P for correctly predicted sites
+	totalP   float64
+	totalOff float64 // total P in places that aren't actually sites
+	totalOn  float64 // total P in places that are
+	actual   int     // number of actual sites
+	totalNew float64 // total number of sites not shared by any originals
+	success  float64 // total P for predicted sites / actual number
+}
+
+func (c *Counts) Init(loci []Locus) {
+	c.correct = make([]float64, 0)
+	for _, locus := range loci {
+		if locus.SC2 {
+			c.correct = append(c.correct, locus.P)
+			c.totalOn += locus.P
+			c.actual++
+		} else {
+			c.totalOff += locus.P
+		}
+		c.totalP += locus.P
+		if locus.Count == 0 {
+			c.totalNew += locus.P
+		}
+	}
+	slices.Sort(c.correct)
+	slices.Reverse(c.correct)
+	c.success = c.totalOn / float64(c.actual)
+}
+
 func (w Weights) Summarize(g *genomes.Genomes) {
 	fmt.Printf("Top contributing relatives by proportion of total weight:\n")
 	fmt.Println("Overall")
@@ -580,38 +610,24 @@ func main() {
 		return l.P
 	})
 
-	correct := make([]float64, 0)
-	totalP := 0.0
-	totalOff := 0.0
-	actual := 0
-	totalNew := 0.0
-
 	for _, locus := range loci {
 		fmt.Println(locus)
-		if locus.SC2 {
-			correct = append(correct, locus.P)
-			actual++
-		} else {
-			totalOff += locus.P
-		}
-		totalP += locus.P
-		if locus.Count == 0 {
-			totalNew += locus.P
-		}
 	}
+
+	var c Counts
+	c.Init(loci)
+
 	fmt.Printf(`
 Number of sites expected: %f (actual %d)
 Total of non-sites: %f
 Total of new sites: %f
+Overall prediction success: %f
 
-`, totalP, actual, totalOff, totalNew)
-
-	slices.Sort(correct)
-	slices.Reverse(correct)
+`, c.totalP, c.actual, c.totalOff, c.totalNew, c.success)
 
 	fmt.Println("Prediction success of actual sites (per site and cumulative)")
 	success := 1.0
-	for i, p := range correct {
+	for i, p := range c.correct {
 		success *= p
 		fmt.Printf("%d: %f %f\n", i+1, p, success)
 	}

@@ -4,9 +4,11 @@ import (
 	"bufio"
 	"cmp"
 	"compress/gzip"
+	"errors"
 	"fmt"
 	"io"
 	"log"
+	"math"
 	"math/rand"
 	"os"
 	"path/filepath"
@@ -14,8 +16,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"errors"
-	"math"
 )
 
 // Let's use this type for OneBased positions and regular ints for zero based.
@@ -415,15 +415,15 @@ func Abs(n int) int {
 }
 
 func SolveQuadratic(a, b, c float64) (float64, float64, error) {
-	t := b*b - 4*a*c;
-    if t <= 0.0 {
+	t := b*b - 4*a*c
+	if t <= 0.0 {
 		return 0, 0, errors.New("No real number solutions")
 	}
 
 	q := math.Sqrt(t)
 
-	sol1 := (-b + q) / (2*a)
-	sol2 := (-b - q) / (2*a)
+	sol1 := (-b + q) / (2 * a)
+	sol2 := (-b - q) / (2 * a)
 
-    return sol1, sol2, nil
+	return sol1, sol2, nil
 }
