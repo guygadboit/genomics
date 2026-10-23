@@ -538,6 +538,18 @@ func ScanBetasRatio(g *genomes.Genomes, ratio float64, its int) {
 	}
 }
 
+func countAll(g *genomes.Genomes, window Window, α, β float64) {
+
+	for i := 0; i < g.NumGenomes(); i++ {
+		g = g.Swap(0, i)
+		loci, _ := FindLoci(g, window, α, β)
+		var c Counts
+		c.Init(loci)
+		fmt.Printf("%s: %f\n", g.Names[0], c.success)
+		g = g.Swap(i, 0)
+	}
+}
+
 func main() {
 	var (
 		fname      string
@@ -550,6 +562,7 @@ func main() {
 		its        int
 		scan       bool
 		scanR      float64
+		countall   bool
 	)
 
 	flag.IntVar(&ref, "ref", 0, "Use different genome for the reference")
@@ -565,6 +578,7 @@ func main() {
 	// MBW using 1,79
 	flag.StringVar(&beta, "beta", "", "Beta Function coefficients")
 	flag.IntVar(&its, "iterations", 100000, "Montecarlo iterations")
+	flag.BoolVar(&countall, "countall", false, "Count all")
 	flag.Parse()
 
 	g := genomes.LoadGenomes(path.Join("../fasta", fname),
@@ -599,6 +613,12 @@ func main() {
 	}
 
 	α, β := parseBeta(beta)
+
+	if countall {
+		countAll(g, window, α, β)
+		return
+	}
+
 	loci, weights := FindLoci(g, window, α, β)
 
 	// Gotta do this before you sort the loci
