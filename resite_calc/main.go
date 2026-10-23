@@ -21,6 +21,41 @@ import (
 
 const SITE_LEN = 6
 
+var controlSites [][]byte
+
+func makeControlSites() {
+	controlSites = make([][]byte, 4)
+	a := utils.RandomNts(6)
+	b := utils.RandomNts(6)
+
+	controlSites[0] = a
+	controlSites[1] = utils.ReverseComplement(a)
+	controlSites[2] = b
+	controlSites[3] = utils.ReverseComplement(b)
+
+	/*
+		for _, site := range controlSites {
+			fmt.Println(string(site))
+		}
+	*/
+}
+
+func isControlSite(pattern []byte) bool {
+	for _, site := range controlSites {
+		if reflect.DeepEqual(pattern, site) {
+			return true
+		}
+	}
+	return false
+}
+
+func isReSite(pattern []byte) bool {
+	if controlSites != nil {
+		return isControlSite(pattern)
+	}
+	return hotspots.IsReSite(pattern)
+}
+
 // Represents anywhere you might end up with a site because somebody in the set
 // has one.
 type Locus struct {
@@ -93,7 +128,7 @@ func (l *Locus) Init(g *genomes.Genomes,
 	l.AltCount = len(alternatives)
 
 	for i := 1; i < g.NumGenomes(); i++ {
-		if hotspots.IsReSite(g.Nts[i][pos : pos+SITE_LEN]) {
+		if isReSite(g.Nts[i][pos : pos+SITE_LEN]) {
 			l.Count++
 		}
 		if reflect.DeepEqual(g.Nts[i][pos:pos+SITE_LEN],
@@ -126,7 +161,7 @@ func (l *Locus) Init(g *genomes.Genomes,
 			}
 		}
 
-		haveSite := hotspots.IsReSite(have)
+		haveSite := isReSite(have)
 		if haveSite {
 			l.Count++
 		}
@@ -171,7 +206,7 @@ func (l *Locus) Init(g *genomes.Genomes,
 			// for example)
 			if alternatives.Contains(have) {
 				for _, alt := range alternatives {
-					if hotspots.IsReSite(alt.Nts) {
+					if isReSite(alt.Nts) {
 						n := outgroup.CompareRegion(alt.Nts, have, 0, SITE_LEN)
 						m := SITE_LEN - n
 
@@ -220,7 +255,7 @@ func (wm WeightMap) Summarize(g *genomes.Genomes, pos int) {
 
 		name := strings.Clone(g.Names[datum.index])
 		if pos != -1 &&
-			hotspots.IsReSite(g.Nts[datum.index][pos:pos+SITE_LEN]) {
+			isReSite(g.Nts[datum.index][pos:pos+SITE_LEN]) {
 			name += "*"
 		}
 
@@ -317,7 +352,7 @@ func FindLoci(g *genomes.Genomes,
 	for i := 0; i < g.Length()-SITE_LEN; i++ {
 		var status int
 
-		if hotspots.IsReSite(g.Nts[0][i : i+SITE_LEN]) {
+		if isReSite(g.Nts[0][i : i+SITE_LEN]) {
 			status = HAVE
 		}
 
@@ -332,7 +367,7 @@ func FindLoci(g *genomes.Genomes,
 
 		if status == NO_SITE {
 			for _, alt := range alternatives {
-				if hotspots.IsReSite(alt.Nts) {
+				if isReSite(alt.Nts) {
 					status = HAVE_ALT
 					break
 				}
@@ -468,7 +503,7 @@ func (w Weights) Summarize(g *genomes.Genomes) {
 		pattern := g.Nts[0][pos : pos+SITE_LEN]
 		s := fmt.Sprintf("Location %d (window %d) %s",
 			pos+1, w.window.Get(pos), string(pattern))
-		if hotspots.IsReSite(pattern) {
+		if isReSite(pattern) {
 			s += "*"
 		}
 		fmt.Println(s)
@@ -549,6 +584,16 @@ func countAll(g *genomes.Genomes, window Window, α, β float64) {
 	}
 }
 
+func randomSites(g *genomes.Genomes, window Window, α, β float64) {
+	for i := 0; i < 100; i++ {
+		makeControlSites()
+		loci, _ := FindLoci(g, window, α, β)
+		var c Counts
+		c.Init(loci)
+		fmt.Printf("%f\n", c.success)
+	}
+}
+
 func main() {
 	var (
 		fname      string
@@ -562,6 +607,7 @@ func main() {
 		scan       bool
 		scanR      float64
 		countall   bool
+		randomize  bool
 	)
 
 	flag.IntVar(&ref, "ref", 0, "Use different genome for the reference")
@@ -578,6 +624,7 @@ func main() {
 	flag.StringVar(&beta, "beta", "", "Beta Function coefficients")
 	flag.IntVar(&its, "iterations", 100000, "Montecarlo iterations")
 	flag.BoolVar(&countall, "countall", false, "Count all")
+	flag.BoolVar(&randomize, "random", false, "Try random control sites")
 	flag.Parse()
 
 	g := genomes.LoadGenomes(path.Join("../fasta", fname),
@@ -588,8 +635,8 @@ func main() {
 		g.RemoveGaps(true)
 		g.SaveMulti("swapped.fasta")
 		g.Orfs.Save("swapped-orfs.fasta")
-		fmt.Println("New alignment saved to swapped.fasta "+
-		"and swapped-orfs.fasta")
+		fmt.Println("New alignment saved to swapped.fasta " +
+			"and swapped-orfs.fasta")
 	}
 
 	if scanR != 0.0 {
@@ -619,6 +666,11 @@ func main() {
 
 	if countall {
 		countAll(g, window, α, β)
+		return
+	}
+
+	if randomize {
+		randomSites(g, window, α, β)
 		return
 	}
 
