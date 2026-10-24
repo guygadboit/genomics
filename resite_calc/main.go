@@ -114,7 +114,7 @@ func countMuts(a, b []byte) int {
 func (l *Locus) Init(g *genomes.Genomes,
 	alternatives genomes.Alternatives,
 	α, β float64, have0 bool, pos int, window Window,
-	weightCb func(i, pos int, weight, pMut float64)) {
+	weightCb func(i, pos int, weight, pMut float64, numMuts int)) {
 
 	// Put what SC2 has in as the first alternative so it's just a complete
 	// set.
@@ -179,7 +179,7 @@ func (l *Locus) Init(g *genomes.Genomes,
 				l.P += 1.0
 			}
 			if weightCb != nil {
-				weightCb(i, pos, 1.0, pMut)
+				weightCb(i, pos, 1.0, pMut, 0)
 			}
 			totalWeight += 1.0
 			continue
@@ -188,7 +188,7 @@ func (l *Locus) Init(g *genomes.Genomes,
 		// Downweight this result by how distant the relative is in this region
 		weight := math.Pow(pMut, float64(totalActual))
 		if weightCb != nil {
-			weightCb(i, pos, weight, pMut)
+			weightCb(i, pos, weight, pMut, totalActual)
 		}
 
 		// Now factor in the probability of keeping or losing the site due to
@@ -224,17 +224,22 @@ func (l *Locus) Init(g *genomes.Genomes,
 	l.P /= totalWeight
 }
 
+type MutRate struct {
+	rate    float64
+	numMuts int
+}
+
 // We have an overall one of these and one per site
 type WeightMap struct {
 	// Maps relatives to weight
 	entries  map[int]float64
-	mutRates map[int]float64
+	mutRates map[int]MutRate
 	total    float64
 }
 
 func (wm *WeightMap) Init() {
 	wm.entries = make(map[int]float64)
-	wm.mutRates = make(map[int]float64)
+	wm.mutRates = make(map[int]MutRate)
 }
 
 func NewWeightMap() *WeightMap {
@@ -243,10 +248,10 @@ func NewWeightMap() *WeightMap {
 	return &ret
 }
 
-func (wm *WeightMap) Add(relative int, weight, pMut float64) {
+func (wm *WeightMap) Add(relative int, weight, pMut float64, numMuts int) {
 	wm.entries[relative] += weight
 	wm.total += weight
-	wm.mutRates[relative] = pMut
+	wm.mutRates[relative] = MutRate{pMut, numMuts}
 }
 
 func (wm WeightMap) Summarize(g *genomes.Genomes, pos int) {
@@ -271,10 +276,11 @@ func (wm WeightMap) Summarize(g *genomes.Genomes, pos int) {
 		}
 
 		pMut := wm.mutRates[datum.index]
-		if pMut == -1 {
+		if pMut.rate == -1 {
 			fmt.Printf("%-20s %f\n", name, datum.weight/wm.total)
 		} else {
-			fmt.Printf("%-20s %f %f\n", name, datum.weight/wm.total, pMut)
+			fmt.Printf("%-20s %f %d %f\n", name, datum.weight/wm.total,
+				pMut.numMuts, pMut.rate)
 		}
 	}
 }
@@ -291,12 +297,12 @@ func (w *Weights) Init(window Window) {
 	w.window = window
 }
 
-func (w *Weights) Update(relative, pos int, weight, pMut float64) {
+func (w *Weights) Update(relative, pos int, weight, pMut float64, numMuts int) {
 	if _, there := w.perSite[pos]; !there {
 		w.perSite[pos] = NewWeightMap()
 	}
-	w.perSite[pos].Add(relative, weight, pMut)
-	w.overall.Add(relative, weight, -1)
+	w.perSite[pos].Add(relative, weight, pMut, numMuts)
+	w.overall.Add(relative, weight, -1, 0)
 }
 
 type Window interface {
@@ -391,8 +397,8 @@ func FindLoci(g *genomes.Genomes,
 		var locus Locus
 		locus.Init(g, alternatives,
 			α, β, status == HAVE, i, window,
-			func(i, pos int, weight, pMut float64) {
-				weights.Update(i, pos, weight, pMut)
+			func(i, pos int, weight, pMut float64, numMuts int) {
+				weights.Update(i, pos, weight, pMut, numMuts)
 			})
 		ret = append(ret, locus)
 	}
