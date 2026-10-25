@@ -113,7 +113,7 @@ func countMuts(a, b []byte) int {
 
 func (l *Locus) Init(g *genomes.Genomes,
 	alternatives genomes.Alternatives,
-	α, β float64, have0 bool, pos int, window Window,
+	α, β float64, have0 bool, pos int, window Window, censor bool,
 	weightCb func(i, pos int, weight, pMut float64, numMuts int)) {
 
 	// Put what SC2 has in as the first alternative so it's just a complete
@@ -145,12 +145,17 @@ func (l *Locus) Init(g *genomes.Genomes,
 		start := max(0, pos-win)
 		end := min(g.Length(), pos+SITE_LEN+win)
 
-		possBefore := mutations.PossibleSilentMutsRegion(g, i, start, pos)
-		possAfter := mutations.PossibleSilentMutsRegion(g, i, pos+SITE_LEN, end)
-		possibleMuts := make([]mutations.Mutation,
-			0, len(possBefore)+len(possAfter))
-		possibleMuts = append(possibleMuts, possBefore...)
-		possibleMuts = append(possibleMuts, possAfter...)
+		var possibleMuts []mutations.Mutation
+		if censor {
+			possBefore := mutations.PossibleSilentMutsRegion(g, i, start, pos)
+			possAfter := mutations.PossibleSilentMutsRegion(g, i, pos+SITE_LEN, end)
+			possibleMuts = make([]mutations.Mutation,
+				0, len(possBefore)+len(possAfter))
+			possibleMuts = append(possibleMuts, possBefore...)
+			possibleMuts = append(possibleMuts, possAfter...)
+		} else {
+			possibleMuts = mutations.PossibleSilentMutsRegion(g, i, start, end)
+		}
 
 		// Of all the possible silent mutations in the region, how many are
 		// actually there?
@@ -352,7 +357,7 @@ into a site. Each Locus contains an estimated probability that SC2 would have a
 site there after recombination and point mutation from the family members in g
 */
 func FindLoci(g *genomes.Genomes,
-	window Window, α, β float64) ([]Locus, Weights) {
+	window Window, censor bool, α, β float64) ([]Locus, Weights) {
 	ret := make([]Locus, 0)
 
 	// Track which viruses contribute the most weight to the final result
@@ -396,7 +401,7 @@ func FindLoci(g *genomes.Genomes,
 
 		var locus Locus
 		locus.Init(g, alternatives,
-			α, β, status == HAVE, i, window,
+			α, β, status == HAVE, i, window, censor,
 			func(i, pos int, weight, pMut float64, numMuts int) {
 				weights.Update(i, pos, weight, pMut, numMuts)
 			})
@@ -563,7 +568,7 @@ func ScanBetasTime(g *genomes.Genomes, its int) {
 		σ2 := estimateVariance(μ, 100, 800)
 		α, β := pickBetaParams(μ, σ2)
 		win := FixedWindow(50)
-		loci, _ := FindLoci(g, &win, α, β)
+		loci, _ := FindLoci(g, &win, true, α, β)
 		result := Montecarlo(g, loci, its, false)
 		fmt.Printf("T=%dy μ=%f σ2=%f -> Beta(%f, %f): %f\n",
 			T, μ, σ2, α, β, result)
@@ -583,7 +588,7 @@ func ScanBetasRatio(g *genomes.Genomes, ratio float64, its int) {
 		w := 1 / float64(f)
 		α, β := pickBetaParamsWeight(ratio, w)
 		win := FixedWindow(50)
-		loci, _ := FindLoci(g, &win, α, β)
+		loci, _ := FindLoci(g, &win, true, α, β)
 		result := Montecarlo(g, loci, its, false)
 		fmt.Printf("Beta(%f, %f) w=%f ratio=%f %f\n", α, β, w, ratio, result)
 	}
@@ -592,7 +597,7 @@ func ScanBetasRatio(g *genomes.Genomes, ratio float64, its int) {
 func countAll(g *genomes.Genomes, window Window, α, β float64) {
 	for i := 0; i < g.NumGenomes(); i++ {
 		g = g.Swap(0, i)
-		loci, _ := FindLoci(g, window, α, β)
+		loci, _ := FindLoci(g, window, true, α, β)
 		var c Counts
 		c.Init(loci)
 		fmt.Printf("%s: %f %f\n", g.Names[0], c.success, c.totalOff)
@@ -603,7 +608,7 @@ func countAll(g *genomes.Genomes, window Window, α, β float64) {
 func randomSites(g *genomes.Genomes, window Window, α, β float64) {
 	for i := 0; i < 100; i++ {
 		makeControlSites()
-		loci, _ := FindLoci(g, window, α, β)
+		loci, _ := FindLoci(g, window, true, α, β)
 		var c Counts
 		c.Init(loci)
 		fmt.Printf("%f %f\n", c.success, c.totalOff)
@@ -624,6 +629,7 @@ func main() {
 		scanR      float64
 		countall   bool
 		randomize  bool
+		censor     bool
 	)
 
 	flag.IntVar(&ref, "ref", 0, "Use different genome for the reference")
@@ -641,6 +647,7 @@ func main() {
 	flag.IntVar(&its, "iterations", 100000, "Montecarlo iterations")
 	flag.BoolVar(&countall, "countall", false, "Count all")
 	flag.BoolVar(&randomize, "random", false, "Try random control sites")
+	flag.BoolVar(&censor, "censor", true, "Mask out the sites themselves")
 	flag.Parse()
 
 	g := genomes.LoadGenomes(path.Join("../fasta", fname),
@@ -690,7 +697,7 @@ func main() {
 		return
 	}
 
-	loci, weights := FindLoci(g, window, α, β)
+	loci, weights := FindLoci(g, window, censor, α, β)
 
 	// Gotta do this before you sort the loci
 	if mc {
