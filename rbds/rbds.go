@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"genomics/genomes"
 	"genomics/utils"
@@ -45,7 +46,7 @@ func PrintComparisons(c []Comparison, g *genomes.Genomes, caption string) {
 func PrintNtComparisons(c []NtComparison,
 	g *genomes.Genomes, caption string) NtComparison {
 	slices.SortFunc(c, func(a, b NtComparison) int {
-		ar, br := a.SNRatio(), b.SNRatio()
+		ar, br := a.similarity, b.similarity
 		if ar < br {
 			return 1
 		}
@@ -167,6 +168,11 @@ func MakeChimera(g *genomes.Genomes) *genomes.Genomes {
 }
 
 func main() {
+	var ref int
+
+	flag.IntVar(&ref, "ref", -1, "Use different genome for the reference")
+	flag.Parse()
+
 	g := genomes.LoadGenomes("../fasta/SARS2-relatives-short-names.fasta",
 		"../fasta/WH1.orfs", false)
 
@@ -177,17 +183,22 @@ func main() {
 	// rbd := []utils.OneBasedPos{333, 679}
 	rbm := []utils.OneBasedPos{438, 506}
 
-	for ref := 0; ref < g.NumGenomes(); ref++ {
-		/*
-			fmt.Println("RBD")
-			Compare(g.Clone(), ref, SPIKE_START, rbd[0], rbd[1], false)
-		*/
+	compare := func(ref int) {
+		fmt.Println("RBD")
+		Compare(g.Clone(), ref, SPIKE_START, rbd[0], rbd[1], false)
+		Compare(g.Clone(), ref, SPIKE_START, rbd[0], rbd[1], true)
 
 		fmt.Println("RBM")
 		Compare(g.Clone(), ref, SPIKE_START, rbm[0], rbm[1], false)
+		Compare(g.Clone(), ref, SPIKE_START, rbm[0], rbm[1], true)
+	}
 
-		// Just look at the closest to SC2
-		// break
+	if ref == -1 {
+		for i := 0; i < g.NumGenomes(); i++ {
+			compare(i)
+		}
+	} else {
+		compare(ref)
 	}
 
 	return
