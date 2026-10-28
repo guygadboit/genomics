@@ -314,7 +314,7 @@ fname is the file you just created with GraphData above. If savePng create a
 png file, otherwise run it interactively with --persist
 */
 func (c *Comparison) RunGnuplot(fname string,
-	extraContent string, transitions bool, savePng bool) {
+	extraContent string, transitions bool, ymax int, savePng bool) {
 	baseName := utils.BaseName(fname)
 	gpName := baseName + ".gpi"
 	defer os.Remove(gpName)
@@ -346,7 +346,12 @@ func (c *Comparison) RunGnuplot(fname string,
 	fmt.Fprintf(w, `
 set title "%s vs %s"
 set xlabel "nucleotide offset"
-set ylabel "count"`, cleanName(g.Names[c.A]), cleanName(g.Names[c.B]))
+set ylabel "count"
+`, cleanName(g.Names[c.A]), cleanName(g.Names[c.B]))
+
+	if ymax != 0 {
+		fmt.Fprintf(w, "set yrange [0:%d]\n", ymax)
+	}
 
 	if savePng {
 		pngName := utils.BaseName(fname) + ".png"
