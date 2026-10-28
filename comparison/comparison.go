@@ -226,18 +226,26 @@ type PosSet map[int]bool
 
 type Count struct {
 	S, NS, Ins, Del int // cumulative counts
+	CT, TC          int
 	NSRatio         float64
 }
 
 func (c *Comparison) CumulativeCounts(cb func(c Count, cc Count)) {
 	silent := make(PosSet)
 	nonSilent := make(PosSet)
+	ctSet := make(PosSet)
+	tcSet := make(PosSet)
 	for _, m := range c.NtMuts {
 		switch m.Silence {
 		case utils.NON_SILENT:
 			nonSilent[m.Pos] = true
 		case utils.SILENT:
 			silent[m.Pos] = true
+			if m.A == 'C' && m.B == 'T' {
+				ctSet[m.Pos] = true
+			} else if m.A == 'T' && m.B == 'C' {
+				tcSet[m.Pos] = true
+			}
 		}
 	}
 
@@ -246,15 +254,29 @@ func (c *Comparison) CumulativeCounts(cb func(c Count, cc Count)) {
 
 	g := c.Genomes
 
-	var s, ns, ins, del int
-	var nsRatio float64
+	var (
+		s, ns, ins, del int
+		ct, tc          int
+		nsRatio         float64
+	)
 
 	for i := 0; i < g.Length(); i++ {
-		var deltaS, deltaNS, deltaIns, deltaDel int
+		var (
+			deltaS, deltaNS, deltaIns, deltaDel int
+			deltaCT, deltaTC                    int
+		)
 
 		if silent[i] {
 			deltaS = 1
 			s++
+			if ctSet[i] {
+				deltaCT = 1
+				ct++
+			} else if tcSet[i] {
+				deltaTC = 1
+				tc++
+			}
+
 		} else if nonSilent[i] {
 			deltaNS = 1
 			ns++
@@ -269,8 +291,8 @@ func (c *Comparison) CumulativeCounts(cb func(c Count, cc Count)) {
 			nsRatio = float64(ns) / float64(s)
 		}
 
-		cb(Count{deltaS, deltaNS, deltaIns, deltaDel, 0.0},
-			Count{s, ns, ins, del, nsRatio})
+		cb(Count{deltaS, deltaNS, deltaIns, deltaDel, deltaCT, deltaTC, 0.0},
+			Count{s, ns, ins, del, ct, tc, nsRatio})
 	}
 }
 
@@ -280,7 +302,8 @@ func (c *Comparison) GraphData(fname string) {
 
 	c.CumulativeCounts(func(c Count, d Count) {
 		// The ratio goes in the data file but isn't plotted by default
-		fmt.Fprintf(w, "%d %d %d %d %.4f\n", d.S, d.NS, d.Ins, d.Del, d.NSRatio)
+		fmt.Fprintf(w, "%d %d %d %d %d %d %.4f\n",
+			d.S, d.NS, d.Ins, d.Del, d.CT, d.TC, d.NSRatio)
 	})
 
 	w.Close()
@@ -291,7 +314,7 @@ fname is the file you just created with GraphData above. If savePng create a
 png file, otherwise run it interactively with --persist
 */
 func (c *Comparison) RunGnuplot(fname string,
-	extraContent string, savePng bool) {
+	extraContent string, transitions bool, savePng bool) {
 	baseName := utils.BaseName(fname)
 	gpName := baseName + ".gpi"
 	defer os.Remove(gpName)
@@ -339,8 +362,16 @@ set output "%s"
 plot "%s" using 1 title "silent" with lines, \
 	"%s" using 2 title "non-silent" with lines, \
 	"%s" using 3 title "insertions" with lines, \
-	"%s" using 4 title "deletions" with lines
-`, fname, fname, fname, fname)
+	"%s" using 4 title "deletions" with lines`,
+		fname, fname, fname, fname)
+
+	if transitions {
+		fmt.Fprintf(w, `, \
+"%s" using 5 title "C->T" with lines, \
+"%s" using 6 title "T->C" with lines`, fname, fname)
+	}
+
+	fmt.Fprintf(w, "\n")
 	w.Flush()
 
 	var cmd *exec.Cmd
@@ -352,7 +383,7 @@ plot "%s" using 1 title "silent" with lines, \
 	}
 	err = cmd.Run()
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
+		fmt.Fprintln(os.Stderr, "GNUPlot error:", err)
 	}
 }
 
